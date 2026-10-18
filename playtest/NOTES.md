@@ -14,6 +14,9 @@
 - `tests/playtest-kapitel1-struktur.js` entfernt (prüfte Ressourcen/Anlagen als Platzhalter) – ersetzt durch `playtest-kapitel2.js`.
 - Gefunden & behoben: Umgebungsvariable `BROWSER` ist auf der Box vorbelegt → Playtests nutzen jetzt `PLAYTEST_BROWSER`;
   Knopf „Zu den Anlagen“ wurde auch auf der Anlagen-Seite angezeigt → dort ausgeblendet.
+- **Live** (https://unexist2010.github.io/sternenspiel/, nach Deploy von f471f8d, Pages ab 00:44 Uhr mit 0.6.0):
+  `playtest-kapitel2.js` Chromium 118/118; Firefox 3 von 4 Läufen 118/118, ein Lauf 117/118 (einmaliger Konsolen-/Netzfehler,
+  nicht reproduzierbar); `playtest-kapitel1-profile.js` Chromium + Firefox 134/134.
 - Screenshots: `kapitel2-desktop-anlagen.png`, `kapitel2-desktop-ressourcen.png`, `kapitel2-desktop-uebersicht.png`,
   `kapitel2-handy-anlagen.png`, `kapitel2-raumflughafen.png` (Desktop), `kapitel2-handy-raumflughafen.png`.
 
