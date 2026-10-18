@@ -1,8 +1,11 @@
 /*
  * Sternenspiel – Spielstand (Datenmodell).
  * Der Spielstand ist ein reines JSON-Objekt (speicherbar in localStorage).
- * Felder für spätere Kapitel sind bereits angelegt (leer), damit Gebäude,
- * Forschung, Schiffe, Kampf und KI-Ereignisse ohne Formatbruch andocken können.
+ * Felder für spätere Kapitel sind bereits angelegt (leer), damit Anlagen, Forschung,
+ * Schiffe, Startplätze/Flotten, Kampf und KI-Ereignisse ohne Formatbruch andocken können.
+ *
+ * Versionen: v1 Startplatz-Wahl A–Z · v2 + Heimatplanet/Freischaltungen ·
+ *            v3 automatischer Start auf einem Hauptplaneten, Startplätze = Flotten-Startplattformen (A–J)
  */
 (function (g) {
   "use strict";
@@ -15,20 +18,20 @@
     return m;
   }
 
-  function heimatplanet(buchstabe, wunschname) {
-    var k = SS.DATEN.weltraum.heimatFuerStartplatz(buchstabe);
-    var p = SS.DATEN.weltraum.planet(k.system, k.planet);
-    var name = String(wunschname || "").trim().slice(0, 24) || p.name;
+  /** Hauptplanet auf zufälliger Koordinate (ANNAHME). */
+  function hauptplanet(wunschname, zufallFn) {
+    var W = SS.DATEN.weltraum;
+    var k = W.zufaelligeKoordinate(zufallFn);
+    var name = String(wunschname || "").trim().slice(0, 24) || W.planet(k.system, k.planet).name;
     return { sektor: k.sektor, system: k.system, planet: k.planet, name: name };
   }
 
   /**
-   * Erstellt einen neuen Spielstand.
-   * @param {{name?:string, planetName?:string, startplatz:string, jetzt:number}} opt
+   * Erstellt einen neuen Spielstand – ohne jede Auswahl, direkt auf einem Hauptplaneten.
+   * @param {{name?:string, planetName?:string, jetzt:number, zufall?:function():number}} opt
    */
   function neuerSpielstand(opt) {
-    var sp = SS.DATEN.startplatzNachBuchstabe(opt && opt.startplatz);
-    if (!sp) throw new Error("Unbekannter Startplatz: " + (opt && opt.startplatz));
+    opt = opt || {};
     var jetzt = Number(opt.jetzt);
     if (!isFinite(jetzt)) throw new Error("Zeitpunkt fehlt");
     var name = String((opt.name || "").trim() || "Kommandant").slice(0, 24);
@@ -36,14 +39,15 @@
       version: SS.BALANCE.SPIELSTAND_VERSION,
       name: name,
       erstelltAm: jetzt,
-      startplatz: { buchstabe: sp.buchstabe, stufe: sp.stufe, schwerpunkt: sp.schwerpunkt },
-      heimat: heimatplanet(sp.buchstabe, opt.planetName), // Sektor:System:Planet (ANNAHME-Zuordnung über Startplatz)
-      freigeschaltet: { antimaterie: false },             // FEST: Antimaterie versteckt bis zur Freischaltung
+      heimat: hauptplanet(opt.planetName, opt.zufall), // Hauptplanet: Sektor:System:Planet
+      freigeschaltet: { antimaterie: false },          // FEST: Antimaterie versteckt bis zur Freischaltung
       rohstoffe: rohstoffMap(SS.BALANCE.STARTBESTAND),
       zeit: { letzterTick: jetzt, zuletztGespeichert: null },
       statistik: { produziertGesamt: rohstoffMap(null), offlineMsGesamt: 0 },
 
-      // --- Andockpunkte für spätere Kapitel (in Kapitel 1 leer) ---
+      // --- Andockpunkte für spätere Kapitel (in Kapitel 1 ohne Logik) ---
+      startplaetze: SS.DATEN.startplaetzeAnfang(), // Kapitel 6: Flotten-Startplattformen A–J (ANNAHME: A Stufe 1 frei)
+      punkte: 0,             // Kapitel 6/7: Grundlage für die Freischaltung weiterer Startplätze
       gebaeude: {},          // Kapitel 2: { geologiestation: { stufe: 0 }, … }
       lagerstaetten: null,   // Kapitel 2: Ergebnis der Geologiestation
       forschung: {},         // Kapitel 3
@@ -55,39 +59,54 @@
     };
   }
 
-  /** Prüft grob, ob ein Objekt ein gültiger Spielstand ist. */
+  /** Prüft grob, ob ein Objekt ein ladbarer Spielstand ist (auch ältere Versionen). */
   function istGueltig(z) {
     if (!z || typeof z !== "object") return false;
     if (typeof z.version !== "number") return false;
-    if (!z.startplatz || !SS.DATEN.startplatzNachBuchstabe(z.startplatz.buchstabe)) return false;
     if (!z.rohstoffe || typeof z.rohstoffe !== "object") return false;
     if (!z.zeit || !isFinite(z.zeit.letzterTick)) return false;
     return true;
   }
 
+  function startplaetzeBereinigen(liste) {
+    var K = SS.BALANCE.STARTPLAETZE;
+    var anfang = SS.DATEN.startplaetzeAnfang();
+    if (!Array.isArray(liste)) return anfang;
+    return anfang.map(function (sp) {
+      var alt = null;
+      for (var i = 0; i < liste.length; i++) if (liste[i] && liste[i].buchstabe === sp.buchstabe) alt = liste[i];
+      if (!alt) return sp;
+      var frei = alt.freigeschaltet === true;
+      var stufe = Math.floor(Number(alt.stufe) || 0);
+      stufe = frei ? Math.min(K.STUFE_MAX, Math.max(K.STUFE_MIN, stufe)) : 0;
+      return { buchstabe: sp.buchstabe, stufe: stufe, freigeschaltet: frei };
+    });
+  }
+
   /**
-   * Ergänzt fehlende Felder (Vorwärtskompatibilität) und hebt ältere Versionen an.
-   * Gibt den (veränderten) Spielstand zurück.
+   * Ergänzt fehlende Felder und hebt ältere Versionen an. Gibt den (veränderten) Spielstand zurück.
+   * v1/v2 → v3: Heimat behalten (falls gültig), alte Startplatz-Wahl (Feld „startplatz“ mit Stufe/Schwerpunkt) verwerfen.
+   * @param {function():number} [zufallFn] nur für Stände ohne gültige Heimat (v1)
    */
-  function migriere(z) {
+  function migriere(z, zufallFn) {
     if (z.version > SS.BALANCE.SPIELSTAND_VERSION) {
       throw new Error("Spielstand stammt aus einer neueren Spielversion (" + z.version + ")");
     }
-    // Stufe/Schwerpunkt immer aus den Daten übernehmen (Quelle der Wahrheit)
-    var sp = SS.DATEN.startplatzNachBuchstabe(z.startplatz.buchstabe);
-    z.startplatz = { buchstabe: sp.buchstabe, stufe: sp.stufe, schwerpunkt: sp.schwerpunkt };
+    var W = SS.DATEN.weltraum;
+    delete z.startplatz; // alte Startplatz-Wahl A–Z (v1/v2) – gibt es nicht mehr
     z.rohstoffe = rohstoffMap(z.rohstoffe);
-    // v1 → v2: Heimatplanet und Freischaltungen ergänzen
-    var hk = z.heimat && SS.DATEN.weltraum.leseKoordinaten(z.heimat.sektor + ":" + z.heimat.system + ":" + z.heimat.planet);
-    if (!hk) z.heimat = heimatplanet(sp.buchstabe, z.heimat && z.heimat.name);
-    else z.heimat.name = String(z.heimat.name || SS.DATEN.weltraum.planet(hk.system, hk.planet).name).slice(0, 24);
+    z.name = String(z.name || "Kommandant").slice(0, 24);
+    var hk = z.heimat && W.leseKoordinaten(z.heimat.sektor + ":" + z.heimat.system + ":" + z.heimat.planet);
+    if (!hk) z.heimat = hauptplanet(z.heimat && z.heimat.name, zufallFn);
+    else z.heimat = { sektor: hk.sektor, system: hk.system, planet: hk.planet, name: String(z.heimat.name || W.planet(hk.system, hk.planet).name).slice(0, 24) };
     z.freigeschaltet = z.freigeschaltet || {};
     z.freigeschaltet.antimaterie = z.freigeschaltet.antimaterie === true;
-    z.name = String(z.name || "Kommandant").slice(0, 24);
     z.statistik = z.statistik || {};
     z.statistik.produziertGesamt = rohstoffMap(z.statistik.produziertGesamt);
     z.statistik.offlineMsGesamt = Number(z.statistik.offlineMsGesamt) || 0;
     if (!("zuletztGespeichert" in z.zeit)) z.zeit.zuletztGespeichert = null;
+    z.startplaetze = startplaetzeBereinigen(z.startplaetze);
+    z.punkte = Number(z.punkte) || 0;
     z.gebaeude = z.gebaeude || {};
     if (!("lagerstaetten" in z)) z.lagerstaetten = null;
     z.forschung = z.forschung || {};
@@ -101,5 +120,5 @@
     return z;
   }
 
-  SS.kern.zustand = { heimatplanet: heimatplanet, neuerSpielstand: neuerSpielstand, istGueltig: istGueltig, migriere: migriere };
+  SS.kern.zustand = { hauptplanet: hauptplanet, neuerSpielstand: neuerSpielstand, istGueltig: istGueltig, migriere: migriere };
 })(typeof globalThis !== "undefined" ? globalThis : this);

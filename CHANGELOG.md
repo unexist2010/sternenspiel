@@ -1,5 +1,23 @@
 # Changelog – Sternenspiel
 
+## [0.3.0] – 2026-10-19 – Kapitel 1: Startplatz-Korrektur (automatischer Start, Startplätze als Flotten-Kapazität)
+
+### Geändert
+- **Spielstart automatisch** auf einem Hauptplaneten (zufällige Koordinate Sektor:System:Planet) – keine Planeten-/Startplatz-Auswahl
+  mehr; Spieler- und Planetenname optional direkt auf dem Startbildschirm
+- **Produktion = Grundrate** für alle (Startplatz-Boni-Formel komplett entfernt); Ressourcen-Tabelle ohne Bonus-Spalte
+- Übersicht zeigt nur noch Hauptplanet + Koordinaten (keine Startplatz/Stufe/Schwerpunkt-Anzeige)
+- `js/data/startplaetze.js` neu: Startplätze = Start-/Abschussplattformen für Flotten (Regeltexte, Buchstaben A–J, Anfangszustand)
+- Konstanten: `STARTPLATZ` (Boni) entfernt, `STARTPLAETZE` (max. 10, Stufe 1–15, Kapazität/Kosten/Punkte = offen) neu
+- Spielstand **v3**: `startplaetze` (10 Einträge, A Stufe 1 frei – ANNAHME), `punkte`; Migration v1/v2 → v3 behält die Heimat und verwirft das alte `startplatz`-Feld
+- Seite „Flotte“: Info-Abschnitt „Startplätze (kommt in Kapitel 6)“ mit Regeln und Vorschau A–J
+- Ressourcenleiste auf dem Desktop wieder einreihig (CSS-Spezifität der Handy-Regel überschrieb die Desktop-Regel)
+- Doku (SPEZIFIKATION A3/B1/B1a, KAPITELPLAN, OFFENE-PUNKTE, README, NOTES) angepasst
+- Tests: 20 Node-Tests, Playtest mit 168 Prüfungen; neue Screenshots
+
+### Entfernt
+- Startplatz-Wahl-Bildschirm A–Z, Startplatz-Boni, Zuordnung Startplatz → Heimatplanet
+
 ## [0.2.0] – 2026-10-18 – Kapitel 1: Layout-Grundgerüst (überarbeitet nach Sandros Präzisierung)
 
 ### Neu

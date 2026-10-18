@@ -10,8 +10,6 @@
 
   var zustand = null;        // aktueller Spielstand (null = nicht im Spiel)
   var tickTimer = null, autoTimer = null;
-  var gewaehlt = null;       // gewählter Startplatz-Buchstabe
-  var sortierung = "buchstabe";
   var seite = { id: "uebersicht", teile: [] };
 
   function $(id) { return document.getElementById(id); }
@@ -32,7 +30,7 @@
 
   // ---------- Allgemein ----------
   function zeige(name) {
-    ["start", "neu", "spiel"].forEach(function (n) { $("bildschirm-" + n).classList.toggle("aktiv", n === name); });
+    ["start", "spiel"].forEach(function (n) { $("bildschirm-" + n).classList.toggle("aktiv", n === name); });
     window.scrollTo(0, 0);
   }
 
@@ -74,7 +72,7 @@
       var z = r.zustand;
       info.hidden = false;
       info.innerHTML = "<b>" + esc(z.name) + "</b> · " + esc(z.heimat.name) + " <span class=\"koord\">[" + W.koordinatenText(z.heimat) + "]</span>" +
-        "<br><span class=\"hinweis\">Startplatz " + z.startplatz.buchstabe + " (Stufe " + z.startplatz.stufe + ") · zuletzt gespeichert: " +
+        "<br><span class=\"hinweis\">Zuletzt gespeichert: " +
         (z.zeit.zuletztGespeichert ? F.uhrzeit(z.zeit.zuletztGespeichert) : "–") + "</span>";
       $("knopf-weiterspielen").hidden = false;
     } else {
@@ -84,53 +82,14 @@
     zeige("start");
   }
 
-  // ---------- Neues Spiel ----------
-  function zeigeNeu() {
-    gewaehlt = null;
-    $("knopf-starten").disabled = true;
-    $("knopf-starten").textContent = "Spiel starten";
-    zeichneStartplaetze();
-    zeichneDetails();
-    zeige("neu");
-  }
-
-  function zeichneStartplaetze() {
-    var liste = D.startplaetze.slice();
-    if (sortierung === "stufe") liste.sort(function (a, b) { return b.stufe - a.stufe || a.buchstabe.localeCompare(b.buchstabe); });
-    $("startplatz-raster").innerHTML = liste.map(function (sp) {
-      var st = Math.round((sp.stufe - 1) / 14 * 100);
-      return "<button class=\"startplatz" + (sp.buchstabe === gewaehlt ? " gewaehlt" : "") + "\" role=\"option\" aria-selected=\"" + (sp.buchstabe === gewaehlt) +
-        "\" data-buchstabe=\"" + sp.buchstabe + "\" style=\"--stufe:" + st + "%\">" +
-        "<span class=\"sp-buchstabe\">" + sp.buchstabe + "</span>" +
-        "<span class=\"sp-stufe\">Stufe " + sp.stufe + "</span>" +
-        "<span class=\"sp-koord\">" + W.koordinatenText(W.heimatFuerStartplatz(sp.buchstabe)) + "</span>" +
-        "<span class=\"sp-balken\"><i></i></span></button>";
-    }).join("");
-  }
-
-  function zeichneDetails() {
-    var el = $("startplatz-details");
-    var sp = gewaehlt && D.startplatzNachBuchstabe(gewaehlt);
-    if (!sp) { el.innerHTML = "<p class=\"hinweis\">Tippe auf einen Startplatz, um Details zu sehen.</p>"; return; }
-    var k = W.heimatFuerStartplatz(sp.buchstabe), pl = W.planet(k.system, k.planet), sys = W.system(k.system);
-    var zeilen = D.rohstoffe.filter(function (r) { return r.gruppe === "grund"; }).map(function (r) {
-      var m = P.startplatzMultiplikator(sp, r.id);
-      return "<li" + (r.id === sp.schwerpunkt ? " class=\"schwerpunkt\"" : "") + ">" + icon(r) + r.name + ": <b>" + F.prozent(m) + "</b>" + (r.id === sp.schwerpunkt ? " ★ Schwerpunkt" : "") + "</li>";
-    }).join("");
-    el.innerHTML = "<h3>" + sp.name + " · Stufe " + sp.stufe + "</h3>" +
-      "<div class=\"planet-karte\">" + planetBild(pl, "planet-mini") + "<span>" + esc(pl.name) + " <span class=\"koord\">[" + pl.koordinaten + "]</span><br>" +
-      "<span class=\"hinweis\">" + W.sektor(k.sektor).name + " · System " + esc(sys.name) + "</span></span></div>" +
-      "<ul class=\"boni\">" + zeilen + "</ul>";
-  }
-
+  // ---------- Neues Spiel (automatischer Start, keine Planetenauswahl) ----------
   function starteNeuesSpiel() {
-    if (!gewaehlt) return;
     var los = function () {
-      zustand = Z.neuerSpielstand({ name: $("eingabe-name").value, planetName: $("eingabe-planet").value, startplatz: gewaehlt, jetzt: jetzt() });
+      zustand = Z.neuerSpielstand({ name: $("eingabe-name").value, planetName: $("eingabe-planet").value, jetzt: jetzt() });
       S.speichere(speicher, zustand, jetzt());
       location.hash = "#uebersicht";
       betreteSpiel();
-      meldung("Willkommen auf " + zustand.heimat.name + "!", "gut");
+      meldung("Willkommen auf " + zustand.heimat.name + " [" + W.koordinatenText(zustand.heimat) + "]!", "gut");
     };
     if (S.vorhanden(speicher)) {
       dialog("Neues Spiel beginnen?", "<p>Der vorhandene Spielstand wird <b>überschrieben</b>.</p>", true).then(function (ok) { if (ok) los(); });
@@ -211,16 +170,14 @@
 
   // ---------- Seiten ----------
   function seiteUebersicht() {
-    var h = zustand.heimat, sp = zustand.startplatz, pl = W.planet(h.system, h.planet), sys = W.system(h.system);
-    var planetBox = box("Heimatplanet",
+    var h = zustand.heimat, pl = W.planet(h.system, h.planet), sys = W.system(h.system);
+    var planetBox = box("Hauptplanet",
       "<div class=\"planet-karte\">" + planetBild(pl, "planet-bild") + "<dl class=\"werte\">" +
       "<dt>Planet</dt><dd>" + esc(h.name) + "</dd>" +
       "<dt>Koordinaten</dt><dd><a class=\"koord\" href=\"#weltraum/system/" + h.system + "\" title=\"Sektor:System:Planet\">[" + W.koordinatenText(h) + "]</a></dd>" +
       "<dt>Sektor</dt><dd>" + h.sektor + " – " + W.sektor(h.sektor).name + "</dd>" +
       "<dt>System</dt><dd>" + h.system + " – " + esc(sys.name) + "</dd>" +
       "<dt>Position</dt><dd>" + h.planet + " von " + B.WELTRAUM.PLANETEN_PRO_SYSTEM + "</dd>" +
-      "<dt>Startplatz</dt><dd>" + sp.buchstabe + " · Stufe " + sp.stufe + "</dd>" +
-      "<dt>Schwerpunkt</dt><dd>" + D.rohstoffNachId(sp.schwerpunkt).name + "</dd>" +
       "</dl></div>");
     var kommandant = box("Kommandant",
       "<dl class=\"werte\"><dt>Name</dt><dd>" + esc(zustand.name) + "</dd>" +
@@ -239,19 +196,36 @@
     var zeilen = D.sichtbareRohstoffe(zustand).map(function (r) {
       return "<tr data-rohstoff=\"" + r.id + "\"><td><span class=\"rs-zelle\">" + icon(r) + r.name + "</span></td>" +
         "<td class=\"z\" data-live=\"bestand:" + r.id + "\"></td><td class=\"z eng-weg\" data-live=\"lager:" + r.id + "\"></td>" +
-        "<td class=\"z\" data-live=\"rate:" + r.id + "\"></td><td class=\"z\" data-live=\"bonus:" + r.id + "\"></td></tr>";
+        "<td class=\"z\" data-live=\"rate:" + r.id + "\"></td></tr>";
     }).join("");
     return box("Rohstoffe auf " + esc(zustand.heimat.name),
-      "<div class=\"tabelle-huelle\"><table class=\"tabelle\" id=\"rohstoff-tabelle\"><thead><tr><th>Rohstoff</th><th class=\"z\">Bestand</th><th class=\"z eng-weg\">Lager</th><th class=\"z\">pro Std.</th><th class=\"z\">Bonus</th></tr></thead>" +
+      "<div class=\"tabelle-huelle\"><table class=\"tabelle\" id=\"rohstoff-tabelle\"><thead><tr><th>Rohstoff</th><th class=\"z\">Bestand</th><th class=\"z eng-weg\">Lager</th><th class=\"z\">pro Std.</th></tr></thead>" +
       "<tbody>" + zeilen + "</tbody></table></div>" +
-      "<p class=\"hinweis\">Vorläufige Grundproduktion (Unterbau, Werte = Annahme). Förderanlagen und Lager folgen in Kapitel 2 (Anlagen), Kunststoff-Herstellung in Kapitel 3.</p>");
+      "<p class=\"hinweis\">Vorläufige Grundproduktion ohne Boni (Unterbau, Werte = Annahme). Förderanlagen und Lager folgen in Kapitel 2 (Anlagen), Kunststoff-Herstellung in Kapitel 3.</p>");
   }
 
   function seitePlatzhalter(m) {
     var plan = { 2: "Ressourcen & Anlagen", 3: "Forschung", 4: "Werft", 5: "Verteidigung & Kampf", 6: "Flotte & Weltraum-Missionen", 7: "KI-Gegner & Feinschliff" };
     return box(m.name, "<div class=\"platzhalter\"><img class=\"platzhalter-symbol\" src=\"assets/emblem.svg\" alt=\"\">" +
       "<p class=\"gross\">Kommt in Kapitel " + m.kapitel + "</p><p>" + (plan[m.kapitel] ? "Kapitel " + m.kapitel + ": " + plan[m.kapitel] + "<br>" : "") + "</p>" +
-      "<p class=\"hinweis\">" + esc(m.text || "") + "</p></div>");
+      "<p class=\"hinweis\">" + esc(m.text || "") + "</p></div>") + (m.id === "flotte" ? startplaetzeInfo() : "");
+  }
+
+  // Flotte: Info-Abschnitt Startplätze (nur Regeln + Platzhalter-Daten, keine Logik – kommt in Kapitel 6)
+  function startplaetzeInfo() {
+    var K = B.STARTPLAETZE;
+    var regeln = D.startplatzRegeln.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("");
+    var chips = zustand.startplaetze.map(function (sp) {
+      return "<div class=\"startplatz-chip" + (sp.freigeschaltet ? " frei" : "") + "\" data-buchstabe=\"" + sp.buchstabe + "\"><b>" + sp.buchstabe + "</b>" +
+        (sp.freigeschaltet ? "Stufe " + sp.stufe : "gesperrt") + "</div>";
+    }).join("");
+    return "<section class=\"box\" id=\"startplaetze-info\"><div class=\"box-kopf\"><span>Startplätze</span><span class=\"marke\">kommt in Kapitel 6</span></div><div class=\"box-inhalt platzhalter-info\">" +
+      "<p>Startplätze sind Start- und Abschussplattformen für deine Flotten auf dem Hauptplaneten.</p>" +
+      "<ul class=\"regeln\">" + regeln + "</ul>" +
+      "<div class=\"startplatz-reihe\">" + chips + "</div>" +
+      "<p class=\"hinweis\">Vorschau des Datenmodells: Start mit Startplatz A auf Stufe 1 <span class=\"annahme-marke\">Annahme</span>, Beschriftung " +
+      K.BUCHSTABEN[0] + "–" + K.BUCHSTABEN[K.MAX_ANZAHL - 1] + " <span class=\"annahme-marke\">Annahme</span>. Ausbau, Kosten, Kapazität je Stufe und Punkteschwellen folgen in Kapitel 6.</p>" +
+      "</div></section>";
   }
 
   function brotkrumen(teile) {
@@ -271,7 +245,7 @@
         var heim = p.system === h.system && p.position === h.planet;
         return "<tr" + (heim ? " class=\"heimat\"" : "") + " data-position=\"" + p.position + "\"><td class=\"z\">" + p.position + "</td><td>" + planetBild(p, "planet-mini") + "</td>" +
           "<td>" + (heim ? esc(h.name) : esc(p.name)) + "</td><td class=\"eng-weg\">" + p.typ.name + "</td><td class=\"koord\">" + p.koordinaten + "</td>" +
-          "<td>" + (heim ? "<span class=\"heimat-marke\">Dein Heimatplanet</span>" : "<span class=\"hinweis\">unbewohnt</span>") + "</td></tr>";
+          "<td>" + (heim ? "<span class=\"heimat-marke\">Dein Hauptplanet</span>" : "<span class=\"hinweis\">unbewohnt</span>") + "</td></tr>";
       }).join("");
       var vor = nr > 1 ? nr - 1 : null, nach = nr < B.WELTRAUM.SYSTEME_GESAMT ? nr + 1 : null;
       return brotkrumen([{ text: "Universum " + u.name, href: "#weltraum" }, { text: sek.name, href: "#weltraum/sektor/" + sek.nummer }, { text: "System " + nr + " " + esc(sys.name) }]) +
@@ -321,7 +295,6 @@
         case "bestand": text = F.zahl(wert); break;
         case "lager": text = F.zahl(kap); break;
         case "rate": text = F.rate(prod[id]); break;
-        case "bonus": var m = P.startplatzMultiplikator(zustand.startplatz, id); text = m > 1 ? F.prozent(m) : "–"; break;
         case "offline": text = F.dauer(zustand.statistik.offlineMsGesamt); break;
         case "speicherinfo":
           text = (zustand.zeit.zuletztGespeichert ? "Zuletzt gespeichert: " + F.uhrzeit(zustand.zeit.zuletztGespeichert) : "Noch nicht gespeichert") +
@@ -374,10 +347,8 @@
   }
 
   // ---------- Ereignisse ----------
-  $("knopf-neues-spiel").addEventListener("click", zeigeNeu);
+  $("form-neu").addEventListener("submit", function (e) { e.preventDefault(); starteNeuesSpiel(); });
   $("knopf-weiterspielen").addEventListener("click", ladeUndBetrete);
-  $("knopf-zurueck").addEventListener("click", zeigeStart);
-  $("knopf-starten").addEventListener("click", starteNeuesSpiel);
   $("knopf-menue-auf").addEventListener("click", function () { if ($("menue").classList.contains("offen")) schliesseMenue(); else oeffneMenue(); });
   $("menue-schleier").addEventListener("click", schliesseMenue);
   $("menue-liste").addEventListener("click", function (e) {
@@ -406,22 +377,6 @@
   });
   window.addEventListener("hashchange", route);
   window.addEventListener("resize", passeKopfAn);
-  $("startplatz-raster").addEventListener("click", function (e) {
-    var b = e.target.closest(".startplatz");
-    if (!b) return;
-    gewaehlt = b.getAttribute("data-buchstabe");
-    $("knopf-starten").disabled = false;
-    $("knopf-starten").textContent = "Spiel starten · " + gewaehlt + " (Stufe " + D.startplatzNachBuchstabe(gewaehlt).stufe + ")";
-    zeichneStartplaetze();
-    zeichneDetails();
-  });
-  $("startplatz-filter").addEventListener("click", function (e) {
-    var b = e.target.closest("[data-sort]");
-    if (!b) return;
-    sortierung = b.getAttribute("data-sort");
-    Array.prototype.forEach.call(this.querySelectorAll("[data-sort]"), function (x) { x.classList.toggle("aktiv", x === b); });
-    zeichneStartplaetze();
-  });
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
     if (!$("dialog").hidden) $(!$("dialog-abbrechen").hidden ? "dialog-abbrechen" : "dialog-ok").click();

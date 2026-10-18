@@ -1,6 +1,6 @@
 // Browser-Playtest Kapitel 1 „Layout-Grundgerüst“ (Chromium headless über playwright-core, Seite per file:// – ohne Server).
 // Prüft auf Handy 412×915 und Desktop 1366×768: alle 8 Menüseiten, Menü (Handy ausklappbar), Ressourcenleiste ohne Antimaterie,
-// Weltraum-Navigation Universum → Sektor → System, Bilder geladen, keine Konsolenfehler, keine externen Anfragen,
+// automatischer Start ohne Auswahl, Flotte mit Startplätze-Info, Weltraum-Navigation Universum → Sektor → System, Bilder geladen, keine Konsolenfehler, keine externen Anfragen,
 // kein waagrechter Überlauf, Speichern/Offline/Zurücksetzen.
 // Screenshots: playtest/kapitel1-layout-<geraet>-<seite>.png
 // Aufruf: node tests/playtest-kapitel1-layout.js   (optional: CHROME=/pfad/zu/chrome, PLAYWRIGHT_CORE=/pfad/zu/playwright-core)
@@ -53,20 +53,23 @@ async function lauf(browser, g) {
   ok(await page.isVisible("#bildschirm-start"), "Startbildschirm sichtbar");
   await shot("start");
 
-  await page.click("#knopf-neues-spiel");
+  ok(!(await page.$(".startplatz, #startplatz-raster, #bildschirm-neu")), "Keine Startplatz-/Planetenauswahl mehr vorhanden");
   await page.fill("#eingabe-name", "Sandro");
-  await page.click('.startplatz[data-buchstabe="L"]');
-  ok((await page.textContent("#startplatz-details")).includes("3:133:5"), "Startplatz L zeigt Heimat-Koordinaten 3:133:5");
-  ok(await ueberlauf() <= 0, "Startplatz-Wahl: kein waagrechter Überlauf");
-  await shot("startplatz");
-  await page.click("#knopf-starten");
+  await page.click("#knopf-neues-spiel");
   await page.waitForSelector('#inhalt[data-seite="uebersicht"]');
+  ok(await page.isVisible("#bildschirm-spiel"), "Neues Spiel startet direkt im Spiel (ohne Auswahl)");
+  const heimat = await page.evaluate(() => window.SS.app.zustand.heimat);
+  const koord = `${heimat.sektor}:${heimat.system}:${heimat.planet}`;
+  ok(await page.evaluate((k) => !!window.SS.DATEN.weltraum.leseKoordinaten(k), koord), `Hauptplanet auf gültiger Koordinate [${koord}]`);
+  ok(await page.evaluate(() => !("startplatz" in window.SS.app.zustand)), "Spielstand ohne altes Startplatz-Feld");
 
   // Menü-Reihenfolge und Ressourcenleiste
   const namen = await page.$$eval("#menue-liste a", (as) => as.map((a) => a.childNodes[0].textContent.trim()));
   ok(JSON.stringify(namen) === JSON.stringify(MENUE), "Menü: 8 Punkte in festgelegter Reihenfolge");
   const rs = await page.$$eval("#ressourcen-leiste .rs", (e) => e.map((x) => x.getAttribute("data-rohstoff")));
   ok(rs.length === 7 && !rs.includes("antimaterie"), "Ressourcenleiste: 7 Rohstoffe, Antimaterie versteckt");
+  const reihen = await page.$$eval("#ressourcen-leiste .rs", (e) => new Set(e.map((x) => Math.round(x.getBoundingClientRect().top))).size);
+  ok(handy ? reihen === 2 : reihen === 1, `Ressourcenleiste: ${handy ? "2 Reihen (4+3)" : "1 Reihe"} (ist ${reihen})`);
   ok(handy ? !(await menueSichtbar()) : await menueSichtbar(), handy ? "Handy: Menü anfangs eingeklappt" : "Desktop: Menü links fest sichtbar");
 
   for (let i = 0; i < IDS.length; i++) {
@@ -88,10 +91,20 @@ async function lauf(browser, g) {
     ok(fehlend.length === 0, `„${MENUE[i]}“: alle Bilder geladen` + (fehlend.length ? " – fehlt: " + fehlend.join(", ") : ""));
     const text = await page.textContent("#inhalt");
     if (KAPITEL[id]) ok(text.includes("Kommt in Kapitel " + KAPITEL[id]), `Platzhalter „${MENUE[i]}“: „Kommt in Kapitel ${KAPITEL[id]}“`);
-    if (id === "uebersicht") ok(text.includes("[3:133:5]") && text.includes("Stufe 15") && text.includes("Heimatplanet"), "Übersicht: Heimatplanet, Koordinaten, Startplatz/Stufe");
+    if (id === "uebersicht") {
+      ok(text.includes("[" + koord + "]") && text.includes("Hauptplanet") && text.includes(heimat.name), "Übersicht: Hauptplanet + Koordinaten");
+      ok(!/Startplatz|Schwerpunkt|Stufe/.test(text), "Übersicht: keine Startplatz/Stufe-Anzeige mehr");
+    }
+    if (id === "flotte") {
+      const info = await page.textContent("#startplaetze-info");
+      ok(info.includes("Startplätze") && info.includes("kommt in Kapitel 6") && info.includes("nur die Anzahl der Schiffe"), "Flotte: Info-Abschnitt Startplätze mit Regeln");
+      const chips = await page.$$eval("#startplaetze-info .startplatz-chip", (e) => e.map((x) => x.getAttribute("data-buchstabe") + (x.classList.contains("frei") ? "+" : "")));
+      ok(chips.join("") === "A+BCDEFGHIJ", "Flotte: Startplätze A–J, nur A freigeschaltet");
+    }
     if (id === "ressourcen") {
       const zeilen = await page.$$eval("#rohstoff-tabelle tbody tr", (t) => t.map((x) => x.getAttribute("data-rohstoff")));
       ok(zeilen.length === 7 && !zeilen.includes("antimaterie"), "Ressourcen: Tabelle mit 7 Rohstoffen ohne Antimaterie");
+      ok((await page.textContent('[data-live="rate:metall"]')) === "120" && !text.includes("Bonus"), "Ressourcen: Grundrate (Metall 120/Std.), keine Bonus-Spalte");
     }
     if (!/feldlimit|felder:|planetengr/i.test(text)) ok(true, `„${MENUE[i]}“: keine Planetengröße/Felder angezeigt`); else ok(false, `„${MENUE[i]}“ zeigt Größe/Felder`);
     await shot(id);
@@ -100,16 +113,16 @@ async function lauf(browser, g) {
   // Weltraum-Navigation
   ok((await page.$$eval(".sektor-karte", (e) => e.length)) === 5, "Weltraum: 5 Sektoren");
   ok((await page.textContent(".welt-kennzahlen")).includes("3.600"), "Weltraum: 3.600 Planeten angezeigt");
-  await page.click('.sektor-karte[data-sektor="3"]');
+  await page.click(`.sektor-karte[data-sektor="${heimat.sektor}"]`);
   await page.waitForSelector("#system-raster");
-  ok((await page.$$eval("#system-raster .system-knopf", (e) => e.length)) === 60, "Sektor 3: 60 Systeme");
-  ok((await page.$eval("#system-raster .system-knopf.heimat b", (b) => b.textContent)) === "133", "Heimatsystem 133 hervorgehoben");
+  ok((await page.$$eval("#system-raster .system-knopf", (e) => e.length)) === 60, `Sektor ${heimat.sektor}: 60 Systeme`);
+  ok((await page.$eval("#system-raster .system-knopf.heimat b", (b) => b.textContent)) === String(heimat.system), `Heimatsystem ${heimat.system} hervorgehoben`);
   ok(await ueberlauf() <= 0, "Sektor-Ansicht: kein waagrechter Überlauf");
   await shot("weltraum-sektor");
   await page.click("#system-raster .system-knopf.heimat");
   await page.waitForSelector("#planeten-tabelle");
-  ok((await page.$$eval("#planeten-tabelle tbody tr", (e) => e.length)) === 12, "System 133: 12 Planeten");
-  ok((await page.$eval("#planeten-tabelle tr.heimat", (e) => e.getAttribute("data-position"))) === "5", "Heimatplanet auf Position 5 markiert");
+  ok((await page.$$eval("#planeten-tabelle tbody tr", (e) => e.length)) === 12, `System ${heimat.system}: 12 Planeten`);
+  ok((await page.$eval("#planeten-tabelle tr.heimat", (e) => e.getAttribute("data-position"))) === String(heimat.planet), `Hauptplanet auf Position ${heimat.planet} markiert`);
   ok(await ueberlauf() <= 0, "System-Ansicht: kein waagrechter Überlauf");
   ok((await bilderOk()).length === 0, "System-Ansicht: Bilder geladen");
   await shot("weltraum-system");

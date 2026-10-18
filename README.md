@@ -1,7 +1,7 @@
 # Sternenspiel
 
-**Stand:** 2026-10-18 (Europe/Vienna) · **Status:** Kapitel 1 „Layout-Grundgerüst“ von 7 erledigt  
-**Für:** Sandro Orsaria · **Sprache:** Deutsch (Oberfläche, Doku, Kommentare) · **Repo:** github.com/unexist2010/sternenspiel
+**Stand:** 2026-10-19 (Europe/Vienna) · **Status:** Kapitel 1 „Layout-Grundgerüst“ von 7 erledigt  
+**Für:** Sandro Orsaria · **Sprache:** Deutsch (Oberfläche, Doku, Kommentare) · **Repo:** github.com/unexist2010/sternenspiel · **Live:** https://unexist2010.github.io/sternenspiel/
 
 ## Kurzüberblick
 
@@ -16,26 +16,29 @@ Grafiken sind **eigene SVGs** (`assets/`, erzeugt mit `tools/erzeuge-grafiken.js
 ## Starten
 
 1. `index.html` doppelklicken (öffnet im Browser über `file://`).
-2. „Neues Spiel“ → Name (und optional Planetenname) → Startplatz A–Z wählen → „Spiel starten“.
+2. Optional Spieler- und Planetennamen eingeben → „Neues Spiel starten“. Du startest automatisch auf einem Hauptplaneten
+   (zufällige Koordinate) – ohne Auswahl.
 
 ## Kapitel 1 – Layout-Grundgerüst (Inhalt)
 
 - **Menü** links in fester Reihenfolge: Übersicht, Ressourcen, Anlagen, Forschung, Werft, Verteidigung, Flotte, Weltraum
 - **Kopfbereich** mit Logo und Ressourcenleiste: Metall, Silizium, Rohöl, Strom, Kunststoff T1–T3
   (Antimaterie ist versteckt, bis `freigeschaltet.antimaterie` im Spielstand `true` ist)
-- **Übersicht**: Heimatplanet mit Koordinaten (Sektor:System:Planet), Sektor, System, Startplatz/Stufe, Spielstand-Knöpfe
-- **Ressourcen**: Rohstofftabelle (Bestand, Lager, pro Std., Startplatz-Bonus)
+- **Übersicht**: Hauptplanet mit Koordinaten (Sektor:System:Planet), Sektor, System, Spielstand-Knöpfe
+- **Ressourcen**: Rohstofftabelle (Bestand, Lager, pro Std.) – Grundrate, keine Boni
 - **Weltraum**: 1 Universum → 5 Sektoren → 300 Sonnensysteme → 12 Planeten je System (3.600 Planeten), navigierbar
   (Sektor-Karten, System-Raster, Systemansicht mit ◀ ▶ und Direktsprung), Heimat hervorgehoben
 - **Platzhalter**: Anlagen (Kap. 2), Forschung (Kap. 3), Werft (Kap. 4), Verteidigung (Kap. 5), Flotte (Kap. 6)
-- **Unterbau** (aus der ersten Runde übernommen): Startplatz-Wahl A–Z mit Stufe 1–15, vorläufige Grundproduktion,
-  Offline-Fortschritt (max. 24 Std.), Speichern/Laden/Zurücksetzen, Spielstand-Migration (v1 → v2)
+- **Startplätze** = Start-/Abschussplattformen für Flotten (bis zu 10, Stufe 1–15, Kapazität nach Schiffsanzahl):
+  in Kapitel 1 nur Datenmodell (`zustand.startplaetze`), Konstanten und Info-Abschnitt auf der Seite „Flotte“; Logik in Kapitel 6
+- **Unterbau**: vorläufige Grundproduktion, Offline-Fortschritt (max. 24 Std.), Speichern/Laden/Zurücksetzen,
+  Spielstand-Migration (v1/v2 → v3)
 - **Nicht** enthalten (bewusst): Gebäude, Schiffe, Kampf, Forschung, Planetengrößen/Feldlimits
 
 ## Testen
 
 ```bash
-node --test tests/                     # 19 Logik-Tests (Hierarchie, Menü, Antimaterie, Produktion, Offline, Speichern …)
+node --test tests/                     # 20 Logik-Tests (Hierarchie, Start-Koordinate, Menü, Antimaterie, Startplätze, Produktion, Offline, Migration …)
 node tests/playtest-kapitel1-layout.js # Browser-Playtest (Chromium headless, file://), Screenshots nach playtest/
 ```
 
@@ -56,13 +59,13 @@ Grafiken neu erzeugen: `node tools/erzeuge-grafiken.js`
   js/data/                ← Konfiguration
     konstanten.js         ← ZENTRALE Balance + Weltraum-Größen
     rohstoffe.js          ← 8 Rohstoffe (Antimaterie mit Freischaltung)
-    startplaetze.js       ← Startplätze A–Z mit Stufe/Schwerpunkt
-    weltraum.js           ← Universum/Sektoren/Systeme/Planeten (deterministisch erzeugt), Startplatz → Heimat
+    startplaetze.js       ← Startplätze = Flotten-Startplattformen A–J (Regeln, Anfangszustand; Logik Kapitel 6)
+    weltraum.js           ← Universum/Sektoren/Systeme/Planeten (deterministisch erzeugt), zufällige Start-Koordinate
     menue.js              ← 8 Menüpunkte (Reihenfolge FEST) + Kapitel der Platzhalter
     gebaeude.js, schiffe.js ← Andockpunkte (Kapitel 2/4)
   js/kern/                ← DOM-freie Logik (in Node testbar)
-    zustand.js            ← Spielstand-Modell v2, Prüfung, Migration
-    produktion.js         ← Boni-Formel, Ticks, Offline-Fortschritt
+    zustand.js            ← Spielstand-Modell v3, Prüfung, Migration
+    produktion.js         ← Grundrate, Ticks, Offline-Fortschritt
     speicher.js           ← Speichern/Laden/Löschen
   js/ui/format.js, app.js ← Formate + Oberfläche (Menü, Seiten, Navigation per #anker)
   tests/                  ← Node-Tests + Browser-Playtest

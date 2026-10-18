@@ -17,7 +17,7 @@
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
-    SPIELSTAND_VERSION: 2,   // v2: Heimatplanet (Weltraum-Hierarchie) + Freischaltungen
+    SPIELSTAND_VERSION: 3,   // v2: Heimatplanet + Freischaltungen · v3: automatischer Start, Startplätze = Flotten-Startplattformen
     SPEICHER_SCHLUESSEL: "sternenspiel_spielstand_v1",
 
     // Zeit
@@ -34,15 +34,26 @@
       PLANETEN_PRO_SYSTEM: 12
     },
 
-    // Startplätze A–Z mit Stufe 1–15 (Stufen sind von Sandro festgelegt, Boni-Formel ist ANNAHME)
-    STARTPLATZ: {
+    // Startplätze = Start-/Abschussplattformen für Flotten auf dem Planeten (FEST, Logik erst in Kapitel 6).
+    // FEST: bis zu 10 Startplätze, je Ausbaustufe 1–15, Kosten steigen stark, Freischaltung neuer Plätze punktebasiert,
+    //       Kapazität zählt nur Schiffsanzahl, Summe aller Startplätze = max. gleichzeitig startende Schiffe,
+    //       keine Zuordnung Schiff → Startplatz.
+    // ANNAHME: Beschriftung A–J (Sandro: „bis zu 10, beschriftet A bis Z“ – Widerspruch, offen).
+    // ANNAHME: Spielstart mit Startplatz A auf Stufe 1.
+    // OFFEN (null): Kapazität je Stufe, Kosten, Punkteschwellen – werden in Kapitel 6 festgelegt.
+    STARTPLAETZE: {
+      MAX_ANZAHL: 10,
+      BUCHSTABEN: "ABCDEFGHIJ",
       STUFE_MIN: 1,
       STUFE_MAX: 15,
-      BONUS_ALLE_PRO_STUFE: 0.02,        // ANNAHME: +2 % auf alle Grundrohstoffe je Stufe über 1
-      BONUS_SCHWERPUNKT_PRO_STUFE: 0.03  // ANNAHME: zusätzlich +3 % je Stufe auf den Schwerpunkt-Rohstoff
+      START_FREIGESCHALTET: 1,          // ANNAHME: A ist von Beginn an da
+      START_STUFE: 1,                   // ANNAHME
+      KAPAZITAET_PRO_STUFE: null,       // offen (Kapitel 6)
+      KOSTEN_FORMEL: null,              // offen (Kapitel 6) – „steigt stark“
+      FREISCHALT_PUNKTE: null           // offen (Kapitel 6) – Punkteschwellen je weiterem Startplatz
     },
 
-    // ANNAHME: Grundproduktion pro Stunde ohne Gebäude (Kapitel 1).
+    // ANNAHME: Grundproduktion pro Stunde ohne Gebäude (Kapitel 1). Keine Boni – alle Spieler gleich.
     // Kunststoff T1–T3 und Antimaterie werden erst über Gebäude/Forschung (Kapitel 2/3) produziert.
     GRUNDPRODUKTION_PRO_STUNDE: {
       metall: 120,

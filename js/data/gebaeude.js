@@ -14,7 +14,7 @@
       name: "Geologiestation",
       kapitel: 2,
       // ANNAHME: Zweck = Lagerstätten erkunden/bestimmen; genaue Wirkung offen
-      beschreibung: "Erkundet und bestimmt die Rohstoffvorkommen des Startplatzes."
+      beschreibung: "Erkundet und bestimmt die Rohstoffvorkommen des Hauptplaneten."
     })
   ]);
 })(typeof globalThis !== "undefined" ? globalThis : this);

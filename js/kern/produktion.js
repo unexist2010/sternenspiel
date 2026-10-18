@@ -2,27 +2,13 @@
  * Sternenspiel – Produktion, Ticks und Offline-Fortschritt.
  * Reine Logik ohne DOM → in Node testbar (tests/).
  *
- * ANNAHME Formel Startplatz-Bonus (Werte in konstanten.js):
- *   Multiplikator(Rohstoff) = 1 + (Stufe − 1) × BONUS_ALLE_PRO_STUFE
- *                               + (Rohstoff == Schwerpunkt ? Stufe × BONUS_SCHWERPUNKT_PRO_STUFE : 0)
- *   gilt nur für Grundrohstoffe (Metall, Silizium, Rohöl, Strom).
- *   Beispiel Stufe 15, Schwerpunkt Metall: Metall ×(1 + 0,28 + 0,45) = ×1,73, übrige ×1,28.
+ * Produktion = Grundrate aus konstanten.js (keine Startplatz-Boni mehr; Gebäude ab Kapitel 2).
  */
 (function (g) {
   "use strict";
   var SS = (g.SS = g.SS || {});
   SS.kern = SS.kern || {};
   var MS_PRO_STUNDE = 3600000;
-
-  function startplatzMultiplikator(startplatz, rohstoffId) {
-    var r = SS.DATEN.rohstoffNachId(rohstoffId);
-    if (!r || r.gruppe !== "grund" || !startplatz) return 1;
-    var K = SS.BALANCE.STARTPLATZ;
-    var stufe = Math.min(K.STUFE_MAX, Math.max(K.STUFE_MIN, Number(startplatz.stufe) || 1));
-    var m = 1 + (stufe - 1) * K.BONUS_ALLE_PRO_STUFE;
-    if (rohstoffId === startplatz.schwerpunkt) m += stufe * K.BONUS_SCHWERPUNKT_PRO_STUFE;
-    return m;
-  }
 
   /** Lagerkapazität je Rohstoff (Kapitel 2: + Lager-Gebäude). */
   function lagerKapazitaet(zustand, rohstoffId) {
@@ -34,7 +20,7 @@
     var res = {};
     SS.DATEN.rohstoffIds.forEach(function (id) {
       var grund = SS.BALANCE.GRUNDPRODUKTION_PRO_STUNDE[id] || 0;
-      res[id] = grund * startplatzMultiplikator(zustand.startplatz, id);
+      res[id] = grund; // Kapitel 2+: Anteile von Anlagen addieren
     });
     return res;
   }
@@ -87,7 +73,6 @@
 
   SS.kern.produktion = {
     MS_PRO_STUNDE: MS_PRO_STUNDE,
-    startplatzMultiplikator: startplatzMultiplikator,
     lagerKapazitaet: lagerKapazitaet,
     produktionProStunde: produktionProStunde,
     wendeZeitAn: wendeZeitAn,

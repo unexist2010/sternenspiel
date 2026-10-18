@@ -16,7 +16,7 @@
     Object.freeze({ id: "forschung",    name: "Forschung",    kapitel: 3, platzhalter: true, text: "Hier werden Technologien erforscht – u. a. Kunststoff-Tiers und die Freischaltung der Antimaterie." }),
     Object.freeze({ id: "werft",        name: "Werft",        kapitel: 4, platzhalter: true, text: "Hier werden die 23 Schiffe mit 2 Hüllentypen und 5 Waffentypen gebaut." }),
     Object.freeze({ id: "verteidigung", name: "Verteidigung", kapitel: 5, platzhalter: true, text: "Hier entstehen Verteidigungsanlagen und der Schutzschild (Autoaktivierung als Solo-Regel)." }),
-    Object.freeze({ id: "flotte",       name: "Flotte",       kapitel: 6, platzhalter: true, text: "Hier werden Flotten zusammengestellt und mit Treibstoff zu Missionen entsandt." }),
+    Object.freeze({ id: "flotte",       name: "Flotte",       kapitel: 6, platzhalter: true, text: "Hier werden Flotten zusammengestellt, über die Startplätze gestartet und mit Treibstoff zu Missionen entsandt." }),
     Object.freeze({ id: "weltraum",     name: "Weltraum",     kapitel: 1, platzhalter: false })
   ]);
 

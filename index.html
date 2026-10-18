@@ -18,37 +18,18 @@
       <div id="start-spielstand" class="spielstand-info" hidden></div>
       <div class="knopf-reihe senkrecht">
         <button id="knopf-weiterspielen" class="knopf primaer" hidden>Weiterspielen</button>
-        <button id="knopf-neues-spiel" class="knopf">Neues Spiel</button>
       </div>
+      <form id="form-neu" class="neu-form" autocomplete="off">
+        <h2 class="neu-titel">Neues Spiel</h2>
+        <label class="feld"><span>Spielername (optional)</span>
+          <input id="eingabe-name" type="text" maxlength="24" placeholder="Kommandant"></label>
+        <label class="feld"><span>Name des Hauptplaneten (optional)</span>
+          <input id="eingabe-planet" type="text" maxlength="24" placeholder="automatisch"></label>
+        <button id="knopf-neues-spiel" class="knopf" type="submit">Neues Spiel starten</button>
+        <p class="hinweis">Du startest automatisch auf einem Hauptplaneten irgendwo im Universum.</p>
+      </form>
       <p id="start-fehler" class="fehler" hidden></p>
       <p class="fusszeile">Kapitel 1 · Layout-Grundgerüst</p>
-    </div>
-  </section>
-
-  <!-- ===== Neues Spiel: Startplatz-Wahl ===== -->
-  <section id="bildschirm-neu" class="bildschirm" aria-labelledby="titel-neu">
-    <div class="kopf-leiste">
-      <button id="knopf-zurueck" class="knopf klein" aria-label="Zurück zum Startbildschirm">← Zurück</button>
-      <h2 id="titel-neu">Neues Spiel</h2>
-    </div>
-    <div class="neu-inhalt">
-      <div class="felder">
-        <label class="feld"><span>Name des Kommandanten</span>
-          <input id="eingabe-name" type="text" maxlength="24" placeholder="Kommandant" autocomplete="off"></label>
-        <label class="feld"><span>Name des Heimatplaneten (optional)</span>
-          <input id="eingabe-planet" type="text" maxlength="24" placeholder="automatisch" autocomplete="off"></label>
-      </div>
-      <h3>Startplatz wählen (A–Z)</h3>
-      <p class="hinweis">Jeder Startplatz liegt in einem Sektor/System des Universums und hat eine Stufe (1–15). Höhere Stufe = höhere Rohstoffboni. <span class="annahme-marke" title="Zuordnung und Boni-Formel sind Annahmen, siehe docs/SPEZIFIKATION.md">Annahme</span></p>
-      <div id="startplatz-filter" class="filter" role="group" aria-label="Sortierung">
-        <button class="knopf klein aktiv" data-sort="buchstabe">A–Z</button>
-        <button class="knopf klein" data-sort="stufe">nach Stufe</button>
-      </div>
-      <div id="startplatz-raster" class="startplatz-raster" role="listbox" aria-label="Startplätze"></div>
-      <div id="startplatz-details" class="kasten details" aria-live="polite"></div>
-      <div class="knopf-reihe start-knopf">
-        <button id="knopf-starten" class="knopf primaer" disabled>Spiel starten</button>
-      </div>
     </div>
   </section>
 

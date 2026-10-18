@@ -1,33 +1,40 @@
 /*
- * Sternenspiel – Startplätze A–Z.
- * Von Sandro festgelegt: 26 Startplätze A–Z, jeder mit einer Stufe 1–15.
- * ANNAHME: Die Zuordnung Buchstabe → Stufe ist fest (deterministisch, deckt alle Stufen 1–15 ab):
- *          Stufe = ((Index × 4) mod 15) + 1   (A=1, B=5, C=9, D=13, E=2 …)
- * ANNAHME: Jeder Startplatz hat einen Schwerpunkt-Rohstoff (reihum Metall, Silizium, Rohöl, Strom).
- * ANNAHME: Höhere Stufe = höhere Rohstoffboni (Formel in js/kern/produktion.js, Werte in konstanten.js).
+ * Sternenspiel – Startplätze = Start-/Abschussplattformen (Launch Pads) für Flotten auf dem Hauptplaneten.
+ * NUR Datenmodell-Platzhalter und Regeltext; Ausbau, Kosten und Flottenstart folgen in Kapitel 6 (Flotte).
+ *
+ * FEST (Sandro):
+ *  - bis zu 10 Startplätze, mit Buchstaben beschriftet
+ *  - jeder Startplatz hat eigene Ausbaustufen 1–15, die Kosten steigen stark
+ *  - neue Startplätze werden punktebasiert freigeschaltet (Schwellen offen)
+ *  - Kapazität zählt NUR die Anzahl Schiffe (Größe egal)
+ *  - die Summe aller Startplätze begrenzt, wie viele Schiffe gleichzeitig starten können
+ *  - mit wachsender Flotte muss man immer wieder ausbauen
+ *  - keine Zuordnung Schiff → Startbahn, nur Kapazität
+ * ANNAHME: Buchstaben A–J; Start mit Startplatz A auf Stufe 1 (siehe konstanten.js).
  */
 (function (g) {
   "use strict";
   var SS = (g.SS = g.SS || {});
   SS.DATEN = SS.DATEN || {};
+  var K = SS.BALANCE.STARTPLAETZE;
 
-  var SCHWERPUNKTE = ["metall", "silizium", "rohoel", "strom"];
-  var BUCHSTABEN = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  SS.DATEN.startplatzBuchstaben = Object.freeze(K.BUCHSTABEN.split("").slice(0, K.MAX_ANZAHL));
 
-  SS.DATEN.startplaetze = Object.freeze(BUCHSTABEN.map(function (b, i) {
-    return Object.freeze({
-      buchstabe: b,
-      name: "Startplatz " + b,
-      stufe: ((i * 4) % 15) + 1,
-      schwerpunkt: SCHWERPUNKTE[i % SCHWERPUNKTE.length]
+  SS.DATEN.startplatzRegeln = Object.freeze([
+    "Bis zu " + K.MAX_ANZAHL + " Startplätze, beschriftet mit Buchstaben (" + K.BUCHSTABEN[0] + "–" + K.BUCHSTABEN[K.MAX_ANZAHL - 1] + ").",
+    "Jeder Startplatz hat eigene Ausbaustufen " + K.STUFE_MIN + "–" + K.STUFE_MAX + "; die Kosten steigen stark.",
+    "Neue Startplätze werden über Punkte freigeschaltet.",
+    "Die Kapazität zählt nur die Anzahl der Schiffe – die Größe ist egal.",
+    "Die Summe aller Startplätze begrenzt, wie viele Schiffe gleichzeitig starten können.",
+    "Wächst die Flotte, müssen die Startplätze immer wieder ausgebaut werden.",
+    "Schiffe werden keinem bestimmten Startplatz zugeordnet – es zählt nur die Gesamtkapazität."
+  ]);
+
+  /** Anfangszustand der Startplätze für einen neuen Spielstand (ANNAHME: A frei, Stufe 1). */
+  SS.DATEN.startplaetzeAnfang = function () {
+    return SS.DATEN.startplatzBuchstaben.map(function (b, i) {
+      var frei = i < K.START_FREIGESCHALTET;
+      return { buchstabe: b, stufe: frei ? K.START_STUFE : 0, freigeschaltet: frei };
     });
-  }));
-
-  SS.DATEN.startplatzNachBuchstabe = function (b) {
-    b = String(b || "").toUpperCase();
-    for (var i = 0; i < SS.DATEN.startplaetze.length; i++) {
-      if (SS.DATEN.startplaetze[i].buchstabe === b) return SS.DATEN.startplaetze[i];
-    }
-    return null;
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

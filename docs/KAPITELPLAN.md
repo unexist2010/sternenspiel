@@ -1,6 +1,6 @@
 # Sternenspiel – Kapitelplan
 
-Stand: 2026-10-18 · Jedes Kapitel ist für sich lauffähig, getestet (Node + Browser-Playtest Handy/Desktop) und wird einzeln committet.
+Stand: 2026-10-19 · Jedes Kapitel ist für sich lauffähig, getestet (Node + Browser-Playtest Handy/Desktop) und wird einzeln committet.
 
 | Kapitel | Inhalt | Menüseite(n) | Status |
 |---------|--------|--------------|--------|
@@ -9,7 +9,7 @@ Stand: 2026-10-18 · Jedes Kapitel ist für sich lauffähig, getestet (Node + Br
 | 3 | Forschung: Kunststoff-Tiers T1–T3, Freischaltung der Antimaterie | Forschung | offen |
 | 4 | Werft: 23 Schiffe, 2 Hüllentypen, 5 Waffentypen | Werft | offen |
 | 5 | Verteidigung & Kampf: Schutzschild-Autoaktivierung (Solo-Regel), Trümmer/Salvage | Verteidigung | offen |
-| 6 | Flotte & Weltraum-Missionen: Flotten, Treibstoffregeln, Flüge zwischen Systemen | Flotte, Weltraum | offen |
+| 6 | Flotte & Weltraum-Missionen: **Startplätze (A–J, Stufe 1–15, Kapazität)**, Flotten, Treibstoffregeln, Flüge | Flotte, Weltraum | offen |
 | 7 | KI-Gegner (5–10 Angriffe/Ereignisse täglich), Balancing, Feinschliff | alle | offen |
 | – | Offene Punkte | – | laufend: `docs/OFFENE-PUNKTE.md` |
 
@@ -22,9 +22,11 @@ Stand: 2026-10-18 · Jedes Kapitel ist für sich lauffähig, getestet (Node + Br
 - Weltraum-Hierarchie 1 Universum / 5 Sektoren / 300 Systeme / 12 Planeten (3.600), navigierbar; Heimatplanet verortet
 - Übersicht (Heimatplanet, Koordinaten, Startplatz/Stufe), Ressourcen (Tabelle), Platzhalter für Kapitel 2–6
 - Retro-Weltraum-Stil mit eigenen SVG-Grafiken (`assets/`), alles offline
-- Unterbau: Startplatz-Wahl A–Z (Stufe 1–15), vorläufige Produktion, Offline-Fortschritt, Speichern/Laden/Zurücksetzen
+- **Automatischer Spielstart** auf einem Hauptplaneten (zufällige Koordinate), optional Spieler-/Planetenname, keine Auswahl
+- Startplätze nur als Datenmodell-/Konstanten-Platzhalter + Info-Abschnitt auf „Flotte“ (Korrektur: keine Startplatz-Wahl/-Boni)
+- Unterbau: vorläufige Grundproduktion (ohne Boni), Offline-Fortschritt, Speichern/Laden/Zurücksetzen, Migration bis v3
 - Planetengrößen/Feldlimits bewusst nicht vorhanden
-- Tests: 19 Node-Tests, Browser-Playtest (Handy 412×915, Desktop 1366×768) → `playtest/kapitel1-layout-*.png`
+- Tests: 20 Node-Tests, Browser-Playtest (Handy 412×915, Desktop 1366×768) → `playtest/kapitel1-layout-*.png`
 
 ## Kapitel 2 – Ressourcen & Anlagen
 
@@ -51,6 +53,9 @@ Stand: 2026-10-18 · Jedes Kapitel ist für sich lauffähig, getestet (Node + Br
 
 ## Kapitel 6 – Flotte & Weltraum-Missionen
 
+- **Startplätze (FEST):** Start-/Abschussplattformen für Flotten, bis zu 10 (A–J, ANNAHME), je Stufe 1–15 mit stark
+  steigenden Kosten, punktebasierte Freischaltung; Kapazität = nur Anzahl Schiffe; Summe aller Startplätze = max.
+  gleichzeitig startende Schiffe; keine Zuordnung Schiff → Startplatz. Datenmodell `zustand.startplaetze` ist schon da.
 - Flotten zusammenstellen, Missionen zu Koordinaten (Sektor:System:Planet) aus der Weltraum-Seite starten
 - **Treibstoffregeln (FEST, Inhalt offen)**
 

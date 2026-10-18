@@ -8,7 +8,8 @@
  *  - Koordinaten „Sektor:System:Planet“, z. B. 2:75:6.
  *  - Namen (Universum, Sektoren, Systeme, Planeten), Sterntyp und Planetentyp sind rein optisch und
  *    werden deterministisch aus der Nummer erzeugt (jeder Spieler sieht dasselbe Universum).
- *  - Nichts davon wird im Spielstand gespeichert – nur die Koordinaten des Heimatplaneten.
+ *  - Nichts davon wird im Spielstand gespeichert – nur die Koordinaten des Hauptplaneten.
+ *  - Der Hauptplanet liegt auf einer zufälligen Koordinate (siehe zufaelligeKoordinate).
  */
 (function (g) {
   "use strict";
@@ -115,16 +116,19 @@
   function koordinatenText(k) { return k.sektor + ":" + k.system + ":" + k.planet; }
 
   /**
-   * ANNAHME: Zuordnung Startplatz A–Z → Heimatplanet.
-   * Die 26 Startplätze sind gleichmäßig über die 300 Systeme verteilt (System = 6 + round(Index × 288 / 25)),
-   * der Planet liegt in der mittleren Zone (Position 4–8). Damit liegen A–E in Sektor 1, F–J in 2, K–P in 3, Q–U in 4, V–Z in 5.
+   * ANNAHME: Zufällige Start-Koordinate für den Hauptplaneten (wie beim klassischen Spielstart ohne Auswahl).
+   * Im Solo-Spiel sind alle anderen Planeten frei; „besetzt“ (z. B. KI ab Kapitel 7) kann übergeben werden.
+   * @param {function():number} [zufallFn] Zufallsquelle 0..1 (Standard Math.random; Tests geben eine feste vor)
+   * @param {function(object):boolean} [istBesetzt]
    */
-  function heimatFuerStartplatz(buchstabe) {
-    var sp = SS.DATEN.startplatzNachBuchstabe(buchstabe);
-    if (!sp) return null;
-    var i = sp.buchstabe.charCodeAt(0) - 65;
-    var n = 6 + Math.round(i * 288 / 25);
-    return { sektor: sektorVonSystem(n), system: n, planet: 4 + (i % 5) };
+  function zufaelligeKoordinate(zufallFn, istBesetzt) {
+    var r = zufallFn || Math.random;
+    for (var versuch = 0; versuch < 1000; versuch++) {
+      var n = 1 + Math.floor(r() * W.SYSTEME_GESAMT);
+      var k = { sektor: sektorVonSystem(n), system: n, planet: 1 + Math.floor(r() * W.PLANETEN_PRO_SYSTEM) };
+      if (!istBesetzt || !istBesetzt(k)) return k;
+    }
+    throw new Error("Keine freie Koordinate gefunden");
   }
 
   SS.DATEN.weltraum = {
@@ -138,7 +142,8 @@
     sektorVonSystem: sektorVonSystem,
     leseKoordinaten: leseKoordinaten,
     koordinatenText: koordinatenText,
-    heimatFuerStartplatz: heimatFuerStartplatz,
+    zufaelligeKoordinate: zufaelligeKoordinate,
+    zufall: zufall,
     anzahlPlaneten: function () { return W.SYSTEME_GESAMT * W.PLANETEN_PRO_SYSTEM; }
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

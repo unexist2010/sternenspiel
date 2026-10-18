@@ -54,7 +54,7 @@ img { max-width: 100%; }
 }
 .knopf:hover:not(:disabled) { border-color: var(--tuerkis); color: #fff; }
 .knopf:disabled { opacity: .45; cursor: not-allowed; }
-.knopf:focus-visible, .startplatz:focus-visible, .menue-liste a:focus-visible, .system-knopf:focus-visible { outline: 2px solid var(--tuerkis); outline-offset: 2px; }
+.knopf:focus-visible, .menue-liste a:focus-visible, .system-knopf:focus-visible { outline: 2px solid var(--tuerkis); outline-offset: 2px; }
 a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .knopf.primaer { background: linear-gradient(180deg, #1d7fc4, #0d4b86); border-color: var(--rand-hell); }
 .knopf.gefahr { border-color: #6b2a3a; color: #ffb3b3; }
@@ -76,32 +76,16 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .spielstand-info { background: var(--kasten2); border: 1px solid var(--rand); border-radius: 3px; padding: 10px; }
 .fusszeile { color: var(--leise); font-size: .78rem; margin-top: 20px; }
 
-/* ---------- Neues Spiel ---------- */
-.kopf-leiste { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-bottom: 1px solid var(--rand); background: rgba(3,10,28,.92); position: sticky; top: 0; z-index: 5; }
-.kopf-leiste h2 { margin: 0; color: var(--tuerkis); font-size: 1.1rem; }
-.neu-inhalt { padding: 12px; max-width: 1200px; margin: 0 auto; }
-.felder { display: flex; flex-wrap: wrap; gap: 0 16px; }
-.feld { display: block; margin: 6px 0 12px; flex: 1 1 220px; max-width: 360px; }
+/* ---------- Neues Spiel (auf dem Startbildschirm) ---------- */
+.neu-form { text-align: left; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--rand); }
+.neu-titel { font-size: 1rem; color: var(--tuerkis); text-transform: uppercase; letter-spacing: .05em; }
+.feld { display: block; margin: 6px 0 12px; }
 .feld span { display: block; font-size: .85rem; color: var(--leise); margin-bottom: 4px; }
 .feld input, .eingabe { width: 100%; padding: .6rem; border-radius: 3px; border: 1px solid var(--rand); background: #04102a; color: var(--text); font: inherit; }
-.filter { display: flex; gap: 6px; margin: 8px 0; }
-.startplatz-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: 6px; margin: 10px 0 14px; }
-.startplatz {
-  position: relative; display: flex; flex-direction: column; align-items: center; gap: 1px;
-  padding: 7px 3px 9px; border-radius: 3px; border: 1px solid var(--rand); background: var(--kasten); color: var(--text);
-  font: inherit; cursor: pointer; overflow: hidden;
-}
-.startplatz:hover { border-color: var(--tuerkis); }
-.startplatz.gewaehlt { border-color: var(--tuerkis); box-shadow: 0 0 0 1px var(--tuerkis) inset, 0 0 16px rgba(63,224,224,.35); background: #0b2a50; }
-.sp-buchstabe { font-size: 1.4rem; font-weight: 700; color: #fff; }
-.sp-stufe { font-size: .72rem; color: var(--leise); }
-.sp-koord { font-size: .7rem; color: var(--tuerkis); font-variant-numeric: tabular-nums; }
-.sp-balken { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: #0c2244; }
-.sp-balken i { display: block; height: 100%; width: var(--stufe); min-width: 4%; background: linear-gradient(90deg, var(--blau), var(--tuerkis)); }
-.details { padding: 12px; margin-bottom: 12px; }
+.neu-form .knopf { width: 100%; }
+
 .boni { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 5px; }
 .boni li { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.boni li.schwerpunkt { color: #fff; font-weight: 700; }
 
 /* ---------- Rohstoff-Icon ---------- */
 .rs-icon { width: 22px; height: 22px; flex: none; vertical-align: middle; }
@@ -180,6 +164,16 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .tabelle .rs-zelle { display: flex; align-items: center; gap: 7px; }
 .tabelle tr.heimat td { background: rgba(63,224,224,.12) !important; }
 
+/* ---------- Startplätze (Info auf der Flotte-Seite) ---------- */
+.regeln { margin: 6px 0 12px; padding-left: 20px; display: grid; gap: 4px; }
+.startplatz-reihe { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.startplatz-chip { text-align: center; padding: 6px 2px; border: 1px solid #16406c; border-radius: 3px; background: rgba(6,20,46,.85); color: var(--leise); font-size: .78rem; }
+.startplatz-chip b { display: block; font-size: 1.1rem; color: var(--leise); }
+.startplatz-chip.frei { border-color: var(--tuerkis); color: var(--text); background: rgba(16,70,100,.6); }
+.startplatz-chip.frei b { color: #fff; }
+@media (min-width: 600px) { .startplatz-reihe { grid-template-columns: repeat(10, minmax(0, 1fr)); } }
+.platzhalter-info { text-align: left; }
+
 /* ---------- Platzhalter ---------- */
 .platzhalter { text-align: center; padding: 26px 14px; }
 .platzhalter .gross { font-size: 1.1rem; color: var(--gold); font-weight: 700; margin: 8px 0; }
@@ -231,12 +225,6 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
   .tabelle .eng-weg { display: none; }
   .planet-karte .planet-bild { width: 88px; height: 88px; }
 }
-/* Handy: „Spiel starten“ bleibt unten sichtbar */
-@media (max-width: 859px) {
-  .start-knopf { position: sticky; bottom: 0; z-index: 4; margin: 0 -12px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: rgba(3,10,28,.95); border-top: 1px solid var(--rand); }
-  .start-knopf .knopf { width: 100%; }
-}
-
 /* ---------- Desktop: feste Menüleiste links ---------- */
 @media (min-width: 860px) {
   :root { font-size: 15px; }
@@ -245,7 +233,7 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
   .kopf-logo { width: calc(var(--menue-breite) - 14px); flex: none; }
   .kopf-logo img { height: 38px; }
   .ressourcen-leiste, .ressourcen-leiste[data-anzahl="7"] { flex: 1; grid-template-columns: repeat(var(--anzahl, 7), minmax(0, 1fr)); gap: 6px; }
-  .ressourcen-leiste[data-anzahl="7"] .rs { grid-column: auto; }
+  .ressourcen-leiste[data-anzahl="7"] .rs:nth-child(n) { grid-column: auto; } /* gleiche Spezifität wie die Handy-Regel */
   .rs { padding: 5px 7px; gap: 7px; }
   .rs-icon { width: 26px; height: 26px; }
   .rs-name { display: block; }
@@ -255,10 +243,4 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
   .menue-schleier { display: none !important; }
   .inhalt-feld { padding: 16px 22px; }
   .zwei-spalten { grid-template-columns: 1fr 1fr; }
-  .neu-inhalt { display: grid; grid-template-columns: 1fr 340px; gap: 0 20px; }
-  .neu-inhalt > * { grid-column: 1; }
-  .neu-inhalt > .details { grid-column: 2; grid-row: 1 / span 4; position: sticky; top: 70px; align-self: start; }
-  .neu-inhalt > .start-knopf { grid-column: 2; grid-row: 5; align-self: start; margin-top: 0; }
-  .start-knopf .knopf { width: 100%; }
-  .startplatz-raster { grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); }
 }
