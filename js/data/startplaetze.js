@@ -1,16 +1,14 @@
 /*
- * Sternenspiel – Startplätze = Start-/Abschussplattformen (Launch Pads) für Flotten auf dem Hauptplaneten.
- * NUR Doku/Datenmodell-Platzhalter – in Kapitel 1 NICHT sichtbar. Ausbau, Kosten und Flottenstart folgen in einem späteren eigenen Kapitel.
+ * Sternenspiel – Startplätze = Start-/Abschussplattformen (Launch Pads) für Flotten, gebaut über den Raumflughafen (Kapitel 2).
  *
  * FEST (Sandro):
  *  - bis zu 10 Startplätze, mit Buchstaben beschriftet
- *  - jeder Startplatz hat eigene Ausbaustufen 1–15, die Kosten steigen stark
- *  - neue Startplätze werden punktebasiert freigeschaltet (Schwellen offen)
+ *  - jeder Startplatz hat eigene Ausbaustufen 1–15, deutlich teurer je Stufe
+ *  - neue Startplätze werden nach Spielerpunkten freigeschaltet
  *  - Kapazität zählt NUR die Anzahl Schiffe (Größe egal)
  *  - die Summe aller Startplätze begrenzt, wie viele Schiffe gleichzeitig starten können
- *  - mit wachsender Flotte muss man immer wieder ausbauen
- *  - keine Zuordnung Schiff → Startbahn, nur Kapazität
- * ANNAHME: Buchstaben A–J; Start mit Startplatz A auf Stufe 1 (siehe konstanten.js).
+ *  - keine Zuordnung Schiff → Startplatz, nur Kapazität
+ * ANNAHME: Buchstaben A–J, Kapazität/Kosten/Punkteschwellen (siehe konstanten.js → STARTPLAETZE).
  */
 (function (g) {
   "use strict";
@@ -21,20 +19,15 @@
   SS.DATEN.startplatzBuchstaben = Object.freeze(K.BUCHSTABEN.split("").slice(0, K.MAX_ANZAHL));
 
   SS.DATEN.startplatzRegeln = Object.freeze([
-    "Bis zu " + K.MAX_ANZAHL + " Startplätze, beschriftet mit Buchstaben (" + K.BUCHSTABEN[0] + "–" + K.BUCHSTABEN[K.MAX_ANZAHL - 1] + ").",
-    "Jeder Startplatz hat eigene Ausbaustufen " + K.STUFE_MIN + "–" + K.STUFE_MAX + "; die Kosten steigen stark.",
-    "Neue Startplätze werden über Punkte freigeschaltet.",
-    "Die Kapazität zählt nur die Anzahl der Schiffe – die Größe ist egal.",
-    "Die Summe aller Startplätze begrenzt, wie viele Schiffe gleichzeitig starten können.",
-    "Wächst die Flotte, müssen die Startplätze immer wieder ausgebaut werden.",
-    "Schiffe werden keinem bestimmten Startplatz zugeordnet – es zählt nur die Gesamtkapazität."
+    "Bis zu " + K.MAX_ANZAHL + " Startplätze (" + K.BUCHSTABEN[0] + "–" + K.BUCHSTABEN[K.MAX_ANZAHL - 1] + "), jeder mit eigenen Stufen " + K.STUFE_MIN + "–" + K.STUFE_MAX + ".",
+    "Jede Stufe ist deutlich teurer als die vorige.",
+    "Neue Startplätze werden mit steigenden Spielerpunkten freigeschaltet.",
+    "Kapazität = Anzahl Schiffe (Größe egal); die Summe aller Startplätze begrenzt gleichzeitige Starts.",
+    "Schiffe werden keinem Startplatz zugeordnet – es zählt nur die Gesamtkapazität."
   ]);
 
-  /** Anfangszustand der Startplätze für einen neuen Spielstand (ANNAHME: A frei, Stufe 1). */
+  /** Anfangszustand der Startplätze eines Planeten: alle Stufe 0 (noch nicht gebaut). */
   SS.DATEN.startplaetzeAnfang = function () {
-    return SS.DATEN.startplatzBuchstaben.map(function (b, i) {
-      var frei = i < K.START_FREIGESCHALTET;
-      return { buchstabe: b, stufe: frei ? K.START_STUFE : 0, freigeschaltet: frei };
-    });
+    return SS.DATEN.startplatzBuchstaben.map(function (b) { return { buchstabe: b, stufe: 0 }; });
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

@@ -1,5 +1,22 @@
 # Playtest-Notizen
 
+## Kapitel 2 – Anlagen (0.6.0) – 2026-10-19
+- `node --test tests/`: 44/44 grün (davon 14 neu in `tests/anlagen.test.js`: Kosten, Produktion je Stufe, Energiedrosselung,
+  Ölverbrennung, Kunststoff-Inputs/Drosselung, Bauauftrag inkl. Offline-Fertigstellung, Startplätze Freischaltung/Kapazität, Migration).
+- `node tests/playtest-kapitel2.js` (file://, Desktop 1366×768 + Handy 412×915): Chromium 118/118, Firefox 118/118 grün.
+  Geprüft: Version 0.6.0, Datenmodell v4, Leiste 7 Rohstoffe ohne Antimaterie (Desktop 1 Reihe, Handy 4+3), Strom „Erzeugung / Bedarf“,
+  Übersicht (Planet, Koordinaten, Sektor, System, Punkte, Bauauftrag, 4 Knöpfe, keine Startplätze), 5 Platzhalterseiten,
+  Anlagen (4 Gruppen, 14 Kacheln, alle SVGs geladen, deaktivierte Knöpfe mit Grund), Solarfarm → Metallmine bauen + vorspulen
+  (Stufe 1, Metall 30 → 63/h), 1 Std. Produktion vorgespult, Abbrechen mit voller Erstattung, Ressourcen-Tabellen, Regler 50 %,
+  Raumflughafen + Startplatz A (Kapazität 5), J gesperrt, Offline-Fertigstellung nach Neuladen (Dialog „Metallmine Stufe 2
+  fertiggestellt“), kein Überlauf, keine Konsolenfehler/externen Anfragen.
+- `node tests/playtest-kapitel1-profile.js`: Chromium + Firefox 134/134 (Erwartung „Altspieler migriert“ auf v4 angepasst).
+- `tests/playtest-kapitel1-struktur.js` entfernt (prüfte Ressourcen/Anlagen als Platzhalter) – ersetzt durch `playtest-kapitel2.js`.
+- Gefunden & behoben: Umgebungsvariable `BROWSER` ist auf der Box vorbelegt → Playtests nutzen jetzt `PLAYTEST_BROWSER`;
+  Knopf „Zu den Anlagen“ wurde auch auf der Anlagen-Seite angezeigt → dort ausgeblendet.
+- Screenshots: `kapitel2-desktop-anlagen.png`, `kapitel2-desktop-ressourcen.png`, `kapitel2-desktop-uebersicht.png`,
+  `kapitel2-handy-anlagen.png`, `kapitel2-raumflughafen.png` (Desktop), `kapitel2-handy-raumflughafen.png`.
+
 ## Kapitel 1 – reine Seitenstruktur (0.5.0) – 2026-10-19
 - `node --test tests/`: 29/29 grün.
 - `node tests/playtest-kapitel1-struktur.js` (Chrome headless, `file://`): Handy 412×915 + Desktop 1366×768 – 8 Seiten in fester

@@ -1,11 +1,12 @@
 {
   "name": "sternenspiel",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
-  "description": "Sternenspiel – Offline-Browser-Aufbauspiel im Weltraum (Kapitel 1: reine Seitenstruktur)",
+  "description": "Sternenspiel – Offline-Browser-Aufbauspiel im Weltraum (Kapitel 2: Anlagen)",
   "scripts": {
     "test": "node --test tests/",
-    "playtest": "node tests/playtest-kapitel1-struktur.js && node tests/playtest-kapitel1-profile.js",
-    "playtest:live": "LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel1-struktur.js && LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel1-profile.js"
+    "playtest": "node tests/playtest-kapitel2.js && node tests/playtest-kapitel1-profile.js",
+    "playtest:firefox": "PLAYTEST_BROWSER=firefox node tests/playtest-kapitel2.js",
+    "playtest:live": "LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel2.js && LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel1-profile.js"
   }
 }

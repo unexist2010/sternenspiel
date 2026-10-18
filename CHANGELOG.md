@@ -1,5 +1,39 @@
 # Changelog – Sternenspiel
 
+## [0.6.0] – 2026-10-19 – Kapitel 2: Anlagen
+
+Sandro hat Kapitel 1 abgenommen und Kapitel 2 „Anlagen“ freigegeben.
+
+### Neu
+- **Anlagen** als OGame-ähnliche Kacheln in 4 Gruppen (Ressourcenabbau, Energie, Kunststoffproduktion, Weitere Anlagen):
+  Metallmine, Siliziummine, Bohrstation, Solarfarm, Ölverbrennungsstation, Solarsatelliten (nur Anzeige), Kunststoffwerk T1–T3,
+  Geologiestation, Raumflughafen, Werft, Verteidigungswerft, Forschungseinrichtung – je eigenes SVG (`assets/gebaeude/`),
+  Stufe, Beschreibung, Kosten/Bauzeit der nächsten Stufe, Wirkung jetzt/nächste Stufe, Knopf „Bauen/Ausbauen“ (deaktiviert mit Grund)
+- **Bauauftrag**: 1 Bauplatz je Planet, Echtzeit + Offline (stückweise simuliert, Aufträge enden genau pünktlich),
+  Fortschrittsbalken, Abbrechen mit voller Erstattung (ANNAHME)
+- **Energie**: Strom als Bilanz mit Produktionsfaktor (OGame-Stil); Regler 0–100 % je Gebäude (Seite Ressourcen)
+- **Kunststoff-Kette** T1 (Rohöl), T2 (Rohöl + Metall), T3 (2000 Rohöl + 2000 Silizium + 750 Metall je Einheit) mit Drosselung,
+  Bestände nie negativ
+- **Raumflughafen** mit Unterseite `#anlagen/raumflughafen`: Startplätze A–J, Stufe 1–15, Punkte-Freischaltung, Gesamtkapazität
+- **Punkte** (1 je 1.000 verbaute, gewichtete Rohstoffe), Geologiestation (Rohölfelder/h), Datenmodell `planeten[]` mit
+  `istHauptplanet`, `rohoelfelder`, `bauauftrag`, `startplaetze`
+- Neue Kernmodule `js/kern/bau.js`; `js/kern/produktion.js` neu (Raten, Energie, Simulation)
+
+### Zurück (aus 0.4.0, erweitert)
+- **Ressourcen-Seite**: Rohstofftabelle (Bestand, Produktion, Verbrauch, Netto je Std.), Energiebilanz, Produktion je Gebäude
+- **Übersicht**: Hauptplanet mit Koordinaten, Sektor, System, Position; Kommandant (Punkte), Bauauftrag, Spielstand-Knöpfe
+  inkl. „Laden“
+- **Ressourcenleiste** mit Rate „/h“; Kunststoff T1–T3 sichtbar (Antimaterie weiter ausgeblendet); Strom als „Erzeugung / Bedarf“
+
+### Geändert / Entfernt
+- Lagergrenzen entfernt (keine Speichergebäude); vorläufige Grundproduktion ersetzt durch kleine Grundproduktion am
+  Hauptplaneten (Metall 30, Silizium 15/h); Startbestand Metall 500, Silizium 300, Rohöl 100
+- Spielstand **v4** mit Migration von v1–v3 (alte Startplatz-/Gebäude-/Lager-Felder verworfen, Strom = 0)
+- Version **0.6.0** (Cache-Schutz `?v=0.6.0`)
+- Tests: neue Node-Tests `tests/anlagen.test.js` (44 Node-Tests gesamt); Playtest `tests/playtest-kapitel2.js` ersetzt
+  `playtest-kapitel1-struktur.js`; Umgebungsvariable für die Browserwahl heißt jetzt `PLAYTEST_BROWSER`
+- Screenshots `playtest/kapitel2-*.png`
+
 ## [0.5.0] – 2026-10-19 – Kapitel 1: reine Seitenstruktur
 
 Sandros Klarstellung: Kapitel 1 ist **nur Seitenstruktur + Layout**; jeder Menüpunkt bzw. jede Mechanik bekommt ein eigenes Kapitel.

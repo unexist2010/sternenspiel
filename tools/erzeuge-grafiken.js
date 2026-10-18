@@ -104,3 +104,90 @@ ${PLANET_RING(32, 32)}
 schreibe("favicon.svg", svg(64, 64, `${EMBLEM}<rect width="64" height="64" rx="12" fill="#04102a"/>${PLANET_RING(32, 32)}`));
 schreibe("emblem.svg", svg(64, 64, `${EMBLEM}${PLANET_RING(32, 32)}`));
 console.log("fertig.");
+
+// ---------- Gebäude (Kapitel 2) – 96×96, eigener Stil: Kachel mit Himmel, Boden und Bauwerk ----------
+const GEB_RAHMEN = (himmel, boden, inhalt) => `
+<defs>
+  <linearGradient id="h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${himmel[0]}"/><stop offset="1" stop-color="${himmel[1]}"/></linearGradient>
+  <linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${boden[0]}"/><stop offset="1" stop-color="${boden[1]}"/></linearGradient>
+  <linearGradient id="m" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9e6f2"/><stop offset="1" stop-color="#6b7f95"/></linearGradient>
+  <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3fe0e0"/><stop offset="1" stop-color="#1a7fa8"/></linearGradient>
+  <clipPath id="c"><rect x="2" y="2" width="92" height="92" rx="9"/></clipPath>
+</defs>
+<g clip-path="url(#c)">
+  <rect width="96" height="96" fill="url(#h)"/>
+  <circle cx="18" cy="16" r="0.9" fill="#fff" opacity="0.8"/><circle cx="74" cy="12" r="0.7" fill="#fff" opacity="0.7"/><circle cx="58" cy="24" r="0.6" fill="#cfe8ff" opacity="0.7"/><circle cx="86" cy="30" r="0.8" fill="#fff" opacity="0.6"/>
+  <path d="M0 70 Q24 62 48 68 T96 66 V96 H0 Z" fill="url(#b)"/>
+  ${inhalt}
+</g>
+<rect x="2" y="2" width="92" height="92" rx="9" fill="none" stroke="#2f6fa8" stroke-width="2"/>`;
+const NACHT = ["#0a1c40", "#071026"], DAEMMERUNG = ["#1a2a5a", "#3a2a4a"];
+const GEB = {
+  metallmine: GEB_RAHMEN(NACHT, ["#5c6470", "#2a2f38"], `
+    <path d="M14 70 L30 40 L46 70 Z" fill="#7d8796"/><path d="M30 40 L46 70 L38 70 Z" fill="#4f5866"/>
+    <rect x="50" y="34" width="6" height="36" fill="url(#m)"/><path d="M44 34 H72 L66 40 H50 Z" fill="#9fb3c8"/>
+    <rect x="62" y="40" width="3" height="30" fill="#6b7f95"/><circle cx="63.5" cy="36" r="6" fill="none" stroke="#c9d6e3" stroke-width="2.5"/>
+    <rect x="58" y="58" width="22" height="12" rx="2" fill="#3b4a5e"/><rect x="61" y="61" width="6" height="4" fill="#ffd166"/>
+    <path d="M18 76 h18 l-3 6 h-12z" fill="#9fb3c8"/><circle cx="22" cy="83" r="2" fill="#222"/><circle cx="32" cy="83" r="2" fill="#222"/>`),
+  siliziummine: GEB_RAHMEN(NACHT, ["#3a5560", "#1c2a33"], `
+    <path d="M18 70 L26 46 L34 70Z" fill="#7fd1c7"/><path d="M28 70 L38 38 L48 70Z" fill="#5fb8b0"/><path d="M38 38 L48 70 L43 70Z" fill="#3e8f8a"/>
+    <path d="M22 60 L26 46 L30 60Z" fill="#c9fff7" opacity="0.6"/>
+    <rect x="56" y="42" width="24" height="28" rx="2" fill="#2d4a5a"/><path d="M54 42 H82 L68 32Z" fill="#4a7a8c"/>
+    <rect x="60" y="48" width="6" height="6" fill="#7fd1c7"/><rect x="70" y="48" width="6" height="6" fill="#7fd1c7"/><rect x="65" y="60" width="6" height="10" fill="#18303c"/>`),
+  bohrstation: GEB_RAHMEN(DAEMMERUNG, ["#4a3a28", "#221a10"], `
+    <path d="M30 70 L40 22 L50 70" fill="none" stroke="#c9a46a" stroke-width="3"/><path d="M33 56 H47 M35 44 H45 M37 32 H43" stroke="#c9a46a" stroke-width="2"/>
+    <rect x="38" y="16" width="4" height="8" fill="#ff9f43"/>
+    <path d="M56 66 L70 52 L84 58" fill="none" stroke="#8a6a3a" stroke-width="4" stroke-linecap="round"/><circle cx="70" cy="52" r="4" fill="#5a4024"/>
+    <rect x="54" y="62" width="30" height="8" rx="2" fill="#3a2a18"/>
+    <ellipse cx="22" cy="80" rx="12" ry="4" fill="#120c06"/><ellipse cx="22" cy="79" rx="8" ry="2" fill="#2b1d0e"/>`),
+  solarfarm: GEB_RAHMEN(["#1e4a8a", "#0b2148"], ["#3c5a3a", "#1b2a1a"], `
+    <circle cx="78" cy="18" r="9" fill="#ffd75e"/><circle cx="78" cy="18" r="13" fill="#ffd75e" opacity="0.25"/>
+    <g transform="translate(10 52) skewX(-25)"><rect width="26" height="14" fill="#1a4aa0" stroke="#7cc4ff" stroke-width="1"/><path d="M8.6 0V14M17.3 0V14M0 7H26" stroke="#7cc4ff" stroke-width="0.8"/></g>
+    <g transform="translate(44 52) skewX(-25)"><rect width="26" height="14" fill="#1a4aa0" stroke="#7cc4ff" stroke-width="1"/><path d="M8.6 0V14M17.3 0V14M0 7H26" stroke="#7cc4ff" stroke-width="0.8"/></g>
+    <g transform="translate(26 72) skewX(-25)"><rect width="26" height="14" fill="#1a4aa0" stroke="#7cc4ff" stroke-width="1"/><path d="M8.6 0V14M17.3 0V14M0 7H26" stroke="#7cc4ff" stroke-width="0.8"/></g>
+    <path d="M12 66v6M46 66v6M28 86v6" stroke="#6b7f95" stroke-width="2"/>`),
+  oelverbrennung: GEB_RAHMEN(DAEMMERUNG, ["#3a3030", "#1a1414"], `
+    <rect x="20" y="40" width="40" height="30" rx="3" fill="#4a4f5c"/><rect x="24" y="46" width="8" height="8" fill="#ff9f43"/><rect x="36" y="46" width="8" height="8" fill="#ff9f43"/><rect x="48" y="46" width="8" height="8" fill="#ffd166"/>
+    <rect x="64" y="22" width="8" height="48" fill="#5c6270"/><rect x="64" y="26" width="8" height="3" fill="#c2410c"/><rect x="64" y="34" width="8" height="3" fill="#c2410c"/>
+    <path d="M68 20 q-6 -8 2 -12 q-2 6 6 6 q-2 6 -8 6z" fill="#ff7a1a"/><circle cx="74" cy="8" r="5" fill="#555" opacity="0.5"/><circle cx="82" cy="4" r="6" fill="#555" opacity="0.35"/>
+    <path d="M30 40 l6 -10 l6 10" fill="#ffd75e"/><path d="M34 36 l3 -5 l2 4 l3 -6" stroke="#fff3a0" stroke-width="1.5" fill="none"/>`),
+  kunststoffwerk_t1: null, kunststoffwerk_t2: null, kunststoffwerk_t3: null,
+  geologiestation: GEB_RAHMEN(NACHT, ["#4a3a28", "#221a10"], `
+    <path d="M20 70 V48 a20 20 0 0 1 40 0 V70Z" fill="#3b4a5e"/><path d="M20 48 a20 20 0 0 1 40 0" fill="url(#g)" opacity="0.35"/>
+    <rect x="34" y="56" width="12" height="14" fill="#18303c"/>
+    <path d="M66 70 L74 40" stroke="#9fb3c8" stroke-width="3"/><circle cx="74" cy="38" r="5" fill="none" stroke="#3fe0e0" stroke-width="2"/>
+    <path d="M10 84 q10 -6 20 0 t20 0 t20 0 t20 0" stroke="#3fe0e0" stroke-width="1.5" fill="none" opacity="0.8"/>
+    <ellipse cx="70" cy="86" rx="7" ry="2.5" fill="#120c06"/>`),
+  raumflughafen: GEB_RAHMEN(NACHT, ["#3b4a5e", "#1a2230"], `
+    <rect x="8" y="72" width="80" height="12" fill="#2a3444"/><path d="M14 78 H82" stroke="#ffd166" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <rect x="58" y="40" width="22" height="32" rx="2" fill="#4a5a70"/><rect x="62" y="44" width="14" height="6" fill="#3fe0e0"/><path d="M64 40 V30 h10 V40" fill="#6b7f95"/>
+    <path d="M30 70 V36 l6 -14 l6 14 V70Z" fill="url(#m)"/><path d="M30 60 l-6 10 h6Z M42 60 l6 10 h-6Z" fill="#c2410c"/><circle cx="36" cy="44" r="3" fill="#3fe0e0"/>`),
+  werft: GEB_RAHMEN(NACHT, ["#3b4a5e", "#1a2230"], `
+    <path d="M10 70 V30 H86 V70" fill="none" stroke="#6b7f95" stroke-width="3"/><path d="M10 30 L22 20 H74 L86 30" fill="none" stroke="#9fb3c8" stroke-width="2"/>
+    <rect x="44" y="30" width="2" height="12" fill="#9fb3c8"/><rect x="40" y="42" width="10" height="4" fill="#ffd166"/>
+    <path d="M22 60 L60 54 L76 60 L60 66Z" fill="url(#m)"/><path d="M60 54 L76 60 L60 66Z" fill="#6b7f95"/><circle cx="70" cy="60" r="2" fill="#3fe0e0"/>`),
+  verteidigungswerft: GEB_RAHMEN(NACHT, ["#3a3a4a", "#1a1a26"], `
+    <path d="M48 18 L74 28 V48 C74 62 62 70 48 76 C34 70 22 62 22 48 V28Z" fill="#2d4a7a" stroke="#7cc4ff" stroke-width="2"/>
+    <path d="M48 28 L64 34 V48 C64 56 57 62 48 66 C39 62 32 56 32 48 V34Z" fill="#1a3060"/>
+    <rect x="44" y="38" width="8" height="18" fill="#9fb3c8"/><rect x="38" y="44" width="20" height="6" fill="#9fb3c8"/>`),
+  forschungseinrichtung: GEB_RAHMEN(NACHT, ["#2f3a4f", "#151b28"], `
+    <rect x="18" y="46" width="40" height="24" rx="2" fill="#3b4a5e"/><path d="M18 46 a20 14 0 0 1 40 0" fill="#4a6a8c"/><rect x="34" y="34" width="8" height="6" fill="#18303c"/>
+    <rect x="24" y="54" width="6" height="6" fill="#3fe0e0"/><rect x="34" y="54" width="6" height="6" fill="#3fe0e0"/><rect x="44" y="54" width="6" height="6" fill="#3fe0e0"/>
+    <path d="M68 70 V54 l-6 -12 h16 l-6 12 V70" fill="none" stroke="#c9d6e3" stroke-width="2"/><path d="M63 64 h14 v6 h-14z" fill="#b9e07a" opacity="0.8"/>
+    <circle cx="72" cy="34" r="2" fill="#b9e07a"/><circle cx="76" cy="26" r="1.5" fill="#b9e07a" opacity="0.7"/>`),
+  solarsatellit: GEB_RAHMEN(["#081530", "#030a1a"], ["#0b2a4a", "#061428"], `
+    <circle cx="74" cy="78" r="30" fill="#1f6fbf" opacity="0.6"/>
+    <g transform="rotate(-20 48 40)"><rect x="12" y="34" width="26" height="12" fill="#1a4aa0" stroke="#7cc4ff"/><rect x="58" y="34" width="26" height="12" fill="#1a4aa0" stroke="#7cc4ff"/>
+    <path d="M38 40 H58" stroke="#9fb3c8" stroke-width="2"/><rect x="42" y="32" width="12" height="16" rx="2" fill="url(#m)"/><circle cx="48" cy="40" r="2.5" fill="#3fe0e0"/>
+    <path d="M20.6 34V46M29.3 34V46M66.6 34V46M75.3 34V46" stroke="#7cc4ff" stroke-width="0.8"/></g>`)
+};
+const WERK = (farbe, zahl, extra) => GEB_RAHMEN(NACHT, ["#3a3f4a", "#1a1d24"], `
+    <rect x="12" y="44" width="50" height="26" fill="#3b4a5e"/><path d="M12 44 l10 -8 v8 l10 -8 v8 l10 -8 v8 l10 -8 v8 l10 -8 v8" fill="#4f6178"/>
+    <rect x="66" y="26" width="14" height="44" rx="5" fill="${farbe}" opacity="0.9"/><rect x="66" y="26" width="14" height="6" rx="3" fill="#fff" opacity="0.3"/>
+    <rect x="18" y="52" width="8" height="8" fill="${farbe}"/><rect x="30" y="52" width="8" height="8" fill="${farbe}"/><rect x="42" y="52" width="8" height="8" fill="${farbe}"/>
+    <rect x="52" y="20" width="5" height="24" fill="#5c6270"/><circle cx="56" cy="14" r="4" fill="#888" opacity="0.4"/>
+    <text x="73" y="56" font-family="Verdana,Arial,sans-serif" font-size="12" font-weight="700" fill="#04102a" text-anchor="middle">T${zahl}</text>${extra || ""}`);
+GEB.kunststoffwerk_t1 = WERK("#b9e07a", 1);
+GEB.kunststoffwerk_t2 = WERK("#7ac8e0", 2);
+GEB.kunststoffwerk_t3 = WERK("#c58cf0", 3, `<circle cx="86" cy="20" r="2" fill="#c58cf0"/>`);
+Object.entries(GEB).forEach(([id, inhalt]) => schreibe(`gebaeude/${id}.svg`, svg(96, 96, inhalt)));

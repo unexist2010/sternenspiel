@@ -1,9 +1,9 @@
 # Sternenspiel – Spezifikation
 
-Stand: 2026-10-19 · Kapitel 1 = reine Seitenstruktur (0.5.0)
+Stand: 2026-10-19 · Kapitel 2 = Anlagen (0.6.0) · Kapitel 1 = reine Seitenstruktur (0.5.0)
 
 **Wichtig:** Abschnitt A enthält nur, was Sandro festgelegt hat (**FEST**). Alles in Abschnitt B ist von mir
-gesetzt (**ANNAHME**) und kann jederzeit geändert werden – Zahlen stehen zentral in `js/data/konstanten.js`.
+gesetzt (**ANNAHME**) und kann jederzeit geändert werden – Zahlen stehen zentral in `js/data/konstanten.js`. Abschnitt C beschreibt die Formeln und Werte von Kapitel 2; Zahlen dort sind ANNAHME, außer wo FEST steht.
 
 ---
 
@@ -82,6 +82,31 @@ gesetzt (**ANNAHME**) und kann jederzeit geändert werden – Zahlen stehen zent
 | 47 | Spielerprofile, automatischer Start, Speichern, Start-Fix, Versionsmarke bleiben; **Version 0.5.0** | `SS.VERSION`, `data-version`, `?v=0.5.0` |
 | 48 | **Jeder Menüpunkt bzw. einzelne Mechaniken bekommen später eigene Kapitel**; Weltraum-Ansicht und Startplätze später | `docs/KAPITELPLAN.md` |
 
+### A6. Kapitel 2 „Anlagen“ (Freigabe 2026-10-19, gilt vor A5 für Ressourcen/Anlagen/Übersicht)
+
+| # | Punkt | Umsetzung |
+|---|-------|-----------|
+| 49 | **Ressourcen-Seite zurück** (Rohstofftabelle Bestand/Produktion/Verbrauch/Netto je Std.), ergänzt um Produktion je Gebäude, Energiebilanz, Verbrauch | `seiteRessourcen` in `js/ui/app.js` |
+| 50 | **Übersicht** wie früher: Hauptplanet, Koordinaten, Sektor, System, Spielstand-Knöpfe – **ohne** Startplatz/Stufe; zusätzlich laufender Bauauftrag + Punkte | `seiteUebersicht` |
+| 51 | Forschung, Werft, Verteidigung, Flotte, Weltraum bleiben **leere Platzhalter** | `seitePlatzhalter` |
+| 52 | Ressourcenleiste: Metall, Silizium, Rohöl, Strom **+ Kunststoff T1–T3 sichtbar**; Antimaterie bleibt ausgeblendet | `freigeschaltet.kunststoff_t1..t3 = true`, `antimaterie = false` |
+| 53 | **Metallmine, Siliziummine** (gleiche Mechanik), **Bohrstation**: am Hauptplaneten unbegrenzt, auf anderen Planeten begrenzt durch Rohölfelder der Geologiestation | `planet.istHauptplanet`, `planet.rohoelfelder`, `produktion.nutzbareBohrStufe` |
+| 54 | **Solarfarm** ohne laufende Kosten; **Ölverbrennungsstation** mehr Strom, verbraucht dauerhaft Rohöl | `gebaeude.js` |
+| 55 | **Solarsatelliten** nur Anzeige/Verwaltung (Anzahl, Energie je Satellit, Regler) – Bau später in der Werft | `SS.DATEN.solarsatellit`, `planet.solarsatelliten` |
+| 56 | **Kunststoffwerk T1–T3** mit eigenen Stufen: T1 aus Rohöl, T2 aus Rohöl + Metall, T3 je Einheit **2000 Rohöl + 2000 Silizium + 750 Metall**; bei Mangel drosseln/stoppen, nie negativ | `werk.input`, `produktion.raten` |
+| 57 | **Geologiestation** findet Rohölfelder pro Stunde | `geologie`, `felderProStunde` |
+| 58 | **Raumflughafen mit Startplätzen**: bis zu 10 (A–J, A–Z offen), Stufe 1–15, je Stufe deutlich teurer, neue Plätze über Spielerpunkte, Kapazität = Anzahl Schiffe, Gesamtkapazität angezeigt | `#anlagen/raumflughafen`, `bau.startplatzKosten/startplatzFrei/kapazitaet` |
+| 59 | **Werft, Verteidigungswerft, Forschungseinrichtung**: nur Gebäude; Forschungseinrichtung zeigt den Forschungszeit-Wert | `forschungszeit: true`, `bau.forschungszeitFaktor` |
+| 60 | Stufen bis **mindestens 30**, zentral konfiguriert; Kostenfaktor **1,5–2,0** je Stufe | `GEBAEUDE_MAX_STUFE = 30`, `faktor` je Gebäude |
+| 61 | Bauzeit nach **OGame-Formel**, Haken-Faktor = 1 für spätere Robotik-Forschung | `bau.bauzeitMs`, `BAUZEIT.FAKTOR`, `bauzeitFaktorForschung()` |
+| 62 | **Keine** Speichergebäude, Allianzdepot, Roboter-/Nanitenfabrik; Lagergrenzen entfernt | `lagerKapazitaet() = Infinity`, Migration |
+| 63 | **Strom** als OGame-Bilanz mit Produktionsfaktor; Leiste zeigt verfügbar / Bedarf | `raten().strom` |
+| 64 | **Ein Bauplatz je Planet**, Echtzeit + Offline (stückweise berechnet) | `planet.bauauftrag`, `produktion.simuliereBis` |
+| 65 | Kleine **Grundproduktion am Hauptplaneten**, Startbestand reicht für erste Minen; Punkte = verbaute Rohstoffe | `GRUNDPRODUKTION_HAUPTPLANET`, `STARTBESTAND`, `PUNKTE` |
+| 66 | **Keine** Schiffe, Verteidigung, Forschung, Kampf, Flottenbewegung | – |
+| 67 | Anlagen-Oberfläche als **Kacheln in Gruppen** (Ressourcenabbau, Energie, Kunststoffproduktion, Weitere Anlagen) mit eigenem SVG, Stufe, Beschreibung, Kosten nächste Stufe, Bauzeit, Produktion/Verbrauch jetzt + nächste Stufe, Knopf „Ausbauen“ (deaktiviert mit Grund) | `seiteAnlagen`, `anlageKachel`, `assets/gebaeude/*.svg` |
+| 68 | Alle Werte zentral in `js/data`, Formeln hier dokumentiert (Abschnitt C) | `konstanten.js`, `gebaeude.js`, `startplaetze.js` |
+
 ---
 
 ## B. Annahmen (ANNAHME – nicht von Sandro festgelegt)
@@ -99,7 +124,7 @@ gesetzt (**ANNAHME**) und kann jederzeit geändert werden – Zahlen stehen zent
 | **Start-Koordinate** | **zufällig** und gleichverteilt über alle 300 Systeme und 12 Positionen (im Solo-Spiel ist jede Koordinate frei; „besetzt“-Prüfung für KI ab Kapitel 7 vorbereitet) |
 | Name des Hauptplaneten | frei wählbar, sonst erzeugter Planetenname |
 
-### B1a. Startplätze (nur Doku/Datenmodell, nicht sichtbar – eigenes späteres Kapitel)
+### B1a. Startplätze (Stand 0.5.0 – **ersetzt durch C4**)
 
 | Annahme | Wert |
 |---------|------|
@@ -108,7 +133,7 @@ gesetzt (**ANNAHME**) und kann jederzeit geändert werden – Zahlen stehen zent
 | Datenmodell | `zustand.startplaetze = [{ buchstabe: "A", stufe: 1, freigeschaltet: true }, { buchstabe: "B", stufe: 0, freigeschaltet: false }, …]` (immer 10 Einträge), `zustand.punkte = 0` |
 | Offene Konstanten | `KAPAZITAET_PRO_STUFE`, `KOSTEN_FORMEL`, `FREISCHALT_PUNKTE` sind `null` bis zum Startplätze-Kapitel |
 
-### B2. Wirtschafts-Unterbau (vorläufig, wird im Anlagen-Kapitel ersetzt/ergänzt)
+### B2. Wirtschafts-Unterbau (Stand 0.5.0 – **ersetzt durch Abschnitt C**)
 
 | Annahme | Wert |
 |---------|------|
@@ -127,11 +152,92 @@ gesetzt (**ANNAHME**) und kann jederzeit geändert werden – Zahlen stehen zent
 | Platzhalter zeigen im Menü eine Marke „Kap. X“ | Orientierung |
 | Navigation über Adress-Anker (`#weltraum/system/133`) | funktioniert offline über `file://`, Zurück-Taste des Browsers geht |
 | Klassische `<script>`-Dateien mit Namensraum `SS` statt ES-Module | Chrome blockiert ES-Module über `file://` |
-| Spielstand-Format **v3** (`heimat`, `freigeschaltet`, `startplaetze`, `punkte`; kein `startplatz` mehr), automatische Migration von v1/v2: Heimat behalten (falls gültig, sonst zufällig neu), alte Startplatz-Felder verwerfen | alte Spielstände bleiben ladbar |
-| Übersicht behält zusätzlich den Knopf **„Zurücksetzen“** (nur aktiver Spieler, aus den Spielerprofil-Vorgaben A4/38); „Laden“ entfällt (Laden = „Spielen“ in der Spielerauswahl) | Profil-Funktion bleibt erreichbar |
-| Ressourcenleiste zeigt nur den Bestand (keine Rate „/h“); die vorläufige Grundproduktion läuft im Hintergrund weiter | Platzhalter, Unterbau für Offline-Fortschritt |
+| Spielstand-Format **v4** (ab 0.6.0, siehe C6); früher **v3** (`heimat`, `freigeschaltet`, `startplaetze`, `punkte`; kein `startplatz` mehr), automatische Migration von v1/v2: Heimat behalten (falls gültig, sonst zufällig neu), alte Startplatz-Felder verwerfen | alte Spielstände bleiben ladbar |
+| Übersicht behält zusätzlich den Knopf **„Zurücksetzen“** (nur aktiver Spieler, aus den Spielerprofil-Vorgaben A4/38); ab 0.6.0 wieder Knopf „Laden“ (letzten Speicherstand laden) | Profil-Funktion bleibt erreichbar |
+| Ressourcenleiste zeigt Bestand + Netto-Rate „/h“ (ab 0.6.0); Strom als „Erzeugung / Bedarf“ | Kapitel 2 |
 | Spielerprofile: **Name Pflicht**, keine doppelten Namen (Groß-/Kleinschreibung egal), höchstens **20** Spieler je Browser | übersichtliche Liste, eindeutige Anzeige |
 | „Zurücksetzen“ behält **Name und Hauptplanet** des Spielers, setzt Rohstoffe/Fortschritt auf Start | Spieler bleibt erkennbar |
 | Übernommener Altstand heißt bei Namensgleichheit „Name (alt)“; kaputte Stände werden als `…_defekt…` gesichert statt gelöscht | nichts geht verloren |
 | Versionsnummer `SS.VERSION` = `data-version` in `index.html` = `?v=` an allen Dateien (Test prüft das) | Cache-Schutz nach Updates |
 | Grafiken als SVG, per Skript erzeugt | klein, scharf auf allen Bildschirmen, reproduzierbar |
+
+---
+
+## C. Kapitel 2 „Anlagen“ – Formeln und Werte
+
+Alle Zahlen stehen zentral in `js/data/konstanten.js` (`SS.BALANCE`) und `js/data/gebaeude.js`. Formeln sind OGame-ähnlich;
+**konkrete Zahlen sind ANNAHME**, sofern nicht in A6 genannt.
+
+### C1. Formeln
+
+| Größe | Formel | Code |
+|-------|--------|------|
+| Kosten Stufe n | `floor(Grundkosten · Faktor^(n−1))` je Rohstoff | `bau.gebaeudeKosten` |
+| Ertrag / Strombedarf / Stromerzeugung / Ölverbrauch bei Stufe n | `Basis · n · 1,1^n` (× Regler) | `produktion.wachstum` |
+| Bauzeit | `(Metall + Silizium) / 2500` Std. × `BAUZEIT.FAKTOR` (1) × `bauzeitFaktorForschung()` (1, Haken für Robotik), mindestens 5 s | `bau.bauzeitMs` |
+| Produktionsfaktor Strom | `f = min(1, Erzeugung / Bedarf)`; Bedarf = Σ Strombedarf der Verbraucher bei Regler-Stufe | `produktion.raten` |
+| Gedrosselte Erträge | Minen, Bohrstation, Kunststoffwerke, Geologie × f; Strombedarf bleibt voll (OGame) | 〃 |
+| Ölverbrennung | Strom und Ölverbrauch × Anteil verfügbaren Rohöls (Fixpunkt-Iteration mit der Energiebilanz) | 〃 |
+| Kunststoffwerk | Ausstoß = `Basis · n · 1,1^n · f · Regler`; Input = Ausstoß × Input je Einheit; reicht der Bestand nicht, teilen sich alle Werke den Rohstoff anteilig, Bestand nie negativ | 〃 |
+| Bohrstation Nicht-Hauptplanet | nutzbare Stufe = `min(Stufe, floor(rohoelfelder))` | `nutzbareBohrStufe` |
+| Simulation | Schritte zu 60 s (`SIM_SCHRITT_MS`); Bauaufträge werden genau zum Endzeitpunkt fertig, danach gilt die neue Stufe | `produktion.simuliereBis` |
+| Offline | Produktion max. 24 Std. angerechnet; Bauaufträge werden **immer** fertiggestellt | `offlineFortschritt` |
+| Punkte | `Σ (Kosten je Rohstoff · Gewicht) / 1000`, bei Fertigstellung gutgeschrieben | `bau.punkteFuer` |
+| Forschungszeit-Faktor | `1 / (1 + Stufe Forschungseinrichtung)` (Anzeige, Forschung folgt) | `bau.forschungszeitFaktor` |
+
+### C2. Gebäude (Stufe 1, Faktor je Stufe, Wirkung)
+
+| Gebäude | Kosten Stufe 1 (M/Si/Öl/K) | Faktor | Wirkung (Basis für `·n·1,1^n`) | Strombedarf |
+|---------|------------------|--------|------------------|------|
+| Metallmine | 60 / 15 | 1,5 | +30 Metall/h | 10 |
+| Siliziummine | 48 / 24 | 1,5 | +20 Silizium/h | 10 |
+| Bohrstation | 225 / 75 | 1,5 | +15 Rohöl/h | 20 |
+| Solarfarm | 75 / 30 | 1,5 | +20 Strom | – |
+| Ölverbrennungsstation | 900 / 360 / 180 | 1,8 | +40 Strom, −10 Rohöl/h | – |
+| Kunststoffwerk T1 | 300 / 200 / 100 | 2,0 | +2 K1/h; je K1: 10 Rohöl | 10 |
+| Kunststoffwerk T2 | 1.200 / 800 / 400 + 50 K1 | 2,0 | +0,5 K2/h; je K2: 40 Rohöl + 20 Metall | 15 |
+| Kunststoffwerk T3 | 5.000 / 4.000 / 2.000 + 25 K2 | 2,0 | +0,02 K3/h; je K3: **2000 Rohöl + 2000 Silizium + 750 Metall** (FEST) | 20 |
+| Geologiestation | 400 / 300 / 100 | 1,75 | +0,1 Rohölfelder/h | 10 |
+| Raumflughafen | 1.000 / 600 / 300 | – | Höchststufe 1, schaltet Startplätze frei | – |
+| Werft | 400 / 200 / 100 | 2,0 | – (Funktion später) | – |
+| Verteidigungswerft | 300 / 300 / 100 | 2,0 | – (Funktion später) | – |
+| Forschungseinrichtung | 200 / 400 / 200 | 2,0 | Forschungszeit × 1/(1+n) | – |
+| Solarsatellit (Anzeige) | Bau später in der Werft | – | +30 Strom je Satellit | – |
+
+Höchststufe aller Gebäude: 30 (`GEBAEUDE_MAX_STUFE`), außer Raumflughafen (1). Beispiele Bauzeit Stufe 1: Metallmine 1 Min. 48 s, Solarfarm 2 Min. 31 s, Bohrstation 7 Min. 12 s.
+
+### C3. Start und Wirtschaft
+
+| Wert | ANNAHME |
+|------|---------|
+| Grundproduktion Hauptplanet | Metall 30, Silizium 15 pro Std. (ohne Strom) |
+| Startbestand | Metall 500, Silizium 300, Rohöl 100, sonst 0 |
+| Lager | unbegrenzt (keine Speichergebäude) |
+| Strom | nicht lagerbar, reine Bilanz (alte gespeicherte Strommenge wird bei der Migration 0) |
+| Punkte-Gewichte | Metall/Silizium/Rohöl 1, Kunststoff T1 2, T2 4, T3 8, Antimaterie 10 – 1 Punkt je 1.000 gewichtete Rohstoffe |
+| Bauplatz | 1 Auftrag je Planet; Abbrechen erstattet **100 %** |
+| Regler | 0–100 % in 10er-Schritten für alle Erzeuger und Solarsatelliten (Seite Ressourcen) |
+| Geologiestation am Hauptplaneten | sammelt Rohölfelder nur als Anzeige (Rohöl dort unbegrenzt) |
+
+### C4. Raumflughafen und Startplätze
+
+| Wert | ANNAHME |
+|------|---------|
+| Container | Raumflughafen (1 Stufe) muss stehen, dann Startplätze A–J als eigene Ausbauten (Unterseite `#anlagen/raumflughafen`) |
+| Stufen | 1–15 je Startplatz (FEST), Start mit **keinem** Startplatz |
+| Kosten Startplatz | `Grund (2000 M / 1000 Si / 500 Öl) · 2^(Stufe−1) · (1 + 0,25 · Platzindex)` (A = Index 0) |
+| Freischaltung | Punkte-Schwellen A–J: 0, 50, 150, 400, 1.000, 2.500, 5.000, 10.000, 20.000, 40.000 |
+| Kapazität | 5 Schiffe je Stufe; Gesamtkapazität = Summe aller Startplätze |
+
+### C5. Bauauftrag
+
+`planet.bauauftrag = { art: "gebaeude" | "startplatz", id, buchstabe, name, stufe, kosten, start, ende }` – Kosten werden beim
+Start abgezogen, Punkte bei Fertigstellung gutgeschrieben. Gründe für deaktivierte Knöpfe: „Höchststufe X erreicht.“,
+„Zuerst den Raumflughafen errichten.“, „Gesperrt bis X Punkte.“, „Es läuft bereits ein Bauauftrag.“, „Es fehlen: …“.
+
+### C6. Spielstand v4 und Migration
+
+- `zustand.planeten = [{ id: "hp", istHauptplanet: true, rohoelfelder: 0, gebaeude: {…: 0}, regler: {…: 100}, solarsatelliten: 0, bauauftrag: null, startplaetze: [{ buchstabe, stufe }] × 10 }]`
+- Migration v1/v2/v3 → v4: Rohstoffe und Heimat bleiben, neuer Hauptplanet ohne Gebäude, Strom = 0, Kunststoff-Flags an;
+  alte Felder `startplaetze`, `gebaeude`, `lagerstaetten` (v3, oben im Spielstand) werden verworfen; Lagergrenzen entfallen.
+- Profile: jeder Spieler wird beim Laden einzeln migriert.

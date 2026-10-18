@@ -1,7 +1,7 @@
 // Browser-Playtest „Start-Fix + Spielerprofile“ (playwright-core).
 // Aufruf:  node tests/playtest-kapitel1-profile.js                 → file:// (Hauptablauf) + lokaler HTTP-Server (Cache-Mix)
 //          LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel1-profile.js   → alles gegen die Live-Seite
-//          BROWSER=chromium,firefox,webkit (Standard: alle, die starten)
+//          PLAYTEST_BROWSER=chromium,firefox,webkit (Standard: alle, die starten)
 // Prüft: 2 Spieler anlegen, wechseln, getrennter Fortschritt, Reload behält Stand, Löschen mit Bestätigung,
 // alter Einzel-Spielstand (v2 mit startplatz) wird übernommen, kaputter Spielstand blockiert nicht,
 // Cache-Mix (alte HTML aus dem Zwischenspeicher + neue Skripte / neue HTML + altes Skript) → nie toter Knopf.
@@ -173,7 +173,7 @@ async function hauptablauf(browser, bname, g, basis) {
   ok(await page.isVisible("#dialog") && (await page.textContent("#dialog")).includes("Willkommen zurück"), "Altspieler: Offline-Fortschritt seit altem Speicherstand");
   await page.click("#dialog-ok");
   z = await page.evaluate(() => window.SS.app.zustand);
-  ok(z.version === 3 && !("startplatz" in z) && z.rohstoffe.metall > 1234, "Altspieler migriert (v3, ohne startplatz, Metall gewachsen)");
+  ok(z.version === 4 && !("startplatz" in z) && !("startplaetze" in z) && z.planeten[0].istHauptplanet === true && z.rohstoffe.metall > 1234, "Altspieler migriert (v4, Planet mit istHauptplanet, ohne alte Startplatz-Felder, Metall gewachsen)");
   await menueKnopf(page, handy, "#knopf-spieler-wechseln");
 
   // Kaputter Einzel-Spielstand + kaputter Profil-Spielstand blockieren nicht
@@ -258,7 +258,7 @@ async function starteBrowser(name) {
 }
 
 (async () => {
-  const namen = (process.env.BROWSER || "chromium,firefox,webkit").split(",");
+  const namen = (process.env.PLAYTEST_BROWSER || "chromium,firefox,webkit").split(",");
   let srv = null, httpBasis = LIVE;
   if (!LIVE) { srv = await starteServer(); httpBasis = `http://127.0.0.1:${srv.address().port}/`; }
   const hauptBasis = LIVE || pathToFileURL(path.join(WURZEL, "index.html")).href;

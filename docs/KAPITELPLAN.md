@@ -1,6 +1,6 @@
 # Sternenspiel – Kapitelplan
 
-Stand: 2026-10-19 · Jedes Kapitel ist für sich lauffähig, getestet (Node + Browser-Playtest Handy/Desktop) und wird einzeln committet.
+Stand: 2026-10-19 (0.6.0) · Jedes Kapitel ist für sich lauffähig, getestet (Node + Browser-Playtest Handy/Desktop) und wird einzeln committet.
 
 **FEST (Sandro, 2026-10-19):** Kapitel 1 ist **nur Seitenstruktur + Layout**. **Jeder Menüpunkt bzw. einzelne Mechaniken
 bekommen später eigene Kapitel.** Die Weltraum-Ansicht und die Startplätze kommen ebenfalls erst später.
@@ -9,6 +9,7 @@ Reihenfolge und Nummern der späteren Kapitel sind **noch offen** (legt Sandro f
 | Kapitel | Inhalt | Status |
 |---------|--------|--------|
 | 1 | **Reine Seitenstruktur**: 8 Menüseiten im gleichen Layout (ohne Inhalt), Ressourcenleiste als Platzhalter, Übersicht mit Hauptplanet + Koordinaten, Spielerprofile, automatischer Start, Speichern, Start-Fix/Versionsmarke | ✅ **erledigt** (0.5.0, 2026-10-19) |
+| 2 | **Anlagen**: 13 Gebäude in 4 Gruppen, Bauauftrag (1 je Planet), Energie-Bilanz, Kunststoff-Kette, Raumflughafen mit Startplätzen A–J, Punkte; Ressourcen-Seite + Übersicht zurück | ✅ **erledigt** (0.6.0, 2026-10-19) |
 | später | eigene Kapitel je Menüpunkt bzw. Mechanik (siehe unten) | offen |
 | – | Offene Punkte | laufend: `docs/OFFENE-PUNKTE.md` |
 
@@ -31,17 +32,27 @@ Reihenfolge und Nummern der späteren Kapitel sind **noch offen** (legt Sandro f
 - Retro-Weltraum-Stil mit eigenen SVG-Grafiken (`assets/`), alles offline
 - Tests: Node-Tests, Browser-Playtests (Handy 412×915, Desktop 1366×768) → `playtest/kapitel1-final-*.png`, `playtest/kapitel1-profile-*.png`
 
+## Kapitel 2 – Anlagen ✅
+
+- **Ressourcen-Seite**: Rohstofftabelle (Bestand/Produktion/Verbrauch/Netto), Energiebilanz, Produktion je Gebäude mit Reglern
+- **Übersicht**: Hauptplanet, Koordinaten, Sektor, System, Punkte, laufender Bauauftrag, Spielstand-Knöpfe
+- **Ressourcenleiste**: Metall, Silizium, Rohöl, Strom (Erzeugung/Bedarf), Kunststoff T1–T3; Antimaterie ausgeblendet
+- **Anlagen** (Kacheln in Gruppen): Metallmine, Siliziummine, Bohrstation · Solarfarm, Ölverbrennungsstation, Solarsatelliten
+  (Anzeige) · Kunststoffwerk T1–T3 · Geologiestation, Raumflughafen, Werft, Verteidigungswerft, Forschungseinrichtung
+- **Raumflughafen** mit Unterseite Startplätze A–J (Stufe 1–15, Punkte-Freischaltung, Kapazität)
+- Bauzeit nach OGame-Formel (Robotik-Haken = 1), Stufen bis 30, 1 Bauplatz je Planet, Offline-Fertigstellung
+- Forschung, Werft, Verteidigung, Flotte, Weltraum bleiben Platzhalter
+- Formeln/Werte: `docs/SPEZIFIKATION.md` Abschnitt C; Tests `tests/anlagen.test.js`, `tests/playtest-kapitel2.js` → `playtest/kapitel2-*.png`
+
 ## Spätere Kapitel (Sammlung, Reihenfolge offen)
 
 | Thema | Menüseite | Bekannte Vorgaben (FEST) / Notizen |
 |-------|-----------|------------------------------------|
-| Ressourcen-Seite (Rohstofftabelle, Produktion, Lager) | Ressourcen | Rohstoffe Metall, Silizium, Rohöl, Strom, Kunststoff T1–T3, Antimaterie |
-| Anlagen | Anlagen | **Geologiestation** |
 | Forschung | Forschung | Freischaltung Kunststoff T1–T3 / Antimaterie (Wodurch? offen) |
-| Werft | Werft | **23 Schiffe, 5 Waffentypen, 2 Hüllentypen** |
+| Werft | Werft | **23 Schiffe, 5 Waffentypen, 2 Hüllentypen**; Solarsatelliten bauen (Anzeige steht schon) |
 | Verteidigung & Kampf | Verteidigung | **Schutzschild-Autoaktivierung (Solo-Regel)**, **Trümmer-Salvage 50–75 % Boden / 80 % Orbit** |
 | Flotte | Flotte | **Treibstoffregeln** (Inhalt offen) |
-| **Startplätze** (eigene Mechanik) | Flotte o. Anlagen (offen) | bis zu 10, Stufe 1–15, stark steigende Kosten, punktebasierte Freischaltung, Kapazität = nur Anzahl Schiffe, Summe = gleichzeitige Starts, keine Zuordnung Schiff → Startplatz |
+| Startplätze im Flottenbetrieb | Flotte | Bau steht (Kapitel 2, Raumflughafen); Nutzung der Kapazität bei Starts folgt mit der Flotte |
 | **Weltraum-Ansicht** (Navigation Sektoren/Systeme/Planeten) | Weltraum | Hierarchie 1/5/300/12 (Datenmodell steht schon) |
 | KI-Gegner | – | **5–10 Angriffe/Ereignisse täglich** |
 | Balancing, Feinschliff | alle | – |
