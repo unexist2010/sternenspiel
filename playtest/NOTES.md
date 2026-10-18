@@ -13,6 +13,8 @@
 - `playtest-kapitel2.js` 118/118 und `playtest-kapitel1-profile.js` 134/134 (Erwartung auf Spielstand v5 angepasst).
 - Gefunden & behoben: Fund-Log war nach Einfügereihenfolge statt Zeit sortiert (nachgeholte Funde unten) → nach Zeit sortiert;
   Info-Tabelle auf dem Handy breiter als das Fenster (Bauzeit abgeschnitten) → kompakte Tabelle unter 600 px.
+- **Live** (https://unexist2010.github.io/sternenspiel/, nach Deploy von 2ebc53e, Pages ab 01:26 Uhr mit 0.7.0):
+  Chromium + Firefox: `playtest-kapitel2b.js` 94/94, `playtest-kapitel2.js` 118/118, `playtest-kapitel1-profile.js` 67/67 (Live-Modus).
 - Screenshots: `kapitel2b-desktop-anlagen-infofenster.png`, `kapitel2b-handy-infofenster.png`, `kapitel2b-desktop-uebersicht.png`,
   `kapitel2b-geologie-log.png`, `kapitel2b-handy-geologie-log.png`, `kapitel2b-raumflughafen.png`, `kapitel2b-handy-raumflughafen.png`,
   `kapitel2b-master-aktiv.png`, `kapitel2b-handy-master-aktiv.png`.
