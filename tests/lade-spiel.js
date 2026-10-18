@@ -7,7 +7,7 @@ const WURZEL = path.join(__dirname, "..");
 
 function skriptListe() {
   const html = fs.readFileSync(path.join(WURZEL, "index.html"), "utf8");
-  return [...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map((m) => m[1]).filter((s) => s !== "js/ui/app.js");
+  return [...html.matchAll(/<script src="([^"?]+)(?:\?[^"]*)?"><\/script>/g)].map((m) => m[1]).filter((s) => s !== "js/ui/app.js");
 }
 
 function ladeSpiel() {

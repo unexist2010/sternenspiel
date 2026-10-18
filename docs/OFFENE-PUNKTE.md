@@ -30,8 +30,12 @@ Stand: 2026-10-19 · Alles hier ist bis zur Antwort als **ANNAHME** umgesetzt bz
 | 19 | 6 | Treibstoffregeln: welcher Rohstoff, Verbrauchsformel, was bei leerem Tank? |
 | 20 | 6/7 | Sind andere Planeten von KI-Gegnern besetzt? Kann man weitere Planeten besiedeln? |
 | 21 | 7 | KI 5–10 Ereignisse täglich: nur Angriffe oder auch andere Ereignisse? Laufen sie offline weiter? |
+| 23 | 1 | Spielerprofile: Name Pflicht und eindeutig, max. 20 Spieler, „Zurücksetzen“ behält Name + Hauptplanet (jetzt so) – passt das? |
+| 24 | 1 | Sollen Profile später exportiert/importiert werden können (Sicherung, anderes Gerät)? |
 | 22 | – | Endgültiger Name: „Sternenspiel“, „Sternenreich“ oder „Weltraumspiel“? |
 
 ## Erledigt
+
+- ~~Start-Knopf reagiert auf der Live-Seite nicht~~ → Ursache gemischter Browser-Zwischenspeicher nach Update; behoben mit `?v=`-Cache-Schutz + Versionsprüfung (0.4.0, 2026-10-19).
 
 - ~~Startplatz-Wahl A–Z beim Spielstart / Startplatz-Boni / Stufe als Planeten-Eigenschaft~~ → war ein Missverständnis; Sandro hat klargestellt: automatischer Start, Startplätze = Flotten-Startplattformen (2026-10-19).

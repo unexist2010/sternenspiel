@@ -5,14 +5,59 @@
  */
 (function () {
   "use strict";
+
+  var dauerHinweis = ""; // bleibt auf dem Startbildschirm stehen (z. B. Versions-Problem)
+
+  // ---------- Notfall-Anzeige: jeder Fehler wird sichtbar gemeldet, statt dass Knöpfe still „tot“ sind ----------
+  function zeigeStartFehler(html) {
+    var el = document.getElementById("start-fehler");
+    if (!el) return;
+    el.hidden = false;
+    el.innerHTML = html;
+  }
+  function neuLadenKnopf() {
+    return " <button class=\"knopf klein\" type=\"button\" onclick=\"location.replace(location.pathname + '?neu=' + Date.now())\">Neu laden</button>";
+  }
+  window.addEventListener("error", function (e) {
+    zeigeStartFehler("Unerwarteter Fehler: " + String((e && e.message) || e).replace(/</g, "&lt;") + "." + neuLadenKnopf());
+  });
+
   var SS = window.SS;
-  var B = SS.BALANCE, D = SS.DATEN, W = SS.DATEN.weltraum, P = SS.kern.produktion, S = SS.kern.speicher, Z = SS.kern.zustand, F = SS.format;
+  var benoetigt = ["BALANCE", "DATEN", "kern", "format"];
+  var fehltModul = !SS || benoetigt.some(function (k) { return !SS[k]; }) || !SS.kern.profile || !SS.kern.zustand || !SS.DATEN.weltraum || !SS.DATEN.menue;
+
+  // ---------- Versionsprüfung (Schutz gegen gemischten Browser-Cache: neues HTML + alte Skripte oder umgekehrt) ----------
+  var htmlVersion = document.documentElement.getAttribute("data-version");
+  if (fehltModul || !SS.VERSION || htmlVersion !== SS.VERSION) {
+    var schonVersucht = false;
+    try { schonVersucht = sessionStorage.getItem("sternenspiel_neuladen") === String(SS && SS.VERSION); sessionStorage.setItem("sternenspiel_neuladen", String(SS && SS.VERSION)); } catch (e) { schonVersucht = true; }
+    if (!schonVersucht) { location.replace(location.pathname + "?neu=" + Date.now() + location.hash); return; } // einmal automatisch frisch laden
+    dauerHinweis = ("Die Seite und die Spieldateien passen nicht zusammen (Seite " + (htmlVersion || "alt") + ", Skripte " + ((SS && SS.VERSION) || "alt") +
+      "). Bitte neu laden – ggf. mit Strg+F5." + neuLadenKnopf());
+    zeigeStartFehler(dauerHinweis);
+    if (fehltModul) return;
+  } else {
+    try { sessionStorage.removeItem("sternenspiel_neuladen"); } catch (e) { /* egal */ }
+  }
+
+  var B = SS.BALANCE, D = SS.DATEN, W = SS.DATEN.weltraum, P = SS.kern.produktion, S = SS.kern.speicher, Z = SS.kern.zustand, PR = SS.kern.profile, F = SS.format;
 
   var zustand = null;        // aktueller Spielstand (null = nicht im Spiel)
+  var aktivId = null;        // ID des aktiven Spielerprofils
   var tickTimer = null, autoTimer = null;
   var seite = { id: "uebersicht", teile: [] };
 
   function $(id) { return document.getElementById(id); }
+  var fehlendeElemente = [];
+  /** Ereignis sicher anhängen: fehlt ein Element (z. B. alte Seite im Cache), wird das gemeldet statt abzustürzen. */
+  function an(id, typ, fn) {
+    var el = $(id);
+    if (!el) { fehlendeElemente.push(id); return; }
+    el.addEventListener(typ, function (e) {
+      try { fn.call(this, e); }
+      catch (err) { meldung("Fehler: " + (err && err.message || err), "schlecht"); if (window.console) console.error(err); }
+    });
+  }
   function jetzt() { return Date.now(); }
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function icon(r, cls) { return "<img class=\"" + (cls || "rs-icon") + "\" src=\"" + r.icon + "\" alt=\"\" width=\"22\" height=\"22\">"; }
@@ -59,41 +104,73 @@
     });
   }
 
-  // ---------- Startbildschirm ----------
+  // ---------- Startbildschirm = Spielerauswahl ----------
+  var startHinweise = [];
   function zeigeStart() {
     stoppeSchleifen();
     zustand = null;
+    aktivId = null;
     schliesseMenue();
-    var r = S.lade(speicher);
-    var info = $("start-spielstand"), fehler = $("start-fehler");
-    fehler.hidden = !r.fehler;
-    fehler.textContent = r.fehler ? r.fehler + " – bitte ein neues Spiel beginnen." : "";
-    if (r.zustand) {
-      var z = r.zustand;
-      info.hidden = false;
-      info.innerHTML = "<b>" + esc(z.name) + "</b> · " + esc(z.heimat.name) + " <span class=\"koord\">[" + W.koordinatenText(z.heimat) + "]</span>" +
-        "<br><span class=\"hinweis\">Zuletzt gespeichert: " +
-        (z.zeit.zuletztGespeichert ? F.uhrzeit(z.zeit.zuletztGespeichert) : "–") + "</span>";
-      $("knopf-weiterspielen").hidden = false;
+    try {
+      var mig = PR.migriereEinzelstand(speicher, jetzt());
+      if (mig.profil) startHinweise.push("Dein bisheriger Spielstand wurde als Spieler „" + esc(mig.profil.name) + "“ übernommen.");
+      if (mig.fehler) startHinweise.push(esc(mig.fehler));
+    } catch (e) { startHinweise.push("Alter Spielstand konnte nicht geprüft werden: " + esc(e.message || e)); }
+    var r;
+    try { r = PR.liste(speicher); } catch (e) { r = { profile: [], fehler: "Spielerliste nicht lesbar: " + (e.message || e) }; }
+    if (r.fehler) startHinweise.push(esc(r.fehler));
+    var el = $("profil-liste");
+    if (!r.profile.length) {
+      el.innerHTML = "<p class=\"hinweis\">Noch keine Spieler angelegt – erschaffe unten deinen ersten Spieler.</p>";
     } else {
-      info.hidden = true;
-      $("knopf-weiterspielen").hidden = true;
+      el.innerHTML = r.profile.map(function (p) {
+        return "<div class=\"profil\" data-profil=\"" + esc(p.id) + "\"><div class=\"profil-info\"><b>" + esc(p.name) + "</b>" +
+          "<span>" + esc(p.planet) + " <span class=\"koord\">[" + esc(p.koordinaten) + "]</span></span>" +
+          "<span class=\"hinweis\">Zuletzt gespielt: " + (p.zuletztGespielt ? F.uhrzeit(p.zuletztGespielt) : "–") + "</span></div>" +
+          "<div class=\"profil-knoepfe\"><button class=\"knopf primaer\" type=\"button\" data-aktion=\"spielen\" data-id=\"" + esc(p.id) + "\">Spielen</button>" +
+          "<button class=\"knopf klein gefahr\" type=\"button\" data-aktion=\"loeschen\" data-id=\"" + esc(p.id) + "\" aria-label=\"Spieler " + esc(p.name) + " löschen\">Löschen</button></div></div>";
+      }).join("");
     }
+    zeigeHinweise();
     zeige("start");
   }
 
-  // ---------- Neues Spiel (automatischer Start, keine Planetenauswahl) ----------
+  function zeigeHinweise() {
+    var el = $("start-fehler");
+    var alle = (dauerHinweis ? [dauerHinweis] : []).concat(startHinweise);
+    if (!alle.length) { el.hidden = true; el.innerHTML = ""; return; }
+    el.hidden = false;
+    el.innerHTML = alle.map(function (t) { return "<p>" + t + "</p>"; }).join("");
+    startHinweise = [];
+  }
+
   function starteNeuesSpiel() {
-    var los = function () {
-      zustand = Z.neuerSpielstand({ name: $("eingabe-name").value, planetName: $("eingabe-planet").value, jetzt: jetzt() });
-      S.speichere(speicher, zustand, jetzt());
-      location.hash = "#uebersicht";
-      betreteSpiel();
-      meldung("Willkommen auf " + zustand.heimat.name + " [" + W.koordinatenText(zustand.heimat) + "]!", "gut");
-    };
-    if (S.vorhanden(speicher)) {
-      dialog("Neues Spiel beginnen?", "<p>Der vorhandene Spielstand wird <b>überschrieben</b>.</p>", true).then(function (ok) { if (ok) los(); });
-    } else los();
+    var r = PR.erstelle(speicher, { name: $("eingabe-name").value, planetName: $("eingabe-planet").value, jetzt: jetzt() });
+    if (r.fehler) { startHinweise.push(esc(r.fehler)); zeigeHinweise(); meldung(r.fehler, "schlecht"); $("eingabe-name").focus(); return; }
+    $("eingabe-name").value = ""; $("eingabe-planet").value = "";
+    zustand = r.zustand;
+    aktivId = r.profil.id;
+    location.hash = "#uebersicht";
+    betreteSpiel();
+    meldung("Willkommen, " + zustand.name + ", auf " + zustand.heimat.name + " [" + W.koordinatenText(zustand.heimat) + "]!", "gut");
+  }
+
+  function loescheSpieler(id) {
+    var p = PR.liste(speicher).profile.filter(function (x) { return x.id === id; })[0];
+    if (!p) return;
+    dialog("Spieler löschen?", "<p>Der Spieler <b>" + esc(p.name) + "</b> und sein gesamter Fortschritt werden <b>unwiderruflich gelöscht</b>.</p>", true).then(function (ok) {
+      if (!ok) return;
+      PR.loesche(speicher, id);
+      zeigeStart();
+      meldung("Spieler „" + p.name + "“ gelöscht.");
+    });
+  }
+
+  function spielerWechseln() {
+    speichern(true);
+    clearTimeout(meldung._t);
+    $("meldung").className = "meldung";
+    zeigeStart();
   }
 
   // ---------- Spiel: Rahmen ----------
@@ -137,7 +214,7 @@
         (m.platzhalter ? "<span class=\"marke\">Kap. " + m.kapitel + "</span>" : "") + "</a></li>";
     }).join("");
     var h = zustand.heimat, pl = W.planet(h.system, h.planet);
-    $("menue-planet").innerHTML = planetBild(pl, "") + "<div><b>" + esc(h.name) + "</b><span>[" + W.koordinatenText(h) + "]</span></div>";
+    $("menue-planet").innerHTML = planetBild(pl, "") + "<div><b>" + esc(h.name) + "</b><span>[" + W.koordinatenText(h) + "]</span><small>" + esc(zustand.name) + "</small></div>";
   }
 
   function oeffneMenue() { $("menue").classList.add("offen"); $("menue-schleier").hidden = false; $("knopf-menue-auf").setAttribute("aria-expanded", "true"); }
@@ -188,7 +265,9 @@
       "<p class=\"hinweis\" data-live=\"speicherinfo\"></p><div class=\"knopf-reihe\">" +
       "<button class=\"knopf primaer\" data-aktion=\"speichern\">Speichern</button>" +
       "<button class=\"knopf\" data-aktion=\"laden\">Laden</button>" +
-      "<button class=\"knopf gefahr\" data-aktion=\"zuruecksetzen\">Zurücksetzen</button></div>");
+      "<button class=\"knopf\" data-aktion=\"wechseln\">Spieler wechseln</button>" +
+      "<button class=\"knopf gefahr\" data-aktion=\"zuruecksetzen\">Zurücksetzen</button></div>" +
+      "<p class=\"hinweis\">Zurücksetzen betrifft nur diesen Spieler.</p>");
     return planetBox + "<div class=\"zwei-spalten\">" + kommandant + spielstand + "</div>";
   }
 
@@ -306,11 +385,11 @@
     });
   }
 
-  // ---------- Spielstand ----------
+  // ---------- Spielstand (immer nur der aktive Spieler) ----------
   function speichern(still) {
-    if (!zustand) return;
+    if (!zustand || !aktivId) return;
     try {
-      S.speichere(speicher, zustand, jetzt());
+      PR.speichereProfil(speicher, aktivId, zustand, jetzt());
       aktualisiereLive();
       if (!still) meldung("Spielstand gespeichert.", "gut");
     } catch (e) {
@@ -318,57 +397,78 @@
     }
   }
 
-  function ladeUndBetrete() {
-    var r = S.lade(speicher);
-    if (!r.zustand) { meldung(r.fehler || "Kein Spielstand vorhanden.", "schlecht"); zeigeStart(); return; }
+  function ladeUndBetrete(id) {
+    var r;
+    try { r = PR.ladeProfil(speicher, id); } catch (e) { r = { zustand: null, fehler: e.message || String(e) }; }
+    if (!r.zustand) {
+      startHinweise.push("Spieler konnte nicht geladen werden: " + esc(r.fehler || "unbekannter Fehler") + " – du kannst ihn löschen oder einen neuen Spieler erschaffen.");
+      zeigeStart();
+      return;
+    }
     zustand = r.zustand;
+    aktivId = id;
     var off = P.offlineFortschritt(zustand, jetzt());
+    if (location.hash !== "#uebersicht") location.hash = "#uebersicht";
     betreteSpiel();
     if (off.angerechnetMs >= 60000) {
       var liste = D.sichtbareRohstoffe(zustand).filter(function (x) { return off.gewinne[x.id] >= 1; }).map(function (x) {
         return "<li>" + icon(x) + x.name + ": +" + F.zahl(off.gewinne[x.id]) + "</li>";
       }).join("");
-      dialog("Willkommen zurück!", "<p>Du warst <b>" + F.dauer(off.abwesendMs) + "</b> weg." +
+      dialog("Willkommen zurück, " + esc(zustand.name) + "!", "<p>Du warst <b>" + F.dauer(off.abwesendMs) + "</b> weg." +
         (off.gekappt ? " Angerechnet werden höchstens " + B.OFFLINE_MAX_STUNDEN + " Std." : "") + "</p>" +
         (liste ? "<ul class=\"boni\">" + liste + "</ul>" : "<p>Deine Lager waren bereits voll.</p>"), false);
     } else {
-      meldung("Spielstand geladen.", "gut");
+      meldung("Spieler „" + zustand.name + "“ geladen.", "gut");
     }
     speichern(true);
   }
 
   function zuruecksetzen() {
-    dialog("Spielstand zurücksetzen?", "<p>Der gesamte Fortschritt wird <b>unwiderruflich gelöscht</b>.</p>", true).then(function (ok) {
+    if (!aktivId) return;
+    var name = zustand.name;
+    dialog("Spielstand zurücksetzen?", "<p>Der Fortschritt von <b>" + esc(name) + "</b> wird <b>unwiderruflich gelöscht</b>. Name und Hauptplanet bleiben, andere Spieler sind nicht betroffen.</p>", true).then(function (ok) {
       if (!ok) return;
-      S.loesche(speicher);
-      zeigeStart();
-      meldung("Spielstand gelöscht.");
+      var id = aktivId;
+      stoppeSchleifen();
+      var r = PR.zuruecksetzen(speicher, id, jetzt());
+      if (r.fehler) { meldung(r.fehler, "schlecht"); return; }
+      zustand = r.zustand;
+      aktivId = id;
+      betreteSpiel();
+      meldung("Spielstand von „" + name + "“ zurückgesetzt.");
     });
   }
 
   // ---------- Ereignisse ----------
-  $("form-neu").addEventListener("submit", function (e) { e.preventDefault(); starteNeuesSpiel(); });
-  $("knopf-weiterspielen").addEventListener("click", ladeUndBetrete);
-  $("knopf-menue-auf").addEventListener("click", function () { if ($("menue").classList.contains("offen")) schliesseMenue(); else oeffneMenue(); });
-  $("menue-schleier").addEventListener("click", schliesseMenue);
-  $("menue-liste").addEventListener("click", function (e) {
+  an("form-neu", "submit", function (e) { e.preventDefault(); starteNeuesSpiel(); });
+  an("profil-liste", "click", function (e) {
+    var b = e.target.closest("[data-aktion]");
+    if (!b) return;
+    var id = b.getAttribute("data-id");
+    if (b.getAttribute("data-aktion") === "spielen") ladeUndBetrete(id);
+    else if (b.getAttribute("data-aktion") === "loeschen") loescheSpieler(id);
+  });
+  an("knopf-menue-auf", "click", function () { if ($("menue").classList.contains("offen")) schliesseMenue(); else oeffneMenue(); });
+  an("menue-schleier", "click", schliesseMenue);
+  an("menue-liste", "click", function (e) {
     var a = e.target.closest("a[data-seite]");
     if (a && a.getAttribute("href") === location.hash) route(); // gleiche Seite erneut gewählt → Menü trotzdem schließen
   });
-  $("knopf-schnellspeichern").addEventListener("click", function () { speichern(false); });
-  $("knopf-hauptmenue").addEventListener("click", function () { speichern(true); zeigeStart(); });
-  $("inhalt").addEventListener("click", function (e) {
+  an("knopf-schnellspeichern", "click", function () { speichern(false); });
+  an("knopf-spieler-wechseln", "click", spielerWechseln);
+  an("inhalt", "click", function (e) {
     var b = e.target.closest("[data-aktion]");
     if (!b) return;
     var a = b.getAttribute("data-aktion");
     if (a === "speichern") speichern(false);
+    else if (a === "wechseln") spielerWechseln();
     else if (a === "zuruecksetzen") zuruecksetzen();
     else if (a === "laden") {
       dialog("Letzten Spielstand laden?", "<p>Nicht gespeicherter Fortschritt seit dem letzten Speichern geht verloren (Offline-Produktion wird dabei angerechnet).</p>", true)
-        .then(function (ok) { if (ok) ladeUndBetrete(); });
+        .then(function (ok) { if (ok) { var id = aktivId; stoppeSchleifen(); ladeUndBetrete(id); } });
     }
   });
-  $("inhalt").addEventListener("submit", function (e) {
+  an("inhalt", "submit", function (e) {
     if (e.target.id !== "form-system") return;
     e.preventDefault();
     var n = parseInt($("eingabe-system").value, 10);
@@ -386,6 +486,10 @@
   document.addEventListener("visibilitychange", function () { if (document.hidden) speichern(true); });
   window.addEventListener("pagehide", function () { speichern(true); });
 
-  SS.app = { get zustand() { return zustand; }, speichern: speichern, route: route }; // für Konsole/Playtest
-  zeigeStart();
+  SS.app = { get zustand() { return zustand; }, get aktivId() { return aktivId; }, speichern: speichern, route: route, zeigeStart: zeigeStart }; // für Konsole/Playtest
+  if (fehlendeElemente.length) {
+    dauerHinweis += "Die Seite ist unvollständig (fehlt: " + fehlendeElemente.join(", ") + ") – vermutlich eine alte Fassung im Browser-Zwischenspeicher." + neuLadenKnopf();
+  }
+  try { zeigeStart(); }
+  catch (e) { zeigeStartFehler("Start fehlgeschlagen: " + String(e && e.message || e).replace(/</g, "&lt;") + neuLadenKnopf()); if (window.console) console.error(e); }
 })();

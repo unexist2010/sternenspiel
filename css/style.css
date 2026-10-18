@@ -69,12 +69,24 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 
 /* ---------- Startbildschirm ---------- */
 #bildschirm-start.aktiv { display: flex; align-items: center; justify-content: center; padding: 16px; }
-.start-kasten { width: 100%; max-width: 440px; text-align: center; padding: 28px 22px; }
+.start-kasten { width: 100%; max-width: 560px; text-align: center; padding: 28px 22px; }
 .logo-gross { margin: 0 0 6px; }
 .logo-gross img { width: 100%; max-width: 340px; height: auto; display: block; margin: 0 auto; }
 .untertitel { color: var(--leise); margin: 0 0 18px; }
 .spielstand-info { background: var(--kasten2); border: 1px solid var(--rand); border-radius: 3px; padding: 10px; }
 .fusszeile { color: var(--leise); font-size: .78rem; margin-top: 20px; }
+
+/* ---------- Spielerauswahl ---------- */
+.fehler-box { text-align: left; background: rgba(90,20,30,.55); border: 1px solid #a33a4a; border-radius: 3px; padding: 8px 12px; margin: 0 0 12px; color: #ffd6d6; font-size: .9rem; }
+.fehler-box p { margin: 4px 0; }
+.start-kasten .neu-titel { text-align: left; margin-top: 6px; }
+.profil-liste { display: grid; gap: 8px; text-align: left; margin-bottom: 4px; }
+.profil { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 10px 12px; border: 1px solid var(--rand); border-left: 3px solid var(--tuerkis); border-radius: 3px; background: var(--kasten2); }
+.profil-info { display: flex; flex-direction: column; min-width: 0; flex: 1 1 200px; }
+.profil-info b { color: #fff; font-size: 1.02rem; overflow-wrap: anywhere; }
+.profil-info .hinweis { margin: 2px 0 0; }
+.profil-knoepfe { display: flex; gap: 6px; align-items: center; }
+.menue-planet small { display: block; color: var(--leise); font-size: .75rem; }
 
 /* ---------- Neues Spiel (auf dem Startbildschirm) ---------- */
 .neu-form { text-align: left; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--rand); }

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#030a1c">
+  <title>Sternenspiel</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ===== Startbildschirm ===== -->
+  <section id="bildschirm-start" class="bildschirm aktiv" aria-label="Startbildschirm">
+    <div class="start-kasten kasten">
+      <h1 class="logo-gross"><img src="assets/logo.svg" alt="Sternenspiel" width="320" height="64"></h1>
+      <p class="untertitel">Baue dein Sternenreich auf – offline, im Browser.</p>
+      <div id="start-spielstand" class="spielstand-info" hidden></div>
+      <div class="knopf-reihe senkrecht">
+        <button id="knopf-weiterspielen" class="knopf primaer" hidden>Weiterspielen</button>
+      </div>
+      <form id="form-neu" class="neu-form" autocomplete="off">
+        <h2 class="neu-titel">Neues Spiel</h2>
+        <label class="feld"><span>Spielername (optional)</span>
+          <input id="eingabe-name" type="text" maxlength="24" placeholder="Kommandant"></label>
+        <label class="feld"><span>Name des Hauptplaneten (optional)</span>
+          <input id="eingabe-planet" type="text" maxlength="24" placeholder="automatisch"></label>
+        <button id="knopf-neues-spiel" class="knopf" type="submit">Neues Spiel starten</button>
+        <p class="hinweis">Du startest automatisch auf einem Hauptplaneten irgendwo im Universum.</p>
+      </form>
+      <p id="start-fehler" class="fehler" hidden></p>
+      <p class="fusszeile">Kapitel 1 · Layout-Grundgerüst</p>
+    </div>
+  </section>
+
+  <!-- ===== Spiel: Kopf mit Ressourcen, linkes Menü, mittleres Inhaltsfeld ===== -->
+  <section id="bildschirm-spiel" class="bildschirm" aria-label="Spiel">
+    <header class="kopf">
+      <button id="knopf-menue-auf" class="menue-knopf" aria-label="Menü öffnen" aria-controls="menue" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="kopf-logo" href="#uebersicht"><img src="assets/logo.svg" alt="Sternenspiel" width="200" height="40"></a>
+      <div id="ressourcen-leiste" class="ressourcen-leiste" aria-label="Rohstoffe"></div>
+    </header>
+    <div class="rahmen">
+      <nav id="menue" class="menue" aria-label="Hauptmenü">
+        <div id="menue-planet" class="menue-planet"></div>
+        <ul id="menue-liste" class="menue-liste"></ul>
+        <div class="menue-fuss">
+          <button id="knopf-schnellspeichern" class="knopf klein">Speichern</button>
+          <button id="knopf-hauptmenue" class="knopf klein">Hauptmenü</button>
+        </div>
+      </nav>
+      <div id="menue-schleier" class="menue-schleier" hidden></div>
+      <main id="inhalt" class="inhalt-feld" tabindex="-1"></main>
+    </div>
+  </section>
+
+  <!-- Dialog (eigener, statt confirm/alert – auf dem Handy einheitlich) -->
+  <div id="dialog" class="dialog-hintergrund" hidden>
+    <div class="dialog kasten" role="dialog" aria-modal="true" aria-labelledby="dialog-titel">
+      <h3 id="dialog-titel"></h3>
+      <div id="dialog-text"></div>
+      <div class="knopf-reihe rechts">
+        <button id="dialog-abbrechen" class="knopf">Abbrechen</button>
+        <button id="dialog-ok" class="knopf primaer">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="meldung" class="meldung" role="status" aria-live="polite"></div>
+
+  <!-- Reihenfolge wichtig: Daten → Kern → Oberfläche. tests/lade-spiel.js liest diese Liste. -->
+  <script src="js/data/konstanten.js"></script>
+  <script src="js/data/rohstoffe.js"></script>
+  <script src="js/data/startplaetze.js"></script>
+  <script src="js/data/weltraum.js"></script>
+  <script src="js/data/menue.js"></script>
+  <script src="js/data/gebaeude.js"></script>
+  <script src="js/data/schiffe.js"></script>
+  <script src="js/kern/zustand.js"></script>
+  <script src="js/kern/produktion.js"></script>
+  <script src="js/kern/speicher.js"></script>
+  <script src="js/ui/format.js"></script>
+  <script src="js/ui/app.js"></script>
+</body>
+</html>

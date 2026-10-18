@@ -1,5 +1,32 @@
 # Changelog – Sternenspiel
 
+## [0.4.0] – 2026-10-19 – Kapitel 1: Start-Fix + Spielerprofile
+
+### Behoben
+- **„Klick auf Start geht nicht“ (Live-Seite):** Ursache war ein **gemischter Browser-Zwischenspeicher** nach dem Update
+  (GitHub Pages liefert mit `max-age=600`): neue `index.html` + altes `js/ui/app.js` (oder umgekehrt) → `app.js` brach beim
+  Start mit „Cannot read properties of null (reading 'addEventListener')“ ab, kein Knopf bekam seine Funktion; der
+  Formular-Knopf lud die Seite nur stumm neu („/?“).
+- Alle Skript-/CSS-Verweise mit **Cache-Schutz `?v=<Version>`**; `<html data-version>` wird mit `SS.VERSION` verglichen –
+  bei Abweichung oder fehlendem Modul **einmal automatisch neu laden** (mit `?neu=<Zeit>`), sonst sichtbare Meldung mit „Neu laden“
+- Knöpfe werden „sicher“ verbunden (fehlende Elemente brechen den Start nicht mehr ab), Fehlerfang um Start/Laden/Speichern,
+  Formular mit `onsubmit="return false"`, Notfall-Meldung direkt im HTML, falls `app.js` nicht startet
+- Kaputte/fremde Spielstände blockieren nie: werden als `…_defekt…` gesichert, Meldung in der Oberfläche, Neuanlage geht weiter
+
+### Neu
+- **Spielerprofile:** Startbildschirm = Spielerauswahl (Name, Planet, Koordinaten, zuletzt gespielt, „Spielen“, „Löschen“ mit
+  Bestätigung) + „Neuen Spieler erschaffen“ (Name, optional Planetenname, automatischer Start)
+- Jeder Spieler hat einen eigenen Spielstand (`sternenspiel_spielstand_p_<id>`) mit eigenem Offline-Fortschritt;
+  Spielerliste in `sternenspiel_profile_v1`
+- Im Spiel: „Spieler wechseln“ (speichert vorher) im Menü und in der Übersicht; „Zurücksetzen“ betrifft nur den aktiven Spieler
+- Alter Einzel-Spielstand (v1/v2/v3) wird beim ersten Start automatisch zum ersten Profil (Original bleibt als
+  `sternenspiel_spielstand_v1_uebernommen` gesichert)
+- Tests: 29 Node-Tests (9 neu für Profile/Migration/Cache-Schutz), neuer Browser-Playtest `tests/playtest-kapitel1-profile.js`
+  (file://, lokaler Server für Cache-Mix, `LIVE_URL=` für die Live-Seite; Chromium + Firefox)
+
+### Entfernt
+- „Weiterspielen“/„Hauptmenü“ (ersetzt durch Spielerauswahl / „Spieler wechseln“)
+
 ## [0.3.0] – 2026-10-19 – Kapitel 1: Startplatz-Korrektur (automatischer Start, Startplätze als Flotten-Kapazität)
 
 ### Geändert

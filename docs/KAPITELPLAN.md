@@ -25,8 +25,10 @@ Stand: 2026-10-19 · Jedes Kapitel ist für sich lauffähig, getestet (Node + Br
 - **Automatischer Spielstart** auf einem Hauptplaneten (zufällige Koordinate), optional Spieler-/Planetenname, keine Auswahl
 - Startplätze nur als Datenmodell-/Konstanten-Platzhalter + Info-Abschnitt auf „Flotte“ (Korrektur: keine Startplatz-Wahl/-Boni)
 - Unterbau: vorläufige Grundproduktion (ohne Boni), Offline-Fortschritt, Speichern/Laden/Zurücksetzen, Migration bis v3
+- **Spielerprofile** (Spielerauswahl, mehrere Spieler je Browser, je eigener Spielstand/Offline-Fortschritt, Wechseln, Löschen mit Bestätigung)
+- Robuster Start: Cache-Schutz `?v=`, Versionsprüfung, Fehler sichtbar statt toter Knöpfe
 - Planetengrößen/Feldlimits bewusst nicht vorhanden
-- Tests: 20 Node-Tests, Browser-Playtest (Handy 412×915, Desktop 1366×768) → `playtest/kapitel1-layout-*.png`
+- Tests: 29 Node-Tests, Browser-Playtests (Handy 412×915, Desktop 1366×768) → `playtest/kapitel1-layout-*.png`, `playtest/kapitel1-profile-*.png`
 
 ## Kapitel 2 – Ressourcen & Anlagen
 

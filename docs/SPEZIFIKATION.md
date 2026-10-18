@@ -55,6 +55,20 @@ gesetzt (**ANNAHME**) und kann jederzeit geändert werden – Zahlen stehen zent
 | 30 | **keine Zuordnung Schiff → Startbahn**, nur Kapazität | Kapitel 6 |
 | 31 | Jetzt nur: Datenmodell-Platzhalter, Konstanten-Platzhalter, Info-Abschnitt „Startplätze (kommt in Kapitel 6)“ auf der Seite „Flotte“; **keine** Ausbau-/Kosten-/Flottenlogik | `zustand.startplaetze`, `js/data/startplaetze.js`, Seite „Flotte“ |
 
+### A4. Start-Fix und Spielerprofile (Runde 4)
+
+| # | Punkt | Umsetzung |
+|---|-------|-----------|
+| 32 | Der Start darf **nie** an Browser-Zwischenspeicher oder kaputtem Spielstand scheitern; Fehler werden **in der Oberfläche** angezeigt | `?v=`-Cache-Schutz, Versionsprüfung `data-version` ↔ `SS.VERSION` (einmal automatisch neu laden), Fehlerfang, Notfall-Meldung |
+| 33 | **Startbildschirm = Spielerauswahl**: Liste aller Spieler (Name, Planet, Koordinaten, zuletzt gespielt) mit „Spielen“ | `#profil-liste` |
+| 34 | Darunter **„Neuen Spieler erschaffen“** (Name, optional Planetenname) → automatischer Start auf zufälligem Hauptplaneten | `#form-neu`, `SS.kern.profile.erstelle` |
+| 35 | **Jeder Spieler hat eigenen Spielstand** in `localStorage` mit **eigenem Offline-Fortschritt** | `sternenspiel_spielstand_p_<id>`, Index `sternenspiel_profile_v1` |
+| 36 | Im Spiel **„Spieler wechseln“** (vorher speichern) | Menü unten + Übersicht |
+| 37 | **Spieler löschen nur mit Bestätigung** | Dialog |
+| 38 | **„Zurücksetzen“ betrifft nur den aktiven Spieler** | `SS.kern.profile.zuruecksetzen` |
+| 39 | Alter **Einzel-Spielstand (v1/v2/v3)** wird automatisch zum **ersten Profil** | `migriereEinzelstand` (Original als `…_uebernommen` gesichert) |
+| 40 | Weiterhin **keine** Gebäude, Schiffe, Kampf, Forschung | – |
+
 ---
 
 ## B. Annahmen (ANNAHME – nicht von Sandro festgelegt)
@@ -90,7 +104,7 @@ gesetzt (**ANNAHME**) und kann jederzeit geändert werden – Zahlen stehen zent
 | Grund-Lager | Metall/Silizium/Rohöl 10.000, Strom 5.000, K1 2.000, K2 1.000, K3 500, Antimaterie 100 |
 | Strom | lagerbarer Rohstoff (nicht Leistungsbilanz) |
 | Offline-Fortschritt | seit letztem Speichern, max. 24 Std., volle Rate |
-| Autospeichern | alle 30 s, beim Verstecken/Verlassen des Tabs, bei „Hauptmenü“ |
+| Autospeichern | alle 30 s, beim Verstecken/Verlassen des Tabs, bei „Spieler wechseln“ |
 
 ### B3. Gestaltung & Technik
 
@@ -101,4 +115,8 @@ gesetzt (**ANNAHME**) und kann jederzeit geändert werden – Zahlen stehen zent
 | Navigation über Adress-Anker (`#weltraum/system/133`) | funktioniert offline über `file://`, Zurück-Taste des Browsers geht |
 | Klassische `<script>`-Dateien mit Namensraum `SS` statt ES-Module | Chrome blockiert ES-Module über `file://` |
 | Spielstand-Format **v3** (`heimat`, `freigeschaltet`, `startplaetze`, `punkte`; kein `startplatz` mehr), automatische Migration von v1/v2: Heimat behalten (falls gültig, sonst zufällig neu), alte Startplatz-Felder verwerfen | alte Spielstände bleiben ladbar |
+| Spielerprofile: **Name Pflicht**, keine doppelten Namen (Groß-/Kleinschreibung egal), höchstens **20** Spieler je Browser | übersichtliche Liste, eindeutige Anzeige |
+| „Zurücksetzen“ behält **Name und Hauptplanet** des Spielers, setzt Rohstoffe/Fortschritt auf Start | Spieler bleibt erkennbar |
+| Übernommener Altstand heißt bei Namensgleichheit „Name (alt)“; kaputte Stände werden als `…_defekt…` gesichert statt gelöscht | nichts geht verloren |
+| Versionsnummer `SS.VERSION` = `data-version` in `index.html` = `?v=` an allen Dateien (Test prüft das) | Cache-Schutz nach Updates |
 | Grafiken als SVG, per Skript erzeugt | klein, scharf auf allen Bildschirmen, reproduzierbar |

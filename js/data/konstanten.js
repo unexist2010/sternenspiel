@@ -15,10 +15,16 @@
     return Object.freeze(o);
   }
 
+  // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
+  SS.VERSION = "0.4.0";
+
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
     SPIELSTAND_VERSION: 3,   // v2: Heimatplanet + Freischaltungen · v3: automatischer Start, Startplätze = Flotten-Startplattformen
-    SPEICHER_SCHLUESSEL: "sternenspiel_spielstand_v1",
+    SPEICHER_SCHLUESSEL: "sternenspiel_spielstand_v1",          // alter Einzel-Spielstand (bis 0.3) – wird als erstes Profil übernommen
+    PROFIL_INDEX_SCHLUESSEL: "sternenspiel_profile_v1",         // Liste der Spielerprofile
+    PROFIL_SPIELSTAND_PRAEFIX: "sternenspiel_spielstand_p_",    // + Profil-ID = eigener Spielstand je Spieler
+    MAX_PROFILE: 20,                                            // ANNAHME
 
     // Zeit
     TICK_MS: 1000,              // ANNAHME: 1 Tick pro Sekunde (Anzeige); Produktion rechnet mit echter Zeitdifferenz

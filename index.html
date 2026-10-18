@@ -1,35 +1,36 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-version="0.4.0">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#030a1c">
   <title>Sternenspiel</title>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=0.4.0">
+  <link rel="stylesheet" href="css/style.css?v=0.4.0">
 </head>
 <body>
 
-  <!-- ===== Startbildschirm ===== -->
-  <section id="bildschirm-start" class="bildschirm aktiv" aria-label="Startbildschirm">
+  <!-- ===== Startbildschirm = Spielerauswahl ===== -->
+  <section id="bildschirm-start" class="bildschirm aktiv" aria-label="Spielerauswahl">
     <div class="start-kasten kasten">
       <h1 class="logo-gross"><img src="assets/logo.svg" alt="Sternenspiel" width="320" height="64"></h1>
       <p class="untertitel">Baue dein Sternenreich auf – offline, im Browser.</p>
-      <div id="start-spielstand" class="spielstand-info" hidden></div>
-      <div class="knopf-reihe senkrecht">
-        <button id="knopf-weiterspielen" class="knopf primaer" hidden>Weiterspielen</button>
-      </div>
-      <form id="form-neu" class="neu-form" autocomplete="off">
-        <h2 class="neu-titel">Neues Spiel</h2>
-        <label class="feld"><span>Spielername (optional)</span>
-          <input id="eingabe-name" type="text" maxlength="24" placeholder="Kommandant"></label>
+      <div id="start-fehler" class="fehler-box" role="alert" hidden></div>
+
+      <h2 class="neu-titel">Spielerauswahl</h2>
+      <div id="profil-liste" class="profil-liste" aria-live="polite"><p class="hinweis">Lade Spieler …</p></div>
+
+      <!-- onsubmit="return false": auch wenn ein Skript fehlt, lädt die Seite beim Klick NICHT neu -->
+      <form id="form-neu" class="neu-form" autocomplete="off" onsubmit="return false">
+        <h2 class="neu-titel">Neuen Spieler erschaffen</h2>
+        <label class="feld"><span>Spielername</span>
+          <input id="eingabe-name" type="text" maxlength="24" placeholder="z. B. Sandro"></label>
         <label class="feld"><span>Name des Hauptplaneten (optional)</span>
           <input id="eingabe-planet" type="text" maxlength="24" placeholder="automatisch"></label>
-        <button id="knopf-neues-spiel" class="knopf" type="submit">Neues Spiel starten</button>
-        <p class="hinweis">Du startest automatisch auf einem Hauptplaneten irgendwo im Universum.</p>
+        <button id="knopf-neues-spiel" class="knopf primaer" type="submit">Spieler erschaffen &amp; starten</button>
+        <p class="hinweis">Der neue Spieler startet automatisch auf einem Hauptplaneten irgendwo im Universum.</p>
       </form>
-      <p id="start-fehler" class="fehler" hidden></p>
-      <p class="fusszeile">Kapitel 1 · Layout-Grundgerüst</p>
+      <p class="fusszeile">Kapitel 1 · Layout-Grundgerüst · Version <span id="version-anzeige">0.4.0</span></p>
     </div>
   </section>
 
@@ -46,7 +47,7 @@
         <ul id="menue-liste" class="menue-liste"></ul>
         <div class="menue-fuss">
           <button id="knopf-schnellspeichern" class="knopf klein">Speichern</button>
-          <button id="knopf-hauptmenue" class="knopf klein">Hauptmenü</button>
+          <button id="knopf-spieler-wechseln" class="knopf klein">Spieler wechseln</button>
         </div>
       </nav>
       <div id="menue-schleier" class="menue-schleier" hidden></div>
@@ -68,18 +69,31 @@
 
   <div id="meldung" class="meldung" role="status" aria-live="polite"></div>
 
-  <!-- Reihenfolge wichtig: Daten → Kern → Oberfläche. tests/lade-spiel.js liest diese Liste. -->
-  <script src="js/data/konstanten.js"></script>
-  <script src="js/data/rohstoffe.js"></script>
-  <script src="js/data/startplaetze.js"></script>
-  <script src="js/data/weltraum.js"></script>
-  <script src="js/data/menue.js"></script>
-  <script src="js/data/gebaeude.js"></script>
-  <script src="js/data/schiffe.js"></script>
-  <script src="js/kern/zustand.js"></script>
-  <script src="js/kern/produktion.js"></script>
-  <script src="js/kern/speicher.js"></script>
-  <script src="js/ui/format.js"></script>
-  <script src="js/ui/app.js"></script>
+  <!-- Reihenfolge wichtig: Daten → Kern → Oberfläche. tests/lade-spiel.js liest diese Liste.
+       ?v=… = Cache-Schutz: bei jeder neuen Version hochzählen (gleich wie data-version oben und SS.VERSION in konstanten.js). -->
+  <script src="js/data/konstanten.js?v=0.4.0"></script>
+  <script src="js/data/rohstoffe.js?v=0.4.0"></script>
+  <script src="js/data/startplaetze.js?v=0.4.0"></script>
+  <script src="js/data/weltraum.js?v=0.4.0"></script>
+  <script src="js/data/menue.js?v=0.4.0"></script>
+  <script src="js/data/gebaeude.js?v=0.4.0"></script>
+  <script src="js/data/schiffe.js?v=0.4.0"></script>
+  <script src="js/kern/zustand.js?v=0.4.0"></script>
+  <script src="js/kern/produktion.js?v=0.4.0"></script>
+  <script src="js/kern/speicher.js?v=0.4.0"></script>
+  <script src="js/kern/profile.js?v=0.4.0"></script>
+  <script src="js/ui/format.js?v=0.4.0"></script>
+  <script src="js/ui/app.js?v=0.4.0"></script>
+  <!-- Notbremse: Falls Skripte fehlen oder abstürzen, sieht man eine Meldung statt eines toten Knopfes. -->
+  <script>
+    window.addEventListener("load", function () {
+      if (window.SS && window.SS.app) return;
+      var el = document.getElementById("start-fehler");
+      if (!el) return;
+      el.hidden = false;
+      el.innerHTML = "Das Spiel konnte nicht vollständig geladen werden (evtl. alte Dateien im Browser-Zwischenspeicher). " +
+        "<button class=\"knopf klein\" type=\"button\" onclick=\"location.replace(location.pathname + '?neu=' + Date.now())\">Neu laden</button>";
+    });
+  </script>
 </body>
 </html>

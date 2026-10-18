@@ -15,7 +15,8 @@ function ladePlaywright() {
   for (const k of kandidaten) { try { return require(k); } catch (e) { /* nächster */ } }
   throw new Error("playwright-core nicht gefunden (npm i playwright-core oder PLAYWRIGHT_CORE setzen)");
 }
-const { chromium } = ladePlaywright();
+const PW = ladePlaywright();
+const { chromium } = PW;
 const CHROME = process.env.CHROME || ["/usr/bin/google-chrome", "/opt/google/chrome/chrome", "/usr/bin/chromium"].find((p) => fs.existsSync(p));
 const URL_ = pathToFileURL(path.join(__dirname, "..", "index.html")).href;
 const OUT = path.join(__dirname, "..", "playtest");
@@ -136,16 +137,17 @@ async function lauf(browser, g) {
   await sleep(1600);
   ok((await page.evaluate(() => window.SS.app.zustand.rohstoffe.metall)) > m0, "Produktion läuft im Hintergrund");
   if (handy) { await page.click("#knopf-menue-auf"); await sleep(260); }
-  await page.click("#knopf-hauptmenue");
-  ok(await page.isVisible("#knopf-weiterspielen"), "Hauptmenü speichert, „Weiterspielen“ sichtbar");
+  await page.click("#knopf-spieler-wechseln");
+  ok(await page.isVisible('#profil-liste [data-aktion="spielen"]'), "„Spieler wechseln“ speichert und zeigt die Spielerauswahl");
   const vorher = await page.evaluate(() => {
-    const k = window.SS.BALANCE.SPEICHER_SCHLUESSEL, z = JSON.parse(localStorage.getItem(k));
+    const B = window.SS.BALANCE, idx = JSON.parse(localStorage.getItem(B.PROFIL_INDEX_SCHLUESSEL));
+    const k = B.PROFIL_SPIELSTAND_PRAEFIX + idx.profile[0].id, z = JSON.parse(localStorage.getItem(k));
     z.zeit.letzterTick -= 3 * 3600000; z.zeit.zuletztGespeichert -= 3 * 3600000;
     localStorage.setItem(k, JSON.stringify(z));
     return z.rohstoffe.metall;
   });
   await page.reload();
-  await page.click("#knopf-weiterspielen");
+  await page.click('#profil-liste [data-aktion="spielen"]');
   ok(await page.isVisible("#dialog"), "Willkommen-zurück-Dialog nach 3 Std. offline");
   const rate = await page.evaluate(() => window.SS.kern.produktion.produktionProStunde(window.SS.app.zustand).metall);
   const nachher = await page.evaluate(() => window.SS.app.zustand.rohstoffe.metall);
@@ -155,7 +157,9 @@ async function lauf(browser, g) {
   await page.waitForSelector('#inhalt[data-seite="uebersicht"] [data-aktion="zuruecksetzen"]');
   await page.click('[data-aktion="zuruecksetzen"]');
   await page.click("#dialog-ok");
-  ok(await page.isVisible("#bildschirm-start") && !(await page.isVisible("#knopf-weiterspielen")), "Zurücksetzen löscht Spielstand");
+  await sleep(200);
+  const nachReset = await page.evaluate(() => ({ m: window.SS.app.zustand.rohstoffe.metall, h: window.SS.app.zustand.heimat }));
+  ok(await page.isVisible("#bildschirm-spiel") && nachReset.m < 520 && JSON.stringify(nachReset.h) === JSON.stringify(heimat), "Zurücksetzen: Rohstoffe auf Start, Name/Hauptplanet bleiben");
 
   ok(fehler.length === 0, "Keine Konsolen-/Seitenfehler, keine externen Anfragen" + (fehler.length ? ":\n  " + fehler.join("\n  ") : ""));
   await ctx.close();
