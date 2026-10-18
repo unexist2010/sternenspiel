@@ -1,0 +1,189 @@
+/* Sternenspiel – Stil (Kapitel 1). Mobil zuerst, ab 760 px Desktop-Raster. Keine externen Schriften. */
+:root {
+  --bg: #070b1a;
+  --bg2: #0e1530;
+  --karte: rgba(18, 27, 58, 0.88);
+  --rand: #2a3a72;
+  --text: #e6ecff;
+  --leise: #93a0c8;
+  --akzent: #5fb4ff;
+  --akzent2: #8a6bff;
+  --gut: #57d38c;
+  --schlecht: #ff6b6b;
+  --radius: 12px;
+  font-size: 16px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: radial-gradient(ellipse at 20% 0%, #1a2350 0%, var(--bg) 55%) fixed, var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.sterne {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .7;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 30% 70%, #cfe 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 55% 35%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 75% 80%, #ddf 50%, transparent 51%),
+    radial-gradient(1px 1px at 90% 15%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 65% 55%, #ffe 50%, transparent 51%),
+    radial-gradient(1px 1px at 20% 90%, #fff 50%, transparent 51%);
+  background-size: 300px 300px;
+}
+h1, h2, h3 { margin: 0 0 .5rem; line-height: 1.2; }
+h2 { font-size: 1.15rem; color: var(--akzent); }
+h3 { font-size: 1rem; }
+.hinweis { color: var(--leise); font-size: .88rem; margin: .4rem 0; }
+.fehler { color: var(--schlecht); }
+[hidden] { display: none !important; }
+
+/* Bildschirme */
+.bildschirm { display: none; min-height: 100vh; }
+.bildschirm.aktiv { display: block; }
+.inhalt { padding: 12px; max-width: 1200px; margin: 0 auto; }
+
+/* Knöpfe */
+.knopf {
+  appearance: none; border: 1px solid var(--rand); background: var(--bg2); color: var(--text);
+  border-radius: 10px; padding: .7rem 1.1rem; font: inherit; font-weight: 600; cursor: pointer;
+  min-height: 44px; transition: background .15s, border-color .15s, transform .05s;
+}
+.knopf:hover:not(:disabled) { border-color: var(--akzent); }
+.knopf:active:not(:disabled) { transform: translateY(1px); }
+.knopf:disabled { opacity: .45; cursor: not-allowed; }
+.knopf:focus-visible, .startplatz:focus-visible { outline: 2px solid var(--akzent); outline-offset: 2px; }
+.knopf.primaer { background: linear-gradient(135deg, #2f6fd6, var(--akzent2)); border-color: transparent; }
+.knopf.gefahr { border-color: #6b2a3a; color: #ffb3b3; }
+.knopf.gefahr:hover { border-color: var(--schlecht); }
+.knopf.klein { padding: .4rem .8rem; min-height: 36px; font-size: .9rem; }
+.knopf.aktiv { border-color: var(--akzent); background: #16244d; }
+.knopf-reihe { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.knopf-reihe.senkrecht { flex-direction: column; }
+.knopf-reihe.rechts { justify-content: flex-end; }
+
+/* Startbildschirm */
+#bildschirm-start.aktiv { display: flex; align-items: center; justify-content: center; padding: 16px; }
+.start-kasten {
+  width: 100%; max-width: 420px; text-align: center; padding: 32px 22px;
+  background: var(--karte); border: 1px solid var(--rand); border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 60px rgba(95,180,255,.08);
+}
+.start-kasten h1 {
+  font-size: 2.4rem; letter-spacing: .04em;
+  background: linear-gradient(90deg, #9fd4ff, #c3a8ff); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.untertitel { color: var(--leise); margin-bottom: 20px; }
+.spielstand-info { background: var(--bg2); border: 1px solid var(--rand); border-radius: 10px; padding: 10px; margin-bottom: 4px; }
+.fusszeile { color: var(--leise); font-size: .8rem; margin-top: 22px; }
+
+/* Kopfleiste Neues Spiel */
+.kopf-leiste { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-bottom: 1px solid var(--rand); background: rgba(7,11,26,.85); position: sticky; top: 0; z-index: 5; backdrop-filter: blur(6px); }
+.kopf-leiste h2 { margin: 0; }
+.feld { display: block; margin: 8px 0 16px; }
+.feld span { display: block; font-size: .9rem; color: var(--leise); margin-bottom: 4px; }
+.feld input { width: 100%; max-width: 360px; padding: .7rem; border-radius: 10px; border: 1px solid var(--rand); background: var(--bg2); color: var(--text); font: inherit; }
+.annahme-marke, .marke { display: inline-block; font-size: .72rem; padding: 1px 7px; border-radius: 999px; border: 1px solid #7a6a2a; color: #ffd75e; vertical-align: middle; }
+.marke { border-color: var(--rand); color: var(--leise); }
+.filter { display: flex; gap: 6px; margin: 8px 0; }
+
+/* Startplatz-Raster */
+.startplatz-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; margin: 10px 0 14px; }
+.startplatz {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 8px 4px 10px; border-radius: 10px; border: 1px solid var(--rand); background: var(--karte); color: var(--text);
+  font: inherit; cursor: pointer; overflow: hidden;
+}
+.startplatz:hover { border-color: var(--akzent); }
+.startplatz.gewaehlt { border-color: var(--akzent); box-shadow: 0 0 0 2px var(--akzent) inset, 0 0 18px rgba(95,180,255,.35); background: #13224d; }
+.sp-buchstabe { font-size: 1.5rem; font-weight: 700; }
+.sp-stufe { font-size: .75rem; color: var(--leise); }
+.sp-schwerpunkt { font-size: .75rem; font-weight: 700; }
+.sp-balken { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: #1a2550; }
+.sp-balken i { display: block; height: 100%; width: var(--stufe); min-width: 4%; background: linear-gradient(90deg, var(--akzent), var(--akzent2)); }
+
+/* Karten */
+.karte { background: var(--karte); border: 1px solid var(--rand); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; }
+.details h3 { color: var(--akzent); }
+.boni { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 4px; }
+.boni li.schwerpunkt { color: #fff; font-weight: 600; }
+
+/* Rohstoff-Marke */
+.rs-marke {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 22px; padding: 0 4px;
+  border-radius: 6px; font-size: .72rem; font-weight: 800; color: #0a0f22; background: var(--farbe, #888);
+}
+
+/* Ressourcenleiste */
+.ressourcen-leiste {
+  position: sticky; top: 0; z-index: 10; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+  padding: 6px; padding-top: max(6px, env(safe-area-inset-top));
+  background: rgba(7,11,26,.92); border-bottom: 1px solid var(--rand); backdrop-filter: blur(6px);
+}
+.rs { display: flex; align-items: center; gap: 5px; padding: 4px 5px; border-radius: 8px; background: var(--bg2); border: 1px solid transparent; min-width: 0; }
+.rs.voll { border-color: #7a6a2a; }
+.rs-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+.rs-name { display: none; font-size: .7rem; color: var(--leise); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rs-wert { font-weight: 700; font-size: .85rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rs-rate { font-size: .66rem; color: var(--gut); white-space: nowrap; }
+.rs.voll .rs-rate { color: #ffd75e; }
+
+/* Tabelle */
+.tabelle-huelle { overflow-x: auto; }
+.tabelle { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.tabelle th, .tabelle td { padding: 6px 6px; border-bottom: 1px solid #1d2a57; text-align: left; white-space: nowrap; }
+.tabelle th { color: var(--leise); font-weight: 600; font-size: .8rem; }
+.tabelle .z, .tabelle th:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+.werte { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; }
+.werte dt { color: var(--leise); }
+.werte dd { margin: 0; font-weight: 600; }
+.bald-liste { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+
+/* Dialog & Meldung */
+.dialog-hintergrund { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.dialog { width: 100%; max-width: 420px; background: #111a3a; border: 1px solid var(--rand); border-radius: 14px; padding: 18px; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+.meldung {
+  position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); transform: translate(-50%, 30px); opacity: 0; pointer-events: none;
+  background: #16244d; border: 1px solid var(--rand); border-radius: 10px; padding: 10px 16px; z-index: 60; transition: .25s; max-width: 90vw;
+}
+.meldung.sichtbar { opacity: 1; transform: translate(-50%, 0); }
+.meldung.gut { border-color: var(--gut); }
+.meldung.schlecht { border-color: var(--schlecht); }
+
+/* Kleine Handys: Tabelle kompakter */
+@media (max-width: 420px) {
+  .tabelle { font-size: .82rem; }
+  .tabelle th, .tabelle td { padding: 5px 3px; }
+  .tabelle th:nth-child(3), .tabelle td:nth-child(3) { display: none; } /* Lager-Spalte ausblenden */
+}
+
+/* Handy: „Spiel starten“ bleibt unten sichtbar, auch wenn die Liste lang ist */
+@media (max-width: 759px) {
+  #bildschirm-neu .inhalt > .knopf-reihe {
+    position: sticky; bottom: 0; z-index: 4; margin: 0 -12px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(7,11,26,.94); border-top: 1px solid var(--rand); backdrop-filter: blur(6px);
+  }
+  #bildschirm-neu .inhalt > .knopf-reihe .knopf { width: 100%; }
+}
+
+/* Desktop */
+@media (min-width: 760px) {
+  .inhalt { padding: 20px; }
+  .ressourcen-leiste { grid-template-columns: repeat(8, 1fr); gap: 6px; padding: 8px 14px; }
+  .rs { padding: 6px 8px; }
+  .rs-name { display: block; }
+  .rs-wert { font-size: 1rem; }
+  .spiel-raster { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; align-items: start; }
+  .spiel-raster .karte { margin: 0; }
+  .spiel-raster .breit { grid-row: span 2; }
+  .startplatz-raster { grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); }
+  #bildschirm-neu .inhalt { display: grid; grid-template-columns: 1fr 340px; gap: 0 20px; }
+  #bildschirm-neu .inhalt > * { grid-column: 1; }
+  #bildschirm-neu .details { grid-column: 2; grid-row: 1 / span 4; position: sticky; top: 70px; align-self: start; }
+  #bildschirm-neu .inhalt > .knopf-reihe { grid-column: 2; grid-row: 5; align-self: start; margin-top: 0; }
+  #bildschirm-neu .inhalt > .knopf-reihe .knopf { width: 100%; }
+}

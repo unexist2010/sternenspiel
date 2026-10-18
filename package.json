@@ -1,0 +1,10 @@
+{
+  "name": "sternenspiel",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sternenspiel – Offline-Browser-Aufbauspiel im Weltraum (Kapitel 1)",
+  "scripts": {
+    "test": "node --test tests/",
+    "playtest": "node tests/playtest-kapitel1.js"
+  }
+}
