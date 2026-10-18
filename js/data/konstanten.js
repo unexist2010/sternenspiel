@@ -16,7 +16,7 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.4.0";
+  SS.VERSION = "0.5.0";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
@@ -40,13 +40,13 @@
       PLANETEN_PRO_SYSTEM: 12
     },
 
-    // Startplätze = Start-/Abschussplattformen für Flotten auf dem Planeten (FEST, Logik erst in Kapitel 6).
+    // Startplätze = Start-/Abschussplattformen für Flotten auf dem Planeten (FEST, Logik erst in einem späteren Kapitel).
     // FEST: bis zu 10 Startplätze, je Ausbaustufe 1–15, Kosten steigen stark, Freischaltung neuer Plätze punktebasiert,
     //       Kapazität zählt nur Schiffsanzahl, Summe aller Startplätze = max. gleichzeitig startende Schiffe,
     //       keine Zuordnung Schiff → Startplatz.
     // ANNAHME: Beschriftung A–J (Sandro: „bis zu 10, beschriftet A bis Z“ – Widerspruch, offen).
     // ANNAHME: Spielstart mit Startplatz A auf Stufe 1.
-    // OFFEN (null): Kapazität je Stufe, Kosten, Punkteschwellen – werden in Kapitel 6 festgelegt.
+    // OFFEN (null): Kapazität je Stufe, Kosten, Punkteschwellen – werden in einem späteren Kapitel festgelegt.
     STARTPLAETZE: {
       MAX_ANZAHL: 10,
       BUCHSTABEN: "ABCDEFGHIJ",
@@ -54,13 +54,13 @@
       STUFE_MAX: 15,
       START_FREIGESCHALTET: 1,          // ANNAHME: A ist von Beginn an da
       START_STUFE: 1,                   // ANNAHME
-      KAPAZITAET_PRO_STUFE: null,       // offen (Kapitel 6)
-      KOSTEN_FORMEL: null,              // offen (Kapitel 6) – „steigt stark“
-      FREISCHALT_PUNKTE: null           // offen (Kapitel 6) – Punkteschwellen je weiterem Startplatz
+      KAPAZITAET_PRO_STUFE: null,       // offen (späteres Kapitel)
+      KOSTEN_FORMEL: null,              // offen (späteres Kapitel) – „steigt stark“
+      FREISCHALT_PUNKTE: null           // offen (späteres Kapitel) – Punkteschwellen je weiterem Startplatz
     },
 
     // ANNAHME: Grundproduktion pro Stunde ohne Gebäude (Kapitel 1). Keine Boni – alle Spieler gleich.
-    // Kunststoff T1–T3 und Antimaterie werden erst über Gebäude/Forschung (Kapitel 2/3) produziert.
+    // Kunststoff T1–T3 und Antimaterie werden erst über Gebäude/Forschung (späteres Kapitel) produziert.
     GRUNDPRODUKTION_PRO_STUNDE: {
       metall: 120,
       silizium: 80,

@@ -54,7 +54,7 @@ img { max-width: 100%; }
 }
 .knopf:hover:not(:disabled) { border-color: var(--tuerkis); color: #fff; }
 .knopf:disabled { opacity: .45; cursor: not-allowed; }
-.knopf:focus-visible, .menue-liste a:focus-visible, .system-knopf:focus-visible { outline: 2px solid var(--tuerkis); outline-offset: 2px; }
+.knopf:focus-visible, .menue-liste a:focus-visible { outline: 2px solid var(--tuerkis); outline-offset: 2px; }
 a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .knopf.primaer { background: linear-gradient(180deg, #1d7fc4, #0d4b86); border-color: var(--rand-hell); }
 .knopf.gefahr { border-color: #6b2a3a; color: #ffb3b3; }
@@ -123,8 +123,6 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .rs-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
 .rs-name { display: none; font-size: .66rem; color: var(--leise); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; letter-spacing: .03em; }
 .rs-wert { font-weight: 700; font-size: .82rem; font-variant-numeric: tabular-nums; white-space: nowrap; color: #fff; }
-.rs-rate { font-size: .64rem; color: var(--gut); white-space: nowrap; }
-.rs.voll .rs-rate { color: var(--gold); }
 
 /* ---------- Rahmen: Menü + Inhalt ---------- */
 .rahmen { display: block; }
@@ -148,7 +146,6 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 }
 .menue-liste a:hover { border-left-color: var(--tuerkis); color: #fff; }
 .menue-liste a.aktiv { border-left-color: var(--tuerkis); background: linear-gradient(90deg, #135086 0%, #0a2a52 100%); color: #fff; box-shadow: 0 0 12px rgba(63,224,224,.18) inset; }
-.menue-liste .marke { font-size: .64rem; padding: 0 6px; }
 .menue-fuss { display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap; }
 .menue-fuss .knopf { flex: 1; }
 
@@ -162,62 +159,10 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .werte dt { color: var(--leise); }
 .werte dd { margin: 0; font-weight: 700; color: #fff; overflow-wrap: anywhere; }
 .koord { color: var(--tuerkis); font-variant-numeric: tabular-nums; font-weight: 700; }
-.zwei-spalten { display: grid; gap: 14px; }
-.zwei-spalten > .box { margin: 0; }
-
-/* ---------- Tabellen ---------- */
-.tabelle-huelle { overflow-x: auto; }
-.tabelle { width: 100%; border-collapse: collapse; font-size: .88rem; }
-.tabelle th, .tabelle td { padding: 6px 7px; border-bottom: 1px solid #12345a; text-align: left; white-space: nowrap; }
-.tabelle th { color: var(--leise); font-weight: 700; font-size: .76rem; text-transform: uppercase; letter-spacing: .03em; background: rgba(10,36,72,.6); }
-.tabelle tbody tr:nth-child(even) td { background: rgba(10,30,60,.35); }
-.tabelle .z { text-align: right; font-variant-numeric: tabular-nums; }
-.tabelle th.z { text-align: right; }
-.tabelle .rs-zelle { display: flex; align-items: center; gap: 7px; }
-.tabelle tr.heimat td { background: rgba(63,224,224,.12) !important; }
-
-/* ---------- Startplätze (Info auf der Flotte-Seite) ---------- */
-.regeln { margin: 6px 0 12px; padding-left: 20px; display: grid; gap: 4px; }
-.startplatz-reihe { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
-.startplatz-chip { text-align: center; padding: 6px 2px; border: 1px solid #16406c; border-radius: 3px; background: rgba(6,20,46,.85); color: var(--leise); font-size: .78rem; }
-.startplatz-chip b { display: block; font-size: 1.1rem; color: var(--leise); }
-.startplatz-chip.frei { border-color: var(--tuerkis); color: var(--text); background: rgba(16,70,100,.6); }
-.startplatz-chip.frei b { color: #fff; }
-@media (min-width: 600px) { .startplatz-reihe { grid-template-columns: repeat(10, minmax(0, 1fr)); } }
-.platzhalter-info { text-align: left; }
 
 /* ---------- Platzhalter ---------- */
 .platzhalter { text-align: center; padding: 26px 14px; }
 .platzhalter .gross { font-size: 1.1rem; color: var(--gold); font-weight: 700; margin: 8px 0; }
-.platzhalter-symbol { width: 84px; height: 84px; opacity: .85; margin: 0 auto 6px; display: block; }
-
-/* ---------- Weltraum ---------- */
-.brotkrumen { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; margin-bottom: 12px; font-size: .88rem; }
-.brotkrumen a { color: var(--tuerkis); text-decoration: none; }
-.brotkrumen a:hover { text-decoration: underline; }
-.brotkrumen .trenner { color: var(--leise); }
-.welt-kennzahlen { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-bottom: 14px; }
-.kennzahl { background: var(--kasten2); border: 1px solid var(--rand); border-radius: 3px; padding: 8px 10px; text-align: center; }
-.kennzahl b { display: block; font-size: 1.3rem; color: #fff; font-variant-numeric: tabular-nums; }
-.kennzahl span { font-size: .75rem; color: var(--leise); text-transform: uppercase; }
-.sektor-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
-.sektor-karte { display: block; text-decoration: none; color: var(--text); padding: 12px; border: 1px solid var(--rand); border-radius: 3px; background: linear-gradient(160deg, rgba(16,52,96,.85), rgba(4,14,34,.9)); }
-.sektor-karte:hover { border-color: var(--tuerkis); }
-.sektor-karte b { display: block; color: #fff; font-size: 1.02rem; }
-.sektor-karte.heimat { border-color: var(--tuerkis); box-shadow: 0 0 14px rgba(63,224,224,.25); }
-.system-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
-.system-knopf { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 3px; text-decoration: none; color: var(--text); border: 1px solid #16406c; background: rgba(6,20,46,.85); border-radius: 3px; min-width: 0; }
-.system-knopf img { width: 30px; height: 30px; }
-.system-knopf b { font-variant-numeric: tabular-nums; color: #fff; font-size: .85rem; }
-.system-knopf span { font-size: .68rem; color: var(--leise); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.system-knopf:hover { border-color: var(--tuerkis); }
-.system-knopf.heimat { border-color: var(--tuerkis); background: rgba(16,70,100,.85); }
-.system-kopf { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.system-kopf img { width: 72px; height: 72px; }
-.system-nav { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
-.system-nav .eingabe { width: 90px; min-height: 34px; padding: .3rem .5rem; }
-.planet-mini { width: 30px; height: 30px; vertical-align: middle; }
-.heimat-marke { color: var(--tuerkis); font-weight: 700; }
 
 /* ---------- Dialog & Meldung ---------- */
 .dialog-hintergrund { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
@@ -232,9 +177,6 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 
 /* ---------- Kleine Handys ---------- */
 @media (max-width: 420px) {
-  .tabelle { font-size: .8rem; }
-  .tabelle th, .tabelle td { padding: 5px 4px; }
-  .tabelle .eng-weg { display: none; }
   .planet-karte .planet-bild { width: 88px; height: 88px; }
 }
 /* ---------- Desktop: feste Menüleiste links ---------- */
@@ -254,5 +196,4 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
   .menue { position: sticky; top: var(--kopf-hoehe); height: calc(100vh - var(--kopf-hoehe)); width: auto; transform: none; transition: none; box-shadow: none; padding: 12px 10px; z-index: 1; background: rgba(3,12,30,.82); }
   .menue-schleier { display: none !important; }
   .inhalt-feld { padding: 16px 22px; }
-  .zwei-spalten { grid-template-columns: 1fr 1fr; }
 }

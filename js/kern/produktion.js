@@ -2,7 +2,7 @@
  * Sternenspiel – Produktion, Ticks und Offline-Fortschritt.
  * Reine Logik ohne DOM → in Node testbar (tests/).
  *
- * Produktion = Grundrate aus konstanten.js (keine Startplatz-Boni mehr; Gebäude ab Kapitel 2).
+ * Produktion = Grundrate aus konstanten.js (keine Startplatz-Boni mehr; Gebäude in einem späteren Kapitel).
  */
 (function (g) {
   "use strict";
@@ -10,17 +10,17 @@
   SS.kern = SS.kern || {};
   var MS_PRO_STUNDE = 3600000;
 
-  /** Lagerkapazität je Rohstoff (Kapitel 2: + Lager-Gebäude). */
+  /** Lagerkapazität je Rohstoff (späteres Kapitel: + Lager-Gebäude). */
   function lagerKapazitaet(zustand, rohstoffId) {
     return SS.BALANCE.LAGER_GRUND[rohstoffId] || 0;
   }
 
-  /** Produktion pro Stunde je Rohstoff (Kapitel 2+: Gebäude-Anteile hier addieren). */
+  /** Produktion pro Stunde je Rohstoff (späteres Kapitel: Gebäude-Anteile hier addieren). */
   function produktionProStunde(zustand) {
     var res = {};
     SS.DATEN.rohstoffIds.forEach(function (id) {
       var grund = SS.BALANCE.GRUNDPRODUKTION_PRO_STUNDE[id] || 0;
-      res[id] = grund; // Kapitel 2+: Anteile von Anlagen addieren
+      res[id] = grund; // späteres Kapitel: Anteile von Anlagen addieren
     });
     return res;
   }

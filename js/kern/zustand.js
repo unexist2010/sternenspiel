@@ -40,22 +40,23 @@
       name: name,
       erstelltAm: jetzt,
       heimat: hauptplanet(opt.planetName, opt.zufall), // Hauptplanet: Sektor:System:Planet
-      freigeschaltet: { antimaterie: false },          // FEST: Antimaterie versteckt bis zur Freischaltung
+      // FEST: Kunststoff T1–T3 und Antimaterie in Kapitel 1 ausgeblendet (Flag, Rohstoffe existieren weiter im Datenmodell)
+      freigeschaltet: { kunststoff_t1: false, kunststoff_t2: false, kunststoff_t3: false, antimaterie: false },
       rohstoffe: rohstoffMap(SS.BALANCE.STARTBESTAND),
       zeit: { letzterTick: jetzt, zuletztGespeichert: null },
       statistik: { produziertGesamt: rohstoffMap(null), offlineMsGesamt: 0 },
 
       // --- Andockpunkte für spätere Kapitel (in Kapitel 1 ohne Logik) ---
-      startplaetze: SS.DATEN.startplaetzeAnfang(), // Kapitel 6: Flotten-Startplattformen A–J (ANNAHME: A Stufe 1 frei)
-      punkte: 0,             // Kapitel 6/7: Grundlage für die Freischaltung weiterer Startplätze
-      gebaeude: {},          // Kapitel 2: { geologiestation: { stufe: 0 }, … }
-      lagerstaetten: null,   // Kapitel 2: Ergebnis der Geologiestation
-      forschung: {},         // Kapitel 3
-      schiffe: {},           // Kapitel 4: Bestand je Schiffstyp
-      flotten: [],           // Kapitel 6
-      truemmerfelder: [],    // Kapitel 5
-      ereignisse: [],        // Kapitel 7: KI-Angriffe/Ereignisse
-      einstellungen: { schildAutoaktivierung: true } // Solo-Regel (Wirkung ab Kapitel 5)
+      startplaetze: SS.DATEN.startplaetzeAnfang(), // späteres Kapitel: Flotten-Startplattformen A–J (ANNAHME: A Stufe 1 frei)
+      punkte: 0,             // späteres Kapitel: Grundlage für die Freischaltung weiterer Startplätze
+      gebaeude: {},          // späteres Kapitel: { geologiestation: { stufe: 0 }, … }
+      lagerstaetten: null,   // späteres Kapitel: Ergebnis der Geologiestation
+      forschung: {},         // späteres Kapitel
+      schiffe: {},           // späteres Kapitel: Bestand je Schiffstyp
+      flotten: [],           // späteres Kapitel
+      truemmerfelder: [],    // späteres Kapitel
+      ereignisse: [],        // späteres Kapitel: KI-Angriffe/Ereignisse
+      einstellungen: { schildAutoaktivierung: true } // Solo-Regel (Wirkung später)
     };
   }
 
@@ -100,7 +101,7 @@
     if (!hk) z.heimat = hauptplanet(z.heimat && z.heimat.name, zufallFn);
     else z.heimat = { sektor: hk.sektor, system: hk.system, planet: hk.planet, name: String(z.heimat.name || W.planet(hk.system, hk.planet).name).slice(0, 24) };
     z.freigeschaltet = z.freigeschaltet || {};
-    z.freigeschaltet.antimaterie = z.freigeschaltet.antimaterie === true;
+    ["kunststoff_t1", "kunststoff_t2", "kunststoff_t3", "antimaterie"].forEach(function (k) { z.freigeschaltet[k] = z.freigeschaltet[k] === true; });
     z.statistik = z.statistik || {};
     z.statistik.produziertGesamt = rohstoffMap(z.statistik.produziertGesamt);
     z.statistik.offlineMsGesamt = Number(z.statistik.offlineMsGesamt) || 0;

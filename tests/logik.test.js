@@ -83,18 +83,24 @@ test("Menü: genau 8 Punkte in festgelegter Reihenfolge", () => {
   const SS = ladeSpiel();
   gleich(SS.DATEN.menue.map((m) => m.name), ["Übersicht", "Ressourcen", "Anlagen", "Forschung", "Werft", "Verteidigung", "Flotte", "Weltraum"]);
   const platzhalter = SS.DATEN.menue.filter((m) => m.platzhalter);
-  gleich(platzhalter.map((m) => m.id), ["anlagen", "forschung", "werft", "verteidigung", "flotte"]);
-  assert.equal(SS.DATEN.menuePunkt("flotte").kapitel, 6);
+  gleich(platzhalter.map((m) => m.id), ["ressourcen", "anlagen", "forschung", "werft", "verteidigung", "flotte", "weltraum"]);
+  assert.ok(SS.DATEN.menue.every((m) => !("kapitel" in m)), "keine Kapitelnummern an den Menüpunkten");
+  assert.ok(!/Kapitel \d/.test(SS.DATEN.PLATZHALTER_TEXT), "neutraler Platzhaltertext");
 });
 
-test("Antimaterie: versteckt bis zur Freischaltung", () => {
+test("Ressourcenleiste: nur Metall, Silizium, Rohöl, Strom; Kunststoff T1–T3 + Antimaterie per Flag ausgeblendet", () => {
   const SS = ladeSpiel();
   const z = neu(SS);
-  assert.equal(z.freigeschaltet.antimaterie, false);
-  gleich(SS.DATEN.sichtbareRohstoffe(z).map((r) => r.id), ["metall", "silizium", "rohoel", "strom", "kunststoff_t1", "kunststoff_t2", "kunststoff_t3"]);
-  z.freigeschaltet.antimaterie = true;
-  assert.ok(SS.DATEN.sichtbareRohstoffe(z).some((r) => r.id === "antimaterie"));
-  assert.ok("antimaterie" in z.rohstoffe, "Bestand existiert im Datenmodell trotzdem");
+  gleich(z.freigeschaltet, { kunststoff_t1: false, kunststoff_t2: false, kunststoff_t3: false, antimaterie: false });
+  gleich(SS.DATEN.sichtbareRohstoffe(z).map((r) => r.id), ["metall", "silizium", "rohoel", "strom"]);
+  assert.equal(SS.DATEN.rohstoffe.length, 8, "alle 8 Rohstoffe bleiben im Datenmodell");
+  z.freigeschaltet.kunststoff_t2 = true; z.freigeschaltet.antimaterie = true;
+  gleich(SS.DATEN.sichtbareRohstoffe(z).map((r) => r.id), ["metall", "silizium", "rohoel", "strom", "kunststoff_t2", "antimaterie"]);
+  for (const id of SS.DATEN.rohstoffIds) assert.ok(id in z.rohstoffe, "Bestand existiert im Datenmodell: " + id);
+  // alter v3-Spielstand ohne Kunststoff-Flags → nach Migration ausgeblendet
+  const alt = JSON.parse(JSON.stringify(neu(SS))); alt.freigeschaltet = { antimaterie: false };
+  const m = SS.kern.zustand.migriere(alt);
+  gleich(SS.DATEN.sichtbareRohstoffe(m).map((r) => r.id), ["metall", "silizium", "rohoel", "strom"]);
 });
 
 test("Startplätze (Flotten-Startplattformen): Konstanten + Datenmodell-Platzhalter", () => {

@@ -1,9 +1,11 @@
-// Browser-Playtest Kapitel 1 „Layout-Grundgerüst“ (Chromium headless über playwright-core, Seite per file:// – ohne Server).
-// Prüft auf Handy 412×915 und Desktop 1366×768: alle 8 Menüseiten, Menü (Handy ausklappbar), Ressourcenleiste ohne Antimaterie,
-// automatischer Start ohne Auswahl, Flotte mit Startplätze-Info, Weltraum-Navigation Universum → Sektor → System, Bilder geladen, keine Konsolenfehler, keine externen Anfragen,
-// kein waagrechter Überlauf, Speichern/Offline/Zurücksetzen.
-// Screenshots: playtest/kapitel1-layout-<geraet>-<seite>.png
-// Aufruf: node tests/playtest-kapitel1-layout.js   (optional: CHROME=/pfad/zu/chrome, PLAYWRIGHT_CORE=/pfad/zu/playwright-core)
+// Browser-Playtest Kapitel 1 „reine Seitenstruktur“ (Chromium headless über playwright-core).
+// Aufruf:  node tests/playtest-kapitel1-struktur.js                  → file:// (ohne Server)
+//          LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel1-struktur.js
+// Prüft auf Handy 412×915 und Desktop 1366×768: 8 Menüseiten in fester Reihenfolge, alle außer Übersicht nur Titel +
+// neutraler Platzhalter, Übersicht = Hauptplanet + Koordinaten + Knöpfe, Ressourcenleiste nur Metall/Silizium/Rohöl/Strom,
+// nichts von Startplätzen/Weltraum-Navigation/Rohstofftabelle/Kapitelnummern sichtbar, Menü auf/zu, kein Überlauf,
+// keine Konsolenfehler/fremden Anfragen, Speichern/Offline/Zurücksetzen. Screenshots: playtest/kapitel1-final-*.png
+"use strict";
 const fs = require("fs");
 const path = require("path");
 const { pathToFileURL } = require("url");
@@ -18,13 +20,15 @@ function ladePlaywright() {
 const PW = ladePlaywright();
 const { chromium } = PW;
 const CHROME = process.env.CHROME || ["/usr/bin/google-chrome", "/opt/google/chrome/chrome", "/usr/bin/chromium"].find((p) => fs.existsSync(p));
-const URL_ = pathToFileURL(path.join(__dirname, "..", "index.html")).href;
+const LIVE = process.env.LIVE_URL || "";
+const URL_ = LIVE || pathToFileURL(path.join(__dirname, "..", "index.html")).href;
+const BASIS = URL_.replace(/[^/]*$/, "");
 const OUT = path.join(__dirname, "..", "playtest");
 fs.mkdirSync(OUT, { recursive: true });
 
 const MENUE = ["Übersicht", "Ressourcen", "Anlagen", "Forschung", "Werft", "Verteidigung", "Flotte", "Weltraum"];
 const IDS = ["uebersicht", "ressourcen", "anlagen", "forschung", "werft", "verteidigung", "flotte", "weltraum"];
-const KAPITEL = { anlagen: 2, forschung: 3, werft: 4, verteidigung: 5, flotte: 6 };
+const PLATZHALTER = "Wird in einem eigenen Kapitel ausgearbeitet.";
 
 let fehlschlaege = 0, pruefungen = 0;
 function ok(bed, text) { pruefungen++; console.log((bed ? "OK   " : "FAIL ") + text); if (!bed) fehlschlaege++; }
@@ -44,15 +48,17 @@ async function lauf(browser, g) {
   page.on("pageerror", (e) => fehler.push("pageerror: " + e.message));
   page.on("console", (m) => { if (m.type() === "error" || m.type() === "warning") fehler.push("console." + m.type() + ": " + m.text()); });
   page.on("requestfailed", (r) => fehler.push("requestfailed: " + r.url()));
-  page.on("request", (r) => { if (!r.url().startsWith("file:") && !r.url().startsWith("data:")) fehler.push("externe Anfrage: " + r.url()); });
-  const shot = async (n) => { await sleep(300); await page.screenshot({ path: path.join(OUT, `kapitel1-layout-${g.name}-${n}.png`) }); };
+  page.on("request", (r) => { if (!r.url().startsWith(BASIS) && !r.url().startsWith("data:")) fehler.push("externe Anfrage: " + r.url()); });
+  const shot = async (n) => { await page.evaluate(() => { document.getElementById("meldung").className = "meldung"; }); await sleep(350); await page.screenshot({ path: path.join(OUT, `kapitel1-final-${g.name}-${LIVE ? "live-" : ""}${n}.png`) }); };
   const ueberlauf = () => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   const bilderOk = () => page.evaluate(() => [...document.images].filter((i) => i.offsetParent !== null && !(i.complete && i.naturalWidth > 0)).map((i) => i.getAttribute("src")));
   const menueSichtbar = () => page.evaluate(() => { const r = document.getElementById("menue").getBoundingClientRect(); return r.right > 0 && r.left < window.innerWidth; });
 
   await page.goto(URL_);
-  ok(await page.isVisible("#bildschirm-start"), "Startbildschirm sichtbar");
-  await shot("start");
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  ok(await page.isVisible("#bildschirm-start"), "Startbildschirm (Spielerauswahl) sichtbar");
+  ok((await page.getAttribute("html", "data-version")) === "0.5.0" && (await page.evaluate(() => window.SS.VERSION)) === "0.5.0", "Version 0.5.0 (HTML = Skripte)");
 
   ok(!(await page.$(".startplatz, #startplatz-raster, #bildschirm-neu")), "Keine Startplatz-/Planetenauswahl mehr vorhanden");
   await page.fill("#eingabe-name", "Sandro");
@@ -68,69 +74,54 @@ async function lauf(browser, g) {
   const namen = await page.$$eval("#menue-liste a", (as) => as.map((a) => a.childNodes[0].textContent.trim()));
   ok(JSON.stringify(namen) === JSON.stringify(MENUE), "Menü: 8 Punkte in festgelegter Reihenfolge");
   const rs = await page.$$eval("#ressourcen-leiste .rs", (e) => e.map((x) => x.getAttribute("data-rohstoff")));
-  ok(rs.length === 7 && !rs.includes("antimaterie"), "Ressourcenleiste: 7 Rohstoffe, Antimaterie versteckt");
+  ok(JSON.stringify(rs) === '["metall","silizium","rohoel","strom"]', "Ressourcenleiste: nur Metall, Silizium, Rohöl, Strom (" + rs.join(",") + ")");
+  ok(await page.evaluate(() => { const f = window.SS.app.zustand.freigeschaltet; return f.kunststoff_t1 === false && f.kunststoff_t2 === false && f.kunststoff_t3 === false && f.antimaterie === false && "kunststoff_t1" in window.SS.app.zustand.rohstoffe; }), "Kunststoff T1–T3 + Antimaterie per Flag ausgeblendet, im Datenmodell vorhanden");
   const reihen = await page.$$eval("#ressourcen-leiste .rs", (e) => new Set(e.map((x) => Math.round(x.getBoundingClientRect().top))).size);
-  ok(handy ? reihen === 2 : reihen === 1, `Ressourcenleiste: ${handy ? "2 Reihen (4+3)" : "1 Reihe"} (ist ${reihen})`);
+  ok(reihen === 1, `Ressourcenleiste einreihig (ist ${reihen})`);
   ok(handy ? !(await menueSichtbar()) : await menueSichtbar(), handy ? "Handy: Menü anfangs eingeklappt" : "Desktop: Menü links fest sichtbar");
+  ok(!/Kap\.|Kapitel \d/.test(await page.textContent("#menue")), "Menü ohne Kapitelnummern");
 
+  const VERBOTEN = /Startpl|Kapitel \d|Kap\. \d|Sektor|Sonnensystem|Universum|pro Std|Bestand|Lager|Bonus|Feld|Planetengr/;
   for (let i = 0; i < IDS.length; i++) {
     const id = IDS[i];
     if (handy) {
       await page.click("#knopf-menue-auf");
-      await sleep(260);
+      await sleep(280);
       ok(await menueSichtbar(), `Handy: Menü öffnet (${MENUE[i]})`);
       if (i === 0) await shot("menue-offen");
     }
     await page.click(`#menue-liste a[data-seite="${id}"]`);
     await page.waitForSelector(`#inhalt[data-seite="${id}"]`);
-    await sleep(260);
+    await sleep(280);
     if (handy) ok(!(await menueSichtbar()), `Handy: Menü schließt nach Auswahl (${MENUE[i]})`);
-    ok((await page.textContent("#inhalt h1")) === MENUE[i], `Seite „${MENUE[i]}“ geöffnet`);
+    ok((await page.textContent("#inhalt h1")) === MENUE[i], `Seite „${MENUE[i]}“ geöffnet (eigener Titel)`);
     ok(await page.$eval(`#menue-liste a[data-seite="${id}"]`, (a) => a.classList.contains("aktiv")), `Menüpunkt „${MENUE[i]}“ aktiv markiert`);
     ok(await ueberlauf() <= 0, `„${MENUE[i]}“: kein waagrechter Überlauf`);
     const fehlend = await bilderOk();
     ok(fehlend.length === 0, `„${MENUE[i]}“: alle Bilder geladen` + (fehlend.length ? " – fehlt: " + fehlend.join(", ") : ""));
-    const text = await page.textContent("#inhalt");
-    if (KAPITEL[id]) ok(text.includes("Kommt in Kapitel " + KAPITEL[id]), `Platzhalter „${MENUE[i]}“: „Kommt in Kapitel ${KAPITEL[id]}“`);
+    const text = (await page.textContent("#inhalt")).replace(/\s+/g, " ");
+    ok(!VERBOTEN.test(text), `„${MENUE[i]}“: keine Inhalte späterer Kapitel` + (VERBOTEN.test(text) ? " – gefunden: " + text.match(VERBOTEN)[0] : ""));
     if (id === "uebersicht") {
-      ok(text.includes("[" + koord + "]") && text.includes("Hauptplanet") && text.includes(heimat.name), "Übersicht: Hauptplanet + Koordinaten");
-      ok(!/Startplatz|Schwerpunkt|Stufe/.test(text), "Übersicht: keine Startplatz/Stufe-Anzeige mehr");
+      ok(text.includes("[" + koord + "]") && text.includes(heimat.name), "Übersicht: Hauptplanetname + Koordinaten");
+      const knoepfe = await page.$$eval("#inhalt button", (b) => b.map((x) => x.textContent.trim()));
+      ok(JSON.stringify(knoepfe) === '["Speichern","Spieler wechseln","Zurücksetzen"]', "Übersicht: nur Knöpfe Speichern / Spieler wechseln / Zurücksetzen");
+      ok((await page.$$eval("#inhalt .box", (b) => b.length)) === 2 && !(await page.$("#inhalt table, #inhalt a")), "Übersicht: keine Tabellen/Links/weiteren Kästen");
+      if (!handy) await shot("uebersicht");
+    } else {
+      ok(text.replace(/\s/g, "") === (MENUE[i] + MENUE[i] + PLATZHALTER).replace(/\s/g, ""), `„${MENUE[i]}“: nur Titel + neutraler Platzhalter`);
+      ok(!(await page.$("#inhalt table, #inhalt form, #inhalt img, #inhalt a, #inhalt button, #startplaetze-info")), `„${MENUE[i]}“: keine Tabellen/Formulare/Bilder/Links`);
+      if (!handy && id === "ressourcen") await shot("leere-seite");
     }
-    if (id === "flotte") {
-      const info = await page.textContent("#startplaetze-info");
-      ok(info.includes("Startplätze") && info.includes("kommt in Kapitel 6") && info.includes("nur die Anzahl der Schiffe"), "Flotte: Info-Abschnitt Startplätze mit Regeln");
-      const chips = await page.$$eval("#startplaetze-info .startplatz-chip", (e) => e.map((x) => x.getAttribute("data-buchstabe") + (x.classList.contains("frei") ? "+" : "")));
-      ok(chips.join("") === "A+BCDEFGHIJ", "Flotte: Startplätze A–J, nur A freigeschaltet");
-    }
-    if (id === "ressourcen") {
-      const zeilen = await page.$$eval("#rohstoff-tabelle tbody tr", (t) => t.map((x) => x.getAttribute("data-rohstoff")));
-      ok(zeilen.length === 7 && !zeilen.includes("antimaterie"), "Ressourcen: Tabelle mit 7 Rohstoffen ohne Antimaterie");
-      ok((await page.textContent('[data-live="rate:metall"]')) === "120" && !text.includes("Bonus"), "Ressourcen: Grundrate (Metall 120/Std.), keine Bonus-Spalte");
-    }
-    if (!/feldlimit|felder:|planetengr/i.test(text)) ok(true, `„${MENUE[i]}“: keine Planetengröße/Felder angezeigt`); else ok(false, `„${MENUE[i]}“ zeigt Größe/Felder`);
-    await shot(id);
   }
-
-  // Weltraum-Navigation
-  ok((await page.$$eval(".sektor-karte", (e) => e.length)) === 5, "Weltraum: 5 Sektoren");
-  ok((await page.textContent(".welt-kennzahlen")).includes("3.600"), "Weltraum: 3.600 Planeten angezeigt");
-  await page.click(`.sektor-karte[data-sektor="${heimat.sektor}"]`);
-  await page.waitForSelector("#system-raster");
-  ok((await page.$$eval("#system-raster .system-knopf", (e) => e.length)) === 60, `Sektor ${heimat.sektor}: 60 Systeme`);
-  ok((await page.$eval("#system-raster .system-knopf.heimat b", (b) => b.textContent)) === String(heimat.system), `Heimatsystem ${heimat.system} hervorgehoben`);
-  ok(await ueberlauf() <= 0, "Sektor-Ansicht: kein waagrechter Überlauf");
-  await shot("weltraum-sektor");
-  await page.click("#system-raster .system-knopf.heimat");
-  await page.waitForSelector("#planeten-tabelle");
-  ok((await page.$$eval("#planeten-tabelle tbody tr", (e) => e.length)) === 12, `System ${heimat.system}: 12 Planeten`);
-  ok((await page.$eval("#planeten-tabelle tr.heimat", (e) => e.getAttribute("data-position"))) === String(heimat.planet), `Hauptplanet auf Position ${heimat.planet} markiert`);
-  ok(await ueberlauf() <= 0, "System-Ansicht: kein waagrechter Überlauf");
-  ok((await bilderOk()).length === 0, "System-Ansicht: Bilder geladen");
-  await shot("weltraum-system");
-  await page.fill("#eingabe-system", "300");
-  await page.click('#form-system button[type="submit"]');
-  await page.waitForFunction(() => location.hash === "#weltraum/system/300" && document.querySelector(".brotkrumen").textContent.includes("System 300"));
-  ok((await page.textContent(".brotkrumen")).includes("Epsilon"), "Sprung zu System 300 (Sektor Epsilon)");
+  await page.evaluate(() => { location.hash = "#weltraum/system/133"; });
+  await page.waitForFunction(() => document.querySelector("#inhalt").getAttribute("data-seite") === "weltraum");
+  ok(!(await page.$("#system-raster, #planeten-tabelle, .sektor-karte")) && (await page.textContent("#inhalt")).includes(PLATZHALTER), "Alter Weltraum-Link (#weltraum/system/133) zeigt nur den Platzhalter");
+  ok(await page.evaluate(() => { const W = window.SS.DATEN.weltraum, h = window.SS.app.zustand.heimat; return W.universum().sektoren.length === 5 && !!W.system(300) && W.system(1).planeten.length === 12 && !!W.leseKoordinaten(W.koordinatenText(h)); }), "Weltraum-Hierarchie 1/5/300/12 im Datenmodell, Hauptplanet darin verortet");
+  if (handy) {
+    await page.evaluate(() => { location.hash = "#uebersicht"; });
+    await page.waitForSelector('#inhalt[data-seite="uebersicht"]');
+    await shot("uebersicht");
+  }
 
   // Produktion, Speichern, Offline, Zurücksetzen (Unterbau)
   const m0 = await page.evaluate(() => window.SS.app.zustand.rohstoffe.metall);

@@ -1,7 +1,7 @@
 /*
- * Sternenspiel – Gebäude (Andockpunkt für Kapitel 2).
+ * Sternenspiel – Gebäude (Andockpunkt für spätere Kapitel).
  * In Kapitel 1 noch NICHT spielbar. Fest von Sandro: es gibt eine Geologiestation.
- * Alles weitere (Kosten, Wirkung, weitere Gebäude) folgt in Kapitel 2.
+ * Alles weitere (Kosten, Wirkung, weitere Gebäude) folgt in einem späteren Kapitel.
  */
 (function (g) {
   "use strict";

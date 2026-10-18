@@ -1,5 +1,17 @@
 # Playtest-Notizen
 
+## Kapitel 1 – reine Seitenstruktur (0.5.0) – 2026-10-19
+- `node --test tests/`: 29/29 grün.
+- `node tests/playtest-kapitel1-struktur.js` (Chrome headless, `file://`): Handy 412×915 + Desktop 1366×768 – 8 Seiten in fester
+  Reihenfolge, Seiten außer Übersicht exakt „Titel + Platzhalter“ (keine Tabellen/Formulare/Bilder/Links), keine
+  Kapitelnummern/Startplätze/Weltraum-Navigation/Rohstofftabelle, Übersicht nur Planet + Koordinaten + 3 Knöpfe, Ressourcenleiste
+  einreihig mit 4 Rohstoffen, alter Link `#weltraum/system/133` zeigt nur Platzhalter, Hierarchie 1/5/300/12 im Datenmodell,
+  Menü auf/zu (Handy), kein Überlauf, keine Konsolenfehler/fremden Anfragen, Speichern/Offline/Zurücksetzen.
+- `node tests/playtest-kapitel1-profile.js`: Chromium + Firefox grün (Profile, Altstand-Übernahme, Cache-Mix).
+- Live-Lauf nach dem Deploy mit `LIVE_URL=https://unexist2010.github.io/sternenspiel/` (beide Playtests).
+- Screenshots: `kapitel1-final-desktop-uebersicht.png`, `kapitel1-final-desktop-leere-seite.png` (Ressourcen),
+  `kapitel1-final-handy-uebersicht.png`, `kapitel1-final-handy-menue-offen.png`; alte `kapitel1-layout-*.png` entfernt.
+
 ## Kapitel 1 – Start-Fix + Spielerprofile – 2026-10-19
 - **Fehlerbild live nachgestellt** (Chrome headless gegen https://unexist2010.github.io/sternenspiel/ und mit den Dateien von
   0.2.0/0.3.0): frischer Browser, nur v1-Spielstand, nur v2-Spielstand → Start ging. Fehler nur bei **gemischtem Cache**:

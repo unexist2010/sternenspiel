@@ -1,5 +1,5 @@
 /*
- * Sternenspiel – Schiffe, Hüllentypen, Waffentypen (Andockpunkt für Kapitel 4/5).
+ * Sternenspiel – Schiffe, Hüllentypen, Waffentypen (Andockpunkt für spätere Kapitel).
  * Von Sandro festgelegt: 23 Schiffe, 5 Waffentypen, 2 Hüllentypen.
  * Namen und Werte sind noch NICHT festgelegt → Listen bleiben in Kapitel 1 leer.
  */
@@ -12,7 +12,7 @@
   SS.DATEN.WAFFENTYPEN_ANZAHL_SOLL = 5;
   SS.DATEN.HUELLENTYPEN_ANZAHL_SOLL = 2;
 
-  SS.DATEN.schiffe = [];      // Kapitel 4
-  SS.DATEN.waffentypen = [];  // Kapitel 4
-  SS.DATEN.huellentypen = []; // Kapitel 4
+  SS.DATEN.schiffe = [];      // späteres Kapitel
+  SS.DATEN.waffentypen = [];  // späteres Kapitel
+  SS.DATEN.huellentypen = []; // späteres Kapitel
 })(typeof globalThis !== "undefined" ? globalThis : this);

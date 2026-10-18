@@ -1,5 +1,28 @@
 # Changelog – Sternenspiel
 
+## [0.5.0] – 2026-10-19 – Kapitel 1: reine Seitenstruktur
+
+Sandros Klarstellung: Kapitel 1 ist **nur Seitenstruktur + Layout**; jeder Menüpunkt bzw. jede Mechanik bekommt ein eigenes Kapitel.
+
+### Geändert
+- Alle Menüseiten außer Übersicht zeigen nur noch **Seitentitel + neutralen Platzhalter** („Wird in einem eigenen Kapitel ausgearbeitet.“)
+- **Übersicht** reduziert auf Hauptplanetname + Koordinaten und Knöpfe Speichern / Spieler wechseln / Zurücksetzen
+- **Ressourcenleiste** als Platzhalter: nur Metall, Silizium, Rohöl, Strom (nur Bestand, keine Rate); Kunststoff T1–T3 und
+  Antimaterie per Flag `freigeschaltet.<id>` ausgeblendet (bleiben im Datenmodell; alte Spielstände bekommen die Flags per Migration)
+- Version **0.5.0** (Cache-Schutz `?v=0.5.0`, `data-version`, `SS.VERSION`)
+- Doku: SPEZIFIKATION (A5), KAPITELPLAN (Kapitel 1 + Sammlung späterer Kapitel, Reihenfolge offen), README, OFFENE-PUNKTE, NOTES
+- Tests: Node-Tests angepasst (Menü ohne Kapitelnummern, Ressourcen-Flags); Playtest `tests/playtest-kapitel1-struktur.js`
+  (ersetzt `playtest-kapitel1-layout.js`, mit `LIVE_URL`-Modus); Screenshots `playtest/kapitel1-final-*.png`
+
+### Entfernt (aus der Oberfläche; Code liegt in der Git-Historie)
+- Rohstofftabelle (Ressourcen), Weltraum-Navigation/Sektor-/Systemansicht (Weltraum), Startplätze-Abschnitt (Flotte),
+  Kapitelnummern-Hinweise („Kap. X“, „Kommt in Kapitel X“), Knopf „Laden“ in der Übersicht, zugehöriges CSS
+- Alte Screenshots `playtest/kapitel1-layout-*.png`
+
+### Unverändert
+- Spielerprofile, automatischer Start, Speichern/Autospeichern/Offline-Fortschritt, Start-Fix, Versionsprüfung
+- Weltraum-Hierarchie 1/5/300/12 und Startplatz-Regeln im Datenmodell/den Konstanten (nicht sichtbar)
+
 ## [0.4.0] – 2026-10-19 – Kapitel 1: Start-Fix + Spielerprofile
 
 ### Behoben

@@ -1,6 +1,6 @@
 # Sternenspiel
 
-**Stand:** 2026-10-19 (Europe/Vienna) · **Version:** 0.4.0 · **Status:** Kapitel 1 „Layout-Grundgerüst“ (inkl. Spielerprofile) von 7 erledigt  
+**Stand:** 2026-10-19 (Europe/Vienna) · **Version:** 0.5.0 · **Status:** Kapitel 1 „reine Seitenstruktur“ erledigt  
 **Für:** Sandro Orsaria · **Sprache:** Deutsch (Oberfläche, Doku, Kommentare) · **Repo:** github.com/unexist2010/sternenspiel · **Live:** https://unexist2010.github.io/sternenspiel/
 
 ## Kurzüberblick
@@ -23,35 +23,34 @@ Grafiken sind **eigene SVGs** (`assets/`, erzeugt mit `tools/erzeuge-grafiken.js
 **Nach einem Update** genügt normales Neuladen: Alle Dateien tragen `?v=<Version>`; passt etwas nicht zusammen, lädt die
 Seite einmal selbst neu oder zeigt „Neu laden“. Spielstände bitte **nicht** löschen – alte Stände werden übernommen.
 
-## Kapitel 1 – Layout-Grundgerüst (Inhalt)
+## Kapitel 1 – reine Seitenstruktur (Inhalt)
 
 - **Menü** links in fester Reihenfolge: Übersicht, Ressourcen, Anlagen, Forschung, Werft, Verteidigung, Flotte, Weltraum
-- **Kopfbereich** mit Logo und Ressourcenleiste: Metall, Silizium, Rohöl, Strom, Kunststoff T1–T3
-  (Antimaterie ist versteckt, bis `freigeschaltet.antimaterie` im Spielstand `true` ist)
+- **Alle Menüseiten** sind eigene Seiten im gleichen Layout, aber **ohne Inhalt**: Seitentitel + „Wird in einem eigenen
+  Kapitel ausgearbeitet.“ (Ausnahme Übersicht)
+- **Übersicht**: Hauptplanetname + Koordinaten (Sektor:System:Planet), Knöpfe Speichern / Spieler wechseln / Zurücksetzen
+- **Ressourcenleiste** (Platzhalter): Metall, Silizium, Rohöl, Strom; Kunststoff T1–T3 und Antimaterie sind per Flag
+  (`freigeschaltet.<id>`) ausgeblendet, aber im Datenmodell vorhanden
 - **Spielerprofile**: mehrere Spieler pro Browser, je eigener Spielstand und Offline-Fortschritt; Löschen nur mit Bestätigung
-- **Übersicht**: Hauptplanet mit Koordinaten (Sektor:System:Planet), Sektor, System, Spielstand-Knöpfe
-- **Ressourcen**: Rohstofftabelle (Bestand, Lager, pro Std.) – Grundrate, keine Boni
-- **Weltraum**: 1 Universum → 5 Sektoren → 300 Sonnensysteme → 12 Planeten je System (3.600 Planeten), navigierbar
-  (Sektor-Karten, System-Raster, Systemansicht mit ◀ ▶ und Direktsprung), Heimat hervorgehoben
-- **Platzhalter**: Anlagen (Kap. 2), Forschung (Kap. 3), Werft (Kap. 4), Verteidigung (Kap. 5), Flotte (Kap. 6)
-- **Startplätze** = Start-/Abschussplattformen für Flotten (bis zu 10, Stufe 1–15, Kapazität nach Schiffsanzahl):
-  in Kapitel 1 nur Datenmodell (`zustand.startplaetze`), Konstanten und Info-Abschnitt auf der Seite „Flotte“; Logik in Kapitel 6
-- **Unterbau**: vorläufige Grundproduktion, Offline-Fortschritt (max. 24 Std.), Speichern/Laden/Zurücksetzen (nur aktiver Spieler),
-  Spielstand-Migration (v1/v2 → v3, alter Einzel-Spielstand → erstes Profil)
-- **Nicht** enthalten (bewusst): Gebäude, Schiffe, Kampf, Forschung, Planetengrößen/Feldlimits
+- **Im Datenmodell, aber nicht sichtbar**: Weltraum-Hierarchie 1/5/300/12 (Koordinaten des Hauptplaneten), Startplatz-Regeln
+- **Unterbau**: vorläufige Grundproduktion, Offline-Fortschritt (max. 24 Std.), Speichern/Zurücksetzen (nur aktiver Spieler),
+  Migration alter Spielstände
+- **Nicht** enthalten (bewusst, eigene spätere Kapitel): Rohstofftabelle, Gebäude, Forschung, Schiffe, Verteidigung/Kampf,
+  Flotte, Startplätze, Weltraum-Ansicht
 
 ## Testen
 
 ```bash
-node --test tests/                      # 29 Logik-Tests (Hierarchie, Start-Koordinate, Menü, Startplätze, Produktion, Offline, Migration, Profile, Cache-Schutz …)
-node tests/playtest-kapitel1-layout.js  # Browser-Playtest Layout (Chromium headless, file://), Screenshots nach playtest/
+node --test tests/                       # 29 Logik-Tests (Hierarchie, Menü, Ressourcen-Flags, Produktion, Offline, Migration, Profile, Cache-Schutz …)
+node tests/playtest-kapitel1-struktur.js # Browser-Playtest Seitenstruktur (Chromium headless, file://), Screenshots kapitel1-final-*.png
 node tests/playtest-kapitel1-profile.js # Browser-Playtest Profile + Cache-Mix (Chromium/Firefox, file:// + lokaler Server)
-LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel1-profile.js   # dasselbe gegen die Live-Seite
+LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel1-struktur.js  # gegen die Live-Seite
+LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel1-profile.js
 ```
 
 Der Playtest braucht `playwright-core` (sucht automatisch; sonst `npm i playwright-core` oder `PLAYWRIGHT_CORE=…`) und
 Chrome/Chromium (`CHROME=…`). Er öffnet auf **Handy 412×915** und **Desktop 1366×768** alle 8 Menüseiten und prüft
-Konsolenfehler, externe Anfragen, waagrechten Überlauf, geladene Bilder, Menü auf/zu, Weltraum-Navigation und Spielstand.
+Konsolenfehler, externe Anfragen, waagrechten Überlauf, geladene Bilder, Menü auf/zu, leere Seiten und Spielstand.
 
 Grafiken neu erzeugen: `node tools/erzeuge-grafiken.js`
 
@@ -65,11 +64,11 @@ Grafiken neu erzeugen: `node tools/erzeuge-grafiken.js`
   tools/erzeuge-grafiken.js ← erzeugt alle SVGs unter assets/
   js/data/                ← Konfiguration
     konstanten.js         ← ZENTRALE Balance + Weltraum-Größen
-    rohstoffe.js          ← 8 Rohstoffe (Antimaterie mit Freischaltung)
-    startplaetze.js       ← Startplätze = Flotten-Startplattformen A–J (Regeln, Anfangszustand; Logik Kapitel 6)
+    rohstoffe.js          ← 8 Rohstoffe (Kunststoff T1–T3 + Antimaterie mit Freischalt-Flag)
+    startplaetze.js       ← Startplätze = Flotten-Startplattformen A–J (nur Doku/Datenmodell, nicht sichtbar)
     weltraum.js           ← Universum/Sektoren/Systeme/Planeten (deterministisch erzeugt), zufällige Start-Koordinate
-    menue.js              ← 8 Menüpunkte (Reihenfolge FEST) + Kapitel der Platzhalter
-    gebaeude.js, schiffe.js ← Andockpunkte (Kapitel 2/4)
+    menue.js              ← 8 Menüpunkte (Reihenfolge FEST) + neutraler Platzhaltertext
+    gebaeude.js, schiffe.js ← Andockpunkte für spätere Kapitel
   js/kern/                ← DOM-freie Logik (in Node testbar)
     zustand.js            ← Spielstand-Modell v3, Prüfung, Migration
     profile.js            ← Spielerprofile (Liste, Anlegen, Laden/Speichern je Spieler, Löschen, Übernahme Altstand)
@@ -77,7 +76,7 @@ Grafiken neu erzeugen: `node tools/erzeuge-grafiken.js`
     speicher.js           ← Speichern/Laden/Löschen
   js/ui/format.js, app.js ← Formate + Oberfläche (Menü, Seiten, Navigation per #anker)
   tests/                  ← Node-Tests + Browser-Playtest
-  playtest/               ← Screenshots kapitel1-layout-*.png
+  playtest/               ← Screenshots kapitel1-final-*.png, kapitel1-profile-*.png
   docs/                   ← SPEZIFIKATION.md, KAPITELPLAN.md, OFFENE-PUNKTE.md
   CHANGELOG.md
 ```
@@ -89,4 +88,4 @@ Grafiken neu erzeugen: `node tools/erzeuge-grafiken.js`
 
 ## Nächster Schritt
 
-Kapitel 2: Ressourcen & Anlagen (Gebäude inkl. Geologiestation) – siehe `docs/KAPITELPLAN.md`.
+Das nächste Kapitel (welcher Menüpunkt bzw. welche Mechanik) legt Sandro fest – Sammlung in `docs/KAPITELPLAN.md`.

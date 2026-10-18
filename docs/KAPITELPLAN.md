@@ -2,66 +2,49 @@
 
 Stand: 2026-10-19 · Jedes Kapitel ist für sich lauffähig, getestet (Node + Browser-Playtest Handy/Desktop) und wird einzeln committet.
 
-| Kapitel | Inhalt | Menüseite(n) | Status |
-|---------|--------|--------------|--------|
-| 1 | **Layout-Grundgerüst**: Menü, Weltraum-Hierarchie, Ressourcenleiste, Platzhalter, Retro-Stil | Übersicht, Ressourcen, Weltraum | ✅ **erledigt** (2026-10-18) |
-| 2 | Ressourcen & Anlagen: Gebäude inkl. Geologiestation, Förderung, Lager, Ausbau | Anlagen, Ressourcen | offen |
-| 3 | Forschung: Kunststoff-Tiers T1–T3, Freischaltung der Antimaterie | Forschung | offen |
-| 4 | Werft: 23 Schiffe, 2 Hüllentypen, 5 Waffentypen | Werft | offen |
-| 5 | Verteidigung & Kampf: Schutzschild-Autoaktivierung (Solo-Regel), Trümmer/Salvage | Verteidigung | offen |
-| 6 | Flotte & Weltraum-Missionen: **Startplätze (A–J, Stufe 1–15, Kapazität)**, Flotten, Treibstoffregeln, Flüge | Flotte, Weltraum | offen |
-| 7 | KI-Gegner (5–10 Angriffe/Ereignisse täglich), Balancing, Feinschliff | alle | offen |
-| – | Offene Punkte | – | laufend: `docs/OFFENE-PUNKTE.md` |
+**FEST (Sandro, 2026-10-19):** Kapitel 1 ist **nur Seitenstruktur + Layout**. **Jeder Menüpunkt bzw. einzelne Mechaniken
+bekommen später eigene Kapitel.** Die Weltraum-Ansicht und die Startplätze kommen ebenfalls erst später.
+Reihenfolge und Nummern der späteren Kapitel sind **noch offen** (legt Sandro fest) – die Liste unten ist nur eine Sammlung.
+
+| Kapitel | Inhalt | Status |
+|---------|--------|--------|
+| 1 | **Reine Seitenstruktur**: 8 Menüseiten im gleichen Layout (ohne Inhalt), Ressourcenleiste als Platzhalter, Übersicht mit Hauptplanet + Koordinaten, Spielerprofile, automatischer Start, Speichern, Start-Fix/Versionsmarke | ✅ **erledigt** (0.5.0, 2026-10-19) |
+| später | eigene Kapitel je Menüpunkt bzw. Mechanik (siehe unten) | offen |
+| – | Offene Punkte | laufend: `docs/OFFENE-PUNKTE.md` |
 
 ---
 
-## Kapitel 1 – Layout-Grundgerüst ✅
+## Kapitel 1 – reine Seitenstruktur ✅
 
-- Linkes Menü (8 Punkte, feste Reihenfolge) + mittleres Inhaltsfeld; Handy: ausklappbares Menü (☰)
-- Kopf mit Logo und Ressourcenleiste (7 Rohstoffe; Antimaterie versteckt bis `freigeschaltet.antimaterie`)
-- Weltraum-Hierarchie 1 Universum / 5 Sektoren / 300 Systeme / 12 Planeten (3.600), navigierbar; Heimatplanet verortet
-- Übersicht (Heimatplanet, Koordinaten, Startplatz/Stufe), Ressourcen (Tabelle), Platzhalter für Kapitel 2–6
-- Retro-Weltraum-Stil mit eigenen SVG-Grafiken (`assets/`), alles offline
-- **Automatischer Spielstart** auf einem Hauptplaneten (zufällige Koordinate), optional Spieler-/Planetenname, keine Auswahl
-- Startplätze nur als Datenmodell-/Konstanten-Platzhalter + Info-Abschnitt auf „Flotte“ (Korrektur: keine Startplatz-Wahl/-Boni)
-- Unterbau: vorläufige Grundproduktion (ohne Boni), Offline-Fortschritt, Speichern/Laden/Zurücksetzen, Migration bis v3
-- **Spielerprofile** (Spielerauswahl, mehrere Spieler je Browser, je eigener Spielstand/Offline-Fortschritt, Wechseln, Löschen mit Bestätigung)
+- Linkes Menü (8 Punkte, feste Reihenfolge: Übersicht, Ressourcen, Anlagen, Forschung, Werft, Verteidigung, Flotte, Weltraum)
+  + mittleres Inhaltsfeld; Handy: ausklappbares Menü (☰)
+- Jede Menüseite ist eine eigene Seite im gleichen Layout: **nur Seitentitel + neutraler Platzhalter**
+  („Wird in einem eigenen Kapitel ausgearbeitet.“) – keine Tabellen, keine Navigation, keine Kapitelnummern
+- **Übersicht** (Grundgerüst): Hauptplanetname + Koordinaten, Knöpfe Speichern / Spieler wechseln / Zurücksetzen
+- **Ressourcenleiste als Platzhalter**: Metall, Silizium, Rohöl, Strom sichtbar; Kunststoff T1–T3 und Antimaterie per Flag
+  (`zustand.freigeschaltet.<id> = false`) ausgeblendet, im Datenmodell vorhanden
+- Weltraum-Hierarchie 1 Universum / 5 Sektoren / 300 Systeme / 12 Planeten **nur im Datenmodell** (Koordinaten des Hauptplaneten)
+- Startplätze: Regeln nur als Doku in `js/data/startplaetze.js` / `konstanten.js` / Datenmodell – **nichts sichtbar**
+- **Spielerprofile** (Spielerauswahl, eigener Spielstand + Offline-Fortschritt je Spieler, Wechseln, Löschen mit Bestätigung)
+- Automatischer Start auf zufälligem Hauptplaneten, Speichern/Autospeichern, Migration alter Spielstände
 - Robuster Start: Cache-Schutz `?v=`, Versionsprüfung, Fehler sichtbar statt toter Knöpfe
-- Planetengrößen/Feldlimits bewusst nicht vorhanden
-- Tests: 29 Node-Tests, Browser-Playtests (Handy 412×915, Desktop 1366×768) → `playtest/kapitel1-layout-*.png`, `playtest/kapitel1-profile-*.png`
+- Retro-Weltraum-Stil mit eigenen SVG-Grafiken (`assets/`), alles offline
+- Tests: Node-Tests, Browser-Playtests (Handy 412×915, Desktop 1366×768) → `playtest/kapitel1-final-*.png`, `playtest/kapitel1-profile-*.png`
 
-## Kapitel 2 – Ressourcen & Anlagen
+## Spätere Kapitel (Sammlung, Reihenfolge offen)
 
-- Gebäude-Konfiguration in `js/data/gebaeude.js` (Kosten, Bauzeit, Wirkung je Stufe), Seite „Anlagen“
-- **Geologiestation (FEST):** erkundet/bestimmt Lagerstätten → `zustand.lagerstaetten`, beeinflusst Förderung
-- Förderanlagen (Metall, Silizium, Rohöl), Kraftwerk (Strom), Lager – ersetzen die vorläufige Grundproduktion (ANNAHME)
-- Bauzeit läuft auch offline weiter
+| Thema | Menüseite | Bekannte Vorgaben (FEST) / Notizen |
+|-------|-----------|------------------------------------|
+| Ressourcen-Seite (Rohstofftabelle, Produktion, Lager) | Ressourcen | Rohstoffe Metall, Silizium, Rohöl, Strom, Kunststoff T1–T3, Antimaterie |
+| Anlagen | Anlagen | **Geologiestation** |
+| Forschung | Forschung | Freischaltung Kunststoff T1–T3 / Antimaterie (Wodurch? offen) |
+| Werft | Werft | **23 Schiffe, 5 Waffentypen, 2 Hüllentypen** |
+| Verteidigung & Kampf | Verteidigung | **Schutzschild-Autoaktivierung (Solo-Regel)**, **Trümmer-Salvage 50–75 % Boden / 80 % Orbit** |
+| Flotte | Flotte | **Treibstoffregeln** (Inhalt offen) |
+| **Startplätze** (eigene Mechanik) | Flotte o. Anlagen (offen) | bis zu 10, Stufe 1–15, stark steigende Kosten, punktebasierte Freischaltung, Kapazität = nur Anzahl Schiffe, Summe = gleichzeitige Starts, keine Zuordnung Schiff → Startplatz |
+| **Weltraum-Ansicht** (Navigation Sektoren/Systeme/Planeten) | Weltraum | Hierarchie 1/5/300/12 (Datenmodell steht schon) |
+| KI-Gegner | – | **5–10 Angriffe/Ereignisse täglich** |
+| Balancing, Feinschliff | alle | – |
 
-## Kapitel 3 – Forschung
-
-- Forschungsbaum (`js/data/forschung.js`), Seite „Forschung“
-- Kunststoff-Kette Rohöl (+ Strom) → T1 → T2 → T3 (ANNAHME)
-- **Freischaltung der Antimaterie** (setzt `freigeschaltet.antimaterie = true` → erscheint in der Ressourcenleiste)
-
-## Kapitel 4 – Werft
-
-- **23 Schiffe, 2 Hüllentypen, 5 Waffentypen (FEST)** in `js/data/schiffe.js`, Seite „Werft“, Bauwarteschlange
-
-## Kapitel 5 – Verteidigung & Kampf
-
-- Verteidigungsanlagen, Kampfsimulation (Waffentyp gegen Hüllentyp), Kampfbericht
-- **Schutzschild-Autoaktivierung als Solo-Regel (FEST)**
-- **Trümmer-Salvage (FEST): 50–75 % am Boden, 80 % im Orbit**
-
-## Kapitel 6 – Flotte & Weltraum-Missionen
-
-- **Startplätze (FEST):** Start-/Abschussplattformen für Flotten, bis zu 10 (A–J, ANNAHME), je Stufe 1–15 mit stark
-  steigenden Kosten, punktebasierte Freischaltung; Kapazität = nur Anzahl Schiffe; Summe aller Startplätze = max.
-  gleichzeitig startende Schiffe; keine Zuordnung Schiff → Startplatz. Datenmodell `zustand.startplaetze` ist schon da.
-- Flotten zusammenstellen, Missionen zu Koordinaten (Sektor:System:Planet) aus der Weltraum-Seite starten
-- **Treibstoffregeln (FEST, Inhalt offen)**
-
-## Kapitel 7 – KI-Gegner, Balancing, Feinschliff
-
-- **KI-Gegner mit 5–10 Angriffen/Ereignissen pro Tag (FEST)**, Besiedlung anderer Planeten durch KI (ANNAHME)
-- Balancing aller Konstanten, Tutorial, ggf. PWA/Export-Import des Spielstands
+Die frühere Umsetzung von Rohstofftabelle, Weltraum-Navigation und Startplatz-Info (0.2.0–0.4.0) liegt in der Git-Historie
+und kann beim jeweiligen Kapitel wiederverwendet werden.

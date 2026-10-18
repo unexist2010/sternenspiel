@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="de" data-version="0.4.0">
+<html lang="de" data-version="0.5.0">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#030a1c">
   <title>Sternenspiel</title>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=0.4.0">
-  <link rel="stylesheet" href="css/style.css?v=0.4.0">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=0.5.0">
+  <link rel="stylesheet" href="css/style.css?v=0.5.0">
 </head>
 <body>
 
@@ -30,7 +30,7 @@
         <button id="knopf-neues-spiel" class="knopf primaer" type="submit">Spieler erschaffen &amp; starten</button>
         <p class="hinweis">Der neue Spieler startet automatisch auf einem Hauptplaneten irgendwo im Universum.</p>
       </form>
-      <p class="fusszeile">Kapitel 1 · Layout-Grundgerüst · Version <span id="version-anzeige">0.4.0</span></p>
+      <p class="fusszeile">Kapitel 1 · Seitenstruktur · Version <span id="version-anzeige">0.5.0</span></p>
     </div>
   </section>
 
@@ -71,19 +71,19 @@
 
   <!-- Reihenfolge wichtig: Daten → Kern → Oberfläche. tests/lade-spiel.js liest diese Liste.
        ?v=… = Cache-Schutz: bei jeder neuen Version hochzählen (gleich wie data-version oben und SS.VERSION in konstanten.js). -->
-  <script src="js/data/konstanten.js?v=0.4.0"></script>
-  <script src="js/data/rohstoffe.js?v=0.4.0"></script>
-  <script src="js/data/startplaetze.js?v=0.4.0"></script>
-  <script src="js/data/weltraum.js?v=0.4.0"></script>
-  <script src="js/data/menue.js?v=0.4.0"></script>
-  <script src="js/data/gebaeude.js?v=0.4.0"></script>
-  <script src="js/data/schiffe.js?v=0.4.0"></script>
-  <script src="js/kern/zustand.js?v=0.4.0"></script>
-  <script src="js/kern/produktion.js?v=0.4.0"></script>
-  <script src="js/kern/speicher.js?v=0.4.0"></script>
-  <script src="js/kern/profile.js?v=0.4.0"></script>
-  <script src="js/ui/format.js?v=0.4.0"></script>
-  <script src="js/ui/app.js?v=0.4.0"></script>
+  <script src="js/data/konstanten.js?v=0.5.0"></script>
+  <script src="js/data/rohstoffe.js?v=0.5.0"></script>
+  <script src="js/data/startplaetze.js?v=0.5.0"></script>
+  <script src="js/data/weltraum.js?v=0.5.0"></script>
+  <script src="js/data/menue.js?v=0.5.0"></script>
+  <script src="js/data/gebaeude.js?v=0.5.0"></script>
+  <script src="js/data/schiffe.js?v=0.5.0"></script>
+  <script src="js/kern/zustand.js?v=0.5.0"></script>
+  <script src="js/kern/produktion.js?v=0.5.0"></script>
+  <script src="js/kern/speicher.js?v=0.5.0"></script>
+  <script src="js/kern/profile.js?v=0.5.0"></script>
+  <script src="js/ui/format.js?v=0.5.0"></script>
+  <script src="js/ui/app.js?v=0.5.0"></script>
   <!-- Notbremse: Falls Skripte fehlen oder abstürzen, sieht man eine Meldung statt eines toten Knopfes. -->
   <script>
     window.addEventListener("load", function () {

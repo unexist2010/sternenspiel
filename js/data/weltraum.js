@@ -117,7 +117,7 @@
 
   /**
    * ANNAHME: Zufällige Start-Koordinate für den Hauptplaneten (wie beim klassischen Spielstart ohne Auswahl).
-   * Im Solo-Spiel sind alle anderen Planeten frei; „besetzt“ (z. B. KI ab Kapitel 7) kann übergeben werden.
+   * Im Solo-Spiel sind alle anderen Planeten frei; „besetzt“ (z. B. KI in einem späteren Kapitel) kann übergeben werden.
    * @param {function():number} [zufallFn] Zufallsquelle 0..1 (Standard Math.random; Tests geben eine feste vor)
    * @param {function(object):boolean} [istBesetzt]
    */

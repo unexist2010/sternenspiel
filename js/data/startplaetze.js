@@ -1,6 +1,6 @@
 /*
  * Sternenspiel – Startplätze = Start-/Abschussplattformen (Launch Pads) für Flotten auf dem Hauptplaneten.
- * NUR Datenmodell-Platzhalter und Regeltext; Ausbau, Kosten und Flottenstart folgen in Kapitel 6 (Flotte).
+ * NUR Doku/Datenmodell-Platzhalter – in Kapitel 1 NICHT sichtbar. Ausbau, Kosten und Flottenstart folgen in einem späteren eigenen Kapitel.
  *
  * FEST (Sandro):
  *  - bis zu 10 Startplätze, mit Buchstaben beschriftet
