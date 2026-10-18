@@ -113,7 +113,7 @@ test("Migration: alter Einzel-Spielstand (v1, v2, v3) wird erstes Profil", () =>
     assert.equal(sp.getItem(key), null, "alter Schlüssel entfernt");
     assert.ok(sp.getItem(key + "_uebernommen"), "Sicherung vorhanden");
     const z = PR.ladeProfil(sp, m.profil.id).zustand;
-    assert.equal(z.version, 4); assert.ok(!("startplatz" in z)); assert.equal(z.planeten.length, 1);
+    assert.equal(z.version, 5); assert.ok(!("startplatz" in z)); assert.equal(z.planeten.length, 1);
     assert.equal(z.rohstoffe.metall, 777);
     if (variante === "v2") gleich(z.heimat, { sektor: 3, system: 133, planet: 5, name: "Rigo V" });
     assert.ok(W.leseKoordinaten(W.koordinatenText(z.heimat)));

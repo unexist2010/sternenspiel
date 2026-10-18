@@ -1,6 +1,7 @@
 // Browser-Playtest Kapitel 2 „Anlagen“ (playwright-core, Chromium headless; PLAYTEST_BROWSER=firefox optional).
 // Aufruf:  node tests/playtest-kapitel2.js                  → file:// (ohne Server)
 //          LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel2.js
+// Grundlauf Kapitel 2 (seit 0.7.0 mit Rohölvorkommen und Startplätzen A–Z; Master/Info/Geologie: playtest-kapitel2b.js).
 // Prüft auf Handy 412×915 und Desktop 1366×768: Menüreihenfolge, Ressourcenleiste (7 Rohstoffe, ohne Antimaterie),
 // Übersicht/Ressourcen/Anlagen mit Inhalt, übrige 5 Seiten Platzhalter, Solarfarm + Metallmine bauen, Zeit vorspulen,
 // Stufe steigt, Produktion steigt, Regler, Abbrechen mit Erstattung, Raumflughafen + Startplätze A–J,
@@ -29,7 +30,7 @@ fs.mkdirSync(OUT, { recursive: true });
 const MENUE = ["Übersicht", "Ressourcen", "Anlagen", "Forschung", "Werft", "Verteidigung", "Flotte", "Weltraum"];
 const IDS = ["uebersicht", "ressourcen", "anlagen", "forschung", "werft", "verteidigung", "flotte", "weltraum"];
 const PLATZHALTER = "Wird in einem eigenen Kapitel ausgearbeitet.";
-const VERSION = "0.6.0";
+const VERSION = "0.7.0";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let fehlschlaege = 0, pruefungen = 0;
 function ok(bed, text) { pruefungen++; console.log((bed ? "OK   " : "FAIL ") + text); if (!bed) fehlschlaege++; }
@@ -75,7 +76,7 @@ async function lauf(browser, g) {
   await page.click("#knopf-neues-spiel");
   await page.waitForSelector('#inhalt[data-seite="uebersicht"]');
   ok(await page.isVisible("#bildschirm-spiel"), "Neues Spiel startet direkt im Spiel");
-  ok(await Z(() => { const z = window.SS.app.zustand, p = z.planeten[0]; return z.version === 4 && p.istHauptplanet === true && p.rohoelfelder === 0 && p.bauauftrag === null && p.startplaetze.length === 10; }), "Datenmodell v4: Planet mit istHauptplanet, rohoelfelder, bauauftrag, 10 Startplätzen");
+  ok(await Z(() => { const z = window.SS.app.zustand, p = z.planeten[0]; return z.version === 5 && p.istHauptplanet === true && p.rohoelVorkommen === 1000000 && p.bauauftrag === null && p.startplaetze.length === 26; }), "Datenmodell v5: Planet mit istHauptplanet, rohoelVorkommen, bauauftrag, 26 Startplätzen");
 
   // Ressourcenleiste
   const rs = await page.$$eval("#ressourcen-leiste .rs", (e) => e.map((x) => x.getAttribute("data-rohstoff")));
@@ -180,13 +181,13 @@ async function lauf(browser, g) {
   await page.waitForSelector(".startplatz-raster");
   ok((await page.getAttribute("#inhalt", "data-unterseite")) === "raumflughafen", "Link „Startplätze verwalten“ öffnet Unterseite");
   const karten = await page.$$eval(".startplatz-karte", (k) => k.map((x) => x.getAttribute("data-buchstabe")).join(""));
-  ok(karten === "ABCDEFGHIJ", "10 Startplätze A–J");
-  ok(await page.$eval('.startplatz-karte[data-buchstabe="J"]', (k) => k.classList.contains("gesperrt") && /Gesperrt bis/.test(k.textContent)), "Startplatz J gesperrt (Punkte-Schwelle)");
+  ok(karten === "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "26 Startplätze A–Z");
+  ok(await page.$eval('.startplatz-karte[data-buchstabe="B"]', (k) => k.classList.contains("gesperrt") && /A Stufe 10 nötig/.test(k.textContent)), "Startplatz B gesperrt („A Stufe 10 nötig“)");
   await page.click('.startplatz-karte[data-buchstabe="A"] button[data-aktion="bauen"]');
   await sleep(200);
   await vorspulen();
   ok((await Z(() => window.SS.app.zustand.planeten[0].startplaetze[0].stufe)) === 1, "Startplatz A auf Stufe 1");
-  ok(/^5$/.test((await page.textContent('#startplaetze-info [data-live="kapazitaet"]')).trim()), "Gesamtkapazität 5 Schiffe");
+  ok(/^10$/.test((await page.textContent('#startplaetze-info [data-live="kapazitaet"]')).trim()), "Gesamtkapazität 10 Schiffe (A Stufe 1)");
   ok(await ueberlauf() <= 0, "Raumflughafen: kein Überlauf");
   await shot(handy ? "handy-raumflughafen" : "raumflughafen", true);
 

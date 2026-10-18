@@ -8,6 +8,9 @@
  *  2. Ölverbrennung läuft nur, soweit Rohöl verfügbar ist (Bestand + laufende Förderung).
  *  3. Kunststoffwerke: Inputs je Einheit; reicht ein Input nicht, drosselt das Werk anteilig (nie negativ).
  *  4. Bauaufträge werden genau zu ihrem Endzeitpunkt fertig; die Produktion wird abschnittsweise gerechnet.
+ *  5. Bohrstation fördert aus dem Rohölvorkommen des Planeten: Förderung = min(Rate, Vorkommen) (FEST, 0.7.0).
+ *  6. Geologie-Funde (alle 24 h) sind Ereignisse wie Bauaufträge – auch im gekappten Offline-Teil werden sie nachgeholt.
+ *  7. Master-Modus: laufende Bauaufträge werden sofort fertig.
  * Lager: unbegrenzt (keine Speichergebäude, ANNAHME).
  */
 (function (g) {
@@ -23,10 +26,10 @@
 
   function hauptplanetVon(z) { return z.planeten && z.planeten[0]; }
 
-  /** Nutzbare Stufe der Bohrstation: Hauptplanet unbegrenzt, sonst höchstens so viele Stufen wie Rohölfelder (ANNAHME). */
-  function nutzbareBohrStufe(p) {
-    var n = p.gebaeude.bohrstation || 0;
-    return p.istHauptplanet ? n : Math.min(n, Math.floor(p.rohoelfelder || 0));
+  /** Höchstmögliche Förderung der Bohrstation pro Stunde im Abschnitt dtH: Vorkommen / dtH (ohne dtH: 0 oder unbegrenzt). */
+  function bohrGrenze(p, dtH) {
+    var v = Math.max(0, p.rohoelVorkommen || 0);
+    return dtH ? v / dtH : (v > 0 ? Infinity : 0);
   }
 
   function leer() { var m = {}; D().rohstoffIds.forEach(function (id) { m[id] = 0; }); return m; }
@@ -35,7 +38,7 @@
    * Raten (pro Stunde) eines Planeten.
    * @param z Spielstand  @param p Planet
    * @param dtH Abschnittslänge in Stunden – begrenzt Verbräuche auf Bestand/dtH + Zufluss. null = Bestand unbegrenzt.
-   * @returns {{gebaeude:Object, produktion:Object, verbrauch:Object, netto:Object, strom:{erzeugung,bedarf,faktor,bilanz}, felderProStunde:number}}
+   * @returns {{gebaeude:Object, produktion:Object, verbrauch:Object, netto:Object, strom:{erzeugung,bedarf,faktor,bilanz}, foerderung:number}}
    */
   function raten(z, p, dtH) {
     var G = D().gebaeude, st = z.rohstoffe;
@@ -48,7 +51,7 @@
     // Grundwerte bei voller Leistung
     var stromFix = 0, bedarf = 0, brennStrom = 0, brennRohoel = 0, minen = {};
     G.forEach(function (d) {
-      var n = d.id === "bohrstation" ? nutzbareBohrStufe(p) : stufe(d.id), rr = r(d.id);
+      var n = stufe(d.id), rr = r(d.id);
       info[d.id] = { id: d.id, stufe: stufe(d.id), regler: d.regler ? Math.round(rr * 100) : null, faktor: 1, erzeugt: {}, verbraucht: {}, strom: 0 };
       if (d.stromBedarf) { var b = wachstum(d.stromBedarf, n) * rr; bedarf += b; info[d.id].strom = -b; }
       if (d.stromErzeugt && !d.verbrauch) { var e = wachstum(d.stromErzeugt, n) * rr; stromFix += e; info[d.id].strom = e; }
@@ -59,9 +62,9 @@
     stromFix += sat;
 
     // 1.+2. Energiefaktor und Ölverbrennung (gegenseitig abhängig → kurze Fixpunkt-Iteration)
-    var f = 1, fo = 0, erzeugung = stromFix;
+    var f = 1, fo = 0, erzeugung = stromFix, bohrMax = bohrGrenze(p, dtH);
     for (var i = 0; i < 4; i++) {
-      var rohoelZufluss = (grund.rohoel || 0) + (minen.bohrstation ? minen.bohrstation.menge * f : 0);
+      var rohoelZufluss = (grund.rohoel || 0) + (minen.bohrstation ? Math.min(bohrMax, minen.bohrstation.menge * f) : 0);
       fo = brennRohoel > 0 ? Math.min(1, (verfuegbar("rohoel") + rohoelZufluss) / brennRohoel) : (brennStrom > 0 ? 1 : 0);
       erzeugung = stromFix + brennStrom * fo;
       f = bedarf > 0 ? Math.min(1, erzeugung / bedarf) : 1;
@@ -71,6 +74,7 @@
     Object.keys(grund).forEach(function (id) { prod[id] += grund[id]; });
     Object.keys(minen).forEach(function (id) {
       var m = minen[id].menge * f;
+      if (id === "bohrstation" && m > bohrMax) { m = bohrMax; info[id].vorkommenGrenze = true; }
       prod[minen[id].rohstoff] += m; info[id].erzeugt[minen[id].rohstoff] = m; info[id].faktor = f;
       if (info[id].strom) info[id].strom *= 1; // Bedarf bleibt (OGame: Verbrauch volle Höhe, Ertrag gedrosselt)
     });
@@ -100,15 +104,13 @@
       Object.keys(d.werk.input).forEach(function (res) { var m = d.werk.input[res] * einh; verb[res] += m; info[d.id].verbraucht[res] = m; });
     });
 
-    // Geologiestation
-    var felder = wachstum((D().gebaeudeNachId("geologiestation") || {}).geologie || 0, stufe("geologiestation")) * r("geologiestation") * f;
-    if (info.geologiestation) info.geologiestation.faktor = f;
+    var foerderung = info.bohrstation && info.bohrstation.erzeugt.rohoel || 0;
 
     var netto = leer();
     D().rohstoffIds.forEach(function (id) { netto[id] = prod[id] - verb[id]; });
     netto.strom = 0; prod.strom = 0; verb.strom = 0; // Strom = Bilanz, kein Bestand
     return {
-      gebaeude: info, produktion: prod, verbrauch: verb, netto: netto, felderProStunde: felder,
+      gebaeude: info, produktion: prod, verbrauch: verb, netto: netto, foerderung: foerderung,
       satelliten: { anzahl: p.solarsatelliten || 0, strom: sat },
       strom: { erzeugung: erzeugung, bedarf: bedarf, faktor: f, bilanz: erzeugung - bedarf }
     };
@@ -138,7 +140,7 @@
       gewinne[id] = (gewinne[id] || 0) + (neu - vorher);
       if (neu > vorher) z.statistik.produziertGesamt[id] += neu - vorher;
     });
-    p.rohoelfelder = (p.rohoelfelder || 0) + rt.felderProStunde * dtH;
+    p.rohoelVorkommen = Math.max(0, (p.rohoelVorkommen || 0) - rt.foerderung * dtH); // Bohrstation leert das Vorkommen
   }
 
   /**
@@ -146,32 +148,47 @@
    * @param {boolean} [ohneProduktion] nur Bauaufträge fertigstellen (für den gekappten Teil langer Abwesenheit)
    */
   function simuliereBis(z, bis, ohneProduktion) {
-    var t = z.zeit.letzterTick, gewinne = {}, fertig = [];
-    var schritt = B().SIM_SCHRITT_MS, bau = SS.kern.bau;
+    var t = z.zeit.letzterTick, gewinne = {}, fertig = [], funde = [];
+    var schritt = B().SIM_SCHRITT_MS, bau = SS.kern.bau, geo = SS.kern.geologie;
+    var master = !!(z.einstellungen && z.einstellungen.master);
     var sicherung = 0;
     var faellige = function () {
-      z.planeten.forEach(function (p) { if (p.bauauftrag && p.bauauftrag.ende <= t && bau) fertig.push(bau.fertigstellen(z, p)); });
+      z.planeten.forEach(function (p) {
+        if (p.bauauftrag && bau && (p.bauauftrag.ende <= t || master)) {
+          if (p.bauauftrag.ende > t) p.bauauftrag.ende = t; // Master: sofort fertig
+          fertig.push(bau.fertigstellen(z, p));
+        }
+        if (geo) funde = funde.concat(geo.faelligeFunde(p, t));
+      });
     };
     faellige();
     while (t < bis && sicherung++ < 1e6) {
       var ziel = Math.min(bis, ohneProduktion ? bis : t + schritt);
-      z.planeten.forEach(function (p) { if (p.bauauftrag && p.bauauftrag.ende > t && p.bauauftrag.ende < ziel) ziel = p.bauauftrag.ende; });
+      z.planeten.forEach(function (p) {
+        if (p.bauauftrag && p.bauauftrag.ende > t && p.bauauftrag.ende < ziel) ziel = p.bauauftrag.ende;
+        var nf = geo && geo.naechsterFund(p);
+        if (nf != null && nf > t && nf < ziel) ziel = nf;
+      });
       if (!ohneProduktion) z.planeten.forEach(function (p) { abschnitt(z, p, ziel - t, gewinne); });
       t = ziel;
       faellige();
     }
     z.zeit.letzterTick = Math.max(z.zeit.letzterTick, bis);
-    return { gewinne: gewinne, fertig: fertig };
+    return { gewinne: gewinne, fertig: fertig, funde: funde };
   }
 
   /** Echtzeit-Tick / Offline: Produktion höchstens OFFLINE_MAX_STUNDEN, Bauaufträge werden immer fertig. */
   function tick(z, jetzt) {
     var delta = jetzt - z.zeit.letzterTick;
-    if (!(delta > 0)) { z.zeit.letzterTick = jetzt; return { ms: 0, gewinne: {}, fertig: [] }; }
-    var max = B().OFFLINE_MAX_STUNDEN * MS_PRO_STUNDE, fertig = [];
-    if (delta > max) fertig = simuliereBis(z, jetzt - max, true).fertig; // gekappter Teil: nur Bau fertigstellen
+    if (!(delta > 0)) {
+      z.zeit.letzterTick = jetzt; // Uhr zurückgestellt: nichts gutschreiben, ab jetzt weiterrechnen
+      var r0 = simuliereBis(z, jetzt); // Master: auch ohne Zeitfortschritt sofort fertigstellen
+      return { ms: 0, gewinne: {}, fertig: r0.fertig, funde: r0.funde };
+    }
+    var max = B().OFFLINE_MAX_STUNDEN * MS_PRO_STUNDE, fertig = [], funde = [];
+    if (delta > max) { var k = simuliereBis(z, jetzt - max, true); fertig = k.fertig; funde = k.funde; } // gekappter Teil: nur Bau + Funde
     var r = simuliereBis(z, jetzt);
-    return { ms: Math.min(delta, max), gewinne: r.gewinne, fertig: fertig.concat(r.fertig) };
+    return { ms: Math.min(delta, max), gewinne: r.gewinne, fertig: fertig.concat(r.fertig), funde: funde.concat(r.funde) };
   }
 
   function offlineFortschritt(z, jetzt) {
@@ -179,13 +196,13 @@
     var max = B().OFFLINE_MAX_STUNDEN * MS_PRO_STUNDE;
     var r = tick(z, jetzt);
     z.statistik.offlineMsGesamt += r.ms;
-    return { abwesendMs: abwesend, angerechnetMs: r.ms, gekappt: abwesend > max, gewinne: r.gewinne, fertig: r.fertig };
+    return { abwesendMs: abwesend, angerechnetMs: r.ms, gekappt: abwesend > max, gewinne: r.gewinne, fertig: r.fertig, funde: r.funde };
   }
 
   SS.kern.produktion = {
     MS_PRO_STUNDE: MS_PRO_STUNDE,
     wachstum: wachstum,
-    nutzbareBohrStufe: nutzbareBohrStufe,
+    bohrGrenze: bohrGrenze,
     raten: raten,
     uebersicht: uebersicht,
     produktionProStunde: produktionProStunde,

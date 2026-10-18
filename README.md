@@ -1,6 +1,6 @@
 # Sternenspiel
 
-**Stand:** 2026-10-19 (Europe/Vienna) · **Version:** 0.6.0 · **Status:** Kapitel 2 „Anlagen“ erledigt  
+**Stand:** 2026-10-19 (Europe/Vienna) · **Version:** 0.7.0 · **Status:** Kapitel 2 „Anlagen“ inkl. Nachbesserung (Master-Modus, Info-Fenster, Geologie, Startplätze A–Z) erledigt  
 **Für:** Sandro Orsaria · **Sprache:** Deutsch (Oberfläche, Doku, Kommentare) · **Repo:** github.com/unexist2010/sternenspiel · **Live:** https://unexist2010.github.io/sternenspiel/
 
 ## Kurzüberblick
@@ -33,7 +33,9 @@ Seite einmal selbst neu oder zeigt „Neu laden“. Spielstände bitte **nicht**
 - **Anlagen**: Kacheln in 4 Gruppen – Ressourcenabbau (Metallmine, Siliziummine, Bohrstation), Energie (Solarfarm,
   Ölverbrennungsstation, Solarsatelliten), Kunststoffproduktion (Kunststoffwerk T1–T3), Weitere Anlagen (Geologiestation,
   Raumflughafen, Werft, Verteidigungswerft, Forschungseinrichtung); 1 Bauauftrag je Planet, läuft auch offline weiter
-- **Raumflughafen** → Unterseite „Startplätze“ A–J (Stufe 1–15, Freischaltung über Punkte, Gesamtkapazität)
+- **Raumflughafen** → Unterseite „Startplätze“ A–Z (26 × 10 Stufen, Freischaltung über Vorgänger Stufe 10 + Punkte, Gesamtkapazität)
+- **Rohölvorkommen** (Hauptplanet 1.000.000), Bohrstation fördert daraus, **Geologiestation** findet alle 24 Std. ein Feld (Fund-Log)
+- **Info-Fenster ⓘ** je Gebäude (aktuelle + nächste 5 Stufen) und **MASTER-Knopf** (Testmodus: sofort, kostenlos, ohne Sperren; je Profil)
 - **Ressourcenleiste**: Metall, Silizium, Rohöl, Strom (Erzeugung / Bedarf), Kunststoff T1–T3; Antimaterie ausgeblendet
 - Forschung, Werft, Verteidigung, Flotte, Weltraum: noch Platzhalter (eigene Kapitel)
 - **Spielerprofile**: mehrere Spieler pro Browser, je eigener Spielstand und Offline-Fortschritt
@@ -42,8 +44,9 @@ Seite einmal selbst neu oder zeigt „Neu laden“. Spielstände bitte **nicht**
 ## Testen
 
 ```bash
-node --test tests/                       # 44 Node-Tests (Kosten, Produktion, Energie, Ölverbrennung, Kunststoff, Bauauftrag/Offline, Startplätze, Migration, Profile …)
+node --test tests/                       # 53 Node-Tests (Kosten, Produktion, Energie, Ölverbrennung, Kunststoff, Bauauftrag/Offline, Startplätze, Migration, Profile …)
 node tests/playtest-kapitel2.js          # Browser-Playtest Kapitel 2 (Chromium headless, file://), Screenshots kapitel2-*.png
+node tests/playtest-kapitel2b.js         # Nachbesserung 0.7.0: Master, Info-Fenster, Geologie-Log, Raumflughafen A–Z (kapitel2b-*.png)
 PLAYTEST_BROWSER=firefox node tests/playtest-kapitel2.js
 node tests/playtest-kapitel1-profile.js  # Profile + Cache-Mix (Chromium/Firefox, file:// + lokaler Server)
 LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel2.js   # gegen die Live-Seite
@@ -68,7 +71,7 @@ Grafiken neu erzeugen: `node tools/erzeuge-grafiken.js`
   js/data/                ← Konfiguration
     konstanten.js         ← ZENTRALE Balance (Bauzeit, Grundproduktion, Punkte, Startplätze) + Weltraum-Größen
     rohstoffe.js          ← 8 Rohstoffe (Kunststoff T1–T3 + Antimaterie mit Freischalt-Flag)
-    startplaetze.js       ← Startplätze A–J des Raumflughafens (Regeltexte, Anfangszustand)
+    startplaetze.js       ← Startplätze A–Z des Raumflughafens (Regeltexte, Anfangszustand)
     weltraum.js           ← Universum/Sektoren/Systeme/Planeten (deterministisch erzeugt), zufällige Start-Koordinate
     menue.js              ← 8 Menüpunkte (Reihenfolge FEST) + neutraler Platzhaltertext
     gebaeude.js           ← 13 Anlagen in 4 Gruppen (Kosten, Faktor, Wirkung) + Solarsatellit
@@ -77,7 +80,8 @@ Grafiken neu erzeugen: `node tools/erzeuge-grafiken.js`
     zustand.js            ← Spielstand-Modell v4 (planeten[]), Prüfung, Migration
     profile.js            ← Spielerprofile (Liste, Anlegen, Laden/Speichern je Spieler, Löschen, Übernahme Altstand)
     produktion.js         ← Raten, Energiebilanz, Kunststoff-Drosselung, Simulation, Offline-Fortschritt
-    bau.js                ← Kosten, Bauzeit, Bauauftrag, Punkte, Startplätze
+    bau.js                ← Kosten, Bauzeit, Bauauftrag, Punkte, Startplätze, Master-Modus
+    geologie.js           ← Rohölvorkommen-Funde der Geologiestation (24-Std.-Takt, Fund-Log)
     speicher.js           ← Speichern/Laden/Löschen
   js/ui/format.js, app.js ← Formate + Oberfläche (Menü, Seiten, Navigation per #anker)
   tests/                  ← Node-Tests + Browser-Playtest

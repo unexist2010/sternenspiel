@@ -17,7 +17,7 @@ function setup(geb = {}, roh = {}) {
   return { SS, z, p: z.planeten[0], P: SS.kern.produktion, Bau: SS.kern.bau };
 }
 
-test("Konstanten: Stufen bis 30 (Raumflughafen 1, Startplätze 15), Kostenfaktoren 1,5–2,0, Bauzeit-Hook = 1", () => {
+test("Konstanten: Stufen bis 30 (Raumflughafen 1, Startplätze 10), Kostenfaktoren 1,5–2,0, Bauzeit-Hook = 1", () => {
   const { SS } = setup();
   assert.equal(SS.BALANCE.GEBAEUDE_MAX_STUFE, 30);
   assert.equal(SS.BALANCE.BAUZEIT.FAKTOR, 1);
@@ -29,7 +29,10 @@ test("Konstanten: Stufen bis 30 (Raumflughafen 1, Startplätze 15), Kostenfaktor
     assert.ok(SS.DATEN.maxStufe(d) === (d.id === "raumflughafen" ? 1 : 30), d.id);
     assert.ok(d.bild.startsWith("assets/gebaeude/"), d.id + " eigenes Bild");
   }
-  gleich(SS.DATEN.gebaeudeNachId("kunststoffwerk_t3").werk.input, { rohoel: 2000, silizium: 2000, metall: 750 }); // FEST (Beispiel Sandro)
+  gleich(SS.DATEN.gebaeudeNachId("kunststoffwerk_t3").werk.input, { rohoel: 1000, silizium: 500, metall: 500 }); // FEST (0.7.0)
+  gleich(SS.DATEN.gebaeudeNachId("kunststoffwerk_t2").werk.input, { rohoel: 40, metall: 20 }); // FEST (0.7.0)
+  gleich(SS.DATEN.gebaeudeNachId("kunststoffwerk_t1").werk.input, { rohoel: 10 });
+  assert.equal(SS.BALANCE.STARTPLAETZE.STUFE_MAX, 10);
 });
 
 test("Kostenformel: Basis · Faktor^(n−1), Bauzeit (Metall+Silizium)/2500 h, Mindestbauzeit", () => {
@@ -109,12 +112,12 @@ test("Kunststoffwerke: Inputs je Einheit, Drosselung/Stopp bei Mangel, nie negat
   nah(r.produktion.kunststoff_t1, w(2, 1)); nah(r.verbrauch.rohoel, w(2, 1) * 10);
   P.tick(z, T0 + STD);
   nah(z.rohstoffe.kunststoff_t1, w(2, 1), 1e-6); nah(z.rohstoffe.rohoel, 1000 - w(2, 1) * 10, 1e-6);
-  // T2: Rohöl + Metall, T3: Rohöl + Silizium + Metall (2000/2000/750 je Einheit)
+  // T2: Rohöl + Metall (40/20), T3: Rohöl + Silizium + Metall (1000/500/500 je Einheit)
   ({ P, z } = setup({ kunststoffwerk_t2: 2, kunststoffwerk_t3: 1, solarfarm: 10 }, { rohoel: 1e6, metall: 1e6, silizium: 1e6 }));
   r = P.uebersicht(z);
   nah(r.produktion.kunststoff_t2, w(0.5, 2)); nah(r.produktion.kunststoff_t3, w(0.02, 1));
-  nah(r.verbrauch.rohoel, w(0.5, 2) * 40 + w(0.02, 1) * 2000);
-  nah(r.verbrauch.silizium, w(0.02, 1) * 2000); nah(r.verbrauch.metall, w(0.5, 2) * 20 + w(0.02, 1) * 750);
+  nah(r.verbrauch.rohoel, w(0.5, 2) * 40 + w(0.02, 1) * 1000);
+  nah(r.verbrauch.silizium, w(0.02, 1) * 500); nah(r.verbrauch.metall, w(0.5, 2) * 20 + w(0.02, 1) * 500);
   // Mangel: kein Rohöl → Stopp
   ({ P, z } = setup({ kunststoffwerk_t1: 1, solarfarm: 5 }, { rohoel: 0 }));
   P.tick(z, T0 + STD);
@@ -142,15 +145,26 @@ test("Kunststoffwerke teilen knappes Rohöl anteilig", () => {
   nah(r.produktion.kunststoff_t2 / w(0.5, 2), zufluss / bedarf, 1e-9);
 });
 
-test("Bohrstation/Geologiestation: Hauptplanet unbegrenzt, andere Planeten nur so viele Stufen wie Rohölfelder", () => {
-  const { P, z, p } = setup({ bohrstation: 5, geologiestation: 2, solarfarm: 15 });
-  assert.equal(P.nutzbareBohrStufe(p), 5);
-  p.istHauptplanet = false; p.rohoelfelder = 2.7;
-  assert.equal(P.nutzbareBohrStufe(p), 2);
-  nah(P.uebersicht(z).produktion.rohoel, w(15, 2));
-  p.istHauptplanet = true; p.rohoelfelder = 0;
+test("Bohrstation fördert aus dem Rohölvorkommen: Vorkommen sinkt, bei 0 keine Förderung (auch offline)", () => {
+  const { P, z, p } = setup({ bohrstation: 5, solarfarm: 15 }, { rohoel: 0 });
+  assert.equal(p.rohoelVorkommen, 1000000, "Hauptplanet startet mit 1.000.000");
+  const rate = w(15, 5);
+  nah(P.uebersicht(z).foerderung, rate);
   P.tick(z, T0 + STD);
-  nah(p.rohoelfelder, w(0.1, 2), 1e-9);
+  nah(p.rohoelVorkommen, 1000000 - rate, 1e-6); nah(z.rohstoffe.rohoel, rate, 1e-6);
+  // fast leer: 50 Rest → in 10 h höchstens 50 gefördert, danach 0
+  p.rohoelVorkommen = 50; const vor = z.rohstoffe.rohoel;
+  P.tick(z, T0 + 11 * STD);
+  nah(z.rohstoffe.rohoel - vor, 50, 1e-6); assert.equal(p.rohoelVorkommen, 0);
+  assert.equal(P.uebersicht(z).foerderung, 0); assert.equal(P.uebersicht(z).produktion.rohoel, 0);
+  // offline (Speicherstand) genauso
+  const b = setup({ bohrstation: 3, solarfarm: 10 }, { rohoel: 0 });
+  b.p.rohoelVorkommen = 100;
+  b.P.offlineFortschritt(b.z, T0 + 20 * STD);
+  nah(b.z.rohstoffe.rohoel, 100, 1e-6); assert.equal(b.p.rohoelVorkommen, 0);
+  // andere Planeten: Vorkommen 0 → keine Förderung ohne Funde
+  const SS = ladeSpiel(); const np = SS.kern.zustand.neuerPlanet(false);
+  assert.equal(np.rohoelVorkommen, 0); assert.equal(np.istHauptplanet, false);
 });
 
 test("Bauschleife: ein Auftrag je Planet, Kosten sofort, fertig zum Endzeitpunkt, Punkte, Abbrechen = volle Rückerstattung", () => {
@@ -209,36 +223,12 @@ test("Unregelmäßige Ticks mit Gebäuden = ein großer Tick", () => {
   for (const id of ["metall", "silizium", "rohoel", "kunststoff_t1"]) nah(a.z.rohstoffe[id], b.z.rohstoffe[id], 0.5);
 });
 
-test("Startplätze: Raumflughafen nötig, Freischaltung nach Punkten, Kosten deutlich steigend, Kapazität = Schiffe", () => {
-  const { SS, P, Bau, z, p } = setup({}, { metall: 1e7, silizium: 1e7, rohoel: 1e7 });
-  const K = SS.BALANCE.STARTPLAETZE;
-  assert.match(Bau.pruefe(z, p, { art: "startplatz", buchstabe: "A" }).grund, /Raumflughafen/);
-  p.gebaeude.raumflughafen = 1;
-  assert.equal(Bau.pruefe(z, p, { art: "startplatz", buchstabe: "A" }).ok, true);
-  assert.match(Bau.pruefe(z, p, { art: "startplatz", buchstabe: "B" }).grund, new RegExp("Gesperrt bis " + K.FREISCHALT_PUNKTE[1] + " Punkte"));
-  z.punkte = K.FREISCHALT_PUNKTE[1];
-  assert.equal(Bau.startplatzFrei(z, "B"), true); assert.equal(Bau.startplatzFrei(z, "C"), false);
-  gleich(Bau.startplatzKosten("A", 1), { metall: 2000, silizium: 1000, rohoel: 500 });
-  gleich(Bau.startplatzKosten("A", 2), { metall: 4000, silizium: 2000, rohoel: 1000 });
-  gleich(Bau.startplatzKosten("B", 1), { metall: 2500, silizium: 1250, rohoel: 625 });
-  assert.equal(Bau.startplatzKosten("A", 15).metall, 2000 * 2 ** 14);
-  // über die Bauschleife bauen
-  Bau.starte(z, p, { art: "startplatz", buchstabe: "A" }, T0);
-  P.tick(z, p.bauauftrag.ende);
-  assert.equal(p.startplaetze[0].stufe, 1);
-  assert.equal(Bau.kapazitaet(p), K.KAPAZITAET_PRO_STUFE);
-  p.startplaetze[0].stufe = 3; p.startplaetze[1].stufe = 2;
-  assert.equal(Bau.kapazitaet(p), 5 * K.KAPAZITAET_PRO_STUFE);
-  p.startplaetze[0].stufe = 15;
-  assert.match(Bau.pruefe(z, p, { art: "startplatz", buchstabe: "A" }).grund, /Höchststufe 15/);
-});
-
 test("Forschungseinrichtung: Forschungszeit-Faktor 1/(1+Stufe) (nur Anzeige)", () => {
   const { Bau, p } = setup({ forschungseinrichtung: 3 });
   assert.equal(Bau.forschungszeitFaktor(p), 0.25);
 });
 
-test("Migration: Profil-Spielstand v3 wird beim Laden zu v4 (Kapitel 2), Rohstoffe bleiben", () => {
+test("Migration: Profil-Spielstand v3 wird beim Laden zu v5, Rohstoffe bleiben", () => {
   const SS = ladeSpiel();
   const PR = SS.kern.profile, sp = speicherAttrappe();
   const a = PR.erstelle(sp, { name: "Alt", jetzt: T0 });
@@ -249,8 +239,8 @@ test("Migration: Profil-Spielstand v3 wird beim Laden zu v4 (Kapitel 2), Rohstof
   delete v3.planeten; v3.rohstoffe.metall = 4321; v3.rohstoffe.strom = 777;
   sp.setItem(key, JSON.stringify(v3));
   const z = PR.ladeProfil(sp, a.profil.id).zustand;
-  assert.equal(z.version, 4); assert.equal(z.rohstoffe.metall, 4321); assert.equal(z.rohstoffe.strom, 0);
+  assert.equal(z.version, 5); assert.equal(z.rohstoffe.metall, 4321); assert.equal(z.rohstoffe.strom, 0);
   assert.equal(z.planeten[0].istHauptplanet, true); assert.equal(z.freigeschaltet.kunststoff_t2, true);
   PR.speichereProfil(sp, a.profil.id, z, T0 + 1);
-  assert.equal(JSON.parse(sp.getItem(key)).version, 4);
+  assert.equal(JSON.parse(sp.getItem(key)).version, 5);
 });

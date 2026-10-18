@@ -1,6 +1,6 @@
 # Sternenspiel – Kapitelplan
 
-Stand: 2026-10-19 (0.6.0) · Jedes Kapitel ist für sich lauffähig, getestet (Node + Browser-Playtest Handy/Desktop) und wird einzeln committet.
+Stand: 2026-10-19 (0.7.0) · Jedes Kapitel ist für sich lauffähig, getestet (Node + Browser-Playtest Handy/Desktop) und wird einzeln committet.
 
 **FEST (Sandro, 2026-10-19):** Kapitel 1 ist **nur Seitenstruktur + Layout**. **Jeder Menüpunkt bzw. einzelne Mechaniken
 bekommen später eigene Kapitel.** Die Weltraum-Ansicht und die Startplätze kommen ebenfalls erst später.
@@ -9,7 +9,7 @@ Reihenfolge und Nummern der späteren Kapitel sind **noch offen** (legt Sandro f
 | Kapitel | Inhalt | Status |
 |---------|--------|--------|
 | 1 | **Reine Seitenstruktur**: 8 Menüseiten im gleichen Layout (ohne Inhalt), Ressourcenleiste als Platzhalter, Übersicht mit Hauptplanet + Koordinaten, Spielerprofile, automatischer Start, Speichern, Start-Fix/Versionsmarke | ✅ **erledigt** (0.5.0, 2026-10-19) |
-| 2 | **Anlagen**: 13 Gebäude in 4 Gruppen, Bauauftrag (1 je Planet), Energie-Bilanz, Kunststoff-Kette, Raumflughafen mit Startplätzen A–J, Punkte; Ressourcen-Seite + Übersicht zurück | ✅ **erledigt** (0.6.0, 2026-10-19) |
+| 2 | **Anlagen**: 13 Gebäude in 4 Gruppen, Bauauftrag (1 je Planet), Energie-Bilanz, Kunststoff-Kette, Raumflughafen mit Startplätzen A–Z, Punkte; Ressourcen-Seite + Übersicht zurück; Nachbesserung: Master-Modus, Info-Fenster, Rohölvorkommen + Geologie | ✅ **erledigt** (0.6.0 + 0.7.0, 2026-10-19) |
 | später | eigene Kapitel je Menüpunkt bzw. Mechanik (siehe unten) | offen |
 | – | Offene Punkte | laufend: `docs/OFFENE-PUNKTE.md` |
 
@@ -39,7 +39,8 @@ Reihenfolge und Nummern der späteren Kapitel sind **noch offen** (legt Sandro f
 - **Ressourcenleiste**: Metall, Silizium, Rohöl, Strom (Erzeugung/Bedarf), Kunststoff T1–T3; Antimaterie ausgeblendet
 - **Anlagen** (Kacheln in Gruppen): Metallmine, Siliziummine, Bohrstation · Solarfarm, Ölverbrennungsstation, Solarsatelliten
   (Anzeige) · Kunststoffwerk T1–T3 · Geologiestation, Raumflughafen, Werft, Verteidigungswerft, Forschungseinrichtung
-- **Raumflughafen** mit Unterseite Startplätze A–J (Stufe 1–15, Punkte-Freischaltung, Kapazität)
+- **Raumflughafen** mit Unterseite Startplätze A–Z (26 × 10 Stufen, Vorgänger Stufe 10 + Punkte, Kapazität) – 0.7.0
+- **Nachbesserung 0.7.0:** MASTER-Testmodus, Info-Fenster je Gebäude, Rohölvorkommen + Geologie-Funde alle 24 Std., Kunststoff-Rezepte, T2/T3 gesperrt
 - Bauzeit nach OGame-Formel (Robotik-Haken = 1), Stufen bis 30, 1 Bauplatz je Planet, Offline-Fertigstellung
 - Forschung, Werft, Verteidigung, Flotte, Weltraum bleiben Platzhalter
 - Formeln/Werte: `docs/SPEZIFIKATION.md` Abschnitt C; Tests `tests/anlagen.test.js`, `tests/playtest-kapitel2.js` → `playtest/kapitel2-*.png`
@@ -52,7 +53,7 @@ Reihenfolge und Nummern der späteren Kapitel sind **noch offen** (legt Sandro f
 | Werft | Werft | **23 Schiffe, 5 Waffentypen, 2 Hüllentypen**; Solarsatelliten bauen (Anzeige steht schon) |
 | Verteidigung & Kampf | Verteidigung | **Schutzschild-Autoaktivierung (Solo-Regel)**, **Trümmer-Salvage 50–75 % Boden / 80 % Orbit** |
 | Flotte | Flotte | **Treibstoffregeln** (Inhalt offen) |
-| Startplätze im Flottenbetrieb | Flotte | Bau steht (Kapitel 2, Raumflughafen); Nutzung der Kapazität bei Starts folgt mit der Flotte |
+| Startplätze im Flottenbetrieb | Flotte | Bau steht (Kapitel 2, Raumflughafen); Nutzung der Kapazität bei Starts + Hangar-Regel (SPEZIFIKATION A7/80) folgt mit der Flotte |
 | **Weltraum-Ansicht** (Navigation Sektoren/Systeme/Planeten) | Weltraum | Hierarchie 1/5/300/12 (Datenmodell steht schon) |
 | KI-Gegner | – | **5–10 Angriffe/Ereignisse täglich** |
 | Balancing, Feinschliff | alle | – |

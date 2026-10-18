@@ -24,7 +24,7 @@
 
   var SS = window.SS;
   var benoetigt = ["BALANCE", "DATEN", "kern", "format"];
-  var fehltModul = !SS || benoetigt.some(function (k) { return !SS[k]; }) || !SS.kern.profile || !SS.kern.zustand || !SS.kern.bau || !SS.DATEN.gebaeudeGruppen || !SS.DATEN.weltraum || !SS.DATEN.menue;
+  var fehltModul = !SS || benoetigt.some(function (k) { return !SS[k]; }) || !SS.kern.profile || !SS.kern.zustand || !SS.kern.bau || !SS.kern.geologie || !SS.DATEN.gebaeudeGruppen || !SS.DATEN.weltraum || !SS.DATEN.menue;
 
   // ---------- Versionsprüfung (Schutz gegen gemischten Browser-Cache: neues HTML + alte Skripte oder umgekehrt) ----------
   var htmlVersion = document.documentElement.getAttribute("data-version");
@@ -46,6 +46,7 @@
   var aktivId = null;        // ID des aktiven Spielerprofils
   var tickTimer = null, autoTimer = null;
   var seite = { id: "uebersicht", teile: [] };
+  var uiZustand = { fundLogOffen: false };   // reine Anzeige-Zustände (nicht gespeichert)
 
   function $(id) { return document.getElementById(id); }
   var fehlendeElemente = [];
@@ -110,6 +111,8 @@
     zustand = null;
     aktivId = null;
     schliesseMenue();
+    schliesseInfo();
+    aktualisiereMaster();
     try {
       var mig = PR.migriereEinzelstand(speicher, jetzt());
       if (mig.profil) startHinweise.push("Dein bisheriger Spielstand wurde als Spieler „" + esc(mig.profil.name) + "“ übernommen.");
@@ -177,13 +180,14 @@
     zeige("spiel");
     baueRessourcenLeiste();
     baueMenue();
-    passeKopfAn();
+    aktualisiereMaster();
     route();
     aktualisiereLive();
     stoppeSchleifen();
     tickTimer = setInterval(function () {
       var r = P.tick(zustand, jetzt());
-      if (meldeFertig(r.fertig)) { speichern(true); baueMenue(); route(true); } else aktualisiereLive();
+      var neu = meldeFertig(r.fertig); if (meldeFunde(r.funde)) neu = true;
+      if (neu) { speichern(true); baueMenue(); route(true); } else aktualisiereLive();
     }, B.TICK_MS);
     autoTimer = setInterval(function () { speichern(true); }, B.AUTOSPEICHERN_MS);
   }
@@ -237,6 +241,7 @@
     var html = id === "uebersicht" ? seiteUebersicht() : id === "ressourcen" ? seiteRessourcen() :
       id === "anlagen" ? (seite.teile[0] === "raumflughafen" ? seiteRaumflughafen() : seiteAnlagen()) : seitePlatzhalter(m);
     var y = window.scrollY;
+    schliesseInfo();
     $("inhalt").innerHTML = "<h1 class=\"seiten-titel\">" + m.name + "</h1>" + html;
     $("inhalt").setAttribute("data-seite", id);
     $("inhalt").setAttribute("data-unterseite", seite.teile[0] || "");
@@ -289,8 +294,8 @@
       "<dt>Position</dt><dd>" + h.planet + " von " + B.WELTRAUM.PLANETEN_PRO_SYSTEM + "</dd>" +
       "</dl></div>");
     var kommandant = box("Kommandant",
+      "<div class=\"punkte-gross\"><span>Punkte</span><b id=\"uebersicht-punkte\" data-live=\"punkte\"></b></div>" +
       "<dl class=\"werte\"><dt>Name</dt><dd>" + esc(zustand.name) + "</dd>" +
-      "<dt>Punkte</dt><dd data-live=\"punkte\"></dd>" +
       "<dt>Universum</dt><dd>" + W.universum().name + "</dd>" +
       "<dt>Spiel seit</dt><dd>" + F.uhrzeit(zustand.erstelltAm) + "</dd>" +
       "<dt>Offline erhalten</dt><dd data-live=\"offline\"></dd></dl>");
@@ -301,7 +306,13 @@
       "<button class=\"knopf\" data-aktion=\"wechseln\">Spieler wechseln</button>" +
       "<button class=\"knopf gefahr\" data-aktion=\"zuruecksetzen\">Zurücksetzen</button></div>" +
       "<p class=\"hinweis\">Zurücksetzen betrifft nur diesen Spieler.</p>");
-    return planetBox + "<div class=\"zwei-spalten\">" + kommandant + bauBox() + "</div>" + spielstand;
+    var rohoel = box("Rohölvorkommen",
+      "<dl class=\"werte\"><dt>Vorkommen</dt><dd><b id=\"uebersicht-vorkommen\" data-live=\"vorkommen\"></b> Rohöl</dd>" +
+      "<dt>Förderung</dt><dd data-live=\"foerderung\"></dd>" +
+      "<dt>Reicht noch</dt><dd data-live=\"reichweite\"></dd>" +
+      "<dt>Nächster Fund in</dt><dd data-live=\"geo-countdown\"></dd></dl>" +
+      "<p class=\"hinweis\">Die Bohrstation fördert aus dem Vorkommen; die Geologiestation findet alle 24 Std. ein neues Feld.</p>", "", " id=\"rohoel-box\"");
+    return planetBox + "<div class=\"zwei-spalten\">" + kommandant + bauBox() + "</div><div class=\"zwei-spalten\">" + rohoel + spielstand + "</div>";
   }
 
   function leistungText(obj, vorzeichen) {
@@ -318,7 +329,8 @@
     var rohstoffe = box("Rohstoffe auf " + esc(zustand.heimat.name),
       "<div class=\"tabelle-huelle\"><table class=\"tabelle\" id=\"rohstoff-tabelle\"><thead><tr><th>Rohstoff</th><th class=\"z\">Bestand</th><th class=\"z eng-weg\">Produktion/h</th><th class=\"z eng-weg\">Verbrauch/h</th><th class=\"z\">Netto/h</th></tr></thead>" +
       "<tbody>" + zeilen + "</tbody></table></div>" +
-      "<p class=\"hinweis\">Lager unbegrenzt (keine Speichergebäude). Grundproduktion Hauptplanet: Metall " + B.GRUNDPRODUKTION_HAUPTPLANET.metall + ", Silizium " + B.GRUNDPRODUKTION_HAUPTPLANET.silizium + " pro Std. <span class=\"annahme-marke\">Annahme</span></p>");
+      "<p class=\"hinweis\">Lager unbegrenzt (keine Speichergebäude). Grundproduktion Hauptplanet: Metall " + B.GRUNDPRODUKTION_HAUPTPLANET.metall + ", Silizium " + B.GRUNDPRODUKTION_HAUPTPLANET.silizium + " pro Std. <span class=\"annahme-marke\">Annahme</span></p>" +
+      "<p class=\"hinweis\">Rohölvorkommen des Planeten: <b data-live=\"vorkommen\"></b> · Förderung <span data-live=\"foerderung\"></span></p>");
     var energie = box("Energiebilanz",
       "<dl class=\"werte\"><dt>Erzeugung</dt><dd data-live=\"strom-erzeugung\"></dd><dt>Bedarf</dt><dd data-live=\"strom-bedarf\"></dd>" +
       "<dt>Bilanz</dt><dd data-live=\"strom-bilanz\"></dd><dt>Produktionsfaktor</dt><dd data-live=\"strom-faktor\"></dd></dl>" +
@@ -354,28 +366,45 @@
     if (d.stromErzeugt) T.push("+" + zahlFein(wa(d.stromErzeugt, n)) + " Strom");
     if (d.verbrauch) T.push("−" + zahlFein(wa(d.verbrauch.rohoel, n)) + " Rohöl/h");
     if (d.stromBedarf) T.push("−" + zahlFein(wa(d.stromBedarf, n)) + " Strom");
-    if (d.geologie) T.push("+" + zahlFein(wa(d.geologie, n)) + " Rohölfelder/h");
+    if (d.fund) { if (n > 0) { var fb = SS.kern.geologie.fundBereich(n); T.push("Fund " + F.zahl(fb[0]) + "–" + F.zahl(fb[1]) + " Rohöl / 24 Std."); } else T.push("keine Funde"); }
     if (d.forschungszeit) T.push("Forschungszeit ×" + F.rate(Math.round(100 / (1 + n)) / 100));
     if (d.id === "raumflughafen") T.push(n > 0 ? "Startplätze verfügbar" : "keine Startplätze");
     if (d.id === "werft" || d.id === "verteidigungswerft") T.push("Funktion folgt später");
     return T.join(" · ") || "–";
   }
 
+  function infoKnopf(art, id, name) {
+    return "<button class=\"info-knopf\" type=\"button\" data-info=\"" + art + ":" + id + "\" aria-label=\"Info zu " + esc(name) + "\" title=\"Info\">i</button>";
+  }
+  function fundLog(p) {
+    var f = p.geologie.funde.slice().sort(function (x, y) { return y.zeit - x.zeit; }); // neuester oben
+    var zeilen = f.map(function (x) {
+      return "<tr><td>" + F.uhrzeit(x.zeit) + (x.test ? " <span class=\"master-marke\">Test</span>" : "") + "</td><td class=\"z\">" + x.stufe + "</td><td class=\"z\">+" + F.zahl(x.menge) + "</td></tr>";
+    }).join("");
+    return "<details class=\"fund-log\" id=\"fund-log\"" + (uiZustand.fundLogOffen ? " open" : "") + "><summary>Fund-Log (" + f.length + (f.length === 1 ? " Fund" : " Funde") + ")</summary>" +
+      "<p class=\"hinweis\">Nächster Fund in: <b data-live=\"geo-countdown\"></b></p>" +
+      (f.length ? "<div class=\"tabelle-huelle\"><table class=\"tabelle\"><thead><tr><th>Datum / Uhrzeit</th><th class=\"z\">Stufe</th><th class=\"z\">Menge</th></tr></thead><tbody>" + zeilen + "</tbody></table></div>"
+        : "<p class=\"hinweis\">Noch keine Funde.</p>") + "</details>";
+  }
   function anlageKachel(d) {
-    var p = hp(), n = p.gebaeude[d.id] || 0, max = D.maxStufe(d), a = p.bauauftrag, zl = SS.kern.bau.ziel(zustand, p, { art: "gebaeude", id: d.id });
-    var laeuft = a && a.art === "gebaeude" && a.id === d.id;
+    var p = hp(), n = p.gebaeude[d.id] || 0, max = D.maxStufe(d), a = p.bauauftrag, Bau = SS.kern.bau, zl = Bau.ziel(zustand, p, { art: "gebaeude", id: d.id });
+    var laeuft = a && a.art === "gebaeude" && a.id === d.id, master = Bau.istMaster(zustand), sperre = Bau.gebaeudeSperre(zustand, d);
     var extra = "";
-    if (d.id === "geologiestation") extra = "<p class=\"extra\">Rohölfelder gefunden: <b data-live=\"felder\"></b>" + (p.istHauptplanet ? " (am Hauptplaneten optional – Rohöl ist hier unbegrenzt)" : "") + "</p>";
+    if (d.id === "geologiestation") {
+      extra = "<p class=\"extra\">Rohölvorkommen: <b data-live=\"vorkommen\"></b> · nächster Fund in <b data-live=\"geo-countdown\"></b></p>" + fundLog(p) +
+        (master ? "<div class=\"knopf-reihe\"><button class=\"knopf klein master-aktion\" type=\"button\" data-aktion=\"fund-test\"" + (n > 0 ? "" : " disabled title=\"Zuerst die Geologiestation bauen\"") + ">Fund sofort auslösen</button></div>" : "");
+    }
     if (d.id === "raumflughafen") extra = "<p class=\"extra\">Startplätze: <b>" + p.startplaetze.filter(function (s) { return s.stufe > 0; }).length + "/" + B.STARTPLAETZE.MAX_ANZAHL + "</b> gebaut · Kapazität <b data-live=\"kapazitaet\"></b> Schiffe</p><a class=\"knopf klein\" href=\"#anlagen/raumflughafen\" id=\"knopf-startplaetze\">Startplätze verwalten</a>";
-    if (d.id === "bohrstation" && !p.istHauptplanet) extra = "<p class=\"extra\">Nutzbare Stufen: " + P.nutzbareBohrStufe(p) + " (Rohölfelder)</p>";
+    if (d.id === "bohrstation") extra = "<p class=\"extra\">Vorkommen: <b data-live=\"vorkommen\"></b> · reicht noch <span data-live=\"reichweite\"></span></p>";
     var unten = n >= max ? "<p class=\"hinweis max\">Höchststufe erreicht.</p>" :
-      "<dl class=\"anlage-werte\"><dt>Kosten Stufe " + zl.stufe + "</dt><dd>" + kostenHtml(zl.kosten) + "</dd>" +
-      "<dt>Bauzeit</dt><dd>" + F.dauer(zl.bauzeit) + "</dd>" +
+      "<dl class=\"anlage-werte\"><dt>Kosten Stufe " + zl.stufe + "</dt><dd>" + kostenHtml(zl.kosten) + (master ? " <span class=\"master-marke\">kostenlos</span>" : "") + "</dd>" +
+      "<dt>Bauzeit</dt><dd>" + (master ? "sofort <span class=\"master-marke\">Master</span>" : F.dauer(zl.bauzeit)) + "</dd>" +
       "<dt>Aktuell</dt><dd>" + wirkungText(d, n) + "</dd>" +
       "<dt>Stufe " + zl.stufe + "</dt><dd>" + wirkungText(d, zl.stufe) + "</dd></dl>" +
-      (laeuft ? bauFortschritt(a) : bauKnopf({ art: "gebaeude", id: d.id }, n === 0 ? "Bauen" : "Ausbauen auf " + zl.stufe));
-    return "<article class=\"anlage" + (laeuft ? " im-bau" : "") + (n === 0 ? " stufe-0" : "") + "\" data-gebaeude=\"" + d.id + "\">" +
-      "<div class=\"anlage-kopf\"><img class=\"anlage-bild\" src=\"" + d.bild + "\" alt=\"\" width=\"72\" height=\"72\"><div><h3>" + d.name + "</h3><span class=\"stufe\">Stufe <b>" + n + "</b> / " + max + "</span></div></div>" +
+      (laeuft ? bauFortschritt(a) : bauKnopf({ art: "gebaeude", id: d.id }, master ? "Sofort " + (n === 0 ? "bauen" : "auf " + zl.stufe) : (n === 0 ? "Bauen" : "Ausbauen auf " + zl.stufe)));
+    return "<article class=\"anlage" + (laeuft ? " im-bau" : "") + (n === 0 ? " stufe-0" : "") + (sperre ? " gesperrt" : "") + "\" data-gebaeude=\"" + d.id + "\">" +
+      "<div class=\"anlage-kopf\"><img class=\"anlage-bild\" src=\"" + d.bild + "\" alt=\"\" width=\"72\" height=\"72\"><div class=\"anlage-titel\"><h3>" + d.name + " " + infoKnopf("gebaeude", d.id, d.name) + "</h3><span class=\"stufe\">Stufe <b>" + n + "</b> / " + max + "</span>" +
+      (sperre ? "<span class=\"sperr-marke\">🔒 Gesperrt</span>" : "") + "</div></div>" +
       "<p class=\"beschreibung\">" + esc(d.beschreibung) + "</p>" + extra + unten + "</article>";
   }
   function satellitKachel() {
@@ -399,35 +428,135 @@
   }
 
   function seiteRaumflughafen() {
-    var p = hp(), K = B.STARTPLAETZE, Bau = SS.kern.bau, a = p.bauauftrag;
+    var p = hp(), K = B.STARTPLAETZE, Bau = SS.kern.bau, a = p.bauauftrag, master = Bau.istMaster(zustand);
     var kopf = brotkrumen([{ text: "Anlagen", href: "#anlagen" }, { text: "Raumflughafen" }]);
     if (!(p.gebaeude.raumflughafen > 0)) {
       return kopf + box("Raumflughafen", "<p>Der Raumflughafen ist noch nicht errichtet. Erst danach können Startplätze gebaut werden.</p>") +
         "<div class=\"anlagen-raster einzeln\">" + anlageKachel(D.gebaeudeNachId("raumflughafen")) + "</div>";
     }
     var regeln = D.startplatzRegeln.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("");
+    var naechster = p.startplaetze.filter(function (sp) { return sp.stufe === 0; })[0];
+    var naechsterText = naechster ? (function () { var st = Bau.startplatzStatus(zustand, p, naechster.buchstabe); return "Startplatz " + naechster.buchstabe + ": " + (st.frei ? "baubar" : esc(st.grund)); })() : "alle Startplätze gebaut";
     var info = box("Startplätze",
-      "<dl class=\"werte\"><dt>Gesamtkapazität</dt><dd><b data-live=\"kapazitaet\"></b> Schiffe gleichzeitig</dd><dt>Punkte</dt><dd data-live=\"punkte\"></dd>" +
-      "<dt>Kapazität je Stufe</dt><dd>" + K.KAPAZITAET_PRO_STUFE + " Schiffe <span class=\"annahme-marke\">Annahme</span></dd></dl><ul class=\"regeln\">" + regeln + "</ul>" +
-      "<p class=\"hinweis\">Beschriftung " + K.BUCHSTABEN[0] + "–" + K.BUCHSTABEN[K.MAX_ANZAHL - 1] + " <span class=\"annahme-marke\">Annahme</span> (10 oder A–Z ist noch offen).</p>", "", " id=\"startplaetze-info\"");
+      "<div class=\"punkte-gross\"><span>Gesamtkapazität</span><b id=\"gesamtkapazitaet\" data-live=\"kapazitaet\"></b><small>Schiffe gleichzeitig</small></div>" +
+      "<dl class=\"werte\"><dt>Gebaut</dt><dd>" + p.startplaetze.filter(function (s) { return s.stufe > 0; }).length + " / " + K.MAX_ANZAHL + "</dd>" +
+      "<dt>Punkte</dt><dd data-live=\"punkte\"></dd><dt>Als Nächstes</dt><dd>" + naechsterText + "</dd></dl>" +
+      "<details class=\"regeln-box\"><summary>Regeln</summary><ul class=\"regeln\">" + regeln + "</ul></details>", "", " id=\"startplaetze-info\"");
     var karten = p.startplaetze.map(function (sp) {
-      var frei = Bau.startplatzFrei(zustand, sp.buchstabe), zl = Bau.ziel(zustand, p, { art: "startplatz", buchstabe: sp.buchstabe });
-      var laeuft = a && a.art === "startplatz" && a.buchstabe === sp.buchstabe;
+      var st = Bau.startplatzStatus(zustand, p, sp.buchstabe), zl = Bau.ziel(zustand, p, { art: "startplatz", buchstabe: sp.buchstabe });
+      var laeuft = a && a.art === "startplatz" && a.buchstabe === sp.buchstabe, kap = Bau.kapazitaetBuchstabe(sp.buchstabe, sp.stufe);
       var inhalt;
-      if (!frei) inhalt = "<p class=\"gesperrt\">🔒 Gesperrt bis <b>" + F.zahl(Bau.startplatzSchwelle(sp.buchstabe)) + "</b> Punkte</p>";
-      else if (sp.stufe >= K.STUFE_MAX) inhalt = "<p class=\"hinweis max\">Höchststufe erreicht.</p>";
-      else inhalt = "<dl class=\"anlage-werte\"><dt>Kosten Stufe " + zl.stufe + "</dt><dd>" + kostenHtml(zl.kosten) + "</dd><dt>Bauzeit</dt><dd>" + F.dauer(zl.bauzeit) + "</dd>" +
-        "<dt>Kapazität</dt><dd>" + sp.stufe * K.KAPAZITAET_PRO_STUFE + " → " + zl.stufe * K.KAPAZITAET_PRO_STUFE + " Schiffe</dd></dl>" +
-        (laeuft ? bauFortschritt(a) : bauKnopf({ art: "startplatz", buchstabe: sp.buchstabe }, sp.stufe === 0 ? "Bauen" : "Ausbauen auf " + zl.stufe));
-      return "<article class=\"startplatz-karte" + (frei ? " frei" : " gesperrt") + (sp.stufe > 0 ? " gebaut" : "") + "\" data-buchstabe=\"" + sp.buchstabe + "\">" +
-        "<div class=\"startplatz-kopf\"><b class=\"buchstabe\">" + sp.buchstabe + "</b><span>Stufe <b>" + sp.stufe + "</b> / " + K.STUFE_MAX + "</span></div>" + inhalt + "</article>";
+      if (!st.frei && sp.stufe === 0) inhalt = "<p class=\"gesperrt\">🔒 " + esc(st.grund) + "</p>";
+      else if (sp.stufe >= K.STUFE_MAX) inhalt = "<p class=\"hinweis max\">Höchststufe · " + F.zahl(kap) + " Schiffe</p>";
+      else inhalt = "<dl class=\"anlage-werte\"><dt>Kosten</dt><dd>" + kostenHtml(zl.kosten) + "</dd><dt>Bauzeit</dt><dd>" + (master ? "sofort" : F.dauer(zl.bauzeit)) + "</dd>" +
+        "<dt>Kapazität</dt><dd>" + F.zahl(kap) + " → " + F.zahl(Bau.kapazitaetBuchstabe(sp.buchstabe, zl.stufe)) + "</dd></dl>" +
+        (laeuft ? bauFortschritt(a) : bauKnopf({ art: "startplatz", buchstabe: sp.buchstabe }, (master ? "Sofort auf " : sp.stufe === 0 ? "Bauen → " : "Ausbauen → ") + zl.stufe));
+      return "<article class=\"startplatz-karte" + (st.frei ? " frei" : " gesperrt") + (sp.stufe > 0 ? " gebaut" : "") + "\" data-buchstabe=\"" + sp.buchstabe + "\">" +
+        "<div class=\"startplatz-kopf\"><b class=\"buchstabe\">" + sp.buchstabe + "</b><span>Stufe <b>" + sp.stufe + "</b>/" + K.STUFE_MAX + "</span>" + infoKnopf("startplatz", sp.buchstabe, "Startplatz " + sp.buchstabe) + "</div>" + inhalt + "</article>";
     }).join("");
-    return kopf + "<div class=\"zwei-spalten\">" + info + bauBox() + "</div>" + box("Startplätze A–J", "<div class=\"startplatz-raster\">" + karten + "</div>");
+    return kopf + "<div class=\"zwei-spalten\">" + info + bauBox() + "</div>" + box("Startplätze A–Z", "<div class=\"startplatz-raster\">" + karten + "</div>", "", " id=\"startplatz-liste\"");
   }
 
   // Alle übrigen Menüseiten: nur Titel + neutraler Platzhalter (Inhalt kommt in eigenen Kapiteln)
   function seitePlatzhalter(m) {
     return box(m.name, "<div class=\"platzhalter\"><p class=\"gross\">" + esc(D.PLATZHALTER_TEXT) + "</p></div>");
+  }
+
+
+  // ---------- Info-Fenster (ⓘ) wie bei OGame: Beschreibung + Tabelle der nächsten Stufen ----------
+  var info = { knopf: null, angeheftet: false, zu: null };
+  var INFO_STUFEN = 5; // aktuelle + nächste 5 Stufen
+  function kostenKurz(k) {
+    return "<span class=\"kosten-kurz\">" + Object.keys(k).filter(function (id) { return k[id] > 0; }).map(function (id) {
+      return "<span title=\"" + rName(id) + "\">" + icon(D.rohstoffNachId(id), "rs-icon mini") + F.kurz(k[id]) + "</span>";
+    }).join(" ") + "</span>";
+  }
+  function diffText(neu, alt, einheit) {
+    var d = neu - alt;
+    return Math.abs(d) < 1e-9 ? "–" : "<span class=\"" + (d > 0 ? "plus" : "negativ") + "\">" + (d > 0 ? "+" : "−") + zahlFein(Math.abs(d)) + (einheit || "") + "</span>";
+  }
+  function infoGebaeude(d) {
+    var p = hp(), n = p.gebaeude[d.id] || 0, max = D.maxStufe(d), wa = P.wachstum, Bau = SS.kern.bau, master = Bau.istMaster(zustand);
+    var spalten = [], werte = [];
+    // Spalten je Gebäudetyp: [Titel, Funktion(stufe) → Zahl | Text, Einheit für Differenz]
+    if (d.erzeugt) spalten.push({ t: "Ertrag/h", f: function (s) { return wa(d.erzeugt.basis, s); }, diff: "/h" });
+    if (d.werk) {
+      spalten.push({ t: rName(d.werk.ausgabe) + "/h", f: function (s) { return wa(d.werk.basis, s); }, diff: "/h" });
+      spalten.push({ t: "Verbrauch/h", f: function (s) { var e = wa(d.werk.basis, s); return Object.keys(d.werk.input).map(function (id) { return F.kurz(d.werk.input[id] * e) + " " + rName(id); }).join(", ") || "–"; } });
+    }
+    if (d.stromErzeugt) spalten.push({ t: "Strom", f: function (s) { return wa(d.stromErzeugt, s); }, diff: "" });
+    if (d.verbrauch) spalten.push({ t: "Rohöl/h", f: function (s) { return -wa(d.verbrauch.rohoel, s); }, diff: "/h" });
+    if (d.stromBedarf) spalten.push({ t: "Strombedarf", f: function (s) { return -wa(d.stromBedarf, s); }, diff: "" });
+    if (d.fund) spalten.push({ t: "Fundgröße / 24 Std.", f: function (s) { if (!s) return "–"; var b = SS.kern.geologie.fundBereich(s); return F.zahl(b[0]) + "–" + F.zahl(b[1]); } });
+    if (d.forschungszeit) spalten.push({ t: "Forschungszeit", f: function (s) { return "×" + F.rate(Math.round(100 / (1 + s)) / 100); } });
+    var kopf = "<tr><th class=\"z\">Stufe</th>" + spalten.map(function (c) { return "<th class=\"z\">" + c.t + "</th>" + (c.diff != null ? "<th class=\"z\">Diff.</th>" : ""); }).join("") + "<th>Kosten</th><th class=\"z\">Bauzeit</th></tr>";
+    for (var s = n; s <= Math.min(max, n + INFO_STUFEN); s++) werte.push(s);
+    var zeilen = werte.map(function (st) {
+      var k = st > 0 ? Bau.gebaeudeKosten(d, st) : null;
+      return "<tr" + (st === n ? " class=\"aktuell\"" : "") + "><td class=\"z\">" + st + (st === n ? " <small>aktuell</small>" : "") + "</td>" + spalten.map(function (c) {
+        var v = c.f(st), txt = typeof v === "number" ? (v < 0 ? "−" : "") + zahlFein(Math.abs(v)) : v;
+        return "<td class=\"z\">" + txt + "</td>" + (c.diff != null ? "<td class=\"z\">" + (st === n ? "–" : diffText(c.f(st), c.f(n), c.diff)) + "</td>" : "");
+      }).join("") + "<td>" + (st === n || !k ? "–" : kostenKurz(k)) + "</td><td class=\"z\">" + (st === n || !k ? "–" : master ? "sofort" : F.dauer(Bau.bauzeitMs(k, zustand))) + "</td></tr>";
+    }).join("");
+    var hinweis = "Werte bei 100 % Leistung und ausreichend Strom; Differenz zur aktuellen Stufe.";
+    if (d.fund) hinweis = "Fundgröße zufällig im Bereich der Stufe; Stufe 1–2 fest, ab Stufe 3 je Stufe ×1,25 (Annahme).";
+    var sperre = Bau.gebaeudeSperre(zustand, d);
+    return { titel: d.name + " · Stufe " + n + " / " + max, text: d.info || d.beschreibung, extra: sperre ? "<p class=\"gesperrt\">🔒 " + esc(sperre) + "</p>" : "", kopf: kopf, zeilen: zeilen, hinweis: hinweis, bild: d.bild };
+  }
+  function infoStartplatz(b) {
+    var p = hp(), Bau = SS.kern.bau, K = B.STARTPLAETZE, n = Bau.startplatzStufe(p, b), master = Bau.istMaster(zustand);
+    var gesamt = Bau.kapazitaet(p), alt = Bau.kapazitaetBuchstabe(b, n), st = Bau.startplatzStatus(zustand, p, b);
+    var kopf = "<tr><th class=\"z\">Stufe</th><th class=\"z\">Kapazität " + b + "</th><th class=\"z\">Diff.</th><th class=\"z\">Gesamt</th><th>Kosten</th><th class=\"z\">Bauzeit</th></tr>";
+    var zeilen = "";
+    for (var s = n; s <= Math.min(K.STUFE_MAX, n + INFO_STUFEN); s++) {
+      var kap = Bau.kapazitaetBuchstabe(b, s), k = s > 0 ? Bau.startplatzKosten(b, s) : null;
+      zeilen += "<tr" + (s === n ? " class=\"aktuell\"" : "") + "><td class=\"z\">" + s + (s === n ? " <small>aktuell</small>" : "") + "</td><td class=\"z\">" + F.zahl(kap) + "</td><td class=\"z\">" + (s === n ? "–" : diffText(kap, alt, "")) +
+        "</td><td class=\"z\">" + F.zahl(gesamt - alt + kap) + "</td><td>" + (s === n || !k ? "–" : kostenKurz(k)) + "</td><td class=\"z\">" + (s === n || !k ? "–" : master ? "sofort" : F.dauer(Bau.bauzeitMs(k, zustand))) + "</td></tr>";
+    }
+    var i = D.startplatzBuchstaben.indexOf(b);
+    var vor = "Voraussetzung: " + (i > 0 ? D.startplatzBuchstaben[i - 1] + " Stufe " + K.VORGAENGER_STUFE + " und " : "") + F.zahl(K.FREISCHALT_PUNKTE[i]) + " Punkte" + (st.frei ? " ✔" : " – " + esc(st.grund || "") + (master ? " (Master ignoriert die Sperre)" : ""));
+    return { titel: "Startplatz " + b + " · Stufe " + n + " / " + K.STUFE_MAX, text: "Kapazität = Anzahl Schiffe, die gleichzeitig vom Planeten starten können (Größe egal). Je Stufe +" + F.zahl(K.KAPAZITAET_JE_STUFE[i]) + " Schiffe.",
+      extra: "<p class=\"hinweis\">" + vor + "</p>", kopf: kopf, zeilen: zeilen, hinweis: "Gesamt = Kapazität aller Startplätze des Planeten nach diesem Ausbau.", bild: D.gebaeudeNachId("raumflughafen").bild };
+  }
+  function zeigeInfo(knopf, angeheftet) {
+    var teile = (knopf.getAttribute("data-info") || "").split(":"), art = teile[0], id = teile[1], d;
+    var inh = art === "startplatz" ? infoStartplatz(id) : (d = D.gebaeudeNachId(id)) ? infoGebaeude(d) : null;
+    if (!inh || !zustand) return;
+    var f = $("infofenster");
+    f.innerHTML = "<div class=\"info-kopf\"><img src=\"" + inh.bild + "\" alt=\"\" width=\"40\" height=\"40\"><h3>" + esc(inh.titel) + "</h3>" +
+      "<button class=\"info-zu\" type=\"button\" data-aktion=\"info-zu\" aria-label=\"Schließen\">×</button></div>" +
+      "<p class=\"info-text\">" + esc(inh.text) + "</p>" + inh.extra +
+      "<div class=\"info-tabelle\"><table class=\"tabelle eng\"><thead>" + inh.kopf + "</thead><tbody>" + inh.zeilen + "</tbody></table></div>" +
+      "<p class=\"hinweis\">" + inh.hinweis + "</p>";
+    f.classList.toggle("angeheftet", !!angeheftet);
+    f.hidden = false;
+    if (info.knopf) info.knopf.classList.remove("offen");
+    info.knopf = knopf; info.angeheftet = !!angeheftet;
+    knopf.classList.add("offen");
+    positioniereInfo();
+  }
+  function positioniereInfo() {
+    var f = $("infofenster"), k = info.knopf;
+    if (!k || f.hidden) return;
+    if (!document.body.contains(k)) { schliesseInfo(); return; }
+    var vw = document.documentElement.clientWidth, vh = window.innerHeight, rand = 8;
+    f.style.maxWidth = (vw - 2 * rand) + "px";
+    f.style.maxHeight = (vh - 2 * rand) + "px";
+    f.style.left = "0px"; f.style.top = "0px";
+    var r = k.getBoundingClientRect(), w = f.offsetWidth, h = f.offsetHeight;
+    var links = Math.min(Math.max(rand, r.left + r.width / 2 - w / 2), vw - w - rand);
+    var oben = r.bottom + 6;
+    if (oben + h > vh - rand) oben = r.top - h - 6;          // passt nicht darunter → darüber
+    if (oben < rand) oben = Math.max(rand, Math.min(vh - h - rand, r.bottom + 6)); // auch nicht darüber → im Bild halten
+    f.style.left = Math.round(links) + "px"; f.style.top = Math.round(oben) + "px";
+  }
+  function schliesseInfo() {
+    var f = $("infofenster");
+    if (!f) return;
+    clearTimeout(info.zu);
+    f.hidden = true;
+    if (info.knopf) info.knopf.classList.remove("offen");
+    info.knopf = null; info.angeheftet = false;
   }
 
   // ---------- Live-Werte (jeder Tick) ----------
@@ -453,13 +582,18 @@
         case "strom-bilanz": text = vz(u.strom.bilanz) + " (" + F.zahl(u.strom.erzeugung) + " / " + F.zahl(u.strom.bedarf) + ")"; el.classList.toggle("negativ", u.strom.bilanz < -1e-9); break;
         case "strom-faktor": text = Math.round(u.strom.faktor * 100) + " %"; el.classList.toggle("negativ", u.strom.faktor < 1); break;
         case "strom-balken": el.style.width = Math.round(u.strom.faktor * 100) + "%"; el.classList.toggle("mangel", u.strom.faktor < 1); return;
-        case "ge": text = id === "grund" ? leistungText(p.istHauptplanet ? B.GRUNDPRODUKTION_HAUPTPLANET : {}, "+") : (gi ? leistungText(gi.erzeugt, "+") + (id === "geologiestation" ? "+" + zahlFein(u.felderProStunde) + " Felder" : "") : "–"); break;
+        case "ge": text = id === "grund" ? leistungText(p.istHauptplanet ? B.GRUNDPRODUKTION_HAUPTPLANET : {}, "+") : (gi ? leistungText(gi.erzeugt, "+") : "–"); break;
         case "gv": text = gi ? leistungText(gi.verbraucht, "−") : "–"; break;
         case "gs": text = id === "solarsatellit" ? vz(u.satelliten.strom) : (gi && gi.strom ? vz(gi.strom) : "–"); break;
         case "gf": text = gi ? Math.round(gi.faktor * 100) + " %" : "–"; break;
         case "punkte": text = F.zahl(zustand.punkte); break;
         case "kapazitaet": text = F.zahl(Bau.kapazitaet(p)); break;
-        case "felder": text = F.zahl(p.rohoelfelder) + " (+" + zahlFein(u.felderProStunde) + "/h)"; break;
+        case "vorkommen": text = F.zahl(p.rohoelVorkommen); el.classList.toggle("negativ", p.rohoelVorkommen <= 0); break;
+        case "foerderung": text = (u.foerderung > 0 ? "+" + zahlFein(u.foerderung) : "0") + " Rohöl/h" + (p.gebaeude.bohrstation > 0 ? "" : " (keine Bohrstation)") + (p.rohoelVorkommen <= 0 && p.gebaeude.bohrstation > 0 ? " – Vorkommen leer" : ""); break;
+        case "reichweite": text = u.foerderung > 1e-9 ? "≈ " + F.dauer(p.rohoelVorkommen / u.foerderung * P.MS_PRO_STUNDE) : "–"; break;
+        case "geo-countdown":
+          var nf = SS.kern.geologie.naechsterFund(p);
+          text = nf != null ? F.dauer(Math.max(0, nf - t)) : "– (Geologiestation bauen)"; break;
         case "bau-rest": text = a ? "noch " + F.dauer(Math.max(0, a.ende - t)) : ""; break;
         case "bau-balken": el.style.width = a ? Math.min(100, Math.max(0, (t - a.start) / (a.ende - a.start) * 100)).toFixed(1) + "%" : "0%"; return;
         case "offline": text = F.dauer(zustand.statistik.offlineMsGesamt); break;
@@ -474,7 +608,7 @@
     // Kosten rot markieren, Bau-Knöpfe mit Grund (de)aktivieren
     Array.prototype.forEach.call(document.querySelectorAll("#inhalt [data-kosten]"), function (el) {
       var k = el.getAttribute("data-kosten").split(":");
-      el.classList.toggle("fehlt", (zustand.rohstoffe[k[0]] || 0) + 1e-9 < Number(k[1]));
+      el.classList.toggle("fehlt", !Bau.istMaster(zustand) && (zustand.rohstoffe[k[0]] || 0) + 1e-9 < Number(k[1]));
     });
     Array.prototype.forEach.call(document.querySelectorAll("#inhalt button[data-aktion=\"bauen\"]"), function (b) {
       var pr = Bau.pruefe(zustand, p, auftragAus(b));
@@ -493,8 +627,10 @@
     var r = SS.kern.bau.starte(zustand, p, auftragAus(b), jetzt());
     if (!r.ok) { meldung(r.grund, "schlecht"); aktualisiereLive(); return; }
     speichern(true);
+    baueMenue();
     route(true);
-    meldung("Bau gestartet: " + r.auftrag.name + " → Stufe " + r.auftrag.stufe + " (" + F.dauer(r.auftrag.ende - r.auftrag.start) + ")", "gut");
+    if (r.sofort) meldung("Sofort fertig (Master): " + r.auftrag.name + " Stufe " + r.auftrag.stufe, "gut");
+    else meldung("Bau gestartet: " + r.auftrag.name + " → Stufe " + r.auftrag.stufe + " (" + F.dauer(r.auftrag.ende - r.auftrag.start) + ")", "gut");
   }
   function bauAbbrechen() {
     var a = hp().bauauftrag;
@@ -507,6 +643,41 @@
       meldung("Bauauftrag abgebrochen – Rohstoffe erstattet.");
     });
   }
+  function meldeFunde(liste) {
+    if (!liste || !liste.length) return false;
+    var summe = liste.reduce(function (s, f) { return s + f.menge; }, 0);
+    meldung("Geologie: " + (liste.length === 1 ? "neues Rohölfeld" : liste.length + " Rohölfelder") + " entdeckt (+" + F.zahl(summe) + " Rohöl)", "gut");
+    return true;
+  }
+
+  // ---------- Master-Modus (Testmodus, je Profil gespeichert) ----------
+  function aktualisiereMaster() {
+    var an = !!(zustand && SS.kern.bau.istMaster(zustand));
+    document.body.classList.toggle("master-an", an);
+    $("knopf-master").setAttribute("aria-pressed", an ? "true" : "false");
+    $("knopf-master").querySelector(".master-zustand").textContent = an ? "an" : "aus";
+    $("master-hinweis").hidden = !an;
+    passeKopfAn();
+  }
+  function masterUmschalten(an) {
+    if (!zustand) return;
+    meldeFertig(P.tick(zustand, jetzt()).fertig);
+    var fertig = SS.kern.bau.masterSetzen(zustand, an, jetzt());
+    speichern(true);
+    aktualisiereMaster();
+    baueMenue();
+    route(true);
+    meldung(an ? "MASTER aktiv – Bauzeiten, Kosten und Sperren werden ignoriert." + (fertig.length ? " Laufender Auftrag sofort fertig." : "") : "Master-Modus ausgeschaltet.", an ? "gut" : "");
+  }
+  function fundTest() {
+    meldeFertig(P.tick(zustand, jetzt()).fertig);
+    if (!SS.kern.bau.istMaster(zustand)) { meldung("Nur im Master-Modus.", "schlecht"); return; }
+    var r = SS.kern.geologie.fundAusloesen(hp(), jetzt());
+    if (!r.ok) { meldung(r.grund, "schlecht"); return; }
+    speichern(true); route(true);
+    meldung("Test-Fund: +" + F.zahl(r.fund.menge) + " Rohöl (Stufe " + r.fund.stufe + ")", "gut");
+  }
+
   function meldeFertig(liste) {
     if (!liste || !liste.length) return false;
     var a = liste[liste.length - 1];
@@ -539,12 +710,13 @@
     var off = P.offlineFortschritt(zustand, jetzt());
     if (location.hash !== "#uebersicht") location.hash = "#uebersicht";
     betreteSpiel();
-    if (off.angerechnetMs >= 60000 || off.fertig.length) {
+    if (off.angerechnetMs >= 60000 || off.fertig.length || (off.funde && off.funde.length)) {
       var liste = D.sichtbareRohstoffe(zustand).filter(function (x) { return Math.abs(off.gewinne[x.id] || 0) >= 1; }).map(function (x) {
         var gw = off.gewinne[x.id];
         return "<li>" + icon(x) + x.name + ": " + (gw > 0 ? "+" : "−") + F.zahl(Math.abs(gw)) + "</li>";
       }).join("");
-      var fertigListe = off.fertig.map(function (a) { return "<li>✔ " + esc(a.name) + " Stufe " + a.stufe + " fertiggestellt</li>"; }).join("");
+      var fertigListe = off.fertig.map(function (a) { return "<li>✔ " + esc(a.name) + " Stufe " + a.stufe + " fertiggestellt</li>"; }).join("") +
+        (off.funde || []).map(function (f) { return "<li>🛢 Rohölfeld entdeckt (" + F.uhrzeit(f.zeit) + ", Stufe " + f.stufe + "): +" + F.zahl(f.menge) + "</li>"; }).join("");
       dialog("Willkommen zurück, " + esc(zustand.name) + "!", "<p>Du warst <b>" + F.dauer(off.abwesendMs) + "</b> weg." +
         (off.gekappt ? " Produktion angerechnet: höchstens " + B.OFFLINE_MAX_STUNDEN + " Std." : "") + "</p>" +
         (fertigListe ? "<ul class=\"boni\">" + fertigListe + "</ul>" : "") +
@@ -597,6 +769,7 @@
     else if (a === "zuruecksetzen") zuruecksetzen();
     else if (a === "bauen") bauen(b);
     else if (a === "abbrechen") bauAbbrechen();
+    else if (a === "fund-test") fundTest();
     else if (a === "laden") {
       dialog("Letzten Spielstand laden?", "<p>Nicht gespeicherter Fortschritt seit dem letzten Speichern geht verloren (Offline-Produktion wird dabei angerechnet).</p>", true)
         .then(function (ok) { if (ok) { var id = aktivId; stoppeSchleifen(); ladeUndBetrete(id); } });
@@ -610,11 +783,30 @@
     speichern(true);
     aktualisiereLive();
   });
-  window.addEventListener("hashchange", route);
-  window.addEventListener("resize", passeKopfAn);
+  an("knopf-master", "click", function () { masterUmschalten(!(zustand && SS.kern.bau.istMaster(zustand))); });
+  an("knopf-master-aus", "click", function () { masterUmschalten(false); });
+  if ($("inhalt")) $("inhalt").addEventListener("toggle", function (e) { if (e.target && e.target.id === "fund-log") uiZustand.fundLogOffen = e.target.open; }, true); // toggle steigt nicht auf → Capture
+  // Info-Fenster: Hover (Maus) bzw. Antippen/Klick (angeheftet, schließbar)
+  var hoverGeraet = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  document.addEventListener("mouseover", function (e) {
+    if (!hoverGeraet || info.angeheftet) return;
+    var k = e.target.closest && e.target.closest(".info-knopf");
+    if (k) { clearTimeout(info.zu); if (info.knopf !== k) zeigeInfo(k, false); }
+    else if (info.knopf && !(e.target.closest && e.target.closest("#infofenster"))) { clearTimeout(info.zu); info.zu = setTimeout(schliesseInfo, 180); }
+  });
+  document.addEventListener("click", function (e) {
+    var k = e.target.closest && e.target.closest(".info-knopf");
+    if (k) { e.preventDefault(); if (info.angeheftet && info.knopf === k) schliesseInfo(); else zeigeInfo(k, true); return; }
+    if (e.target.closest && e.target.closest("[data-aktion=\"info-zu\"]")) { schliesseInfo(); return; }
+    if (info.angeheftet && !(e.target.closest && e.target.closest("#infofenster"))) schliesseInfo();
+  });
+  window.addEventListener("scroll", function () { if (info.knopf && !info.angeheftet) schliesseInfo(); else if (info.knopf) positioniereInfo(); }, { passive: true });
+  window.addEventListener("hashchange", function () { schliesseInfo(); route(); });
+  window.addEventListener("resize", function () { passeKopfAn(); if (info.knopf) positioniereInfo(); });
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
     if (!$("dialog").hidden) $(!$("dialog-abbrechen").hidden ? "dialog-abbrechen" : "dialog-ok").click();
+    else if (!$("infofenster").hidden) schliesseInfo();
     else schliesseMenue();
   });
   // Beim Verlassen/Verstecken des Tabs speichern (Offline-Fortschritt rechnet ab diesem Zeitpunkt)

@@ -1,5 +1,33 @@
 # Changelog – Sternenspiel
 
+## [0.7.0] – 2026-10-19 – Kapitel 2: Master-Modus, Infofenster, Geologie, Startplätze A–Z
+
+Sandro hat Kapitel 2 gesehen („sehr gut“) und Nachbesserungen vor Kapitel 3 vorgegeben.
+
+### Neu
+- **MASTER-Knopf** (Testmodus) im Kopfbereich, je Profil gespeichert: keine Bauzeiten (auch laufende Aufträge sofort fertig),
+  keine Kosten, Punkte-/Freischalt-Sperren ignoriert; gelber Hinweis „MASTER aktiv“ mit „Ausschalten“
+- **Info-Fenster ⓘ** an allen Gebäuden und Startplätzen (Desktop Hover, Handy Antippen, Schließen ×, Esc): ausführliche
+  Beschreibung + Tabelle aktuelle und nächste 5 Stufen mit Ertrag/Wirkung, Differenz, Strom, Kosten, Bauzeit; bleibt im Bildschirm
+- **Rohölvorkommen** je Planet (Hauptplanet 1.000.000): Bohrstation fördert `min(Rate, Vorkommen)`, auch offline
+- **Geologiestation** findet alle 24 Std. (Echtzeit, offline nachgeholt) ein Feld: Stufe 1 = 50.000–100.000, Stufe 2 = 80.000–125.000,
+  ab Stufe 3 ×1,25 je Stufe (ANNAHME); Fund-Log mit Datum/Stufe/Menge + Countdown; Master: „Fund sofort auslösen“
+- **Übersicht**: Punkte groß, Kasten „Rohölvorkommen“ (Vorkommen, Förderung/h, Reichweite, nächster Fund)
+- **Startplätze A–Z** (26 × 10 Stufen): nächster Buchstabe nach Vorgänger Stufe 10 + Punkte-Schwelle; A10 = 100 Schiffe,
+  Summe bis Z10 ≈ 10 Mrd.; Raumflughafen-Unterseite neu (26 kompakte Karten, Sperrgrund, Gesamtkapazität)
+- Hangar-Regel für das Flotten-Kapitel dokumentiert und im Modell vorbereitet (`planet.hangar`, nicht aktiv)
+
+### Geändert
+- Kunststoff T2 = 40 Rohöl + 20 Metall, T3 = **1000 Rohöl + 500 Silizium + 500 Metall** je Einheit
+- Kunststoffwerk T2/T3 gesperrt („Wird später mit Spielfortschritt freigeschaltet.“), Master ignoriert die Sperre
+- Rohölfelder/h und „Rohöl unbegrenzt am Hauptplaneten“ entfernt
+- **Spielstand v5** mit automatischer Migration je Profil (Vorkommen, Geologie-Takt, 26 Startplätze, Startplätze > 10 → 10, Master aus)
+- Version 0.7.0 mit `?v=0.7.0` an allen Dateien
+
+### Tests
+- Node: 53 Tests (neu `tests/nachbesserung.test.js`); Browser: `tests/playtest-kapitel2b.js` (94 Prüfungen Desktop + Handy)
+
+
 ## [0.6.0] – 2026-10-19 – Kapitel 2: Anlagen
 
 Sandro hat Kapitel 1 abgenommen und Kapitel 2 „Anlagen“ freigegeben.

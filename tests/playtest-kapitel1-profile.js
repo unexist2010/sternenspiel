@@ -173,7 +173,7 @@ async function hauptablauf(browser, bname, g, basis) {
   ok(await page.isVisible("#dialog") && (await page.textContent("#dialog")).includes("Willkommen zurück"), "Altspieler: Offline-Fortschritt seit altem Speicherstand");
   await page.click("#dialog-ok");
   z = await page.evaluate(() => window.SS.app.zustand);
-  ok(z.version === 4 && !("startplatz" in z) && !("startplaetze" in z) && z.planeten[0].istHauptplanet === true && z.rohstoffe.metall > 1234, "Altspieler migriert (v4, Planet mit istHauptplanet, ohne alte Startplatz-Felder, Metall gewachsen)");
+  ok(z.version === 5 && !("startplatz" in z) && !("startplaetze" in z) && z.planeten[0].istHauptplanet === true && z.rohstoffe.metall > 1234, "Altspieler migriert (v5, Planet mit istHauptplanet, ohne alte Startplatz-Felder, Metall gewachsen)");
   await menueKnopf(page, handy, "#knopf-spieler-wechseln");
 
   // Kaputter Einzel-Spielstand + kaputter Profil-Spielstand blockieren nicht

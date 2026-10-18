@@ -1,5 +1,22 @@
 # Playtest-Notizen
 
+## Kapitel 2 – Nachbesserung (0.7.0) – 2026-10-19
+- `node --test tests/`: 53/53 grün (neu `tests/nachbesserung.test.js`: Master überspringt Zeit/Kosten/Sperren, Geologie-Fund alle
+  24 Std. inkl. mehrerer Offline-Funde, Fundbereich je Stufe, Bohrstation leert Vorkommen und stoppt bei 0, Kunststoff-Rezepte,
+  T2/T3-Sperre, Startplätze A–Z mit B nach A10 + Punkten, Kapazität A10 = 100 / Summe ≈ 10 Mrd., Migration v4 → v5).
+- `node tests/playtest-kapitel2b.js` (file://, Desktop 1366×768 + Handy 412×915): Chromium 94/94, Firefox 94/94.
+  Geprüft: MASTER-Knopf im Kopf, Übersicht Vorkommen 1.000.000/Förderung/Countdown/Punkte, T2/T3 gesperrt, 13 Info-Knöpfe,
+  Info-Fenster per Hover (Desktop) bzw. Antippen (Handy) sichtbar und vollständig im Bild (auch Randkacheln), 6 Tabellenzeilen,
+  Anheften + × schließen; Master an → Hinweis, sofort und kostenlos bauen, Punkte gutgeschrieben, T3 trotz Sperre; Geologiestation,
+  Test-Fund, 2 nachgeholte Funde, Fund-Log (neuester oben); Raumflughafen 26 Plätze, A auf 10 → Kapazität 100; Master aus →
+  B „75 Punkte nötig“, C „B Stufe 10 nötig“; Master je Profil gespeichert; keine Konsolenfehler.
+- `playtest-kapitel2.js` 118/118 und `playtest-kapitel1-profile.js` 134/134 (Erwartung auf Spielstand v5 angepasst).
+- Gefunden & behoben: Fund-Log war nach Einfügereihenfolge statt Zeit sortiert (nachgeholte Funde unten) → nach Zeit sortiert;
+  Info-Tabelle auf dem Handy breiter als das Fenster (Bauzeit abgeschnitten) → kompakte Tabelle unter 600 px.
+- Screenshots: `kapitel2b-desktop-anlagen-infofenster.png`, `kapitel2b-handy-infofenster.png`, `kapitel2b-desktop-uebersicht.png`,
+  `kapitel2b-geologie-log.png`, `kapitel2b-handy-geologie-log.png`, `kapitel2b-raumflughafen.png`, `kapitel2b-handy-raumflughafen.png`,
+  `kapitel2b-master-aktiv.png`, `kapitel2b-handy-master-aktiv.png`.
+
 ## Kapitel 2 – Anlagen (0.6.0) – 2026-10-19
 - `node --test tests/`: 44/44 grün (davon 14 neu in `tests/anlagen.test.js`: Kosten, Produktion je Stufe, Energiedrosselung,
   Ölverbrennung, Kunststoff-Inputs/Drosselung, Bauauftrag inkl. Offline-Fertigstellung, Startplätze Freischaltung/Kapazität, Migration).

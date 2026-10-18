@@ -113,6 +113,17 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .kopf-logo img { height: 32px; width: auto; }
 .menue-knopf { display: inline-flex; flex-direction: column; justify-content: center; gap: 4px; width: 42px; height: 38px; padding: 0 9px; border: 1px solid var(--rand); background: #081a36; border-radius: 3px; cursor: pointer; }
 .menue-knopf span { display: block; height: 2px; background: var(--tuerkis); border-radius: 2px; }
+/* Master-Knopf (Testmodus) – deutlich markiert */
+.master-knopf { margin-left: auto; flex: none; min-height: 34px; padding: 4px 10px; border-radius: 3px; cursor: pointer; font: inherit; font-weight: 800; font-size: .78rem; letter-spacing: .08em;
+  color: #ffcf7a; background: #241505; border: 1px dashed #a8742a; }
+.master-knopf .master-zustand { font-weight: 600; letter-spacing: 0; opacity: .8; }
+.master-knopf[aria-pressed="true"] { color: #1a0b00; background: linear-gradient(180deg, #ffd75e, #ff9f2e); border: 1px solid #ffe7a0; box-shadow: 0 0 12px rgba(255,170,40,.6); }
+.master-hinweis { flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 4px 10px; border-radius: 3px; font-size: .82rem;
+  color: #1a0b00; background: repeating-linear-gradient(135deg, #ffcc4d 0 14px, #ffb733 14px 28px); }
+.master-hinweis[hidden] { display: none; }
+.master-hinweis .knopf { margin-left: auto; min-height: 28px; }
+.master-marke { display: inline-block; padding: 0 5px; border-radius: 3px; font-size: .7rem; font-weight: 800; color: #1a0b00; background: #ffc24a; vertical-align: middle; }
+.master-aktion { border-color: #ffb733 !important; color: #ffcf7a !important; }
 .ressourcen-leiste { flex: 1 1 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
 /* Handy: 7 Rohstoffe als 4 + 3 ohne Lücke (12er-Raster) */
 .ressourcen-leiste[data-anzahl="7"] { grid-template-columns: repeat(12, minmax(0, 1fr)); }
@@ -214,15 +225,52 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .bau-aktion .grund { font-size: .78rem; flex: 1 1 140px; }
 .hinweis.max { color: var(--gold); }
 /* Startplätze */
-.startplatz-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 165px), 1fr)); gap: 8px; }
-.startplatz-karte { padding: 8px 10px; border: 1px solid #16406c; border-radius: 4px; background: rgba(6,20,46,.85); display: flex; flex-direction: column; gap: 6px; }
+.startplatz-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 165px), 1fr)); gap: 6px; }
+.startplatz-karte { padding: 6px 8px; min-width: 0; border: 1px solid #16406c; border-radius: 4px; background: rgba(6,20,46,.85); display: flex; flex-direction: column; gap: 6px; }
 .startplatz-karte.gebaut { border-color: var(--tuerkis); }
 .startplatz-karte.gesperrt { opacity: .7; }
 .startplatz-kopf { display: flex; align-items: center; gap: 10px; }
-.startplatz-kopf .buchstabe { font-size: 1.5rem; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 4px; background: rgba(16,70,100,.8); color: #fff; }
+.startplatz-kopf .buchstabe { font-size: 1.25rem; width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 4px; background: rgba(16,70,100,.8); color: #fff; }
 .startplatz-karte.gesperrt .buchstabe { background: rgba(40,40,60,.8); color: var(--leise); }
 .startplatz-kopf b { color: var(--gold); }
 .gesperrt { margin: 0; color: var(--leise); font-size: .85rem; }
+
+/* ---------- Nachbesserung 0.7.0: Info-Knopf, Info-Fenster, Punkte, Geologie, Sperren ---------- */
+.anlage-titel { min-width: 0; }
+.anlage h3 { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.info-knopf { flex: none; width: 22px; height: 22px; padding: 0; border-radius: 50%; border: 1px solid var(--rand-hell); background: #0b2a50; color: var(--tuerkis);
+  font: italic 700 .8rem/20px Georgia, "Times New Roman", serif; text-align: center; cursor: pointer; }
+.info-knopf:hover, .info-knopf.offen { background: var(--tuerkis); color: #04142c; }
+.startplatz-kopf .info-knopf { margin-left: auto; }
+.infofenster { position: fixed; z-index: 80; left: 0; top: 0; width: 520px; overflow: auto; padding: 10px 12px; border: 1px solid var(--rand-hell); border-radius: 5px;
+  background: rgba(4,14,34,.98); box-shadow: 0 8px 30px rgba(0,0,0,.7); font-size: .84rem; }
+.infofenster[hidden] { display: none; }
+.info-kopf { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.info-kopf img { width: 40px; height: 40px; border-radius: 6px; flex: none; }
+.info-kopf h3 { margin: 0; flex: 1; font-size: .95rem; color: #fff; }
+.info-zu { flex: none; width: 30px; height: 30px; border: 1px solid var(--rand); border-radius: 3px; background: #081a36; color: var(--text); font-size: 1.2rem; line-height: 1; cursor: pointer; }
+.infofenster:not(.angeheftet) .info-zu { display: none; }
+.info-text { margin: 0 0 6px; color: var(--leise); }
+.info-tabelle { overflow-x: auto; margin: 6px 0; }
+.tabelle.eng { font-size: .76rem; }
+.tabelle.eng th, .tabelle.eng td { padding: 4px 5px; }
+.tabelle tr.aktuell td { background: rgba(63,224,224,.12) !important; }
+.tabelle small { color: var(--leise); }
+.plus { color: var(--gut); }
+.kosten-kurz { display: inline-flex; gap: 2px 6px; flex-wrap: wrap; }
+.kosten-kurz span { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+.rs-icon.mini { width: 12px; height: 12px; }
+.punkte-gross { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; padding: 6px 10px; border-radius: 4px; background: rgba(255,215,94,.08); border: 1px solid #5a4a1a; }
+.punkte-gross span { color: var(--leise); font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+.punkte-gross b { font-size: 1.6rem; color: var(--gold); font-variant-numeric: tabular-nums; }
+.punkte-gross small { color: var(--leise); }
+.fund-log { margin: 2px 0; border: 1px solid #16406c; border-radius: 3px; background: rgba(4,14,34,.6); }
+.fund-log summary { cursor: pointer; padding: 6px 8px; font-weight: 700; color: var(--tuerkis); font-size: .85rem; }
+.fund-log > :not(summary) { margin: 0 8px 8px; }
+.fund-log .tabelle-huelle { max-height: 220px; overflow: auto; }
+.regeln-box summary { cursor: pointer; color: var(--tuerkis); font-size: .85rem; }
+.sperr-marke { display: block; margin-top: 2px; font-size: .75rem; color: var(--gold); }
+.anlage.gesperrt .anlage-bild { filter: grayscale(.8) brightness(.7); }
 
 /* ---------- Platzhalter ---------- */
 .platzhalter { text-align: center; padding: 26px 14px; }
@@ -249,6 +297,8 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 /* ---------- Desktop: feste Menüleiste links ---------- */
 @media (min-width: 860px) {
   .zwei-spalten { grid-template-columns: 1fr 1fr; }
+  .kopf { flex-wrap: wrap !important; }
+  .master-knopf { margin-left: 0; order: 0; }
   :root { font-size: 15px; }
   .menue-knopf { display: none; }
   .kopf { flex-wrap: nowrap; gap: 14px; padding: 8px 14px; }
@@ -264,4 +314,13 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
   .menue { position: sticky; top: var(--kopf-hoehe); height: calc(100vh - var(--kopf-hoehe)); width: auto; transform: none; transition: none; box-shadow: none; padding: 12px 10px; z-index: 1; background: rgba(3,12,30,.82); }
   .menue-schleier { display: none !important; }
   .inhalt-feld { padding: 16px 22px; }
+}
+
+/* Info-Fenster auf schmalen Bildschirmen: Tabelle kompakt, damit alle Spalten inkl. Bauzeit sichtbar bleiben */
+@media (max-width: 600px) {
+  .infofenster { padding: 8px 8px; }
+  .tabelle.eng { font-size: .66rem; }
+  .tabelle.eng th, .tabelle.eng td { padding: 3px 2px; }
+  .tabelle.eng th { letter-spacing: 0; }
+  .tabelle.eng .klein-weg, .tabelle.eng tr.aktuell td small { display: none; }
 }

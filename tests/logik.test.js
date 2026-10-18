@@ -89,7 +89,7 @@ test("Menü: genau 8 Punkte in festgelegter Reihenfolge", () => {
 test("Ressourcenleiste: Metall, Silizium, Rohöl, Strom, Kunststoff T1–T3 sichtbar; Antimaterie per Flag versteckt", () => {
   const SS = ladeSpiel();
   const z = neu(SS);
-  gleich(z.freigeschaltet, { kunststoff_t1: true, kunststoff_t2: true, kunststoff_t3: true, antimaterie: false });
+  gleich(z.freigeschaltet, { kunststoff_t1: true, kunststoff_t2: true, kunststoff_t3: true, antimaterie: false, kunststoffwerk_t2: false, kunststoffwerk_t3: false });
   gleich(SS.DATEN.sichtbareRohstoffe(z).map((r) => r.id), ["metall", "silizium", "rohoel", "strom", "kunststoff_t1", "kunststoff_t2", "kunststoff_t3"]);
   assert.equal(SS.DATEN.rohstoffe.length, 8);
   for (const id of SS.DATEN.rohstoffIds) assert.ok(id in z.rohstoffe, "Bestand existiert im Datenmodell: " + id);
@@ -102,14 +102,13 @@ test("Ressourcenleiste: Metall, Silizium, Rohöl, Strom, Kunststoff T1–T3 sich
 test("Startplätze: Konstanten + Datenmodell je Planet", () => {
   const SS = ladeSpiel();
   const K = SS.BALANCE.STARTPLAETZE;
-  assert.equal(K.MAX_ANZAHL, 10);
-  assert.equal(K.STUFE_MIN, 1); assert.equal(K.STUFE_MAX, 15);
-  gleich([...SS.DATEN.startplatzBuchstaben], ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]);
-  assert.equal(K.FREISCHALT_PUNKTE.length, 10);
-  for (let i = 1; i < 10; i++) assert.ok(K.FREISCHALT_PUNKTE[i] > K.FREISCHALT_PUNKTE[i - 1], "Schwellen aufsteigend");
+  assert.equal(K.MAX_ANZAHL, 26); assert.equal(K.STUFE_MAX, 10);
+  assert.equal(SS.DATEN.startplatzBuchstaben.join(""), "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  assert.equal(K.FREISCHALT_PUNKTE.length, 26); assert.equal(K.KAPAZITAET_JE_STUFE.length, 26);
+  for (let i = 1; i < 26; i++) assert.ok(K.FREISCHALT_PUNKTE[i] > K.FREISCHALT_PUNKTE[i - 1], "Schwellen aufsteigend");
   const z = neu(SS);
   assert.equal(z.startplaetze, undefined, "Startplätze liegen jetzt am Planeten");
-  assert.equal(z.planeten[0].startplaetze.length, 10);
+  assert.equal(z.planeten[0].startplaetze.length, 26);
   for (const sp of z.planeten[0].startplaetze) assert.equal(sp.stufe, 0);
   assert.equal(SS.BALANCE.STARTPLATZ, undefined, "alte Boni-Konstanten entfernt");
 });
@@ -124,18 +123,18 @@ test("Daten: Andockpunkte für spätere Kapitel", () => {
   assert.ok(Object.isFrozen(SS.BALANCE) && Object.isFrozen(SS.BALANCE.STARTPLAETZE), "Balance zentral & unveränderlich");
 });
 
-test("Neuer Spielstand: automatischer Start auf Hauptplanet (v4 mit Planet-Datensatz)", () => {
+test("Neuer Spielstand: automatischer Start auf Hauptplanet (v5 mit Planet-Datensatz)", () => {
   const SS = ladeSpiel();
   const W = SS.DATEN.weltraum;
   const z = neu(SS, { name: "  Sandro ", zufall: W.zufall(1) });
-  assert.equal(z.version, 4);
+  assert.equal(z.version, 5);
   assert.equal(z.name, "Sandro");
   assert.ok(!("startplatz" in z));
   assert.ok(W.leseKoordinaten(W.koordinatenText(z.heimat)), "gültige Koordinate");
   assert.equal(z.heimat.name, W.planet(z.heimat.system, z.heimat.planet).name);
   assert.equal(z.rohstoffe.metall, 500); assert.equal(z.rohstoffe.silizium, 300);
   const p = z.planeten[0];
-  assert.equal(p.istHauptplanet, true); assert.equal(p.rohoelfelder, 0); assert.equal(p.bauauftrag, null); assert.equal(p.solarsatelliten, 0);
+  assert.equal(p.istHauptplanet, true); assert.equal(p.rohoelVorkommen, 1000000); assert.equal(p.geologie.naechsterFund, null); assert.equal(z.einstellungen.master, false); assert.equal(p.bauauftrag, null); assert.equal(p.solarsatelliten, 0);
   for (const d of SS.DATEN.gebaeude) assert.equal(p.gebaeude[d.id], 0, d.id);
   assert.equal(z.zeit.letzterTick, T0);
   gleich(z.flotten, []);
@@ -237,7 +236,7 @@ test("Speichern/Laden: beschädigte Spielstände", () => {
   assert.match(S.lade(sp).fehler, /neueren/);
 });
 
-test("Migration v2 → v4: Heimat behalten, Planet mit Gebäuden anlegen, Strom = Bilanz", () => {
+test("Migration v2 → v5: Heimat behalten, Planet mit Gebäuden anlegen, Strom = Bilanz", () => {
   const SS = ladeSpiel();
   const S = SS.kern.speicher;
   const sp = speicherAttrappe();
@@ -254,7 +253,7 @@ test("Migration v2 → v4: Heimat behalten, Planet mit Gebäuden anlegen, Strom 
   };
   sp.setItem(SS.BALANCE.SPEICHER_SCHLUESSEL, JSON.stringify(v2));
   const z = S.lade(sp).zustand;
-  assert.equal(z.version, 4);
+  assert.equal(z.version, 5);
   assert.ok(!("startplatz" in z) && !("gebaeude" in z) && !("lagerstaetten" in z) && !("startplaetze" in z));
   gleich(z.heimat, { sektor: 3, system: 133, planet: 5, name: "Rigo V" });
   assert.equal(z.rohstoffe.metall, 1234); assert.equal(z.rohstoffe.strom, 0, "Strom-Bestand entfällt (Bilanz)");
@@ -264,12 +263,12 @@ test("Migration v2 → v4: Heimat behalten, Planet mit Gebäuden anlegen, Strom 
   assert.equal(SS.kern.produktion.produktionProStunde(z).metall, 30);
 });
 
-test("Migration v1/v3 → v4 und Bereinigung von v4-Ständen", () => {
+test("Migration v1/v3 → v5 und Bereinigung von v5-Ständen", () => {
   const SS = ladeSpiel();
   const W = SS.DATEN.weltraum, Z = SS.kern.zustand;
   const v1 = { version: 1, name: "Alt", startplatz: { buchstabe: "D", stufe: 13, schwerpunkt: "strom" }, rohstoffe: { metall: 7 }, zeit: { letzterTick: T0 } };
   const z = Z.migriere(JSON.parse(JSON.stringify(v1)), W.zufall(3));
-  assert.equal(z.version, 4);
+  assert.equal(z.version, 5);
   assert.ok(W.leseKoordinaten(W.koordinatenText(z.heimat)));
   assert.equal(z.rohstoffe.metall, 7);
   assert.equal(z.zeit.zuletztGespeichert, null);
@@ -279,7 +278,7 @@ test("Migration v1/v3 → v4 und Bereinigung von v4-Ständen", () => {
   const z3 = Z.migriere({ version: 3, heimat: z.heimat, rohstoffe: {}, zeit: { letzterTick: T0 }, punkte: 12,
     startplaetze: [{ buchstabe: "A", stufe: 99, freigeschaltet: true }] });
   assert.ok(z3.planeten[0].startplaetze.every((sp) => sp.stufe === 0)); assert.equal(z3.punkte, 12);
-  // v4: Werte begrenzen, ungültigen Bauauftrag verwerfen, unbekannte Gebäude entfernen
+  // v5: Werte begrenzen, ungültigen Bauauftrag verwerfen, unbekannte Gebäude entfernen
   const v4 = JSON.parse(JSON.stringify(neu(SS)));
   Object.assign(v4.planeten[0].gebaeude, { metallmine: 99, raumflughafen: 5, roboterfabrik: 3, solarfarm: -2 });
   v4.planeten[0].regler.metallmine = 37; v4.planeten[0].startplaetze[1].stufe = 40;
@@ -287,7 +286,7 @@ test("Migration v1/v3 → v4 und Bereinigung von v4-Ständen", () => {
   const z4 = Z.migriere(v4).planeten[0];
   assert.equal(z4.gebaeude.metallmine, 30); assert.equal(z4.gebaeude.raumflughafen, 1); assert.equal(z4.gebaeude.solarfarm, 0);
   assert.ok(!("roboterfabrik" in z4.gebaeude));
-  assert.equal(z4.regler.metallmine, 40); assert.equal(z4.startplaetze[1].stufe, 15); assert.equal(z4.bauauftrag, null);
+  assert.equal(z4.regler.metallmine, 40); assert.equal(z4.startplaetze[1].stufe, 10); assert.equal(z4.bauauftrag, null);
 });
 
 test("Format: deutsche Zahlen und Dauer", () => {

@@ -16,11 +16,11 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.6.0";
+  SS.VERSION = "0.7.0";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
-    SPIELSTAND_VERSION: 4,   // v2: Heimatplanet · v3: automatischer Start · v4: Kapitel 2 – Planeten mit Gebäuden, Bauauftrag, Startplätzen
+    SPIELSTAND_VERSION: 5,   // v2: Heimatplanet · v3: automatischer Start · v4: Kapitel 2 – Planeten mit Gebäuden, Bauauftrag, Startplätzen · v5: Rohölvorkommen/Geologie, Startplätze A–Z, Master-Modus
     SPEICHER_SCHLUESSEL: "sternenspiel_spielstand_v1",          // alter Einzel-Spielstand (bis 0.3) – wird als erstes Profil übernommen
     PROFIL_INDEX_SCHLUESSEL: "sternenspiel_profile_v1",         // Liste der Spielerprofile
     PROFIL_SPIELSTAND_PRAEFIX: "sternenspiel_spielstand_p_",    // + Profil-ID = eigener Spielstand je Spieler
@@ -76,20 +76,41 @@
     // Solarsatelliten (Bau später in der Werft) – hier nur Energie je Satellit (ANNAHME, OGame ≈ 20–50 je nach Temperatur)
     SOLARSATELLIT_ENERGIE: 30,
 
-    // Startplätze = Start-/Abschussplattformen für Flotten, gebaut über den Raumflughafen.
-    // FEST: bis zu 10 Startplätze, je Stufe 1–15, deutlich teurer je Stufe, Freischaltung nach Spielerpunkten,
-    //       Kapazität zählt nur Schiffsanzahl, Summe = max. gleichzeitig startende Schiffe, keine Zuordnung Schiff → Startplatz.
-    // ANNAHME: Beschriftung A–J (Sandro: „bis zu 10, A–Z“ – offen), alle Werte unten.
+    // ---------- Geologie & Rohölvorkommen (FEST, Nachbesserung 0.7.0) ----------
+    // Jeder Planet hat ein bekanntes Rohölvorkommen; die Bohrstation fördert daraus (Förderung = min(Rate, Vorkommen)).
+    // Die Geologiestation entdeckt alle 24 h (Echtzeit, offline nachgeholt) ein neues Feld, Größe zufällig im Bereich der Stufe.
+    GEOLOGIE: {
+      START_VORKOMMEN_HAUPTPLANET: 1000000,   // FEST
+      START_VORKOMMEN_ANDERE: 0,              // FEST (andere Planeten später: Geologiestation notwendig)
+      FUND_INTERVALL_STUNDEN: 24,             // FEST
+      FUND_BEREICH_FEST: [[50000, 100000], [80000, 125000]], // FEST: Stufe 1 und 2 (Minimum, Maximum)
+      FUND_WACHSTUM_AB_STUFE_3: 1.25,         // ANNAHME: ab Stufe 3 Minimum und Maximum je Stufe ×1,25
+      FUND_RUNDUNG: 1000,                     // ANNAHME: Bereichsgrenzen auf volle 1.000 gerundet
+      LOG_MAX: 100                            // ANNAHME: höchstens 100 Einträge im Fund-Log je Planet
+    },
+
+    // ---------- Startplätze (FEST, Nachbesserung 0.7.0 – ersetzt A–J / Stufe 1–15) ----------
+    // FEST: Startplätze A–Z (26), je 10 Ausbaustufen; Buchstabe X erst baubar, wenn der vorige Buchstabe Stufe 10 hat
+    //       UND der Spieler die Mindest-Punktzahl des Buchstabens erreicht; Kapazität = Anzahl gleichzeitig startender Schiffe
+    //       (Größe egal); Ziel A10 ≈ 100 Schiffe, alles bis Z10 ≈ 10 Milliarden.
+    // ANNAHME: Kapazität je Stufe geometrisch (×≈2,03 je Buchstabe, auf 2 Stellen gerundet), Kosten, Punkteschwellen.
     STARTPLAETZE: {
-      MAX_ANZAHL: 10,
-      BUCHSTABEN: "ABCDEFGHIJ",
-      STUFE_MIN: 1,
-      STUFE_MAX: 15,
-      KAPAZITAET_PRO_STUFE: 5,                                   // ANNAHME: 5 Schiffe je Stufe
-      KOSTEN: { metall: 2000, silizium: 1000, rohoel: 500 },    // ANNAHME: Stufe 1 von Startplatz A
-      KOSTEN_FAKTOR: 2.0,                                        // ANNAHME: „deutlich teurer“ je Stufe
-      KOSTEN_AUFSCHLAG_JE_PLATZ: 0.25,                           // ANNAHME: B = ×1,25, C = ×1,5 … J = ×3,25
-      FREISCHALT_PUNKTE: [0, 50, 150, 400, 1000, 2500, 5000, 10000, 20000, 40000] // ANNAHME: Punkteschwelle je Platz A–J
+      BUCHSTABEN: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      MAX_ANZAHL: 26,
+      STUFE_MAX: 10,
+      VORGAENGER_STUFE: 10,                   // FEST: vorheriger Buchstabe muss Stufe 10 haben
+      // Schiffe je Ausbaustufe (je Buchstabe gleich für alle 10 Stufen) → Kapazität Buchstabe = Stufe · Wert
+      KAPAZITAET_JE_STUFE: [10, 20, 41, 84, 170, 350, 710, 1400, 2900, 5900, 12000, 25000, 50000, 100000, 210000, 420000,
+        850000, 1700000, 3500000, 7200000, 15000000, 30000000, 60000000, 120000000, 250000000, 510000000],
+      KOSTEN: { metall: 400, silizium: 200, rohoel: 100 }, // Stufe 1 von Startplatz A
+      KOSTEN_FAKTOR_STUFE: 1.35,              // je Stufe innerhalb eines Buchstabens
+      KOSTEN_FAKTOR_BUCHSTABE: 1.5,           // je weiterem Buchstaben
+      FREISCHALT_PUNKTE: [0, 75, 200, 400, 600, 1000, 1500, 2500, 4000, 6000, 10000, 15000, 20000, 30000, 40000, 60000,
+        100000, 150000, 250000, 300000, 500000, 750000, 1000000, 1500000, 2500000, 4000000],
+      // Regel für das Flotten-Kapitel (FEST, noch NICHT umgesetzt): Schiffe, die nicht auf die Startplätze passen, stehen
+      // automatisch im Hangar (Lager) – dort bei Angriffen sicher, keine Wahl. Beim Versand sind alle Schiffe sichtbar;
+      // gleichzeitig unterwegs dürfen höchstens „Kapazität“ Schiffe sein; Kapazität wird erst nach Landung/Zerstörung frei.
+      HANGAR_AKTIV: false
     }
   });
 })(typeof globalThis !== "undefined" ? globalThis : this);

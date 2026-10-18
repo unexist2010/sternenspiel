@@ -6,7 +6,9 @@
  *
  * Versionen: v1 Startplatz-Wahl A–Z · v2 + Heimatplanet/Freischaltungen ·
  *            v3 automatischer Start auf einem Hauptplaneten, Startplätze = Flotten-Startplattformen (A–J) ·
- *            v4 Kapitel 2: planeten[] mit Gebäuden, Bauauftrag, Reglern, Solarsatelliten, Rohölfeldern und Startplätzen
+ *            v4 Kapitel 2: planeten[] mit Gebäuden, Bauauftrag, Reglern, Solarsatelliten, Rohölfeldern und Startplätzen ·
+ *            v5 (0.7.0): Rohölvorkommen + Geologie-Log statt Rohölfeldern, Startplätze A–Z (Stufe ≤ 10), Master-Modus,
+ *               Sperr-Flags Kunststoffwerk T2/T3, Hangar (vorbereitet)
  */
 (function (g) {
   "use strict";
@@ -27,14 +29,16 @@
     return { sektor: k.sektor, system: k.system, planet: k.planet, name: name };
   }
 
-  /** Planet-Datensatz (Kapitel 2). planet.istHauptplanet / planet.rohoelfelder: Regel für die Bohrstation (FEST). */
+  /** Planet-Datensatz. Rohölvorkommen: Hauptplanet 1.000.000, andere Planeten 0 (FEST, 0.7.0). */
   function neuerPlanet(istHauptplanet) {
-    var geb = {}, regler = { solarsatellit: 100 };
+    var geb = {}, regler = { solarsatellit: 100 }, G = SS.BALANCE.GEOLOGIE;
     SS.DATEN.gebaeude.forEach(function (d) { geb[d.id] = 0; if (d.regler) regler[d.id] = 100; });
     return {
       id: istHauptplanet ? "hp" : "p" + Date.now(),
       istHauptplanet: !!istHauptplanet,
-      rohoelfelder: 0,            // von der Geologiestation gefunden (Kommazahl, angezeigt abgerundet)
+      rohoelVorkommen: istHauptplanet ? G.START_VORKOMMEN_HAUPTPLANET : G.START_VORKOMMEN_ANDERE, // bekanntes Rohöl (Bohrstation fördert daraus)
+      geologie: SS.kern.geologie.neu(), // { naechsterFund, funde: [{zeit, stufe, menge}], zufall }
+      hangar: { schiffe: {} },    // VORBEREITET (Flotten-Kapitel): Schiffe, die nicht auf die Startplätze passen – sicher bei Angriffen
       gebaeude: geb,
       regler: regler,             // Produktionsregler 0–100 % (Schritte à 10)
       solarsatelliten: 0,         // Bau später in der Werft
@@ -47,7 +51,15 @@
     var neu = neuerPlanet(istHaupt);
     if (!p || typeof p !== "object") return neu;
     neu.id = typeof p.id === "string" ? p.id : neu.id;
-    neu.rohoelfelder = Math.max(0, Number(p.rohoelfelder) || 0);
+    if (isFinite(Number(p.rohoelVorkommen)) && p.rohoelVorkommen != null) neu.rohoelVorkommen = Math.max(0, Number(p.rohoelVorkommen));
+    var geo = p.geologie;
+    if (geo && typeof geo === "object") {
+      neu.geologie.naechsterFund = isFinite(Number(geo.naechsterFund)) && geo.naechsterFund != null ? Number(geo.naechsterFund) : null;
+      neu.geologie.funde = (Array.isArray(geo.funde) ? geo.funde : []).filter(function (f) { return f && isFinite(f.zeit) && isFinite(f.menge); })
+        .slice(-SS.BALANCE.GEOLOGIE.LOG_MAX);
+      if (isFinite(Number(geo.zufall)) && geo.zufall != null) neu.geologie.zufall = Number(geo.zufall) >>> 0;
+    }
+    if (p.hangar && typeof p.hangar === "object" && p.hangar.schiffe && typeof p.hangar.schiffe === "object") neu.hangar = { schiffe: p.hangar.schiffe };
     SS.DATEN.gebaeude.forEach(function (d) {
       var st = Math.floor(Number(p.gebaeude && p.gebaeude[d.id]) || 0);
       neu.gebaeude[d.id] = Math.max(0, Math.min(SS.DATEN.maxStufe(d), st));
@@ -82,7 +94,8 @@
       erstelltAm: jetzt,
       heimat: hauptplanet(opt.planetName, opt.zufall), // Hauptplanet: Sektor:System:Planet
       // Kapitel 2: Kunststoff T1–T3 sichtbar (wird produziert); Antimaterie bleibt ausgeblendet (FEST)
-      freigeschaltet: { kunststoff_t1: true, kunststoff_t2: true, kunststoff_t3: true, antimaterie: false },
+      // 0.7.0: Kunststoffwerk T2/T3 gesperrt – Freischaltbedingung folgt später (offene Frage); Master ignoriert die Sperre
+      freigeschaltet: { kunststoff_t1: true, kunststoff_t2: true, kunststoff_t3: true, antimaterie: false, kunststoffwerk_t2: false, kunststoffwerk_t3: false },
       rohstoffe: rohstoffMap(SS.BALANCE.STARTBESTAND),
       zeit: { letzterTick: jetzt, zuletztGespeichert: null },
       statistik: { produziertGesamt: rohstoffMap(null), offlineMsGesamt: 0 },
@@ -96,7 +109,7 @@
       flotten: [],           // späteres Kapitel
       truemmerfelder: [],    // späteres Kapitel
       ereignisse: [],        // späteres Kapitel: KI-Angriffe/Ereignisse
-      einstellungen: { schildAutoaktivierung: true } // Solo-Regel (Wirkung später)
+      einstellungen: { schildAutoaktivierung: true, master: false } // Schild: Solo-Regel (Wirkung später) · master: Testmodus je Profil
     };
   }
 
@@ -129,6 +142,7 @@
     z.freigeschaltet = z.freigeschaltet || {};
     ["kunststoff_t1", "kunststoff_t2", "kunststoff_t3"].forEach(function (k) { z.freigeschaltet[k] = vorher < 4 ? true : z.freigeschaltet[k] !== false; });
     z.freigeschaltet.antimaterie = z.freigeschaltet.antimaterie === true;
+    ["kunststoffwerk_t2", "kunststoffwerk_t3"].forEach(function (k) { z.freigeschaltet[k] = z.freigeschaltet[k] === true; }); // v<5: gesperrt
     z.statistik = z.statistik || {};
     z.statistik.produziertGesamt = rohstoffMap(z.statistik.produziertGesamt);
     z.statistik.offlineMsGesamt = Number(z.statistik.offlineMsGesamt) || 0;
@@ -140,6 +154,11 @@
       z.rohstoffe.strom = 0;
     }
     z.planeten = (Array.isArray(z.planeten) && z.planeten.length ? z.planeten : [null]).map(function (p, i) { return planetBereinigen(p, i === 0); });
+    // v4 → v5: Rohölfelder entfallen (Hauptplanet bekommt 1.000.000 Vorkommen über planetBereinigen); vorhandene
+    // Geologiestation startet ihren 24-h-Takt ab dem letzten Tick; Startplätze über Stufe 10 werden auf 10 gekappt.
+    if (vorher < 5) z.planeten.forEach(function (p) {
+      if (p.gebaeude.geologiestation > 0 && p.geologie.naechsterFund == null) SS.kern.geologie.gebaut(p, z.zeit.letzterTick);
+    });
     delete z.startplaetze; delete z.gebaeude; delete z.lagerstaetten;
     z.punkte = Math.max(0, Number(z.punkte) || 0);
     z.forschung = z.forschung || {};
@@ -149,6 +168,7 @@
     z.ereignisse = Array.isArray(z.ereignisse) ? z.ereignisse : [];
     z.einstellungen = z.einstellungen || {};
     if (typeof z.einstellungen.schildAutoaktivierung !== "boolean") z.einstellungen.schildAutoaktivierung = true;
+    z.einstellungen.master = z.einstellungen.master === true;
     z.version = SS.BALANCE.SPIELSTAND_VERSION;
     return z;
   }
