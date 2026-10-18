@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+<defs>
+  <radialGradient id="k" cx="0.35" cy="0.32" r="0.75"><stop offset="0" stop-color="#7fe3ff"/><stop offset="0.55" stop-color="#1f6fbf"/><stop offset="1" stop-color="#061a3c"/></radialGradient>
+  <radialGradient id="s" cx="0.72" cy="0.72" r="0.6"><stop offset="0.4" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.65"/></radialGradient>
+  <radialGradient id="h" cx="0.5" cy="0.5" r="0.5"><stop offset="0.82" stop-color="#7fe3ff" stop-opacity="0"/><stop offset="0.9" stop-color="#7fe3ff" stop-opacity="0.35"/><stop offset="1" stop-color="#7fe3ff" stop-opacity="0"/></radialGradient>
+  <clipPath id="c"><circle cx="32" cy="32" r="24"/></clipPath>
+</defs>
+<circle cx="32" cy="32" r="30" fill="url(#h)"/>
+<circle cx="32" cy="32" r="24" fill="url(#k)"/>
+<g clip-path="url(#c)"><path d="M23.2 44.3q4.8 -6.7 10.6 1.6t-3.9 6.1t-10.2 -2z" fill="#3fa968" opacity="0.85"/><path d="M18.7 15.5q4.5 -4.7 11.6 2.1t-2.2 7.6t-9.9 -2z" fill="#3fa968" opacity="0.85"/><path d="M39.2 33q9.1 -5.9 11.6 2.8t-3.7 6.7t-8.4 -2z" fill="#3fa968" opacity="0.85"/><path d="M44.3 15.4q9 -5.4 11.4 1.5t-5 8.3t-8.2 -2z" fill="#3fa968" opacity="0.85"/><ellipse cx="34" cy="22" rx="14" ry="3" fill="#fff" opacity="0.35"/><circle cx="32" cy="32" r="24" fill="url(#s)"/></g></svg>

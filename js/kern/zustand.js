@@ -15,9 +15,16 @@
     return m;
   }
 
+  function heimatplanet(buchstabe, wunschname) {
+    var k = SS.DATEN.weltraum.heimatFuerStartplatz(buchstabe);
+    var p = SS.DATEN.weltraum.planet(k.system, k.planet);
+    var name = String(wunschname || "").trim().slice(0, 24) || p.name;
+    return { sektor: k.sektor, system: k.system, planet: k.planet, name: name };
+  }
+
   /**
    * Erstellt einen neuen Spielstand.
-   * @param {{name?:string, startplatz:string, jetzt:number}} opt
+   * @param {{name?:string, planetName?:string, startplatz:string, jetzt:number}} opt
    */
   function neuerSpielstand(opt) {
     var sp = SS.DATEN.startplatzNachBuchstabe(opt && opt.startplatz);
@@ -30,6 +37,8 @@
       name: name,
       erstelltAm: jetzt,
       startplatz: { buchstabe: sp.buchstabe, stufe: sp.stufe, schwerpunkt: sp.schwerpunkt },
+      heimat: heimatplanet(sp.buchstabe, opt.planetName), // Sektor:System:Planet (ANNAHME-Zuordnung über Startplatz)
+      freigeschaltet: { antimaterie: false },             // FEST: Antimaterie versteckt bis zur Freischaltung
       rohstoffe: rohstoffMap(SS.BALANCE.STARTBESTAND),
       zeit: { letzterTick: jetzt, zuletztGespeichert: null },
       statistik: { produziertGesamt: rohstoffMap(null), offlineMsGesamt: 0 },
@@ -68,6 +77,12 @@
     var sp = SS.DATEN.startplatzNachBuchstabe(z.startplatz.buchstabe);
     z.startplatz = { buchstabe: sp.buchstabe, stufe: sp.stufe, schwerpunkt: sp.schwerpunkt };
     z.rohstoffe = rohstoffMap(z.rohstoffe);
+    // v1 → v2: Heimatplanet und Freischaltungen ergänzen
+    var hk = z.heimat && SS.DATEN.weltraum.leseKoordinaten(z.heimat.sektor + ":" + z.heimat.system + ":" + z.heimat.planet);
+    if (!hk) z.heimat = heimatplanet(sp.buchstabe, z.heimat && z.heimat.name);
+    else z.heimat.name = String(z.heimat.name || SS.DATEN.weltraum.planet(hk.system, hk.planet).name).slice(0, 24);
+    z.freigeschaltet = z.freigeschaltet || {};
+    z.freigeschaltet.antimaterie = z.freigeschaltet.antimaterie === true;
     z.name = String(z.name || "Kommandant").slice(0, 24);
     z.statistik = z.statistik || {};
     z.statistik.produziertGesamt = rohstoffMap(z.statistik.produziertGesamt);
@@ -86,5 +101,5 @@
     return z;
   }
 
-  SS.kern.zustand = { neuerSpielstand: neuerSpielstand, istGueltig: istGueltig, migriere: migriere };
+  SS.kern.zustand = { heimatplanet: heimatplanet, neuerSpielstand: neuerSpielstand, istGueltig: istGueltig, migriere: migriere };
 })(typeof globalThis !== "undefined" ? globalThis : this);

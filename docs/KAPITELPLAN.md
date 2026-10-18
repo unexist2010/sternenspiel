@@ -1,65 +1,60 @@
 # Sternenspiel – Kapitelplan
 
-Stand: 2026-10-18 · Jedes Kapitel ist für sich spielbar, getestet (Node + Browser-Playtest Handy/Desktop) und wird einzeln committet.
+Stand: 2026-10-18 · Jedes Kapitel ist für sich lauffähig, getestet (Node + Browser-Playtest Handy/Desktop) und wird einzeln committet.
 
-| Kapitel | Inhalt | Status |
-|---------|--------|--------|
-| 1 | Grundgerüst, Rohstoffe, Wirtschaft, Startplatz-Wahl, Speichern | ✅ **erledigt** (2026-10-18) |
-| 2 | Gebäude inkl. Geologiestation & Ausbau | offen |
-| 3 | Forschung, Kunststoff-Tiers (T1–T3), Antimaterie | offen |
-| 4 | Werft: 23 Schiffe, 2 Hüllentypen, 5 Waffentypen | offen |
-| 5 | Kampf, Schutzschild-Autoaktivierung, Trümmer/Salvage | offen |
-| 6 | Flotten, Treibstoff, Karte/Missionen | offen |
-| 7 | KI-Gegner (5–10 Angriffe/Ereignisse täglich), Balancing, Feinschliff | offen |
-| – | Offene Punkte | laufend: `docs/OFFENE-PUNKTE.md` |
+| Kapitel | Inhalt | Menüseite(n) | Status |
+|---------|--------|--------------|--------|
+| 1 | **Layout-Grundgerüst**: Menü, Weltraum-Hierarchie, Ressourcenleiste, Platzhalter, Retro-Stil | Übersicht, Ressourcen, Weltraum | ✅ **erledigt** (2026-10-18) |
+| 2 | Ressourcen & Anlagen: Gebäude inkl. Geologiestation, Förderung, Lager, Ausbau | Anlagen, Ressourcen | offen |
+| 3 | Forschung: Kunststoff-Tiers T1–T3, Freischaltung der Antimaterie | Forschung | offen |
+| 4 | Werft: 23 Schiffe, 2 Hüllentypen, 5 Waffentypen | Werft | offen |
+| 5 | Verteidigung & Kampf: Schutzschild-Autoaktivierung (Solo-Regel), Trümmer/Salvage | Verteidigung | offen |
+| 6 | Flotte & Weltraum-Missionen: Flotten, Treibstoffregeln, Flüge zwischen Systemen | Flotte, Weltraum | offen |
+| 7 | KI-Gegner (5–10 Angriffe/Ereignisse täglich), Balancing, Feinschliff | alle | offen |
+| – | Offene Punkte | – | laufend: `docs/OFFENE-PUNKTE.md` |
 
 ---
 
-## Kapitel 1 – Grundgerüst, Rohstoffe, Wirtschaft, Startplatz, Speichern ✅
+## Kapitel 1 – Layout-Grundgerüst ✅
 
-- Projektstruktur (HTML/CSS/JS ohne Build, offline per `file://`), Doku, Tests, lokales git
-- 8 Rohstoffe (FEST), Ressourcenleiste, Produktion pro Stunde, Lagergrenzen (ANNAHME)
-- Startplätze A–Z mit Stufe 1–15 (FEST), Schwerpunkt + Boni-Formel (ANNAHME)
-- Echtzeit-Ticks, Offline-Fortschritt (max. 24 Std., ANNAHME)
-- Speichern/Laden/Zurücksetzen in `localStorage`, Migration
-- Zentrale Balance in `js/data/konstanten.js`; Andockpunkte für Kapitel 2–7 im Datenmodell
-- Tests: 13 Node-Tests, Browser-Playtest Handy 412×915 + Desktop 1366×768 → `playtest/kapitel1-*.png`
+- Linkes Menü (8 Punkte, feste Reihenfolge) + mittleres Inhaltsfeld; Handy: ausklappbares Menü (☰)
+- Kopf mit Logo und Ressourcenleiste (7 Rohstoffe; Antimaterie versteckt bis `freigeschaltet.antimaterie`)
+- Weltraum-Hierarchie 1 Universum / 5 Sektoren / 300 Systeme / 12 Planeten (3.600), navigierbar; Heimatplanet verortet
+- Übersicht (Heimatplanet, Koordinaten, Startplatz/Stufe), Ressourcen (Tabelle), Platzhalter für Kapitel 2–6
+- Retro-Weltraum-Stil mit eigenen SVG-Grafiken (`assets/`), alles offline
+- Unterbau: Startplatz-Wahl A–Z (Stufe 1–15), vorläufige Produktion, Offline-Fortschritt, Speichern/Laden/Zurücksetzen
+- Planetengrößen/Feldlimits bewusst nicht vorhanden
+- Tests: 19 Node-Tests, Browser-Playtest (Handy 412×915, Desktop 1366×768) → `playtest/kapitel1-layout-*.png`
 
-## Kapitel 2 – Gebäude inkl. Geologiestation & Ausbau
+## Kapitel 2 – Ressourcen & Anlagen
 
-- Gebäude-Konfiguration in `js/data/gebaeude.js` (Kosten, Bauzeit, Wirkung je Stufe)
-- Bauschleife (ein Bauauftrag gleichzeitig? → offen), Bauzeit läuft auch offline weiter
-- **Geologiestation (FEST):** erkundet/bestimmt Lagerstätten → befüllt `zustand.lagerstaetten`, beeinflusst Förderung
-- Förderanlagen für Metall/Silizium/Rohöl, Kraftwerk (Strom), Lager-Ausbau (Vorschlag, ANNAHME)
-- Ggf. Startplatz-Stufe ausbauen (falls Sandro das so meint → offen)
+- Gebäude-Konfiguration in `js/data/gebaeude.js` (Kosten, Bauzeit, Wirkung je Stufe), Seite „Anlagen“
+- **Geologiestation (FEST):** erkundet/bestimmt Lagerstätten → `zustand.lagerstaetten`, beeinflusst Förderung
+- Förderanlagen (Metall, Silizium, Rohöl), Kraftwerk (Strom), Lager – ersetzen die vorläufige Grundproduktion (ANNAHME)
+- Bauzeit läuft auch offline weiter
 
-## Kapitel 3 – Forschung, Kunststoff-Tiers & Antimaterie
+## Kapitel 3 – Forschung
 
-- Forschungsbaum (`js/data/forschung.js`)
-- Kunststoff-Kette: Rohöl (+ Strom) → T1 → T2 → T3 (Verarbeitungsgebäude, ANNAHME)
-- Antimaterie-Erzeugung (teuer, viel Strom, ANNAHME)
-- Forschung schaltet Schiffe/Waffen/Hüllen für Kapitel 4 frei
+- Forschungsbaum (`js/data/forschung.js`), Seite „Forschung“
+- Kunststoff-Kette Rohöl (+ Strom) → T1 → T2 → T3 (ANNAHME)
+- **Freischaltung der Antimaterie** (setzt `freigeschaltet.antimaterie = true` → erscheint in der Ressourcenleiste)
 
-## Kapitel 4 – Werft: 23 Schiffe, Hüllentypen, Waffen
+## Kapitel 4 – Werft
 
-- `js/data/schiffe.js` mit **23 Schiffen** (FEST), **2 Hüllentypen** (FEST), **5 Waffentypen** (FEST)
-- Namen/Werte/Kosten: Vorschlag von mir als ANNAHME, solange Sandro nichts vorgibt
-- Bauwarteschlange in der Werft, Schiffsbestand in `zustand.schiffe`
+- **23 Schiffe, 2 Hüllentypen, 5 Waffentypen (FEST)** in `js/data/schiffe.js`, Seite „Werft“, Bauwarteschlange
 
-## Kapitel 5 – Kampf, Schutzschild-Autoaktivierung, Trümmer/Salvage
+## Kapitel 5 – Verteidigung & Kampf
 
-- Kampfsimulation (Runden, Waffentyp gegen Hüllentyp), Kampfbericht
-- **Schutzschild-Autoaktivierung als Solo-Regel (FEST)** – genaue Auslösebedingung offen
-- **Trümmer-Salvage (FEST):** 50–75 % am Boden, 80 % im Orbit → `zustand.truemmerfelder`
+- Verteidigungsanlagen, Kampfsimulation (Waffentyp gegen Hüllentyp), Kampfbericht
+- **Schutzschild-Autoaktivierung als Solo-Regel (FEST)**
+- **Trümmer-Salvage (FEST): 50–75 % am Boden, 80 % im Orbit**
 
-## Kapitel 6 – Flotten, Treibstoff, Karte/Missionen
+## Kapitel 6 – Flotte & Weltraum-Missionen
 
-- Sternenkarte (Startplätze A–Z als Orte?), Flotten zusammenstellen und entsenden
-- **Treibstoffregeln (FEST, Inhalt offen):** Verbrauch nach Entfernung/Schiffstyp, Treibstoff-Rohstoff (Rohöl? Antimaterie?) → offen
-- Missionen: Angriff, Bergung (Salvage), Transport, Erkundung
+- Flotten zusammenstellen, Missionen zu Koordinaten (Sektor:System:Planet) aus der Weltraum-Seite starten
+- **Treibstoffregeln (FEST, Inhalt offen)**
 
 ## Kapitel 7 – KI-Gegner, Balancing, Feinschliff
 
-- **KI-Gegner mit 5–10 Angriffen/Ereignissen pro Tag (FEST)** – Planung im Voraus, auch offline nachgeholt (ANNAHME)
-- Schwierigkeit evtl. abhängig von Startplatz-Stufe (offen)
-- Balancing aller Konstanten, Tutorial, Feinschliff, ggf. PWA/Export-Import des Spielstands
+- **KI-Gegner mit 5–10 Angriffen/Ereignissen pro Tag (FEST)**, Besiedlung anderer Planeten durch KI (ANNAHME)
+- Balancing aller Konstanten, Tutorial, ggf. PWA/Export-Import des Spielstands

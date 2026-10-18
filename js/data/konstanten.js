@@ -17,13 +17,22 @@
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
-    SPIELSTAND_VERSION: 1,
+    SPIELSTAND_VERSION: 2,   // v2: Heimatplanet (Weltraum-Hierarchie) + Freischaltungen
     SPEICHER_SCHLUESSEL: "sternenspiel_spielstand_v1",
 
     // Zeit
     TICK_MS: 1000,              // ANNAHME: 1 Tick pro Sekunde (Anzeige); Produktion rechnet mit echter Zeitdifferenz
     AUTOSPEICHERN_MS: 30000,    // ANNAHME: Autospeichern alle 30 s
     OFFLINE_MAX_STUNDEN: 24,    // ANNAHME: Offline-Fortschritt wird auf 24 h gekappt
+
+    // Weltraum-Hierarchie (FEST: 1 Universum, 5 Sektoren, 300 Sonnensysteme, 12 Planeten je System)
+    // ANNAHME: gleichmäßige Verteilung 60 Systeme je Sektor, Systemnummern global 1–300.
+    // Planetengrößen und Feldlimits werden bewusst NICHT abgebildet (FEST).
+    WELTRAUM: {
+      SEKTOREN: 5,
+      SYSTEME_GESAMT: 300,
+      PLANETEN_PRO_SYSTEM: 12
+    },
 
     // Startplätze A–Z mit Stufe 1–15 (Stufen sind von Sandro festgelegt, Boni-Formel ist ANNAHME)
     STARTPLATZ: {

@@ -30,6 +30,83 @@ test("Daten: Startplätze A–Z, Stufen 1–15, alle Stufen vorhanden", () => {
   assert.equal(SS.DATEN.startplatzNachBuchstabe("Ä"), null);
 });
 
+test("Weltraum: 1 Universum, 5 Sektoren, 300 Systeme, 12 Planeten je System = 3600 Planeten", () => {
+  const SS = ladeSpiel();
+  const W = SS.DATEN.weltraum;
+  const u = W.universum();
+  assert.equal(typeof u.name, "string");
+  assert.equal(u.sektoren.length, 5);
+  let systeme = 0, planeten = 0;
+  const koords = new Set();
+  for (const s of u.sektoren) {
+    assert.equal(s.systemBis - s.systemVon + 1, 60, "60 Systeme je Sektor (ANNAHME)");
+    for (let n = s.systemVon; n <= s.systemBis; n++) {
+      const sys = W.system(n);
+      assert.equal(sys.sektor, s.nummer);
+      assert.equal(sys.planeten.length, 12);
+      systeme++;
+      sys.planeten.forEach((p, i) => { planeten++; assert.equal(p.position, i + 1); koords.add(p.koordinaten); });
+    }
+  }
+  assert.equal(systeme, 300);
+  assert.equal(planeten, 3600);
+  assert.equal(koords.size, 3600, "Koordinaten eindeutig");
+  assert.equal(W.anzahlPlaneten(), 3600);
+  assert.equal(W.system(0), null); assert.equal(W.system(301), null); assert.equal(W.sektor(6), null); assert.equal(W.planet(1, 13), null);
+  // Deterministisch: gleicher Name bei erneutem Laden
+  assert.equal(ladeSpiel().DATEN.weltraum.system(142).name, W.system(142).name);
+});
+
+test("Weltraum: keine Planetengrößen/Feldlimits im Datenmodell", () => {
+  const SS = ladeSpiel();
+  const p = SS.DATEN.weltraum.planet(75, 6);
+  for (const k of Object.keys(p)) assert.ok(!/groesse|größe|feld|felder|durchmesser/i.test(k), "verbotenes Feld: " + k);
+});
+
+test("Weltraum: Koordinaten lesen/prüfen", () => {
+  const W = ladeSpiel().DATEN.weltraum;
+  gleich(W.leseKoordinaten(" 2:75:6 "), { sektor: 2, system: 75, planet: 6 });
+  assert.equal(W.leseKoordinaten("1:75:6"), null, "System 75 liegt nicht in Sektor 1");
+  assert.equal(W.leseKoordinaten("6:1:1"), null);
+  assert.equal(W.leseKoordinaten("1:1:13"), null);
+  assert.equal(W.leseKoordinaten("abc"), null);
+  assert.equal(W.koordinatenText({ sektor: 5, system: 300, planet: 12 }), "5:300:12");
+});
+
+test("Weltraum: jeder Startplatz A–Z hat einen eindeutigen Heimatplaneten (ANNAHME-Zuordnung)", () => {
+  const SS = ladeSpiel();
+  const W = SS.DATEN.weltraum;
+  const gesehen = new Set(), sektoren = new Set();
+  for (const sp of SS.DATEN.startplaetze) {
+    const k = W.heimatFuerStartplatz(sp.buchstabe);
+    assert.ok(W.leseKoordinaten(W.koordinatenText(k)), sp.buchstabe + " gültig");
+    gesehen.add(k.system); sektoren.add(k.sektor);
+  }
+  assert.equal(gesehen.size, 26, "verschiedene Systeme");
+  assert.equal(sektoren.size, 5, "alle Sektoren genutzt");
+  gleich(W.heimatFuerStartplatz("A"), { sektor: 1, system: 6, planet: 4 });
+  gleich(W.heimatFuerStartplatz("Z"), { sektor: 5, system: 294, planet: 4 });
+});
+
+test("Menü: genau 8 Punkte in festgelegter Reihenfolge", () => {
+  const SS = ladeSpiel();
+  gleich(SS.DATEN.menue.map((m) => m.name), ["Übersicht", "Ressourcen", "Anlagen", "Forschung", "Werft", "Verteidigung", "Flotte", "Weltraum"]);
+  const platzhalter = SS.DATEN.menue.filter((m) => m.platzhalter);
+  gleich(platzhalter.map((m) => m.id), ["anlagen", "forschung", "werft", "verteidigung", "flotte"]);
+  for (const m of platzhalter) assert.ok(m.kapitel >= 2 && m.kapitel <= 7, m.id + " hat Kapitel");
+});
+
+test("Antimaterie: versteckt bis zur Freischaltung", () => {
+  const SS = ladeSpiel();
+  const z = SS.kern.zustand.neuerSpielstand({ startplatz: "A", jetzt: T0 });
+  assert.equal(z.freigeschaltet.antimaterie, false);
+  const sichtbar = SS.DATEN.sichtbareRohstoffe(z).map((r) => r.id);
+  gleich(sichtbar, ["metall", "silizium", "rohoel", "strom", "kunststoff_t1", "kunststoff_t2", "kunststoff_t3"]);
+  z.freigeschaltet.antimaterie = true;
+  assert.ok(SS.DATEN.sichtbareRohstoffe(z).some((r) => r.id === "antimaterie"));
+  assert.ok("antimaterie" in z.rohstoffe, "Bestand existiert im Datenmodell trotzdem");
+});
+
 test("Daten: Andockpunkte für spätere Kapitel", () => {
   const SS = ladeSpiel();
   assert.ok(SS.DATEN.gebaeude.some((g) => g.id === "geologiestation"));
@@ -74,6 +151,10 @@ test("Neuer Spielstand: Startbestand, Startplatz, leere Andockfelder", () => {
   assert.equal(z.zeit.letzterTick, T0);
   gleich(z.gebaeude, {}); gleich(z.flotten, []);
   assert.equal(z.einstellungen.schildAutoaktivierung, true);
+  assert.equal(z.version, 2);
+  gleich({ s: z.heimat.sektor, y: z.heimat.system, p: z.heimat.planet }, { s: 1, y: 41, p: 7 });
+  assert.equal(z.heimat.name, SS.DATEN.weltraum.planet(41, 7).name);
+  assert.equal(SS.kern.zustand.neuerSpielstand({ startplatz: "A", planetName: " Terra Nova ", jetzt: T0 }).heimat.name, "Terra Nova");
   assert.equal(SS.kern.zustand.neuerSpielstand({ startplatz: "A", jetzt: T0 }).name, "Kommandant");
   assert.throws(() => SS.kern.zustand.neuerSpielstand({ startplatz: "1", jetzt: T0 }));
 });
@@ -185,6 +266,14 @@ test("Speichern/Laden: beschädigte und alte Spielstände", () => {
   assert.equal(z.rohstoffe.metall, 7); assert.equal(z.rohstoffe.antimaterie, 0);
   gleich(z.ereignisse, []); assert.equal(z.einstellungen.schildAutoaktivierung, true);
   assert.equal(z.zeit.zuletztGespeichert, null);
+  // v1 → v2: Heimatplanet + Freischaltung ergänzt
+  gleich({ s: z.heimat.sektor, y: z.heimat.system, p: z.heimat.planet }, { s: 3, y: 133, p: 5 });
+  assert.equal(z.freigeschaltet.antimaterie, false);
+  assert.equal(z.version, 2);
+  // Ungültige Heimat-Koordinaten werden aus dem Startplatz neu bestimmt, Name bleibt
+  sp.setItem(key, JSON.stringify({ version: 2, startplatz: { buchstabe: "A" }, heimat: { sektor: 1, system: 999, planet: 1, name: "Alt" }, rohstoffe: {}, zeit: { letzterTick: T0 } }));
+  const z2 = S.lade(sp).zustand;
+  assert.equal(z2.heimat.system, 6); assert.equal(z2.heimat.name, "Alt");
 });
 
 test("Format: deutsche Zahlen und Dauer", () => {
