@@ -3,9 +3,9 @@
  *
  * FEST (Sandro): Gebäudeliste und Rollen (Metallmine, Siliziummine, Bohrstation, Solarfarm, Ölverbrennungsstation,
  *   Solarsatelliten, Kunststoffwerk T1–T3, Geologiestation, Raumflughafen, Werft, Verteidigungswerft, Forschungseinrichtung),
- *   Stufen bis mind. 30, Kostenfaktor 1,5–2,0,
+ *   KEINE Stufenobergrenze (0.8.0, außer Raumflughafen 1), Kostenfaktor 1,5–2,0,
  *   Rezepte (0.7.0): T2 = 40 Rohöl + 20 Metall je Einheit, T3 = 1000 Rohöl + 500 Silizium + 500 Metall je Einheit,
- *   Kunststoffwerk T2/T3 gesperrt bis zur (späteren) Freischaltung, Bohrstation fördert aus dem Rohölvorkommen,
+ *   Kunststoffwerk T2/T3 werden über Spielerpunkte freigeschaltet (0.8.0; Schwellen ANNAHME, BALANCE.KUNSTSTOFFWERK_FREISCHALT_PUNKTE), Bohrstation fördert aus dem Rohölvorkommen,
  *   Geologiestation findet alle 24 h ein Feld,
  *   keine Speicher, kein Allianzdepot, keine Roboter-/Nanitenfabrik.
  * OGame-angelehnt (Formeln): Kosten(n) = Basis · Faktor^(n−1); Produktion/Verbrauch(n) = basis · n · 1,1^n.
@@ -19,7 +19,8 @@
  *  verbrauch     { rohstoff: basis }          → laufender Verbrauch/h = basis · n · 1,1^n (Ölverbrennung)
  *  werk          { ausgabe, basis, input }    → Einheiten/h = basis · n · 1,1^n; input = Rohstoffe JE EINHEIT
  *  fund          true                         → Geologiestation: alle 24 h ein Rohölfeld (Größe siehe BALANCE.GEOLOGIE)
- *  sperre        { flag, text }               → nur baubar, wenn zustand.freigeschaltet[flag] === true (Master ignoriert)
+ *  sperre        { flag }                     → nur baubar ab BALANCE.KUNSTSTOFFWERK_FREISCHALT_PUNKTE[flag] Punkten bzw. wenn
+ *                                               zustand.freigeschaltet[flag] === true (wird beim Erreichen gesetzt); Master ignoriert
  *  info          ausführliche Beschreibung für das Info-Fenster (ⓘ)
  *  regler        true = Produktionsregler 0–100 % (Seite Ressourcen)
  */
@@ -71,14 +72,14 @@
       werk: { ausgabe: "kunststoff_t1", basis: 2, input: { rohoel: 10 } }, stromBedarf: 10, regler: true },
     { id: "kunststoffwerk_t2", name: "Kunststoffwerk T2", gruppe: "kunststoff", bild: "assets/gebaeude/kunststoffwerk_t2.svg",
       beschreibung: "Verarbeitet Rohöl und Metall zu Kunststoff T2.",
-      info: "Je Einheit Kunststoff T2: 40 Rohöl + 20 Metall. Wird später mit Spielfortschritt freigeschaltet.",
-      sperre: { flag: "kunststoffwerk_t2", text: "Wird später mit Spielfortschritt freigeschaltet." },
+      info: "Je Einheit Kunststoff T2: 40 Rohöl + 20 Metall. Wird mit Spielerpunkten freigeschaltet (ab 500 Punkten).",
+      sperre: { flag: "kunststoffwerk_t2" },
       kosten: { metall: 1200, silizium: 800, rohoel: 400, kunststoff_t1: 50 }, faktor: 2.0,
       werk: { ausgabe: "kunststoff_t2", basis: 0.5, input: { rohoel: 40, metall: 20 } }, stromBedarf: 15, regler: true },
     { id: "kunststoffwerk_t3", name: "Kunststoffwerk T3", gruppe: "kunststoff", bild: "assets/gebaeude/kunststoffwerk_t3.svg",
       beschreibung: "Verarbeitet Rohöl, Silizium und Metall zu hochwertigem Kunststoff T3.",
-      info: "Je Einheit Kunststoff T3: 1000 Rohöl + 500 Silizium + 500 Metall. Wird später mit Spielfortschritt freigeschaltet.",
-      sperre: { flag: "kunststoffwerk_t3", text: "Wird später mit Spielfortschritt freigeschaltet." },
+      info: "Je Einheit Kunststoff T3: 1000 Rohöl + 500 Silizium + 500 Metall. Wird mit Spielerpunkten freigeschaltet (ab 5.000 Punkten).",
+      sperre: { flag: "kunststoffwerk_t3" },
       kosten: { metall: 5000, silizium: 4000, rohoel: 2000, kunststoff_t2: 25 }, faktor: 2.0,
       werk: { ausgabe: "kunststoff_t3", basis: 0.02, input: { rohoel: 1000, silizium: 500, metall: 500 } }, stromBedarf: 20, regler: true },
     // ---- Weitere Anlagen ----
@@ -115,5 +116,6 @@
     for (var i = 0; i < L.length; i++) if (L[i].id === id) return L[i];
     return null;
   };
-  SS.DATEN.maxStufe = function (d) { return d.maxStufe || SS.BALANCE.GEBAEUDE_MAX_STUFE; };
+  /** Höchststufe eines Gebäudes – Infinity, wenn keine Obergrenze gilt (FEST 0.8.0). */
+  SS.DATEN.maxStufe = function (d) { return d.maxStufe || SS.BALANCE.GEBAEUDE_MAX_STUFE || Infinity; };
 })(typeof globalThis !== "undefined" ? globalThis : this);

@@ -1,6 +1,6 @@
 # Sternenspiel
 
-**Stand:** 2026-10-19 (Europe/Vienna) · **Version:** 0.7.0 · **Status:** Kapitel 2 „Anlagen“ inkl. Nachbesserung (Master-Modus, Info-Fenster, Geologie, Startplätze A–Z) erledigt  
+**Stand:** 2026-10-19 (Europe/Vienna) · **Version:** 0.8.0 · **Status:** Kapitel 2 „Anlagen“ inkl. Nachbesserung (Master-Modus, Info-Fenster, Geologie, Startplätze A–Z) erledigt  
 **Für:** Sandro Orsaria · **Sprache:** Deutsch (Oberfläche, Doku, Kommentare) · **Repo:** github.com/unexist2010/sternenspiel · **Live:** https://unexist2010.github.io/sternenspiel/
 
 ## Kurzüberblick

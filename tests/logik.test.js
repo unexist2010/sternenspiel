@@ -127,7 +127,7 @@ test("Neuer Spielstand: automatischer Start auf Hauptplanet (v5 mit Planet-Daten
   const SS = ladeSpiel();
   const W = SS.DATEN.weltraum;
   const z = neu(SS, { name: "  Sandro ", zufall: W.zufall(1) });
-  assert.equal(z.version, 5);
+  assert.equal(z.version, 6);
   assert.equal(z.name, "Sandro");
   assert.ok(!("startplatz" in z));
   assert.ok(W.leseKoordinaten(W.koordinatenText(z.heimat)), "gültige Koordinate");
@@ -253,7 +253,7 @@ test("Migration v2 → v5: Heimat behalten, Planet mit Gebäuden anlegen, Strom 
   };
   sp.setItem(SS.BALANCE.SPEICHER_SCHLUESSEL, JSON.stringify(v2));
   const z = S.lade(sp).zustand;
-  assert.equal(z.version, 5);
+  assert.equal(z.version, 6);
   assert.ok(!("startplatz" in z) && !("gebaeude" in z) && !("lagerstaetten" in z) && !("startplaetze" in z));
   gleich(z.heimat, { sektor: 3, system: 133, planet: 5, name: "Rigo V" });
   assert.equal(z.rohstoffe.metall, 1234); assert.equal(z.rohstoffe.strom, 0, "Strom-Bestand entfällt (Bilanz)");
@@ -268,7 +268,7 @@ test("Migration v1/v3 → v5 und Bereinigung von v5-Ständen", () => {
   const W = SS.DATEN.weltraum, Z = SS.kern.zustand;
   const v1 = { version: 1, name: "Alt", startplatz: { buchstabe: "D", stufe: 13, schwerpunkt: "strom" }, rohstoffe: { metall: 7 }, zeit: { letzterTick: T0 } };
   const z = Z.migriere(JSON.parse(JSON.stringify(v1)), W.zufall(3));
-  assert.equal(z.version, 5);
+  assert.equal(z.version, 6);
   assert.ok(W.leseKoordinaten(W.koordinatenText(z.heimat)));
   assert.equal(z.rohstoffe.metall, 7);
   assert.equal(z.zeit.zuletztGespeichert, null);
@@ -284,7 +284,7 @@ test("Migration v1/v3 → v5 und Bereinigung von v5-Ständen", () => {
   v4.planeten[0].regler.metallmine = 37; v4.planeten[0].startplaetze[1].stufe = 40;
   v4.planeten[0].bauauftrag = { art: "gebaeude", id: "gibtsnicht", start: T0, ende: T0 + 1, kosten: {} };
   const z4 = Z.migriere(v4).planeten[0];
-  assert.equal(z4.gebaeude.metallmine, 30); assert.equal(z4.gebaeude.raumflughafen, 1); assert.equal(z4.gebaeude.solarfarm, 0);
+  assert.equal(z4.gebaeude.metallmine, 99, "keine Obergrenze"); assert.equal(z4.gebaeude.raumflughafen, 1); assert.equal(z4.gebaeude.solarfarm, 0);
   assert.ok(!("roboterfabrik" in z4.gebaeude));
   assert.equal(z4.regler.metallmine, 40); assert.equal(z4.startplaetze[1].stufe, 10); assert.equal(z4.bauauftrag, null);
 });

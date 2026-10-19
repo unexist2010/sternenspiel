@@ -55,7 +55,8 @@ test("Master: laufender Auftrag wird beim Einschalten sofort fertig; Sperren (St
   assert.equal(p.startplaetze[25].stufe, 1);
   // Master aus → Sperren wieder aktiv
   Bau.masterSetzen(z, false, T0 + 4000);
-  assert.match(Bau.pruefe(z, p, { art: "gebaeude", id: "kunststoffwerk_t3" }).grund, /später mit Spielfortschritt/);
+  z.punkte = 0; z.freigeschaltet.kunststoffwerk_t3 = false; // Master-Bauten haben Punkte gebracht → für die Prüfung zurücksetzen
+  assert.match(Bau.pruefe(z, p, { art: "gebaeude", id: "kunststoffwerk_t3" }).grund, /Ab 5\.000 Punkten/);
 });
 
 // ---------- Geologie ----------
@@ -129,8 +130,8 @@ test("Geologie: Test-Fund (Master) sofort, 24-h-Takt bleibt; ohne Station nicht 
 });
 
 // ---------- Kunststoff ----------
-test("Kunststoff: Rezepte T1/T2/T3 (FEST), Werk T2/T3 gesperrt bis zur Freischaltung", () => {
-  const { SS, Bau, z, p } = setup({}, { metall: 1e7, silizium: 1e7, rohoel: 1e7, kunststoff_t1: 1e5, kunststoff_t2: 1e5 });
+test("Kunststoff: Rezepte T1/T2/T3 (FEST), Werk T2/T3 über Punkte freigeschaltet (500 / 5.000)", () => {
+  const { SS, Bau, P, z, p } = setup({}, { metall: 1e7, silizium: 1e7, rohoel: 1e7, kunststoff_t1: 1e5, kunststoff_t2: 1e5 });
   gleich(SS.DATEN.gebaeudeNachId("kunststoffwerk_t1").werk.input, { rohoel: 10 });
   gleich(SS.DATEN.gebaeudeNachId("kunststoffwerk_t2").werk.input, { rohoel: 40, metall: 20 });
   gleich(SS.DATEN.gebaeudeNachId("kunststoffwerk_t3").werk.input, { rohoel: 1000, silizium: 500, metall: 500 });
@@ -138,10 +139,21 @@ test("Kunststoff: Rezepte T1/T2/T3 (FEST), Werk T2/T3 gesperrt bis zur Freischal
   assert.equal(Bau.pruefe(z, p, { art: "gebaeude", id: "kunststoffwerk_t1" }).ok, true);
   for (const id of ["kunststoffwerk_t2", "kunststoffwerk_t3"]) {
     const r = Bau.pruefe(z, p, { art: "gebaeude", id });
-    assert.equal(r.ok, false); assert.equal(r.grund, "Wird später mit Spielfortschritt freigeschaltet.");
+    assert.equal(r.ok, false); assert.equal(r.grund, id === "kunststoffwerk_t2" ? "Ab 500 Punkten." : "Ab 5.000 Punkten.");
   }
-  z.freigeschaltet.kunststoffwerk_t2 = true;
-  assert.equal(Bau.pruefe(z, p, { art: "gebaeude", id: "kunststoffwerk_t2" }).ok, true, "Flag schaltet frei");
+  z.punkte = 499.9;
+  assert.equal(Bau.pruefe(z, p, { art: "gebaeude", id: "kunststoffwerk_t2" }).ok, false);
+  z.punkte = 500;
+  assert.equal(Bau.pruefe(z, p, { art: "gebaeude", id: "kunststoffwerk_t2" }).ok, true, "500 Punkte schalten T2 frei");
+  assert.equal(Bau.pruefe(z, p, { art: "gebaeude", id: "kunststoffwerk_t3" }).ok, false, "T3 erst ab 5.000");
+  // Fertigstellung setzt das Flag dauerhaft
+  Bau.starte(z, p, { art: "gebaeude", id: "kunststoffwerk_t1" }, T0);
+  P.tick(z, T0 + 3600000);
+  assert.equal(z.freigeschaltet.kunststoffwerk_t2, true); assert.equal(z.freigeschaltet.kunststoffwerk_t3, false);
+  z.punkte = 5000; Bau.freischaltungenPruefen(z);
+  assert.equal(z.freigeschaltet.kunststoffwerk_t3, true);
+  z.punkte = 0;
+  assert.equal(Bau.pruefe(z, p, { art: "gebaeude", id: "kunststoffwerk_t3" }).ok, true, "einmal frei bleibt frei");
   // Ressourcenleiste zeigt T2/T3 weiterhin
   assert.ok(SS.DATEN.sichtbareRohstoffe(z).some((r) => r.id === "kunststoff_t3"));
 });
@@ -199,7 +211,7 @@ test("Migration v4 → v5 (Profil): Rohölvorkommen statt Felder, Startplätze A
   v4.zeit.letzterTick = T0;
   sp.setItem(key, JSON.stringify(v4));
   const z = PR.ladeProfil(sp, a.profil.id).zustand, p = z.planeten[0];
-  assert.equal(z.version, 5);
+  assert.equal(z.version, 6);
   assert.ok(!("rohoelfelder" in p)); assert.equal(p.rohoelVorkommen, 1000000);
   assert.equal(p.startplaetze.length, 26); assert.equal(p.startplaetze[0].stufe, 10); assert.equal(p.startplaetze[1].stufe, 4);
   assert.equal(p.geologie.naechsterFund, T0 + TAG); assert.ok(Array.isArray(p.geologie.funde));

@@ -17,16 +17,16 @@ function setup(geb = {}, roh = {}) {
   return { SS, z, p: z.planeten[0], P: SS.kern.produktion, Bau: SS.kern.bau };
 }
 
-test("Konstanten: Stufen bis 30 (Raumflughafen 1, Startplätze 10), Kostenfaktoren 1,5–2,0, Bauzeit-Hook = 1", () => {
+test("Konstanten: keine Gebäude-Obergrenze (Raumflughafen 1, Startplätze 10), Kostenfaktoren 1,5–2,0, Bauzeit-Hook = 1", () => {
   const { SS } = setup();
-  assert.equal(SS.BALANCE.GEBAEUDE_MAX_STUFE, 30);
+  assert.equal(SS.BALANCE.GEBAEUDE_MAX_STUFE, null);
   assert.equal(SS.BALANCE.BAUZEIT.FAKTOR, 1);
   const ids = SS.DATEN.gebaeude.map((d) => d.id);
   gleich(ids, ["metallmine", "siliziummine", "bohrstation", "solarfarm", "oelverbrennung", "kunststoffwerk_t1", "kunststoffwerk_t2", "kunststoffwerk_t3",
     "geologiestation", "raumflughafen", "werft", "verteidigungswerft", "forschungseinrichtung"]);
   for (const d of SS.DATEN.gebaeude) {
     assert.ok(d.faktor >= 1.5 && d.faktor <= 2.0, d.id + " Faktor " + d.faktor);
-    assert.ok(SS.DATEN.maxStufe(d) === (d.id === "raumflughafen" ? 1 : 30), d.id);
+    assert.ok(SS.DATEN.maxStufe(d) === (d.id === "raumflughafen" ? 1 : Infinity), d.id);
     assert.ok(d.bild.startsWith("assets/gebaeude/"), d.id + " eigenes Bild");
   }
   gleich(SS.DATEN.gebaeudeNachId("kunststoffwerk_t3").werk.input, { rohoel: 1000, silizium: 500, metall: 500 }); // FEST (0.7.0)
@@ -239,8 +239,8 @@ test("Migration: Profil-Spielstand v3 wird beim Laden zu v5, Rohstoffe bleiben",
   delete v3.planeten; v3.rohstoffe.metall = 4321; v3.rohstoffe.strom = 777;
   sp.setItem(key, JSON.stringify(v3));
   const z = PR.ladeProfil(sp, a.profil.id).zustand;
-  assert.equal(z.version, 5); assert.equal(z.rohstoffe.metall, 4321); assert.equal(z.rohstoffe.strom, 0);
+  assert.equal(z.version, 6); assert.equal(z.rohstoffe.metall, 4321); assert.equal(z.rohstoffe.strom, 0);
   assert.equal(z.planeten[0].istHauptplanet, true); assert.equal(z.freigeschaltet.kunststoff_t2, true);
   PR.speichereProfil(sp, a.profil.id, z, T0 + 1);
-  assert.equal(JSON.parse(sp.getItem(key)).version, 5);
+  assert.equal(JSON.parse(sp.getItem(key)).version, 6);
 });

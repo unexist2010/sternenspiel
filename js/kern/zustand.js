@@ -8,7 +8,8 @@
  *            v3 automatischer Start auf einem Hauptplaneten, Startplätze = Flotten-Startplattformen (A–J) ·
  *            v4 Kapitel 2: planeten[] mit Gebäuden, Bauauftrag, Reglern, Solarsatelliten, Rohölfeldern und Startplätzen ·
  *            v5 (0.7.0): Rohölvorkommen + Geologie-Log statt Rohölfeldern, Startplätze A–Z (Stufe ≤ 10), Master-Modus,
- *               Sperr-Flags Kunststoffwerk T2/T3, Hangar (vorbereitet)
+ *               Sperr-Flags Kunststoffwerk T2/T3, Hangar (vorbereitet) ·
+ *            v6 (0.8.0): T2/T3-Freischaltung über Punkte, keine Gebäude-Obergrenze, Forschung (Stufen + Forschungsauftrag)
  */
 (function (g) {
   "use strict";
@@ -142,7 +143,7 @@
     z.freigeschaltet = z.freigeschaltet || {};
     ["kunststoff_t1", "kunststoff_t2", "kunststoff_t3"].forEach(function (k) { z.freigeschaltet[k] = vorher < 4 ? true : z.freigeschaltet[k] !== false; });
     z.freigeschaltet.antimaterie = z.freigeschaltet.antimaterie === true;
-    ["kunststoffwerk_t2", "kunststoffwerk_t3"].forEach(function (k) { z.freigeschaltet[k] = z.freigeschaltet[k] === true; }); // v<5: gesperrt
+    ["kunststoffwerk_t2", "kunststoffwerk_t3"].forEach(function (k) { z.freigeschaltet[k] = z.freigeschaltet[k] === true; }); // v<5: gesperrt; v6: über Punkte (unten)
     z.statistik = z.statistik || {};
     z.statistik.produziertGesamt = rohstoffMap(z.statistik.produziertGesamt);
     z.statistik.offlineMsGesamt = Number(z.statistik.offlineMsGesamt) || 0;
@@ -161,6 +162,7 @@
     });
     delete z.startplaetze; delete z.gebaeude; delete z.lagerstaetten;
     z.punkte = Math.max(0, Number(z.punkte) || 0);
+    SS.kern.bau.freischaltungenPruefen(z); // v6: Kunststoffwerk T2/T3 ab Punkteschwelle frei
     z.forschung = z.forschung || {};
     z.schiffe = z.schiffe || {};
     z.flotten = Array.isArray(z.flotten) ? z.flotten : [];

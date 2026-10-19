@@ -30,7 +30,7 @@ fs.mkdirSync(OUT, { recursive: true });
 const MENUE = ["Übersicht", "Ressourcen", "Anlagen", "Forschung", "Werft", "Verteidigung", "Flotte", "Weltraum"];
 const IDS = ["uebersicht", "ressourcen", "anlagen", "forschung", "werft", "verteidigung", "flotte", "weltraum"];
 const PLATZHALTER = "Wird in einem eigenen Kapitel ausgearbeitet.";
-const VERSION = "0.7.0";
+const VERSION = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8").match(/data-version="([^"]+)"/)[1]; // immer die aktuelle Version
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let fehlschlaege = 0, pruefungen = 0;
 function ok(bed, text) { pruefungen++; console.log((bed ? "OK   " : "FAIL ") + text); if (!bed) fehlschlaege++; }
@@ -76,7 +76,7 @@ async function lauf(browser, g) {
   await page.click("#knopf-neues-spiel");
   await page.waitForSelector('#inhalt[data-seite="uebersicht"]');
   ok(await page.isVisible("#bildschirm-spiel"), "Neues Spiel startet direkt im Spiel");
-  ok(await Z(() => { const z = window.SS.app.zustand, p = z.planeten[0]; return z.version === 5 && p.istHauptplanet === true && p.rohoelVorkommen === 1000000 && p.bauauftrag === null && p.startplaetze.length === 26; }), "Datenmodell v5: Planet mit istHauptplanet, rohoelVorkommen, bauauftrag, 26 Startplätzen");
+  ok(await Z(() => { const z = window.SS.app.zustand, p = z.planeten[0]; return z.version === window.SS.BALANCE.SPIELSTAND_VERSION && z.version >= 5 && p.istHauptplanet === true && p.rohoelVorkommen === 1000000 && p.bauauftrag === null && p.startplaetze.length === 26; }), "Datenmodell (aktuelle Version): Planet mit istHauptplanet, rohoelVorkommen, bauauftrag, 26 Startplätzen");
 
   // Ressourcenleiste
   const rs = await page.$$eval("#ressourcen-leiste .rs", (e) => e.map((x) => x.getAttribute("data-rohstoff")));

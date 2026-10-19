@@ -24,7 +24,7 @@ const URL_ = LIVE || pathToFileURL(path.join(__dirname, "..", "index.html")).hre
 const BASIS = URL_.replace(/[^/]*$/, "");
 const OUT = path.join(__dirname, "..", "playtest");
 fs.mkdirSync(OUT, { recursive: true });
-const VERSION = "0.7.0";
+const VERSION = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8").match(/data-version="([^"]+)"/)[1]; // immer die aktuelle Version
 const TAG = 24 * 3600000;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let fehlschlaege = 0, pruefungen = 0;
@@ -97,7 +97,7 @@ async function lauf(browser, g) {
   await geheZu("#anlagen", "anlagen");
   for (const id of ["kunststoffwerk_t2", "kunststoffwerk_t3"]) {
     const grund = (await page.textContent(`article[data-gebaeude="${id}"] .grund`)).trim();
-    ok(!(await page.isEnabled(`article[data-gebaeude="${id}"] button[data-aktion="bauen"]`)) && grund === "Wird später mit Spielfortschritt freigeschaltet.", `${id} gesperrt („${grund}“)`);
+    ok(!(await page.isEnabled(`article[data-gebaeude="${id}"] button[data-aktion="bauen"]`)) && grund === (id === "kunststoffwerk_t2" ? "Ab 500 Punkten." : "Ab 5.000 Punkten."), `${id} gesperrt („${grund}“)`);
   }
   ok((await page.$$eval("article.anlage .info-knopf", (k) => k.length)) === 13, "13 Info-Knöpfe (ⓘ) an den Gebäuden");
   let inf = await oeffneInfo('article[data-gebaeude="metallmine"] .info-knopf');

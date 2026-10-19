@@ -1,5 +1,15 @@
 # Changelog – Sternenspiel
 
+## [0.8.0] – 2026-10-19 – Kapitel 2: Antworten umgesetzt · Kapitel 3: Forschung
+
+### Kapitel 2 – Sandros Antworten
+- Kunststoffwerk T2/T3 werden über Spielerpunkte freigeschaltet: **T2 ab 500**, **T3 ab 5.000 Punkten** (ANNAHME), Anzeige „Ab X Punkten.“;
+  einmal erreicht bleibt das Werk frei (Flag im Spielstand)
+- **Keine Stufenobergrenze** mehr für Gebäude (Raumflughafen bleibt 1, Startplätze 10); Zahlen mit Mrd./Bio./Brd./Trio., Zeiten mit Tagen/Jahren
+- **Startplatz-Bauzeiten ÷ 11** (Z Stufe 10 ≈ 342 Tage statt ≈ 10 Jahre); andere Gebäude unverändert
+- Regel „zu wenige Startplätze“ für den späteren Flottenversand dokumentiert
+- Spielstand **v6** (Migration je Profil: T2/T3-Flags nach Punkten)
+
 ## [0.7.0] – 2026-10-19 – Kapitel 2: Master-Modus, Infofenster, Geologie, Startplätze A–Z
 
 Sandro hat Kapitel 2 gesehen („sehr gut“) und Nachbesserungen vor Kapitel 3 vorgegeben.

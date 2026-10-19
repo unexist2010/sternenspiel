@@ -4,7 +4,8 @@
  *
  * OGame-angelehnt:
  *  Kosten(n)  = Basis · Faktor^(n−1)                              (abgerundet)
- *  Bauzeit    = (Metall + Silizium) / 2500 Std. · BAUZEIT.FAKTOR  (Hook für Roboter-Forschung, jetzt 1; ANNAHME: min. 5 s)
+ *  Bauzeit    = (Metall + Silizium) / 2500 Std. · BAUZEIT.FAKTOR · Roboter-Faktor (Kapitel 3; ANNAHME: min. 5 s)
+ *  Startplätze: Bauzeit / 11 (FEST 0.8.0: Z10 ≤ 1 Jahr)
  *  Punkte     = Σ Kosten · Gewicht / 1000                         (bei Fertigstellung; ANNAHME)
  *  Abbrechen  = volle Rückerstattung (ANNAHME)
  *
@@ -43,8 +44,13 @@
     var h = ((kosten.metall || 0) + (kosten.silizium || 0)) / BZ.TEILER * faktor;
     return Math.max(BZ.MIN_SEKUNDEN * 1000, Math.round(h * 3600000));
   }
-  /** Hook: Roboter-Forschung verkürzt die Bauzeit (später) – jetzt immer 1. */
-  function bauzeitFaktorForschung(/* z */) { return 1; }
+  /** Roboterforschung verkürzt die Bauzeit von Gebäuden/Startplätzen (später auch Schiffe, Verteidigung) – nicht die Forschung. */
+  function bauzeitFaktorForschung(z) { return SS.kern.forschung && z ? SS.kern.forschung.roboterFaktor(z) : 1; }
+  /** Bauzeit eines Startplatzes: Gebäude-Bauzeit / STARTPLAETZE.BAUZEIT_TEILER (FEST 0.8.0: Z10 ≤ 1 Jahr). */
+  function startplatzBauzeitMs(kosten, z) {
+    var BZ = B().BAUZEIT, roh = bauzeitMs(kosten, z) / B().STARTPLAETZE.BAUZEIT_TEILER;
+    return Math.max(BZ.MIN_SEKUNDEN * 1000, Math.round(roh));
+  }
 
   function punkteFuer(kosten) {
     var P = B().PUNKTE, s = 0;
@@ -83,9 +89,22 @@
     return (p.startplaetze || []).reduce(function (s, sp) { return s + kapazitaetBuchstabe(sp.buchstabe, sp.stufe); }, 0);
   }
   /** Gebäude-Sperre (z. B. Kunststoffwerk T2/T3): → Text oder "" (Master ignoriert). */
+  function sperrPunkte(d) { return d.sperre ? B().KUNSTSTOFFWERK_FREISCHALT_PUNKTE[d.sperre.flag] : 0; }
   function gebaeudeSperre(z, d) {
     if (!d.sperre || istMaster(z)) return "";
-    return z.freigeschaltet && z.freigeschaltet[d.sperre.flag] === true ? "" : d.sperre.text;
+    if (z.freigeschaltet && z.freigeschaltet[d.sperre.flag] === true) return "";
+    var pk = sperrPunkte(d);
+    if ((z.punkte || 0) >= pk) return "";
+    return "Ab " + (SS.format ? SS.format.zahl(pk) : pk) + " Punkten.";
+  }
+  /** Setzt Freischalt-Flags, sobald die Punkteschwelle erreicht ist (bleiben dauerhaft frei). → Liste neu freigeschalteter Gebäude */
+  function freischaltungenPruefen(z) {
+    var neu = [];
+    z.freigeschaltet = z.freigeschaltet || {};
+    D().gebaeude.forEach(function (d) {
+      if (d.sperre && z.freigeschaltet[d.sperre.flag] !== true && (z.punkte || 0) >= sperrPunkte(d)) { z.freigeschaltet[d.sperre.flag] = true; neu.push(d); }
+    });
+    return neu;
   }
 
   // ---------- Bauschleife ----------
@@ -95,7 +114,7 @@
       var sp = (p.startplaetze || []).filter(function (x) { return x.buchstabe === auftrag.buchstabe; })[0];
       if (!sp) return null;
       var st = sp.stufe + 1, kS = startplatzKosten(sp.buchstabe, Math.min(st, B().STARTPLAETZE.STUFE_MAX));
-      return { art: "startplatz", buchstabe: sp.buchstabe, name: "Startplatz " + sp.buchstabe, stufe: st, kosten: kS, bauzeit: istMaster(z) ? 0 : bauzeitMs(kS, z), max: B().STARTPLAETZE.STUFE_MAX };
+      return { art: "startplatz", buchstabe: sp.buchstabe, name: "Startplatz " + sp.buchstabe, stufe: st, kosten: kS, bauzeit: istMaster(z) ? 0 : startplatzBauzeitMs(kS, z), max: B().STARTPLAETZE.STUFE_MAX };
     }
     var d = D().gebaeudeNachId(auftrag.id);
     if (!d) return null;
@@ -177,12 +196,14 @@
       if (d && d.fund && p.gebaeude[a.id] > 0 && SS.kern.geologie) SS.kern.geologie.gebaut(p, a.ende); // 24-h-Takt ab Bau
     }
     z.punkte = (z.punkte || 0) + punkteFuer(a.kosten); // auch für Master-Bauten (ANNAHME)
+    freischaltungenPruefen(z);
     p.bauauftrag = null;
     return a;
   }
 
   SS.kern.bau = {
-    gebaeudeKosten: gebaeudeKosten, startplatzKosten: startplatzKosten, bauzeitMs: bauzeitMs, punkteFuer: punkteFuer,
+    gebaeudeKosten: gebaeudeKosten, startplatzKosten: startplatzKosten, bauzeitMs: bauzeitMs, startplatzBauzeitMs: startplatzBauzeitMs,
+    bauzeitFaktorForschung: bauzeitFaktorForschung, freischaltungenPruefen: freischaltungenPruefen, sperrPunkte: sperrPunkte, kostenAus: kostenAus, fehlend: fehlend, punkteFuer: punkteFuer,
     forschungszeitFaktor: forschungszeitFaktor, startplatzSchwelle: startplatzSchwelle, startplatzFrei: startplatzFrei,
     startplatzStatus: startplatzStatus, startplatzStufe: startplatzStufe, kapazitaetBuchstabe: kapazitaetBuchstabe,
     gebaeudeSperre: gebaeudeSperre, istMaster: istMaster, masterSetzen: masterSetzen,

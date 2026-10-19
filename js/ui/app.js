@@ -373,6 +373,8 @@
     return T.join(" · ") || "–";
   }
 
+  /** „ / 1“ bei begrenzten Gebäuden, sonst nichts (keine Obergrenze, FEST 0.8.0). */
+  function maxText(max) { return isFinite(max) ? " / " + max : ""; }
   function infoKnopf(art, id, name) {
     return "<button class=\"info-knopf\" type=\"button\" data-info=\"" + art + ":" + id + "\" aria-label=\"Info zu " + esc(name) + "\" title=\"Info\">i</button>";
   }
@@ -403,7 +405,7 @@
       "<dt>Stufe " + zl.stufe + "</dt><dd>" + wirkungText(d, zl.stufe) + "</dd></dl>" +
       (laeuft ? bauFortschritt(a) : bauKnopf({ art: "gebaeude", id: d.id }, master ? "Sofort " + (n === 0 ? "bauen" : "auf " + zl.stufe) : (n === 0 ? "Bauen" : "Ausbauen auf " + zl.stufe)));
     return "<article class=\"anlage" + (laeuft ? " im-bau" : "") + (n === 0 ? " stufe-0" : "") + (sperre ? " gesperrt" : "") + "\" data-gebaeude=\"" + d.id + "\">" +
-      "<div class=\"anlage-kopf\"><img class=\"anlage-bild\" src=\"" + d.bild + "\" alt=\"\" width=\"72\" height=\"72\"><div class=\"anlage-titel\"><h3>" + d.name + " " + infoKnopf("gebaeude", d.id, d.name) + "</h3><span class=\"stufe\">Stufe <b>" + n + "</b> / " + max + "</span>" +
+      "<div class=\"anlage-kopf\"><img class=\"anlage-bild\" src=\"" + d.bild + "\" alt=\"\" width=\"72\" height=\"72\"><div class=\"anlage-titel\"><h3>" + d.name + " " + infoKnopf("gebaeude", d.id, d.name) + "</h3><span class=\"stufe\">Stufe <b>" + n + "</b>" + maxText(max) + "</span>" +
       (sperre ? "<span class=\"sperr-marke\">🔒 Gesperrt</span>" : "") + "</div></div>" +
       "<p class=\"beschreibung\">" + esc(d.beschreibung) + "</p>" + extra + unten + "</article>";
   }
@@ -501,7 +503,7 @@
     var hinweis = "Werte bei 100 % Leistung und ausreichend Strom; Differenz zur aktuellen Stufe.";
     if (d.fund) hinweis = "Fundgröße zufällig im Bereich der Stufe; Stufe 1–2 fest, ab Stufe 3 je Stufe ×1,25 (Annahme).";
     var sperre = Bau.gebaeudeSperre(zustand, d);
-    return { titel: d.name + " · Stufe " + n + " / " + max, text: d.info || d.beschreibung, extra: sperre ? "<p class=\"gesperrt\">🔒 " + esc(sperre) + "</p>" : "", kopf: kopf, zeilen: zeilen, hinweis: hinweis, bild: d.bild };
+    return { titel: d.name + " · Stufe " + n + maxText(max), text: d.info || d.beschreibung, extra: sperre ? "<p class=\"gesperrt\">🔒 " + esc(sperre) + "</p>" : "", kopf: kopf, zeilen: zeilen, hinweis: hinweis, bild: d.bild };
   }
   function infoStartplatz(b) {
     var p = hp(), Bau = SS.kern.bau, K = B.STARTPLAETZE, n = Bau.startplatzStufe(p, b), master = Bau.istMaster(zustand);
@@ -511,7 +513,7 @@
     for (var s = n; s <= Math.min(K.STUFE_MAX, n + INFO_STUFEN); s++) {
       var kap = Bau.kapazitaetBuchstabe(b, s), k = s > 0 ? Bau.startplatzKosten(b, s) : null;
       zeilen += "<tr" + (s === n ? " class=\"aktuell\"" : "") + "><td class=\"z\">" + s + (s === n ? " <small>aktuell</small>" : "") + "</td><td class=\"z\">" + F.zahl(kap) + "</td><td class=\"z\">" + (s === n ? "–" : diffText(kap, alt, "")) +
-        "</td><td class=\"z\">" + F.zahl(gesamt - alt + kap) + "</td><td>" + (s === n || !k ? "–" : kostenKurz(k)) + "</td><td class=\"z\">" + (s === n || !k ? "–" : master ? "sofort" : F.dauer(Bau.bauzeitMs(k, zustand))) + "</td></tr>";
+        "</td><td class=\"z\">" + F.zahl(gesamt - alt + kap) + "</td><td>" + (s === n || !k ? "–" : kostenKurz(k)) + "</td><td class=\"z\">" + (s === n || !k ? "–" : master ? "sofort" : F.dauer(Bau.startplatzBauzeitMs(k, zustand))) + "</td></tr>";
     }
     var i = D.startplatzBuchstaben.indexOf(b);
     var vor = "Voraussetzung: " + (i > 0 ? D.startplatzBuchstaben[i - 1] + " Stufe " + K.VORGAENGER_STUFE + " und " : "") + F.zahl(K.FREISCHALT_PUNKTE[i]) + " Punkte" + (st.frei ? " ✔" : " – " + esc(st.grund || "") + (master ? " (Master ignoriert die Sperre)" : ""));

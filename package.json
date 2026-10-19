@@ -1,6 +1,6 @@
 {
   "name": "sternenspiel",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "description": "Sternenspiel – Offline-Browser-Aufbauspiel im Weltraum (Kapitel 2: Anlagen, Nachbesserung 0.7.0)",
   "scripts": {

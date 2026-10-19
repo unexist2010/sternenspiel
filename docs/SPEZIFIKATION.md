@@ -1,6 +1,6 @@
 # Sternenspiel – Spezifikation
 
-Stand: 2026-10-19 · Kapitel 2 = Anlagen (0.6.0, Nachbesserung 0.7.0) · Kapitel 1 = reine Seitenstruktur (0.5.0)
+Stand: 2026-10-19 · Kapitel 3 = Forschung (0.8.0) · Kapitel 2 = Anlagen (0.6.0, Nachbesserung 0.7.0, Antworten 0.8.0) · Kapitel 1 = reine Seitenstruktur (0.5.0)
 
 **Wichtig:** Abschnitt A enthält nur, was Sandro festgelegt hat (**FEST**). Alles in Abschnitt B ist von mir
 gesetzt (**ANNAHME**) und kann jederzeit geändert werden – Zahlen stehen zentral in `js/data/konstanten.js`. Abschnitt C beschreibt die Formeln und Werte von Kapitel 2; Zahlen dort sind ANNAHME, außer wo FEST steht.
@@ -97,7 +97,7 @@ gesetzt (**ANNAHME**) und kann jederzeit geändert werden – Zahlen stehen zent
 | 57 | ~~(ersetzt durch A7/75–76)~~ **Geologiestation** findet Rohölfelder pro Stunde | `geologie`, `felderProStunde` |
 | 58 | ~~(ersetzt durch A7/79)~~ **Raumflughafen mit Startplätzen**: bis zu 10 (A–J, A–Z offen), Stufe 1–15, je Stufe deutlich teurer, neue Plätze über Spielerpunkte, Kapazität = Anzahl Schiffe, Gesamtkapazität angezeigt | `#anlagen/raumflughafen`, `bau.startplatzKosten/startplatzFrei/kapazitaet` |
 | 59 | **Werft, Verteidigungswerft, Forschungseinrichtung**: nur Gebäude; Forschungseinrichtung zeigt den Forschungszeit-Wert | `forschungszeit: true`, `bau.forschungszeitFaktor` |
-| 60 | Stufen bis **mindestens 30**, zentral konfiguriert; Kostenfaktor **1,5–2,0** je Stufe | `GEBAEUDE_MAX_STUFE = 30`, `faktor` je Gebäude |
+| 60 | ~~(ersetzt durch A8/86: keine Obergrenze)~~ Stufen bis **mindestens 30**, zentral konfiguriert; Kostenfaktor **1,5–2,0** je Stufe | `GEBAEUDE_MAX_STUFE = 30`, `faktor` je Gebäude |
 | 61 | Bauzeit nach **OGame-Formel**, Haken-Faktor = 1 für spätere Robotik-Forschung | `bau.bauzeitMs`, `BAUZEIT.FAKTOR`, `bauzeitFaktorForschung()` |
 | 62 | **Keine** Speichergebäude, Allianzdepot, Roboter-/Nanitenfabrik; Lagergrenzen entfernt | `lagerKapazitaet() = Infinity`, Migration |
 | 63 | **Strom** als OGame-Bilanz mit Produktionsfaktor; Leiste zeigt verfügbar / Bedarf | `raten().strom` |
@@ -120,7 +120,7 @@ gesetzt (**ANNAHME**) und kann jederzeit geändert werden – Zahlen stehen zent
 | 75 | **Geologiestation** findet **alle 24 Std.** (Echtzeit, offline nachgeholt, je volle 24 Std. seit Bau bzw. letztem Fund) ein neues Feld; Größe zufällig im Bereich der Stufe: **Stufe 1 = 50.000–100.000, Stufe 2 = 80.000–125.000**, höher sinnvoll steigend; Fund kommt zum Vorkommen; ohne Station keine Funde; theoretisch unbegrenzt | `SS.kern.geologie`, `GEOLOGIE.FUND_BEREICH_FEST` |
 | 76 | **Fund-Log** (Datum/Uhrzeit, Stufe, Menge) beim Klick auf die Geologiestation + Countdown; Übersicht zeigt Vorkommen, Förderung/h, Zeit bis nächster Fund; Master: Knopf **„Fund sofort auslösen“**; andere Planeten (später) Vorkommen 0, Geologiestation nötig – im Modell vorbereitet | `fundLog`, `#rohoel-box`, `geologie.fundAusloesen`, `START_VORKOMMEN_ANDERE = 0` |
 | 77 | **Kunststoff:** T2 = **40 Rohöl + 20 Metall** je Einheit; T3 = **1000 Rohöl + 500 Silizium + 500 Metall** (ersetzt 2000/2000/750); T1 unverändert | `gebaeude.js` `input` |
-| 78 | **Kunststoffwerk T2/T3 gesperrt**: „Wird später mit Spielfortschritt freigeschaltet.“ (Bedingung offen, Flag vorbereitet); Master ignoriert die Sperre; Ressourcenleiste zeigt T2/T3 weiter | `sperre`, `freigeschaltet.kunststoffwerk_t2/t3` |
+| 78 | ~~(Bedingung ersetzt durch A8/84)~~ **Kunststoffwerk T2/T3 gesperrt**: „Wird später mit Spielfortschritt freigeschaltet.“ (Bedingung offen, Flag vorbereitet); Master ignoriert die Sperre; Ressourcenleiste zeigt T2/T3 weiter | `sperre`, `freigeschaltet.kunststoffwerk_t2/t3` |
 | 79 | **Startplätze A–Z** (26), je **10 Stufen**; nächster Buchstabe erst baubar, wenn der vorige **Stufe 10** hat **und** die Mindestpunkte erreicht sind; Kapazität = gleichzeitig startende Schiffe; Ziel **A10 ≈ 100 Schiffe**, **alles bis Z10 ≈ 10 Milliarden**; Kosten anfangs gering, steigend; Tabelle in C4 | `STARTPLAETZE`, `bau.startplatzStatus/kapazitaet` |
 | 80 | **Hangar-Regel** (nur dokumentiert/vorbereitet, Umsetzung im Flotten-Kapitel): Schiffe, die nicht auf die Startplätze passen, stehen automatisch im Hangar und sind vor Angriffen geschützt (keine Wahl); beim Flottenversand sind alle Schiffe sichtbar, nur die Zahl gleichzeitig fliegender Schiffe ist durch die Kapazität begrenzt; Kapazität wird erst frei, wenn Schiffe zurück, zerstört oder umstationiert sind | `planet.hangar`, `STARTPLAETZE.HANGAR_AKTIV = false` |
 | 81 | Raumflughafen-Unterseite neu: 26 Plätze kompakt, handytauglich, gesperrte mit Grund („A Stufe 10 nötig“ / „X Punkte nötig“), Gesamtkapazität | `seiteRaumflughafen` |
@@ -128,6 +128,20 @@ gesetzt (**ANNAHME**) und kann jederzeit geändert werden – Zahlen stehen zent
 | 83 | Strom-Bilanz (OGame) bleibt so – von Sandro bestätigt | – |
 
 **ANNAHMEN zu A7:** Für Master-Bauten werden Punkte trotzdem gutgeschrieben (wie bei normalem Bau); der Raumflughafen bleibt auch im Master-Modus Voraussetzung für Startplätze; Master-Aufträge erstatten beim Abbrechen nichts (sie laufen ohnehin nicht); der Test-Fund im Master-Modus verschiebt den 24-Std.-Takt nicht und ist im Log als „Test“ markiert.
+
+### A8. Sandros Antworten zu Kapitel 2 (2026-10-19, Version 0.8.0 – gilt vor A6/A7)
+
+| # | Punkt | Umsetzung |
+|---|-------|-----------|
+| 84 | **Kunststoffwerk T2/T3 werden durch Spielerpunkte freigeschaltet**; Anzeige „Ab X Punkten“ | Schwellen ANNAHME: **T2 ab 500**, **T3 ab 5.000 Punkten** (`KUNSTSTOFFWERK_FREISCHALT_PUNKTE`); Flag `freigeschaltet.kunststoffwerk_t2/t3` wird beim Erreichen dauerhaft gesetzt |
+| 85 | Geologie-Formel (×1,25 ab Stufe 3) **bleibt** | `geologie.fundBereich` |
+| 86 | **Keine Stufenobergrenze** für Gebäude (Stufe 33+ möglich), außer ausdrücklich begrenzt: Startplätze 10 Stufen, Raumflughafen 1 | `GEBAEUDE_MAX_STUFE = null`, `maxStufe() = Infinity`; Zahlen mit Mrd./Bio./Brd./Trio., Zeiten mit Tagen/Jahren |
+| 87 | **Startplatz-Bauzeiten ÷ ~10**, Z Stufe 10 höchstens ~1 Jahr; andere Gebäude unverändert | `STARTPLAETZE.BAUZEIT_TEILER = 11` (Z10 ≈ 342 Tage), `bau.startplatzBauzeitMs` |
+| 88 | **Regel Flottenversand (Flotten-Kapitel, noch nicht gebaut):** Reicht die freie Startplatz-Kapazität nicht, erscheint die Info **„zu wenige Startplätze“** | nur Doku |
+
+**Begründung der T2/T3-Schwellen (ANNAHME):** 1 Punkt = 1.000 verbaute Rohstoffe. 500 Punkte ≈ 500.000 verbaute Rohstoffe – Minen etwa Stufe 12–14,
+zeitlich zwischen Startplatz D (400) und E (600); das T2-Werk kostet dann nur noch ≈ 0,5 % davon. 5.000 Punkte ≈ 5 Mio. – zwischen Startplatz I (4.000)
+und J (6.000); erst dann trägt die Rohölwirtschaft die 1.000 Rohöl je T3-Einheit.
 
 ---
 
@@ -219,8 +233,8 @@ Alle Zahlen stehen zentral in `js/data/konstanten.js` (`SS.BALANCE`) und `js/dat
 | Solarfarm | 75 / 30 | 1,5 | +20 Strom | – |
 | Ölverbrennungsstation | 900 / 360 / 180 | 1,8 | +40 Strom, −10 Rohöl/h | – |
 | Kunststoffwerk T1 | 300 / 200 / 100 | 2,0 | +2 K1/h; je K1: 10 Rohöl | 10 |
-| Kunststoffwerk T2 | 1.200 / 800 / 400 + 50 K1 | 2,0 | +0,5 K2/h; je K2: **40 Rohöl + 20 Metall** (FEST); gesperrt bis Freischaltung | 15 |
-| Kunststoffwerk T3 | 5.000 / 4.000 / 2.000 + 25 K2 | 2,0 | +0,02 K3/h; je K3: **1000 Rohöl + 500 Silizium + 500 Metall** (FEST A7); gesperrt bis Freischaltung | 20 |
+| Kunststoffwerk T2 | 1.200 / 800 / 400 + 50 K1 | 2,0 | +0,5 K2/h; je K2: **40 Rohöl + 20 Metall** (FEST); ab 500 Punkten (A8) | 15 |
+| Kunststoffwerk T3 | 5.000 / 4.000 / 2.000 + 25 K2 | 2,0 | +0,02 K3/h; je K3: **1000 Rohöl + 500 Silizium + 500 Metall** (FEST A7); ab 5.000 Punkten (A8) | 20 |
 | Geologiestation | 400 / 300 / 100 | 1,75 | alle 24 Std. ein Fund (Größe siehe C1/C4a) | 10 |
 | Raumflughafen | 1.000 / 600 / 300 | – | Höchststufe 1, schaltet Startplätze frei | – |
 | Werft | 400 / 200 / 100 | 2,0 | – (Funktion später) | – |
@@ -228,7 +242,7 @@ Alle Zahlen stehen zentral in `js/data/konstanten.js` (`SS.BALANCE`) und `js/dat
 | Forschungseinrichtung | 200 / 400 / 200 | 2,0 | Forschungszeit × 1/(1+n) | – |
 | Solarsatellit (Anzeige) | Bau später in der Werft | – | +30 Strom je Satellit | – |
 
-Höchststufe aller Gebäude: 30 (`GEBAEUDE_MAX_STUFE`), außer Raumflughafen (1). Beispiele Bauzeit Stufe 1: Metallmine 1 Min. 48 s, Solarfarm 2 Min. 31 s, Bohrstation 7 Min. 12 s.
+Höchststufe: **keine** (FEST 0.8.0), außer Raumflughafen (1) und Startplätze (10). Beispiele Bauzeit Stufe 1: Metallmine 1 Min. 48 s, Solarfarm 2 Min. 31 s, Bohrstation 7 Min. 12 s.
 
 ### C3. Start und Wirtschaft
 
@@ -252,38 +266,38 @@ Raumflughafen (1 Stufe) muss stehen; dann 26 Startplätze A–Z mit je 10 Stufen
 |------|---------|
 | Kapazität | je Buchstabe ein fester Zuwachs je Stufe (gleich für alle 10 Stufen); Zuwachs wächst je Buchstabe etwa ×2,03 (glatte Zahlen, 2 gültige Stellen), damit A10 = 100 und Summe A10…Z10 ≈ 10 Mrd. (9.990.785.850) |
 | Kosten | `floor(400 M / 200 Si / 100 Öl · 1,5^Index · 1,35^(Stufe−1))` (A = Index 0) |
-| Bauzeit | OGame-Formel wie Gebäude (`(M + Si) / 2500` Std.) |
+| Bauzeit | OGame-Formel wie Gebäude, **geteilt durch 11** (FEST 0.8.0: Faktor ≈ 10, Z10 ≤ 1 Jahr; 10 hätte 376 Tage ergeben → 11 gewählt, Z10 ≈ 342 Tage); Roboterforschung verkürzt zusätzlich (ANNAHME) |
 | Punkte-Schwelle | etwa doppelte kumulierte Kosten der vorigen Buchstaben / 1.000, gerundet |
 | Alte Spielstände | Startplätze über Stufe 10 werden auf 10 gekürzt |
 
-| Platz | Kapazität je Stufe | Kapazität bei Stufe 10 | kumuliert (A bis hier, alle Stufe 10) | Kosten Stufe 1 (M / Si / Öl) | Kosten Stufe 10 (M / Si / Öl) | Bauzeit Stufe 10 | Punkte-Schwelle |
+| Platz | Kapazität je Stufe | Kapazität bei Stufe 10 | kumuliert (A bis hier, alle Stufe 10) | Kosten Stufe 1 (M / Si / Öl) | Kosten Stufe 10 (M / Si / Öl) | Bauzeit Stufe 10 (÷ 11) | Punkte-Schwelle |
 |---|---:|---:|---:|---|---|---:|---:|
-| A | 10 | 100 | 100 | 400 / 200 / 100 | 5.957 / 2.978 / 1.489 | 3,6 Std. | 0 |
-| B | 20 | 200 | 300 | 600 / 300 / 150 | 8.936 / 4.468 / 2.234 | 5,4 Std. | 75 |
-| C | 41 | 410 | 710 | 900 / 450 / 225 | 13.404 / 6.702 / 3.351 | 8 Std. | 200 |
-| D | 84 | 840 | 1.550 | 1.350 / 675 / 337 | 20.106 / 10.053 / 5.026 | 12,1 Std. | 400 |
-| E | 170 | 1.700 | 3.250 | 2.025 / 1.012 / 506 | 30.159 / 15.079 / 7.539 | 18,1 Std. | 600 |
-| F | 350 | 3.500 | 6.750 | 3.037 / 1.518 / 759 | 45.239 / 22.619 / 11.309 | 27,1 Std. | 1.000 |
-| G | 710 | 7.100 | 13.850 | 4.556 / 2.278 / 1.139 | 67.859 / 33.929 / 16.964 | 40,7 Std. | 1.500 |
-| H | 1.400 | 14.000 | 27.850 | 6.834 / 3.417 / 1.708 | 101.789 / 50.894 / 25.447 | 3 Tage | 2.500 |
-| I | 2.900 | 29.000 | 56.850 | 10.251 / 5.125 / 2.562 | 152.684 / 76.342 / 38.171 | 4 Tage | 4.000 |
-| J | 5.900 | 59.000 | 115.850 | 15.377 / 7.688 / 3.844 | 229.026 / 114.513 / 57.256 | 6 Tage | 6.000 |
-| K | 12.000 | 120.000 | 235.850 | 23.066 / 11.533 / 5.766 | 343.539 / 171.769 / 85.884 | 9 Tage | 10.000 |
-| L | 25.000 | 250.000 | 485.850 | 34.599 / 17.299 / 8.649 | 515.309 / 257.654 / 128.827 | 13 Tage | 15.000 |
-| M | 50.000 | 500.000 | 985.850 | 51.898 / 25.949 / 12.974 | 772.963 / 386.481 / 193.240 | 19 Tage | 20.000 |
-| N | 100.000 | 1.000.000 | 1.985.850 | 77.847 / 38.923 / 19.461 | 1.159.445 / 579.722 / 289.861 | 29 Tage | 30.000 |
-| O | 210.000 | 2.100.000 | 4.085.850 | 116.771 / 58.385 / 29.192 | 1.739.167 / 869.583 / 434.791 | 43 Tage | 40.000 |
-| P | 420.000 | 4.200.000 | 8.285.850 | 175.157 / 87.578 / 43.789 | 2.608.751 / 1.304.375 / 652.187 | 65 Tage | 60.000 |
-| Q | 850.000 | 8.500.000 | 16.785.850 | 262.736 / 131.368 / 65.684 | 3.913.127 / 1.956.563 / 978.281 | 98 Tage | 100.000 |
-| R | 1.700.000 | 17.000.000 | 33.785.850 | 394.104 / 197.052 / 98.526 | 5.869.691 / 2.934.845 / 1.467.422 | 147 Tage | 150.000 |
-| S | 3.500.000 | 35.000.000 | 68.785.850 | 591.156 / 295.578 / 147.789 | 8.804.537 / 4.402.268 / 2.201.134 | 220 Tage | 250.000 |
-| T | 7.200.000 | 72.000.000 | 140.785.850 | 886.735 / 443.367 / 221.683 | 13.206.806 / 6.603.403 / 3.301.701 | 330 Tage | 300.000 |
-| U | 15.000.000 | 150.000.000 | 290.785.850 | 1.330.102 / 665.051 / 332.525 | 19.810.210 / 9.905.105 / 4.952.552 | 1,4 Jahre | 500.000 |
-| V | 30.000.000 | 300.000.000 | 590.785.850 | 1.995.154 / 997.577 / 498.788 | 29.715.315 / 14.857.657 / 7.428.828 | 2 Jahre | 750.000 |
-| W | 60.000.000 | 600.000.000 | 1.190.785.850 | 2.992.731 / 1.496.365 / 748.182 | 44.572.973 / 22.286.486 / 11.143.243 | 3,1 Jahre | 1.000.000 |
-| X | 120.000.000 | 1.200.000.000 | 2.390.785.850 | 4.489.096 / 2.244.548 / 1.122.274 | 66.859.460 / 33.429.730 / 16.714.865 | 4,6 Jahre | 1.500.000 |
-| Y | 250.000.000 | 2.500.000.000 | 4.890.785.850 | 6.733.644 / 3.366.822 / 1.683.411 | 100.289.190 / 50.144.595 / 25.072.297 | 6,9 Jahre | 2.500.000 |
-| Z | 510.000.000 | 5.100.000.000 | 9.990.785.850 | 10.100.467 / 5.050.233 / 2.525.116 | 150.433.785 / 75.216.892 / 37.608.446 | 10,3 Jahre | 4.000.000 |
+| A | 10 | 100 | 100 | 400 / 200 / 100 | 5.957 / 2.978 / 1.489 | 19 Min. | 0 |
+| B | 20 | 200 | 300 | 600 / 300 / 150 | 8.936 / 4.468 / 2.234 | 29 Min. | 75 |
+| C | 41 | 410 | 710 | 900 / 450 / 225 | 13.404 / 6.702 / 3.351 | 44 Min. | 200 |
+| D | 84 | 840 | 1.550 | 1.350 / 675 / 337 | 20.106 / 10.053 / 5.026 | 1,1 Std. | 400 |
+| E | 170 | 1.700 | 3.250 | 2.025 / 1.012 / 506 | 30.159 / 15.079 / 7.539 | 1,6 Std. | 600 |
+| F | 350 | 3.500 | 6.750 | 3.037 / 1.518 / 759 | 45.239 / 22.619 / 11.309 | 2,5 Std. | 1.000 |
+| G | 710 | 7.100 | 13.850 | 4.556 / 2.278 / 1.139 | 67.859 / 33.929 / 16.964 | 3,7 Std. | 1.500 |
+| H | 1.400 | 14.000 | 27.850 | 6.834 / 3.417 / 1.708 | 101.789 / 50.894 / 25.447 | 5,6 Std. | 2.500 |
+| I | 2.900 | 29.000 | 56.850 | 10.251 / 5.125 / 2.562 | 152.684 / 76.342 / 38.171 | 8,3 Std. | 4.000 |
+| J | 5.900 | 59.000 | 115.850 | 15.377 / 7.688 / 3.844 | 229.026 / 114.513 / 57.256 | 12,5 Std. | 6.000 |
+| K | 12.000 | 120.000 | 235.850 | 23.066 / 11.533 / 5.766 | 343.539 / 171.769 / 85.884 | 18,7 Std. | 10.000 |
+| L | 25.000 | 250.000 | 485.850 | 34.599 / 17.299 / 8.649 | 515.309 / 257.654 / 128.827 | 28,1 Std. | 15.000 |
+| M | 50.000 | 500.000 | 985.850 | 51.898 / 25.949 / 12.974 | 772.963 / 386.481 / 193.240 | 42,2 Std. | 20.000 |
+| N | 100.000 | 1.000.000 | 1.985.850 | 77.847 / 38.923 / 19.461 | 1.159.445 / 579.722 / 289.861 | 3 Tage | 30.000 |
+| O | 210.000 | 2.100.000 | 4.085.850 | 116.771 / 58.385 / 29.192 | 1.739.167 / 869.583 / 434.791 | 4 Tage | 40.000 |
+| P | 420.000 | 4.200.000 | 8.285.850 | 175.157 / 87.578 / 43.789 | 2.608.751 / 1.304.375 / 652.187 | 6 Tage | 60.000 |
+| Q | 850.000 | 8.500.000 | 16.785.850 | 262.736 / 131.368 / 65.684 | 3.913.127 / 1.956.563 / 978.281 | 9 Tage | 100.000 |
+| R | 1.700.000 | 17.000.000 | 33.785.850 | 394.104 / 197.052 / 98.526 | 5.869.691 / 2.934.845 / 1.467.422 | 13 Tage | 150.000 |
+| S | 3.500.000 | 35.000.000 | 68.785.850 | 591.156 / 295.578 / 147.789 | 8.804.537 / 4.402.268 / 2.201.134 | 20 Tage | 250.000 |
+| T | 7.200.000 | 72.000.000 | 140.785.850 | 886.735 / 443.367 / 221.683 | 13.206.806 / 6.603.403 / 3.301.701 | 30 Tage | 300.000 |
+| U | 15.000.000 | 150.000.000 | 290.785.850 | 1.330.102 / 665.051 / 332.525 | 19.810.210 / 9.905.105 / 4.952.552 | 45 Tage | 500.000 |
+| V | 30.000.000 | 300.000.000 | 590.785.850 | 1.995.154 / 997.577 / 498.788 | 29.715.315 / 14.857.657 / 7.428.828 | 68 Tage | 750.000 |
+| W | 60.000.000 | 600.000.000 | 1.190.785.850 | 2.992.731 / 1.496.365 / 748.182 | 44.572.973 / 22.286.486 / 11.143.243 | 101 Tage | 1.000.000 |
+| X | 120.000.000 | 1.200.000.000 | 2.390.785.850 | 4.489.096 / 2.244.548 / 1.122.274 | 66.859.460 / 33.429.730 / 16.714.865 | 152 Tage | 1.500.000 |
+| Y | 250.000.000 | 2.500.000.000 | 4.890.785.850 | 6.733.644 / 3.366.822 / 1.683.411 | 100.289.190 / 50.144.595 / 25.072.297 | 228 Tage | 2.500.000 |
+| Z | 510.000.000 | 5.100.000.000 | 9.990.785.850 | 10.100.467 / 5.050.233 / 2.525.116 | 150.433.785 / 75.216.892 / 37.608.446 | 342 Tage | 4.000.000 |
 
 ### C4a. Geologie-Fundgrößen je Stufe
 

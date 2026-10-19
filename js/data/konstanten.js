@@ -16,11 +16,11 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.7.0";
+  SS.VERSION = "0.8.0";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
-    SPIELSTAND_VERSION: 5,   // v2: Heimatplanet · v3: automatischer Start · v4: Kapitel 2 – Planeten mit Gebäuden, Bauauftrag, Startplätzen · v5: Rohölvorkommen/Geologie, Startplätze A–Z, Master-Modus
+    SPIELSTAND_VERSION: 6,   // v2: Heimatplanet · v3: automatischer Start · v4: Kapitel 2 – Planeten mit Gebäuden, Bauauftrag, Startplätzen · v5: Rohölvorkommen/Geologie, Startplätze A–Z, Master-Modus · v6: Forschung (Stufen + Forschungsauftrag), T2/T3-Freischaltung über Punkte
     SPEICHER_SCHLUESSEL: "sternenspiel_spielstand_v1",          // alter Einzel-Spielstand (bis 0.3) – wird als erstes Profil übernommen
     PROFIL_INDEX_SCHLUESSEL: "sternenspiel_profile_v1",         // Liste der Spielerprofile
     PROFIL_SPIELSTAND_PRAEFIX: "sternenspiel_spielstand_p_",    // + Profil-ID = eigener Spielstand je Spieler
@@ -42,11 +42,15 @@
 
     // ---------- Kapitel 2: Anlagen ----------
     // Formeln OGame-angelehnt (siehe docs/SPEZIFIKATION.md, Abschnitt C). Einzelwerte je Gebäude in js/data/gebaeude.js.
-    GEBAEUDE_MAX_STUFE: 30,          // FEST: mind. 30 – zentral konfigurierbar
+    GEBAEUDE_MAX_STUFE: null,        // FEST (0.8.0): KEINE Obergrenze nach oben (außer Gebäude mit eigener maxStufe, z. B. Raumflughafen 1)
+    // ANNAHME (0.8.0): Kunststoffwerk T2/T3 werden durch Spielerpunkte freigeschaltet (FEST: über Punkte; Schwellen ANNAHME).
+    // T2 ab 500 Punkten ≈ 500.000 verbaute Rohstoffe (Minen um Stufe 12–14, liegt zwischen Startplatz D 400 und E 600);
+    // T3 ab 5.000 Punkten ≈ 5 Mio. verbaute Rohstoffe (zwischen Startplatz I 4.000 und J 6.000) – T3 braucht 1.000 Rohöl je Einheit.
+    KUNSTSTOFFWERK_FREISCHALT_PUNKTE: { kunststoffwerk_t2: 500, kunststoffwerk_t3: 5000 },
     WACHSTUM_BASIS: 1.1,             // OGame: Produktion/Verbrauch = basis · Stufe · 1,1^Stufe
     BAUZEIT: {
       TEILER: 2500,                  // OGame: Stunden = (Metall + Kristall) / 2500 → hier (Metall + Silizium) / 2500 (ANNAHME)
-      FAKTOR: 1,                     // Hook: später Roboter-Forschung (verkürzt Bauzeit) – jetzt 1
+      FAKTOR: 1,                     // allgemeiner Faktor; Roboterforschung (Kapitel 3) wirkt zusätzlich über bau.bauzeitFaktorForschung
       MIN_SEKUNDEN: 5                // ANNAHME: Mindestbauzeit
     },
     SIM_SCHRITT_MS: 60000,           // Abschnittslänge der Produktionsrechnung (offline/online), ANNAHME
@@ -105,6 +109,9 @@
       KOSTEN: { metall: 400, silizium: 200, rohoel: 100 }, // Stufe 1 von Startplatz A
       KOSTEN_FAKTOR_STUFE: 1.35,              // je Stufe innerhalb eines Buchstabens
       KOSTEN_FAKTOR_BUCHSTABE: 1.5,           // je weiterem Buchstaben
+      // FEST (0.8.0): Startplatz-Bauzeiten deutlich verkürzt, Z Stufe 10 höchstens ~1 Jahr. Faktor 10 ergäbe 376 Tage → 11 gewählt
+      // (Z10 ≈ 342 Tage ohne Roboterforschung). Bauzeit = OGame-Bauzeit / 11 (× Roboter-Faktor).
+      BAUZEIT_TEILER: 11,
       FREISCHALT_PUNKTE: [0, 75, 200, 400, 600, 1000, 1500, 2500, 4000, 6000, 10000, 15000, 20000, 30000, 40000, 60000,
         100000, 150000, 250000, 300000, 500000, 750000, 1000000, 1500000, 2500000, 4000000],
       // Regel für das Flotten-Kapitel (FEST, noch NICHT umgesetzt): Schiffe, die nicht auf die Startplätze passen, stehen
