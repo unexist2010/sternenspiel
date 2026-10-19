@@ -53,6 +53,14 @@
       FAKTOR: 1,                     // allgemeiner Faktor; Roboterforschung (Kapitel 3) wirkt zusätzlich über bau.bauzeitFaktorForschung
       MIN_SEKUNDEN: 5                // ANNAHME: Mindestbauzeit
     },
+    // ---------- Kapitel 3: Forschung (Werte je Forschung in js/data/forschung.js) ----------
+    // OGame-artig: Forschungszeit = (Metall + Silizium) / (1000 · (1 + Stufe Forschungseinrichtung)) Std. · FAKTOR (ANNAHME)
+    FORSCHUNG: {
+      ZEIT_TEILER: 1000,
+      FAKTOR: 1,
+      MIN_SEKUNDEN: 5,
+      EINRICHTUNG_MIN_STUFE: 1         // FEST: Forschungseinrichtung Stufe ≥ 1 nötig
+    },
     SIM_SCHRITT_MS: 60000,           // Abschnittslänge der Produktionsrechnung (offline/online), ANNAHME
 
     // ANNAHME: kleine Grundproduktion am Hauptplaneten (OGame: Metall 30, Kristall 15 pro Std.), unabhängig von Strom

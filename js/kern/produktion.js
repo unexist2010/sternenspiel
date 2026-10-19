@@ -10,7 +10,8 @@
  *  4. Bauaufträge werden genau zu ihrem Endzeitpunkt fertig; die Produktion wird abschnittsweise gerechnet.
  *  5. Bohrstation fördert aus dem Rohölvorkommen des Planeten: Förderung = min(Rate, Vorkommen) (FEST, 0.7.0).
  *  6. Geologie-Funde (alle 24 h) sind Ereignisse wie Bauaufträge – auch im gekappten Offline-Teil werden sie nachgeholt.
- *  7. Master-Modus: laufende Bauaufträge werden sofort fertig.
+ *  7. Master-Modus: laufende Bau- und Forschungsaufträge werden sofort fertig.
+ *  8. Forschung (Kapitel 3): Forschungsauftrag endet genau zum Endzeitpunkt; Energie-Technologie erhöht die Stromerzeugung.
  * Lager: unbegrenzt (keine Speichergebäude, ANNAHME).
  */
 (function (g) {
@@ -47,6 +48,7 @@
     var verfuegbar = function (id) { return dtH ? Math.max(0, st[id] || 0) / dtH : Infinity; };
     var grund = p.istHauptplanet ? B().GRUNDPRODUKTION_HAUPTPLANET : {};
     var info = {};
+    var eFaktor = SS.kern.forschung ? SS.kern.forschung.energieFaktor(z) : 1; // Energie-Technologie (Kapitel 3, wirkt jetzt)
 
     // Grundwerte bei voller Leistung
     var stromFix = 0, bedarf = 0, brennStrom = 0, brennRohoel = 0, minen = {};
@@ -54,11 +56,11 @@
       var n = stufe(d.id), rr = r(d.id);
       info[d.id] = { id: d.id, stufe: stufe(d.id), regler: d.regler ? Math.round(rr * 100) : null, faktor: 1, erzeugt: {}, verbraucht: {}, strom: 0 };
       if (d.stromBedarf) { var b = wachstum(d.stromBedarf, n) * rr; bedarf += b; info[d.id].strom = -b; }
-      if (d.stromErzeugt && !d.verbrauch) { var e = wachstum(d.stromErzeugt, n) * rr; stromFix += e; info[d.id].strom = e; }
-      if (d.verbrauch) { brennStrom = wachstum(d.stromErzeugt, n) * rr; brennRohoel = wachstum(d.verbrauch.rohoel, n) * rr; }
+      if (d.stromErzeugt && !d.verbrauch) { var e = wachstum(d.stromErzeugt, n) * rr * eFaktor; stromFix += e; info[d.id].strom = e; }
+      if (d.verbrauch) { brennStrom = wachstum(d.stromErzeugt, n) * rr * eFaktor; brennRohoel = wachstum(d.verbrauch.rohoel, n) * rr; }
       if (d.erzeugt) minen[d.id] = { rohstoff: d.erzeugt.rohstoff, menge: wachstum(d.erzeugt.basis, n) * rr };
     });
-    var sat = (p.solarsatelliten || 0) * B().SOLARSATELLIT_ENERGIE * r("solarsatellit");
+    var sat = (p.solarsatelliten || 0) * B().SOLARSATELLIT_ENERGIE * r("solarsatellit") * eFaktor;
     stromFix += sat;
 
     // 1.+2. Energiefaktor und Ölverbrennung (gegenseitig abhängig → kurze Fixpunkt-Iteration)
@@ -112,7 +114,7 @@
     return {
       gebaeude: info, produktion: prod, verbrauch: verb, netto: netto, foerderung: foerderung,
       satelliten: { anzahl: p.solarsatelliten || 0, strom: sat },
-      strom: { erzeugung: erzeugung, bedarf: bedarf, faktor: f, bilanz: erzeugung - bedarf }
+      strom: { erzeugung: erzeugung, bedarf: bedarf, faktor: f, bilanz: erzeugung - bedarf, energieFaktor: eFaktor }
     };
   }
 
@@ -149,7 +151,7 @@
    */
   function simuliereBis(z, bis, ohneProduktion) {
     var t = z.zeit.letzterTick, gewinne = {}, fertig = [], funde = [];
-    var schritt = B().SIM_SCHRITT_MS, bau = SS.kern.bau, geo = SS.kern.geologie;
+    var schritt = B().SIM_SCHRITT_MS, bau = SS.kern.bau, geo = SS.kern.geologie, fo = SS.kern.forschung;
     var master = !!(z.einstellungen && z.einstellungen.master);
     var sicherung = 0;
     var faellige = function () {
@@ -160,10 +162,13 @@
         }
         if (geo) funde = funde.concat(geo.faelligeFunde(p, t));
       });
+      var fa = z.forschungsauftrag; // Forschung: ein Auftrag je Spieler, genau zum Endzeitpunkt (Master: sofort)
+      if (fa && fo && (fa.ende <= t || master)) { if (fa.ende > t) fa.ende = t; fertig.push(fo.fertigstellen(z)); }
     };
     faellige();
     while (t < bis && sicherung++ < 1e6) {
       var ziel = Math.min(bis, ohneProduktion ? bis : t + schritt);
+      if (z.forschungsauftrag && z.forschungsauftrag.ende > t && z.forschungsauftrag.ende < ziel) ziel = z.forschungsauftrag.ende;
       z.planeten.forEach(function (p) {
         if (p.bauauftrag && p.bauauftrag.ende > t && p.bauauftrag.ende < ziel) ziel = p.bauauftrag.ende;
         var nf = geo && geo.naechsterFund(p);

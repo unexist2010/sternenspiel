@@ -101,8 +101,8 @@
       info: "Höhere Stufen werden später den Bau von Verteidigungsanlagen beschleunigen. Die Funktion folgt im Verteidigungs-Kapitel.",
       kosten: { metall: 300, silizium: 300, rohoel: 100 }, faktor: 2.0 },
     { id: "forschungseinrichtung", name: "Forschungseinrichtung", gruppe: "weitere", bild: "assets/gebaeude/forschungseinrichtung.svg",
-      beschreibung: "Höhere Stufen verkürzen später die Forschungszeit (Forschung folgt in einem eigenen Kapitel).",
-      info: "Die Forschungszeit wird durch (1 + Stufe) geteilt (OGame-Labor). Forschung selbst folgt in einem eigenen Kapitel.",
+      beschreibung: "Ort aller Forschungen (Menü „Forschung“). Höhere Stufen verkürzen die Forschungszeit.",
+      info: "Ohne Forschungseinrichtung keine Forschung. Die Forschungszeit wird durch (1 + Stufe) geteilt (OGame-Labor). Während einer laufenden Forschung kann sie nicht ausgebaut werden – und während des Ausbaus kann nicht geforscht werden.",
       kosten: { metall: 200, silizium: 400, rohoel: 200 }, faktor: 2.0, forschungszeit: true }
   ];
   L.forEach(function (d) { if (d.kosten) Object.freeze(d.kosten); if (d.sperre) Object.freeze(d.sperre); Object.freeze(d); });

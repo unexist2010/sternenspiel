@@ -81,7 +81,7 @@ test("Menü: genau 8 Punkte in festgelegter Reihenfolge", () => {
   const SS = ladeSpiel();
   gleich(SS.DATEN.menue.map((m) => m.name), ["Übersicht", "Ressourcen", "Anlagen", "Forschung", "Werft", "Verteidigung", "Flotte", "Weltraum"]);
   const platzhalter = SS.DATEN.menue.filter((m) => m.platzhalter);
-  gleich(platzhalter.map((m) => m.id), ["forschung", "werft", "verteidigung", "flotte", "weltraum"]);
+  gleich(platzhalter.map((m) => m.id), ["werft", "verteidigung", "flotte", "weltraum"]);
   assert.ok(SS.DATEN.menue.every((m) => !("kapitel" in m)), "keine Kapitelnummern an den Menüpunkten");
   assert.ok(!/Kapitel \d/.test(SS.DATEN.PLATZHALTER_TEXT), "neutraler Platzhaltertext");
 });

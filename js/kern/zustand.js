@@ -22,6 +22,15 @@
     return m;
   }
 
+  function neueForschung(alt) {
+    var f = {};
+    SS.DATEN.forschungIds.forEach(function (id) { f[id] = Math.max(0, Math.floor(Number(alt && alt[id]) || 0)); });
+    return f;
+  }
+  function forschungsauftragBereinigen(a) {
+    return a && typeof a === "object" && SS.DATEN.forschungNachId(a.id) && isFinite(a.start) && isFinite(a.ende) && isFinite(a.stufe) && a.kosten && typeof a.kosten === "object" ? a : null;
+  }
+
   /** Hauptplanet auf zufälliger Koordinate (ANNAHME). */
   function hauptplanet(wunschname, zufallFn) {
     var W = SS.DATEN.weltraum;
@@ -105,7 +114,8 @@
       planeten: [neuerPlanet(true)], // Kapitel 2: [0] = Hauptplanet (Koordinaten/Name in „heimat“)
 
       // --- Andockpunkte für spätere Kapitel (ohne Logik) ---
-      forschung: {},         // späteres Kapitel
+      forschung: neueForschung(),   // Kapitel 3: Stufe je Forschung
+      forschungsauftrag: null,      // Kapitel 3: ein Forschungsauftrag gleichzeitig (OGame) – unabhängig vom Bauauftrag
       schiffe: {},           // späteres Kapitel: Bestand je Schiffstyp
       flotten: [],           // späteres Kapitel
       truemmerfelder: [],    // späteres Kapitel
@@ -163,7 +173,8 @@
     delete z.startplaetze; delete z.gebaeude; delete z.lagerstaetten;
     z.punkte = Math.max(0, Number(z.punkte) || 0);
     SS.kern.bau.freischaltungenPruefen(z); // v6: Kunststoffwerk T2/T3 ab Punkteschwelle frei
-    z.forschung = z.forschung || {};
+    z.forschung = neueForschung(z.forschung);             // v6: alle Forschungen mit Stufe (unbekannte Einträge entfallen)
+    z.forschungsauftrag = forschungsauftragBereinigen(z.forschungsauftrag);
     z.schiffe = z.schiffe || {};
     z.flotten = Array.isArray(z.flotten) ? z.flotten : [];
     z.truemmerfelder = Array.isArray(z.truemmerfelder) ? z.truemmerfelder : [];

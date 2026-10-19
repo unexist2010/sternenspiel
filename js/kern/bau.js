@@ -140,6 +140,8 @@
     } else {
       var sperre = gebaeudeSperre(z, D().gebaeudeNachId(zl.id));
       if (sperre) return { ok: false, grund: sperre, ziel: zl, gesperrt: true };
+      // OGame (ANNAHME): während einer laufenden Forschung kann die Forschungseinrichtung nicht ausgebaut werden
+      if (zl.id === "forschungseinrichtung" && z.forschungsauftrag) return { ok: false, grund: "Während einer Forschung kann die Forschungseinrichtung nicht ausgebaut werden.", ziel: zl };
     }
     if (p.bauauftrag) return { ok: false, grund: "Es läuft bereits ein Bauauftrag.", ziel: zl };
     if (istMaster(z)) return { ok: true, grund: "", ziel: zl, master: true };
@@ -171,6 +173,7 @@
     if (an) z.planeten.forEach(function (p) {
       if (p.bauauftrag) { p.bauauftrag.ende = Math.min(p.bauauftrag.ende, jetzt); fertig.push(fertigstellen(z, p)); }
     });
+    if (an && z.forschungsauftrag && SS.kern.forschung) { z.forschungsauftrag.ende = Math.min(z.forschungsauftrag.ende, jetzt); fertig.push(SS.kern.forschung.fertigstellen(z)); }
     return fertig;
   }
 

@@ -191,3 +191,59 @@ GEB.kunststoffwerk_t1 = WERK("#b9e07a", 1);
 GEB.kunststoffwerk_t2 = WERK("#7ac8e0", 2);
 GEB.kunststoffwerk_t3 = WERK("#c58cf0", 3, `<circle cx="86" cy="20" r="2" fill="#c58cf0"/>`);
 Object.entries(GEB).forEach(([id, inhalt]) => schreibe(`gebaeude/${id}.svg`, svg(96, 96, inhalt)));
+
+// ---------- Forschungen (Kapitel 3) – 96×96, eigener Stil: Holo-Labortafel mit Raster, Farbring je Gruppe und Symbol ----------
+const FO_RAHMEN = (farbe, inhalt) => `
+<defs>
+  <radialGradient id="h" cx="0.5" cy="0.45" r="0.7"><stop offset="0" stop-color="#14305e"/><stop offset="1" stop-color="#050c20"/></radialGradient>
+  <linearGradient id="m" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6f0fa"/><stop offset="1" stop-color="#6b7f95"/></linearGradient>
+  <radialGradient id="k" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="${farbe}" stop-opacity="0.45"/><stop offset="1" stop-color="${farbe}" stop-opacity="0"/></radialGradient>
+  <clipPath id="c"><rect x="2" y="2" width="92" height="92" rx="9"/></clipPath>
+</defs>
+<g clip-path="url(#c)">
+  <rect width="96" height="96" fill="url(#h)"/>
+  <path d="M0 24H96M0 48H96M0 72H96M24 0V96M48 0V96M72 0V96" stroke="#2f6fa8" stroke-width="0.5" opacity="0.35"/>
+  <circle cx="48" cy="48" r="34" fill="url(#k)"/>
+  <circle cx="48" cy="48" r="33" fill="none" stroke="${farbe}" stroke-width="1.5" stroke-dasharray="6 3" opacity="0.8"/>
+  ${inhalt}
+  <path d="M6 88h20M70 8h20" stroke="${farbe}" stroke-width="1.5" opacity="0.7"/>
+</g>
+<rect x="2" y="2" width="92" height="92" rx="9" fill="none" stroke="${farbe}" stroke-width="2"/>`;
+const FG = { grundlagen: "#3fe0e0", waffen: "#ff6b5e", antriebe: "#ffb347", flotte: "#7cc4ff", fortgeschritten: "#c58cf0" };
+const strahl = (farbe, b) => `<path d="M18 66 L78 30" stroke="${farbe}" stroke-width="${b}" stroke-linecap="round"/><path d="M18 66 L78 30" stroke="#fff" stroke-width="${b / 3}" stroke-linecap="round" opacity="0.8"/>`;
+const flamme = (x, y, farbe, l) => `<path d="M${x} ${y} q-5 ${l * 0.5} 0 ${l} q5 ${-l * 0.5} 0 ${-l}z" fill="${farbe}"/>`;
+const FORSCHUNG_BILDER = {
+  energie: FO_RAHMEN(FG.grundlagen, `<circle cx="48" cy="48" r="14" fill="#ffd75e"/><circle cx="48" cy="48" r="20" fill="none" stroke="#ffd75e" stroke-width="1.5" opacity="0.6"/>
+    <path d="M51 30 L40 50 H48 L44 66 L58 44 H50 Z" fill="#04102a"/>`),
+  roboter: FO_RAHMEN(FG.grundlagen, `<rect x="32" y="34" width="32" height="26" rx="5" fill="url(#m)"/><rect x="38" y="42" width="7" height="6" fill="#3fe0e0"/><rect x="51" y="42" width="7" height="6" fill="#3fe0e0"/>
+    <path d="M40 54h16" stroke="#04102a" stroke-width="2"/><path d="M48 34v-8" stroke="#9fb3c8" stroke-width="2"/><circle cx="48" cy="24" r="3" fill="#ff6b5e"/>
+    <path d="M32 46h-8v14M64 46h8v14" stroke="#9fb3c8" stroke-width="3" fill="none"/><rect x="36" y="60" width="24" height="10" fill="#6b7f95"/>`),
+  computer: FO_RAHMEN(FG.grundlagen, `<rect x="30" y="30" width="36" height="36" rx="3" fill="#1a3a5a" stroke="#3fe0e0" stroke-width="2"/><rect x="38" y="38" width="20" height="20" fill="#3fe0e0" opacity="0.8"/>
+    <path d="M36 30v-6M44 30v-6M52 30v-6M60 30v-6M36 66v6M44 66v6M52 66v6M60 66v6M30 36h-6M30 44h-6M30 52h-6M30 60h-6M66 36h6M66 44h6M66 52h6M66 60h6" stroke="#9fb3c8" stroke-width="2"/>`),
+  waffen: FO_RAHMEN(FG.waffen, `<path d="M28 68 L60 36" stroke="url(#m)" stroke-width="6" stroke-linecap="round"/><path d="M56 32 l12 -4 l-4 12z" fill="#e6f0fa"/><path d="M68 68 L36 36" stroke="url(#m)" stroke-width="6" stroke-linecap="round"/><path d="M40 32 l-12 -4 l4 12z" fill="#e6f0fa"/><circle cx="48" cy="52" r="5" fill="#ff6b5e"/>`),
+  schild: FO_RAHMEN(FG.waffen, `<path d="M48 22 L70 30 V48 C70 62 60 70 48 76 C36 70 26 62 26 48 V30Z" fill="#1a4aa0" opacity="0.6" stroke="#7cc4ff" stroke-width="2.5"/>
+    <path d="M48 30 L62 35 V48 C62 57 56 63 48 67 C40 63 34 57 34 48 V35Z" fill="none" stroke="#bff7ff" stroke-width="1.2" opacity="0.8"/>`),
+  panzerung: FO_RAHMEN(FG.waffen, `<path d="M26 34 L48 24 L70 34 V58 L48 72 L26 58Z" fill="url(#m)"/><path d="M26 34 L48 44 L70 34 M48 44 V72" stroke="#4f5866" stroke-width="2" fill="none"/>
+    <circle cx="36" cy="44" r="1.8" fill="#4f5866"/><circle cx="60" cy="44" r="1.8" fill="#4f5866"/><circle cx="36" cy="58" r="1.8" fill="#4f5866"/><circle cx="60" cy="58" r="1.8" fill="#4f5866"/>`),
+  laser: FO_RAHMEN(FG.waffen, `${strahl("#ff3b3b", 5)}<circle cx="18" cy="66" r="7" fill="url(#m)"/><circle cx="78" cy="30" r="5" fill="#ffd166"/>`),
+  ionen: FO_RAHMEN(FG.waffen, `${strahl("#3fb8ff", 7)}<circle cx="18" cy="66" r="7" fill="url(#m)"/><circle cx="40" cy="53" r="3" fill="#bff7ff"/><circle cx="58" cy="42" r="3" fill="#bff7ff"/><circle cx="78" cy="30" r="6" fill="#7cc4ff"/>`),
+  plasma: FO_RAHMEN(FG.waffen, `${strahl("#c58cf0", 10)}<circle cx="18" cy="66" r="8" fill="url(#m)"/><circle cx="78" cy="30" r="10" fill="#e9b8ff" opacity="0.8"/><circle cx="78" cy="30" r="5" fill="#fff"/>`),
+  verbrennung: FO_RAHMEN(FG.antriebe, `<rect x="36" y="22" width="24" height="34" rx="4" fill="url(#m)"/><path d="M36 56 L32 66 H64 L60 56Z" fill="#6b7f95"/>${flamme(48, 66, "#ff7a1a", 20)}${flamme(48, 66, "#ffd166", 12)}
+    <circle cx="48" cy="34" r="4" fill="#5a4024"/>`),
+  impuls: FO_RAHMEN(FG.antriebe, `<path d="M48 18 L62 48 L48 58 L34 48Z" fill="url(#m)"/><path d="M34 48 L28 62 L40 56Z M62 48 L68 62 L56 56Z" fill="#c2410c"/>${flamme(48, 60, "#3fe0e0", 18)}<circle cx="48" cy="38" r="4" fill="#3fe0e0"/>`),
+  hyperraumantrieb: FO_RAHMEN(FG.antriebe, `<path d="M14 48 H40 M10 40 H34 M10 56 H34" stroke="#bff7ff" stroke-width="2" opacity="0.7"/><path d="M40 48 L64 36 L84 48 L64 60Z" fill="url(#m)"/>
+    <path d="M40 48 L52 42 L52 54Z" fill="#c58cf0"/><circle cx="68" cy="48" r="3" fill="#3fe0e0"/>`),
+  hyperspace: FO_RAHMEN(FG.fortgeschritten, `<ellipse cx="48" cy="48" rx="28" ry="10" fill="none" stroke="#c58cf0" stroke-width="2"/><ellipse cx="48" cy="48" rx="18" ry="6" fill="none" stroke="#e9b8ff" stroke-width="2"/>
+    <circle cx="48" cy="48" r="5" fill="#fff"/><path d="M48 18 V36 M48 60 V78" stroke="#c58cf0" stroke-width="1.5" stroke-dasharray="3 3"/>`),
+  spionage: FO_RAHMEN(FG.flotte, `<path d="M20 48 Q48 24 76 48 Q48 72 20 48Z" fill="#0a1c40" stroke="#7cc4ff" stroke-width="2.5"/><circle cx="48" cy="48" r="10" fill="#7cc4ff"/><circle cx="48" cy="48" r="4" fill="#04102a"/><circle cx="51" cy="45" r="2" fill="#fff"/>`),
+  astrophysik: FO_RAHMEN(FG.flotte, `<circle cx="44" cy="52" r="14" fill="#1f6fbf"/><path d="M34 48 q6 -4 12 0 t10 2" stroke="#3fa968" stroke-width="3" fill="none"/>
+    <ellipse cx="44" cy="52" rx="26" ry="7" fill="none" stroke="#ffd166" stroke-width="1.5" transform="rotate(-18 44 52)"/><circle cx="72" cy="28" r="5" fill="#c9c3b8"/><circle cx="24" cy="26" r="3" fill="#f6d58e"/>`),
+  komprimierung: FO_RAHMEN(FG.flotte, `<rect x="32" y="36" width="32" height="26" rx="2" fill="#c98a3c"/><path d="M32 44 H64 M48 36 V62" stroke="#7a4f1e" stroke-width="2"/>
+    <path d="M20 49 h10 l-4 -4 M20 49 l6 4 M76 49 h-10 l4 -4 M76 49 l-4 4" stroke="#7cc4ff" stroke-width="2.5" fill="none"/><path d="M48 24 v8 l-4 -3 M48 32 l4 -3 M48 74 v-8 l-4 3 M48 66 l4 3" stroke="#7cc4ff" stroke-width="2.5" fill="none"/>`),
+  netzwerk: FO_RAHMEN(FG.fortgeschritten, `<path d="M48 26 L24 62 M48 26 L72 62 M24 62 L72 62 M48 26 L48 50 M24 62 L48 50 M72 62 L48 50" stroke="#c58cf0" stroke-width="2"/>
+    <circle cx="48" cy="26" r="6" fill="#3fe0e0"/><circle cx="24" cy="62" r="6" fill="#3fe0e0"/><circle cx="72" cy="62" r="6" fill="#3fe0e0"/><circle cx="48" cy="50" r="5" fill="#e9b8ff"/>`),
+  graviton: FO_RAHMEN(FG.fortgeschritten, `<circle cx="48" cy="48" r="9" fill="#04102a" stroke="#e9b8ff" stroke-width="2"/>
+    <path d="M48 20 a28 28 0 0 1 28 28 M76 48 a28 28 0 0 1 -28 28 M48 76 a28 28 0 0 1 -28 -28 M20 48 a28 28 0 0 1 28 -28" fill="none" stroke="#c58cf0" stroke-width="2.5" stroke-dasharray="10 6"/>
+    <path d="M48 30 a18 18 0 0 1 18 18 M48 66 a18 18 0 0 1 -18 -18" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.7"/>`)
+};
+Object.entries(FORSCHUNG_BILDER).forEach(([id, inhalt]) => schreibe(`forschung/${id}.svg`, svg(96, 96, inhalt)));

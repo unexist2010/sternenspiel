@@ -1,10 +1,16 @@
 # Sternenspiel – Offene Punkte (Fragen an Sandro)
 
-Stand: 2026-10-19 (0.8.0) · Alles hier ist bis zur Antwort als **ANNAHME** umgesetzt bzw. vorgemerkt.
+Stand: 2026-10-19 (0.8.0, nach Kapitel 3) · Alles hier ist bis zur Antwort als **ANNAHME** umgesetzt bzw. vorgemerkt.
 
 ## Wichtigste Fragen (bitte zuerst)
 
-_(werden mit Kapitel 3 neu gefüllt)_
+| # | Thema | Frage |
+|---|-------|-------|
+| 34 | Forschung | **Roboterforschung:** Sie verkürzt jetzt nur Gebäude-/Startplatz-Bauzeiten (÷ (1 + 1,5 · Stufe)), **nicht** die Forschungszeit – so vorgegeben. In OGame verkürzt aber das Gebäude „Forschungslabor“ die Forschung und die Robotikfabrik den Bau. Soll das so bleiben, und passt die Stärke ÷ 2,5 bei Stufe 1? |
+| 35 | Forschung | **Energie-Technologie +5 % je Stufe** (linear) auf Solarfarm, Ölverbrennung und Satelliten – ok? Und die übrigen Wirkungswerte (Waffen/Schild/Panzerung +10 %, Antriebe +10/20/30 %, Plasma +15 % …) als Vorschlag ok? |
+| 36 | Forschung | **Kosten** (OGame-Retro, Deuterium → Rohöl) und **Kunststoff** nur bei Hyperraumantrieb (200 T1), Forschungsnetzwerk (500 T2), Graviton (100 T3) – ok? Graviton braucht hier ET 12 + Plasma 8 (OGame: Labor 12). |
+| 37 | Forschung | **Sichtbarkeit:** Forschung erscheint, sobald mindestens eine Voraussetzung erfüllt ist (vorher ausgeblendet, Zähler „X weitere Forschungen“) – so gemeint? |
+| 38 | Master | Im Master-Modus braucht Forschung trotzdem die Forschungseinrichtung (wie Startplätze den Raumflughafen) und schreibt Punkte gut – ok? |
 
 ## Weitere offene Punkte
 
@@ -21,7 +27,6 @@ _(werden mit Kapitel 3 neu gefüllt)_
 | 7 | Grundgerüst | Systemnummern global 1–300 (`3:133:5`, jetzt so) oder je Sektor 1–60 (`3:13:5`)? |
 | 9 | Grundgerüst | Namen ok (Universum „Sternenreich“, Sektoren Alpha–Epsilon, erzeugte System-/Planetennamen)? |
 | 11 | Grundgerüst | Offline-Fortschritt: Kappung auf 24 Std. ok? Volle Rate oder reduziert? |
-| 15 | Forschung | Kunststoff T1–T3 sind jetzt ohne Forschung sichtbar und herstellbar – braucht es später eine Forschungs-Freischaltung? |
 | 16 | Werft | Namen/Werte der 23 Schiffe, 5 Waffentypen, 2 Hüllentypen – Vorgabe oder Vorschlag von mir? |
 | 17 | Verteidigung | Schutzschild-Autoaktivierung: wann genau, Kosten, Abklingzeit? |
 | 18 | Verteidigung | Trümmer am Boden 50–75 %: Zufall oder abhängig von etwas? Gilt Salvage für Schiffe und Verteidigung? |
@@ -34,6 +39,9 @@ _(werden mit Kapitel 3 neu gefüllt)_
 | 22 | – | Endgültiger Name: „Sternenspiel“, „Sternenreich“ oder „Weltraumspiel“? |
 
 ## Erledigt
+
+- ~~Forschung (Kapitel 3)~~ → freigegeben und umgesetzt (0.8.0): 18 Forschungen, Forschungseinrichtung, ET/Roboter wirken, Rest berechnet.
+- ~~Kunststoff-Freischaltung durch Forschung?~~ → nein, T2/T3 über Punkte (Sandro, 0.8.0).
 
 - ~~Freischaltung Kunststoffwerk T2/T3~~ → über Spielerpunkte (Sandro, 0.8.0); Schwellen T2 500 / T3 5.000 sind ANNAHME (SPEZIFIKATION A8).
 - ~~Geologie-Fundgröße ab Stufe 3~~ → ×1,25 je Stufe bleibt (Sandro, 0.8.0).

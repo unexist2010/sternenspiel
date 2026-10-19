@@ -324,3 +324,18 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
   .tabelle.eng th { letter-spacing: 0; }
   .tabelle.eng .klein-weg, .tabelle.eng tr.aktuell td small { display: none; }
 }
+
+/* ---------- Kapitel 3: Forschung ---------- */
+.vor-liste { margin: 4px 0 6px; font-size: .8rem; line-height: 1.6; }
+.vor-titel { color: var(--leise); margin-right: 2px; }
+.vor-gruppe { display: inline; }
+.vor-gruppe em { color: var(--leise); font-style: normal; font-size: .75rem; }
+.vor { display: inline-block; padding: 0 6px; margin: 1px 2px 1px 0; border-radius: 3px; border: 1px solid; white-space: nowrap; }
+.vor.ok { color: #7dffa8; border-color: #2f8a52; background: rgba(40, 140, 80, .15); }
+.vor.fehlt { color: #ff8c8c; border-color: #8a2f2f; background: rgba(160, 40, 40, .15); }
+.wirkt-marke, .spaeter-marke { display: inline-block; font-size: .68rem; padding: 0 5px; border-radius: 3px; margin-left: 3px; vertical-align: 1px; }
+.wirkt-marke { background: #1d6b45; color: #d8ffe8; }
+.spaeter-marke { background: #2a3a55; color: #b9cbe0; }
+.box-zahl { font-size: .75rem; color: var(--leise); }
+.forschung-fehlt { padding: 10px 12px; border: 1px dashed #c9a23a; border-radius: 4px; background: rgba(201, 162, 58, .1); }
+.balken-fuellung.forschung { background: linear-gradient(90deg, #8a5cf0, #c58cf0); }

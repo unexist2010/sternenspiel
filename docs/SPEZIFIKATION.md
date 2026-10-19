@@ -1,6 +1,6 @@
 # Sternenspiel – Spezifikation
 
-Stand: 2026-10-19 · Kapitel 3 = Forschung (0.8.0) · Kapitel 2 = Anlagen (0.6.0, Nachbesserung 0.7.0, Antworten 0.8.0) · Kapitel 1 = reine Seitenstruktur (0.5.0)
+Stand: 2026-10-19 · Kapitel 3 = Forschung (0.8.0, erledigt) · Kapitel 2 = Anlagen (0.6.0, Nachbesserung 0.7.0, Antworten 0.8.0) · Kapitel 1 = reine Seitenstruktur (0.5.0)
 
 **Wichtig:** Abschnitt A enthält nur, was Sandro festgelegt hat (**FEST**). Alles in Abschnitt B ist von mir
 gesetzt (**ANNAHME**) und kann jederzeit geändert werden – Zahlen stehen zentral in `js/data/konstanten.js`. Abschnitt C beschreibt die Formeln und Werte von Kapitel 2; Zahlen dort sind ANNAHME, außer wo FEST steht.
@@ -142,6 +142,26 @@ gesetzt (**ANNAHME**) und kann jederzeit geändert werden – Zahlen stehen zent
 **Begründung der T2/T3-Schwellen (ANNAHME):** 1 Punkt = 1.000 verbaute Rohstoffe. 500 Punkte ≈ 500.000 verbaute Rohstoffe – Minen etwa Stufe 12–14,
 zeitlich zwischen Startplatz D (400) und E (600); das T2-Werk kostet dann nur noch ≈ 0,5 % davon. 5.000 Punkte ≈ 5 Mio. – zwischen Startplatz I (4.000)
 und J (6.000); erst dann trägt die Rohölwirtschaft die 1.000 Rohöl je T3-Einheit.
+
+### A9. Kapitel 3 „Forschung“ (Freigabe 2026-10-19, Version 0.8.0)
+
+| # | Punkt | Umsetzung |
+|---|-------|-----------|
+| 89 | Menüpunkt **Forschung** wird gefüllt (nur dieser Menüpunkt + nötige Logik) | `js/data/forschung.js`, `js/kern/forschung.js`, Seite „Forschung“ |
+| 90 | **Genau 18 Forschungen**: Energie, Laser, Ionen, Plasma, Verbrennung, Impuls, Hyperraumantrieb, Hyperspace, Spionage, Computer, Astrophysik, Intergalaktisches Forschungsnetzwerk, Waffen, Schild, Panzerung, Roboterforschung, Komprimierung, Graviton | Tabelle C7 |
+| 91 | Alle Forschungen in der **Forschungseinrichtung (Stufe ≥ 1)**; höhere Stufe verkürzt die Forschungszeit | Zeit = (M + Si) / (1000 · (1 + Stufe)) Std. |
+| 92 | Kosten etwa wie **OGame-Retro** (auf Metall/Silizium/Rohöl übertragen); Kunststoff nur bei späten Forschungen; **keine Stufenobergrenze** | Werte C7 (ANNAHME) |
+| 93 | Voraussetzungen grün/rot, blockieren den Start; **Komprimierung mit ODER-Voraussetzung** | `voraussetzungen()` |
+| 94 | **Energie-Technologie wirkt jetzt** (Energiegebäude); **Roboterforschung wirkt jetzt auf Bauzeiten, NICHT auf Forschungszeit**; alle anderen Wirkungen nur berechnet/angezeigt (zentrale `bonus()`-Funktion) | `energieFaktor`, `roboterFaktor`, `bonus` |
+| 95 | **Eine Forschung gleichzeitig**, unabhängig vom Bauauftrag; Einrichtung kann während einer Forschung nicht ausgebaut werden und umgekehrt | `pruefe()` beider Seiten |
+| 96 | Echtzeit + offline; **Abbrechen erstattet voll** | `simuliereBis`, `abbrechen` |
+| 97 | **Master**: sofort, kostenlos, Voraussetzungen ignoriert, ausgeblendete Forschungen sichtbar | `pruefe`, `sichtbar` |
+| 98 | Punkte wie OGame (verbaute Rohstoffe / 1.000) | `bau.punkteFuer` |
+| 99 | UI: Gruppen, eigenes SVG je Forschung, Stufe, Beschreibung, Kosten, Dauer, Wirkung jetzt/nächste, Voraussetzungen, Knopf mit Sperrgrund, ⓘ mit nächsten 5 Stufen; laufende Forschung in der Übersicht; Hinweis „Forschungseinrichtung bauen“ | `js/ui/app.js` |
+
+**ANNAHMEN zu A9:** Sichtbarkeit (sichtbar, wenn keine Voraussetzungen oder mindestens eine Voraussetzungsgruppe erfüllt – oder schon erforscht/laufend);
+alle Grundkosten/Faktoren/Wirkungswerte (außer Komprimierung +10 %); Graviton-Voraussetzung; Master braucht trotzdem die Forschungseinrichtung
+und schreibt Punkte gut; Forschungsauftrag gilt global (wie OGame) und wird am Hauptplaneten geführt.
 
 ---
 
@@ -323,7 +343,7 @@ Kunststoffwerk T2/T3) ignoriert; laufende Aufträge werden beim Einschalten sofo
 Start abgezogen, Punkte bei Fertigstellung gutgeschrieben. Gründe für deaktivierte Knöpfe: „Höchststufe X erreicht.“,
 „Zuerst den Raumflughafen errichten.“, „Gesperrt: A Stufe 10 nötig · X Punkte nötig.“, „Wird später mit Spielfortschritt freigeschaltet.“, „Es läuft bereits ein Bauauftrag.“, „Es fehlen: …“.
 
-### C6. Spielstand v5 und Migration (ab 0.7.0)
+### C6. Spielstand v5/v6 und Migration (ab 0.7.0)
 
 - `zustand.planeten = [{ id: "hp", istHauptplanet: true, rohoelVorkommen: 1000000, geologie: { naechsterFund, funde: [{ zeit, stufe, menge, test? }], zufall }, hangar: { schiffe: {} }, gebaeude, regler, solarsatelliten, bauauftrag, startplaetze: [{ buchstabe, stufe }] × 26 }]`
 - `zustand.freigeschaltet.kunststoffwerk_t2/t3 = false`, `zustand.einstellungen.master = false`
@@ -331,3 +351,50 @@ Start abgezogen, Punkte bei Fertigstellung gutgeschrieben. Gründe für deaktivi
   vorhandene Geologiestation startet ihren 24-Std.-Takt ab dem letzten Tick; Startplätze auf 26 erweitert und auf Stufe 10 gekürzt;
   Master aus; bereits gebaute Kunststoffwerke T2/T3 produzieren weiter (nur weiterer Ausbau gesperrt).
 - Migration v1/v2/v3 → v4 → v5: Rohstoffe und Heimat bleiben, neuer Hauptplanet ohne Gebäude, Strom = 0; Lagergrenzen entfallen.
+- **Spielstand v6 (0.8.0):** neu `zustand.forschung = { energie: 0, … }` (alle 18 ids, ganze Zahlen ≥ 0) und `zustand.forschungsauftrag = null |
+  { art: "forschung", id, name, stufe, kosten, start, ende, planet }`. Migration v5 → v6 je Profil: fehlende Forschungen = 0, ungültiger
+  Auftrag verworfen, T2/T3-Flags nach Punkten gesetzt. `migriere` füllt immer (idempotent), unabhängig von der Versionsnummer.
+
+## C7. Kapitel 3 „Forschung“ – Formeln und Werte (Werte ANNAHME, Regeln FEST siehe A9)
+
+### C7.1 Formeln
+
+- **Kosten** Stufe n = `floor(Grundkosten · Faktor^(n−1))` je Rohstoff (Metall, Silizium, Rohöl, Kunststoff T1–T3)
+- **Forschungszeit** = `(Metall + Silizium) / (1000 · (1 + Stufe Forschungseinrichtung))` Std., mindestens 5 Sek.
+  (`SS.BALANCE.FORSCHUNG.ZEIT_TEILER = 1000`); Roboterforschung wirkt **nicht** darauf
+- **Gebäude-/Startplatz-Bauzeit** × `1 / (1 + 1,5 · Roboterforschung)` (Roboter Stufe 1 → ÷ 2,5)
+- **Energie-Technologie:** Stromerzeugung von Solarfarm, Ölverbrennungsstation und Solarsatelliten × `(1 + 0,05 · Stufe)`;
+  der Rohölverbrauch der Ölverbrennung bleibt gleich
+- **Punkte** = verbaute Rohstoffe / 1.000 (wie Gebäude)
+- **Voraussetzungen:** Liste von Gruppen – alle Gruppen (UND), innerhalb einer Gruppe reicht eine Alternative (ODER)
+- **Sichtbarkeit (ANNAHME):** sichtbar, wenn Master · schon erforscht · läuft · keine Voraussetzungen · mindestens eine Gruppe erfüllt
+- **`bonus(z, id)`** liefert den Wirkungswert der aktuellen Stufe (Prozent → 30 für +30 %, Anzahl, Bauzeit-Faktor, Freischaltung 0/1)
+  – Andockpunkt für Werft, Flotte, Kampf, Spionage
+- **Sperrgründe:** „Zuerst die Forschungseinrichtung bauen.“, „Voraussetzung fehlt: …“, „Es läuft bereits eine Forschung.“,
+  „Die Forschungseinrichtung wird gerade ausgebaut.“, „Es fehlen: …“; in der Einrichtung-Kachel: „Während einer Forschung kann die
+  Forschungseinrichtung nicht ausgebaut werden.“
+
+### C7.2 Forschungen
+
+| Forschung | Gruppe | Kosten Stufe 1 | Faktor | Voraussetzung | Wirkung je Stufe | wirkt |
+|---|---|---|---|---|---|---|
+| Energie-Technologie | Grundlagen | 800 Si · 400 Öl | 2 | – | +5 % Energieausbeute | **jetzt** |
+| Roboterforschung | Grundlagen | 400 M · 120 Si · 200 Öl | 2,5 | – | Bauzeit ×0,4 (÷ 2,5) | **jetzt** |
+| Computer-Technologie | Grundlagen | 400 Si · 600 Öl | 2 | – | 2 Flotten-Slots | später |
+| Waffen-Technologie | Waffen & Verteidigung | 800 M · 200 Si | 2 | – | +10 % Angriff aller Schiffe/Verteidigungen | später |
+| Schild-Technologie | Waffen & Verteidigung | 200 M · 600 Si | 2 | Energie-Technologie 3 | +10 % Schildstärke (Energiehülle) | später |
+| Panzerung-Technologie | Waffen & Verteidigung | 1.000 M | 2 | – | +10 % Hüllenpunkte (Metallhülle) | später |
+| Laser-Technologie | Waffen & Verteidigung | 200 M · 100 Si | 2 | Energie-Technologie 2 | +10 % Laserwaffen-Schaden | später |
+| Ionen-Technologie | Waffen & Verteidigung | 1.000 M · 300 Si · 100 Öl | 2 | Laser-Technologie 5 + Energie-Technologie 4 | +10 % Ionenwaffen-Schaden | später |
+| Plasma-Technologie | Waffen & Verteidigung | 2.000 M · 4.000 Si · 1.000 Öl | 2 | Ionen-Technologie 5 + Energie-Technologie 8 | +15 % Plasmawaffen-Schaden | später |
+| Verbrennungstriebwerk | Antriebe | 400 M · 600 Öl | 2 | Energie-Technologie 1 | +10 % Geschwindigkeit (Verbrennungstriebwerk) | später |
+| Impulstriebwerk | Antriebe | 2.000 M · 4.000 Si · 600 Öl | 2 | Energie-Technologie 2 + Verbrennungstriebwerk 5 | +20 % Geschwindigkeit (Impulstriebwerk) | später |
+| Hyperraumantrieb | Antriebe | 10.000 M · 20.000 Si · 6.000 Öl · 200 K1 | 2 | Impulstriebwerk 5 + Hyperspace-Technologie 3 | +30 % Geschwindigkeit (Hyperraumantrieb) | später |
+| Spionage-Technologie | Flotte & Spionage | 200 M · 1.000 Si · 200 Öl | 2 | – | 1 Spionage-Stufe | später |
+| Astrophysik | Flotte & Spionage | 4.000 M · 8.000 Si · 4.000 Öl | 1,75 | Spionage-Technologie 4 + Impulstriebwerk 3 | 1 kolonisierbarer Planet | später |
+| Komprimierungsforschung | Flotte & Spionage | 1.000 M · 2.000 Si · 1.000 Öl | 2 | Hyperspace-Technologie 2 ODER Computer-Technologie 4 | +10 % Transporter-Ladekapazität | später |
+| Hyperspace-Technologie | Fortgeschritten | 4.000 Si · 2.000 Öl | 2 | Energie-Technologie 3 + Schild-Technologie 1 | +5 % Ladekapazität Transporter | später |
+| Intergalaktisches Forschungsnetzwerk | Fortgeschritten | 240.000 M · 400.000 Si · 160.000 Öl · 500 K2 | 2 | Computer-Technologie 8 + Hyperspace-Technologie 8 | 1 verbundene Forschungseinrichtung | später |
+| Graviton-Technologie | Fortgeschritten | 300.000 M · 300.000 Si · 150.000 Öl · 100 K3 | 3 | Energie-Technologie 12 + Plasma-Technologie 8 | Gravitonwaffen (später) freigeschaltet | später |
+
+Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zählen mit – solange es keine Kolonien gibt, wirkungslos.

@@ -2,11 +2,11 @@
   "name": "sternenspiel",
   "version": "0.8.0",
   "private": true,
-  "description": "Sternenspiel – Offline-Browser-Aufbauspiel im Weltraum (Kapitel 2: Anlagen, Nachbesserung 0.7.0)",
+  "description": "Sternenspiel – Offline-Browser-Aufbauspiel im Weltraum (Kapitel 3: Forschung, 0.8.0)",
   "scripts": {
     "test": "node --test tests/",
-    "playtest": "node tests/playtest-kapitel2.js && node tests/playtest-kapitel2b.js && node tests/playtest-kapitel1-profile.js",
-    "playtest:firefox": "PLAYTEST_BROWSER=firefox node tests/playtest-kapitel2.js && PLAYTEST_BROWSER=firefox node tests/playtest-kapitel2b.js",
-    "playtest:live": "LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel2.js && LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel2b.js && LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel1-profile.js"
+    "playtest": "node tests/playtest-kapitel2.js && node tests/playtest-kapitel2b.js && node tests/playtest-kapitel1-profile.js && node tests/playtest-kapitel3.js",
+    "playtest:firefox": "PLAYTEST_BROWSER=firefox node tests/playtest-kapitel2.js && PLAYTEST_BROWSER=firefox node tests/playtest-kapitel2b.js && PLAYTEST_BROWSER=firefox node tests/playtest-kapitel3.js",
+    "playtest:live": "LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel2.js && LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel2b.js && LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel1-profile.js && LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel3.js"
   }
 }

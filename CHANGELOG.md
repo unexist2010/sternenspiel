@@ -10,6 +10,19 @@
 - Regel „zu wenige Startplätze“ für den späteren Flottenversand dokumentiert
 - Spielstand **v6** (Migration je Profil: T2/T3-Flags nach Punkten)
 
+### Kapitel 3 – Forschung
+- Menüpunkt **Forschung** gefüllt: genau **18 Forschungen** in 5 Gruppen, je eigenes SVG (`assets/forschung/`), Stufe, Beschreibung,
+  Voraussetzungen grün/rot (Komprimierung mit ODER), Kosten, Dauer, Wirkung jetzt/nächste Stufe, Knopf mit Sperrgrund, ⓘ-Info mit den nächsten 5 Stufen
+- Alle Forschungen in der **Forschungseinrichtung** (Stufe ≥ 1); Zeit = (M + Si) / (1000 · (1 + Stufe)) Std.; **eine Forschung gleichzeitig**,
+  unabhängig vom Bauauftrag; Einrichtung während einer Forschung nicht ausbaubar (und umgekehrt); Echtzeit + offline; Abbrechen erstattet voll
+- **Energie-Technologie** wirkt jetzt: +5 % Stromerzeugung je Stufe (Solarfarm, Ölverbrennung, Satelliten; ANNAHME)
+- **Roboterforschung** wirkt jetzt: Gebäude- und Startplatz-Bauzeit ÷ (1 + 1,5 · Stufe) (ANNAHME), **nicht** auf Forschung
+- Übrige Wirkungen berechnet und angezeigt (zentrale `SS.kern.forschung.bonus()`), angewendet in späteren Kapiteln
+- Sichtbarkeit: ausgeblendet, bis mindestens eine Voraussetzung erfüllt ist (ANNAHME); Master zeigt alle, forscht sofort und kostenlos
+- Übersicht: Kasten „Forschung“ mit Fortschritt/Abbrechen bzw. Hinweis „Forschungseinrichtung bauen“; Ressourcen: Energie-Technik-Zeile
+- Spielstand v6: `forschung` (18 Stufen) + `forschungsauftrag`
+- Tests: `tests/forschung.test.js` (12), `tests/antworten.test.js` (4) → 69 Node-Tests; `tests/playtest-kapitel3.js` (78 Prüfungen Desktop + Handy)
+
 ## [0.7.0] – 2026-10-19 – Kapitel 2: Master-Modus, Infofenster, Geologie, Startplätze A–Z
 
 Sandro hat Kapitel 2 gesehen („sehr gut“) und Nachbesserungen vor Kapitel 3 vorgegeben.

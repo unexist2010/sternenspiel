@@ -1,5 +1,23 @@
 # Playtest-Notizen
 
+## Kapitel 3 – Forschung + Antworten zu Kapitel 2 (0.8.0) – 2026-10-19
+- `node --test tests/`: 69/69 grün (neu `tests/antworten.test.js`: keine Stufengrenze, Startplatz Z10 ≤ 365 Tage, große Zahlen,
+  T2/T3 über Punkte + Migration; neu `tests/forschung.test.js`: Kostenformeln, Voraussetzungen UND/ODER, Sichtbarkeit,
+  Forschungszeit mit Einrichtung, ET-Energie, Roboter verkürzt Bau aber nicht Forschung, eine Forschung gleichzeitig,
+  Einrichtung-Sperre, Offline, Master, bonus(), Migration v5 → v6).
+- `node tests/playtest-kapitel3.js` (file://, Desktop 1366×768 + Handy 412×915): Chromium 78/78, Firefox 78/78.
+  Geprüft: Hinweis ohne Einrichtung, 6 sichtbare Forschungen + Zähler, Dauer 16 Min. bei Einrichtung 2, Start, zweite Forschung
+  gesperrt, Einrichtung in Anlagen gesperrt, Übersicht-Kasten, ET 1 → +5 % Strom, Voraussetzungen grün/rot und blockierend,
+  Komprimierung ODER, Info-Fenster, Abbrechen erstattet voll, Offline-Fertigstellung mit Dialog, Master: 18 Kacheln, Graviton sofort,
+  Roboter 1 → Metallmine 43 Sek.; kein Überlauf, keine Konsolenfehler.
+- `playtest-kapitel2.js` 114/114 (Forschung nicht mehr Platzhalter), `playtest-kapitel2b.js` 94/94, `playtest-kapitel1-profile.js` 134/134.
+- Gefunden & behoben: Desktop-Hover-Info nach Ganzseiten-Screenshot durch spätes Scroll-Ereignis geschlossen (Test zeigt erneut);
+  Ganzseiten-Screenshot im Master zeigte den festen Kopf mitten im Bild → vorher nach oben scrollen; Text „immer nur eine Forschung“;
+  Einzahl „1 kolonisierbarer Planet“ usw.
+- Screenshots: `kapitel3-desktop-forschung.png`, `kapitel3-desktop-infofenster-forschung.png`, `kapitel3-handy-forschung.png`,
+  `kapitel3-handy-infofenster-forschung.png`, `kapitel3-desktop-uebersicht-forschung.png`, `kapitel3-handy-uebersicht-forschung.png`,
+  `kapitel3-master-alle-forschungen.png`, `kapitel3-handy-master-forschung.png`.
+
 ## Kapitel 2 – Nachbesserung (0.7.0) – 2026-10-19
 - `node --test tests/`: 53/53 grün (neu `tests/nachbesserung.test.js`: Master überspringt Zeit/Kosten/Sperren, Geologie-Fund alle
   24 Std. inkl. mehrerer Offline-Funde, Fundbereich je Stufe, Bohrstation leert Vorkommen und stoppt bei 0, Kunststoff-Rezepte,

@@ -1,6 +1,6 @@
 # Sternenspiel – Kapitelplan
 
-Stand: 2026-10-19 (0.7.0) · Jedes Kapitel ist für sich lauffähig, getestet (Node + Browser-Playtest Handy/Desktop) und wird einzeln committet.
+Stand: 2026-10-19 (0.8.0) · Jedes Kapitel ist für sich lauffähig, getestet (Node + Browser-Playtest Handy/Desktop) und wird einzeln committet.
 
 **FEST (Sandro, 2026-10-19):** Kapitel 1 ist **nur Seitenstruktur + Layout**. **Jeder Menüpunkt bzw. einzelne Mechaniken
 bekommen später eigene Kapitel.** Die Weltraum-Ansicht und die Startplätze kommen ebenfalls erst später.
@@ -10,6 +10,7 @@ Reihenfolge und Nummern der späteren Kapitel sind **noch offen** (legt Sandro f
 |---------|--------|--------|
 | 1 | **Reine Seitenstruktur**: 8 Menüseiten im gleichen Layout (ohne Inhalt), Ressourcenleiste als Platzhalter, Übersicht mit Hauptplanet + Koordinaten, Spielerprofile, automatischer Start, Speichern, Start-Fix/Versionsmarke | ✅ **erledigt** (0.5.0, 2026-10-19) |
 | 2 | **Anlagen**: 13 Gebäude in 4 Gruppen, Bauauftrag (1 je Planet), Energie-Bilanz, Kunststoff-Kette, Raumflughafen mit Startplätzen A–Z, Punkte; Ressourcen-Seite + Übersicht zurück; Nachbesserung: Master-Modus, Info-Fenster, Rohölvorkommen + Geologie | ✅ **erledigt** (0.6.0 + 0.7.0, 2026-10-19) |
+| 3 | **Forschung**: 18 Forschungen in 5 Gruppen, Forschungseinrichtung, 1 Forschung gleichzeitig (Echtzeit + offline), Voraussetzungen inkl. ODER, Energie-Technologie + Roboterforschung wirken, übrige Wirkungen über `bonus()`; vorher Sandros Antworten zu Kapitel 2 (T2/T3 über Punkte, keine Stufengrenze, Startplätze ÷ 11) | ✅ **erledigt** (0.8.0, 2026-10-19) |
 | später | eigene Kapitel je Menüpunkt bzw. Mechanik (siehe unten) | offen |
 | – | Offene Punkte | laufend: `docs/OFFENE-PUNKTE.md` |
 
@@ -41,15 +42,26 @@ Reihenfolge und Nummern der späteren Kapitel sind **noch offen** (legt Sandro f
   (Anzeige) · Kunststoffwerk T1–T3 · Geologiestation, Raumflughafen, Werft, Verteidigungswerft, Forschungseinrichtung
 - **Raumflughafen** mit Unterseite Startplätze A–Z (26 × 10 Stufen, Vorgänger Stufe 10 + Punkte, Kapazität) – 0.7.0
 - **Nachbesserung 0.7.0:** MASTER-Testmodus, Info-Fenster je Gebäude, Rohölvorkommen + Geologie-Funde alle 24 Std., Kunststoff-Rezepte, T2/T3 gesperrt
-- Bauzeit nach OGame-Formel (Robotik-Haken = 1), Stufen bis 30, 1 Bauplatz je Planet, Offline-Fertigstellung
-- Forschung, Werft, Verteidigung, Flotte, Weltraum bleiben Platzhalter
+- Bauzeit nach OGame-Formel (ab 0.8.0 mit Roboterforschung), keine Stufenobergrenze (0.8.0), 1 Bauplatz je Planet, Offline-Fertigstellung
+- Forschung (bis Kapitel 3), Werft, Verteidigung, Flotte, Weltraum blieben Platzhalter
 - Formeln/Werte: `docs/SPEZIFIKATION.md` Abschnitt C; Tests `tests/anlagen.test.js`, `tests/playtest-kapitel2.js` → `playtest/kapitel2-*.png`
+
+## Kapitel 3 – Forschung ✅
+
+- **Forschung-Seite**: Kasten laufende Forschung, Kasten Forschungseinrichtung, 5 Gruppen (Grundlagen, Waffen & Verteidigung,
+  Antriebe, Flotte & Spionage, Fortgeschritten) mit Kacheln: eigenes SVG, Stufe, Beschreibung, Voraussetzungen grün/rot (ODER),
+  Kosten, Dauer, Wirkung jetzt/nächste Stufe („wirkt jetzt“ / „ab späterem Kapitel“), Knopf „Forschen → Stufe n“ mit Sperrgrund, ⓘ
+- Ausgeblendete Forschungen mit Zähler; Hinweis + Knopf „Forschungseinrichtung bauen“, wenn sie fehlt
+- **Übersicht**: Kasten „Forschung“ mit Fortschritt, Restzeit, Abbrechen
+- Energie-Technologie (+5 % Strom je Stufe) und Roboterforschung (Bauzeit ÷ (1 + 1,5 n)) wirken jetzt
+- Master: sofort, kostenlos, ohne Voraussetzungen, alle 18 sichtbar
+- Formeln/Werte: `docs/SPEZIFIKATION.md` A9 + C7; Tests `tests/forschung.test.js`, `tests/playtest-kapitel3.js` → `playtest/kapitel3-*.png`
 
 ## Spätere Kapitel (Sammlung, Reihenfolge offen)
 
 | Thema | Menüseite | Bekannte Vorgaben (FEST) / Notizen |
 |-------|-----------|------------------------------------|
-| Forschung | Forschung | Freischaltung Kunststoff T1–T3 / Antimaterie (Wodurch? offen) |
+| Forschungs-Wirkungen anwenden | Werft/Flotte/… | Waffen/Schild/Panzerung, Antriebe, Computer, Spionage, Astrophysik, Komprimierung, Graviton über `SS.kern.forschung.bonus()`; Antimaterie-Freischaltung offen |
 | Werft | Werft | **23 Schiffe, 5 Waffentypen, 2 Hüllentypen**; Solarsatelliten bauen (Anzeige steht schon) |
 | Verteidigung & Kampf | Verteidigung | **Schutzschild-Autoaktivierung (Solo-Regel)**, **Trümmer-Salvage 50–75 % Boden / 80 % Orbit** |
 | Flotte | Flotte | **Treibstoffregeln** (Inhalt offen) |

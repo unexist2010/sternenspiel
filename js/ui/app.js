@@ -24,7 +24,7 @@
 
   var SS = window.SS;
   var benoetigt = ["BALANCE", "DATEN", "kern", "format"];
-  var fehltModul = !SS || benoetigt.some(function (k) { return !SS[k]; }) || !SS.kern.profile || !SS.kern.zustand || !SS.kern.bau || !SS.kern.geologie || !SS.DATEN.gebaeudeGruppen || !SS.DATEN.weltraum || !SS.DATEN.menue;
+  var fehltModul = !SS || benoetigt.some(function (k) { return !SS[k]; }) || !SS.kern.profile || !SS.kern.zustand || !SS.kern.bau || !SS.kern.geologie || !SS.kern.forschung || !SS.DATEN.forschung || !SS.DATEN.gebaeudeGruppen || !SS.DATEN.weltraum || !SS.DATEN.menue;
 
   // ---------- Versionsprüfung (Schutz gegen gemischten Browser-Cache: neues HTML + alte Skripte oder umgekehrt) ----------
   var htmlVersion = document.documentElement.getAttribute("data-version");
@@ -239,7 +239,8 @@
     });
     var m = D.menuePunkt(id);
     var html = id === "uebersicht" ? seiteUebersicht() : id === "ressourcen" ? seiteRessourcen() :
-      id === "anlagen" ? (seite.teile[0] === "raumflughafen" ? seiteRaumflughafen() : seiteAnlagen()) : seitePlatzhalter(m);
+      id === "anlagen" ? (seite.teile[0] === "raumflughafen" ? seiteRaumflughafen() : seiteAnlagen()) :
+      id === "forschung" ? seiteForschung() : seitePlatzhalter(m);
     var y = window.scrollY;
     schliesseInfo();
     $("inhalt").innerHTML = "<h1 class=\"seiten-titel\">" + m.name + "</h1>" + html;
@@ -312,7 +313,7 @@
       "<dt>Reicht noch</dt><dd data-live=\"reichweite\"></dd>" +
       "<dt>Nächster Fund in</dt><dd data-live=\"geo-countdown\"></dd></dl>" +
       "<p class=\"hinweis\">Die Bohrstation fördert aus dem Vorkommen; die Geologiestation findet alle 24 Std. ein neues Feld.</p>", "", " id=\"rohoel-box\"");
-    return planetBox + "<div class=\"zwei-spalten\">" + kommandant + bauBox() + "</div><div class=\"zwei-spalten\">" + rohoel + spielstand + "</div>";
+    return planetBox + "<div class=\"zwei-spalten\">" + kommandant + bauBox() + "</div><div class=\"zwei-spalten\">" + forschungBox() + rohoel + "</div>" + spielstand;
   }
 
   function leistungText(obj, vorzeichen) {
@@ -333,7 +334,8 @@
       "<p class=\"hinweis\">Rohölvorkommen des Planeten: <b data-live=\"vorkommen\"></b> · Förderung <span data-live=\"foerderung\"></span></p>");
     var energie = box("Energiebilanz",
       "<dl class=\"werte\"><dt>Erzeugung</dt><dd data-live=\"strom-erzeugung\"></dd><dt>Bedarf</dt><dd data-live=\"strom-bedarf\"></dd>" +
-      "<dt>Bilanz</dt><dd data-live=\"strom-bilanz\"></dd><dt>Produktionsfaktor</dt><dd data-live=\"strom-faktor\"></dd></dl>" +
+      "<dt>Bilanz</dt><dd data-live=\"strom-bilanz\"></dd><dt>Produktionsfaktor</dt><dd data-live=\"strom-faktor\"></dd>" +
+      "<dt>Energie-Technologie</dt><dd id=\"energie-technik\">Stufe " + FO.stufe(zustand, "energie") + " · +" + F.zahl(FO.bonus(zustand, "energie")) + " % Stromerzeugung</dd></dl>" +
       "<div class=\"balken\"><div class=\"balken-fuellung\" data-live=\"strom-balken\"></div></div>" +
       "<p class=\"hinweis\">Strom wird nicht gelagert: Reicht die Erzeugung nicht, drosseln alle Verbraucher anteilig (OGame-Produktionsfaktor). <span class=\"annahme-marke\">Annahme</span></p>",
       "", " id=\"energie-box\"");
@@ -363,7 +365,7 @@
       T.push("+" + zahlFein(e) + " " + rName(d.werk.ausgabe) + "/h");
       T.push("−" + Object.keys(d.werk.input).map(function (id) { return zahlFein(d.werk.input[id] * e) + " " + rName(id); }).join(", −") + "/h");
     }
-    if (d.stromErzeugt) T.push("+" + zahlFein(wa(d.stromErzeugt, n)) + " Strom");
+    if (d.stromErzeugt) T.push("+" + zahlFein(wa(d.stromErzeugt, n) * FO.energieFaktor(zustand)) + " Strom");
     if (d.verbrauch) T.push("−" + zahlFein(wa(d.verbrauch.rohoel, n)) + " Rohöl/h");
     if (d.stromBedarf) T.push("−" + zahlFein(wa(d.stromBedarf, n)) + " Strom");
     if (d.fund) { if (n > 0) { var fb = SS.kern.geologie.fundBereich(n); T.push("Fund " + F.zahl(fb[0]) + "–" + F.zahl(fb[1]) + " Rohöl / 24 Std."); } else T.push("keine Funde"); }
@@ -410,7 +412,7 @@
       "<p class=\"beschreibung\">" + esc(d.beschreibung) + "</p>" + extra + unten + "</article>";
   }
   function satellitKachel() {
-    var s = D.solarsatellit, p = hp(), e = B.SOLARSATELLIT_ENERGIE;
+    var s = D.solarsatellit, p = hp(), e = zahlFein(B.SOLARSATELLIT_ENERGIE * FO.energieFaktor(zustand));
     return "<article class=\"anlage\" data-gebaeude=\"solarsatellit\"><div class=\"anlage-kopf\"><img class=\"anlage-bild\" src=\"" + s.bild + "\" alt=\"\" width=\"72\" height=\"72\"><div><h3>" + s.name + "</h3><span class=\"stufe\">Anzahl <b>" + p.solarsatelliten + "</b></span></div></div>" +
       "<p class=\"beschreibung\">" + esc(s.beschreibung) + "</p>" +
       "<dl class=\"anlage-werte\"><dt>Energie je Satellit</dt><dd>" + e + " Strom <span class=\"annahme-marke\">Annahme</span></dd><dt>Gesamt</dt><dd data-live=\"gs:solarsatellit\"></dd><dt>Regler</dt><dd>" + p.regler.solarsatellit + " % (Seite Ressourcen)</dd></dl>" +
@@ -459,6 +461,67 @@
     return kopf + "<div class=\"zwei-spalten\">" + info + bauBox() + "</div>" + box("Startplätze A–Z", "<div class=\"startplatz-raster\">" + karten + "</div>", "", " id=\"startplatz-liste\"");
   }
 
+  // ---------- Forschung (Kapitel 3) ----------
+  var FO = SS.kern.forschung;
+  function forschungFortschritt(a) {
+    return "<div class=\"bau-laufend\"><div class=\"bau-zeile\"><b>" + esc(a.name) + " → Stufe " + a.stufe + "</b><span data-live=\"forschung-rest\"></span></div>" +
+      "<div class=\"balken\"><div class=\"balken-fuellung forschung\" data-live=\"forschung-balken\"></div></div>" +
+      "<div class=\"knopf-reihe\"><span class=\"hinweis\">Fertig: " + F.uhrzeit(a.ende) + "</span><button class=\"knopf klein gefahr\" type=\"button\" data-aktion=\"forschung-abbrechen\">Abbrechen</button></div></div>";
+  }
+  function forschungBox() {
+    var a = zustand.forschungsauftrag, ohne = !(hp().gebaeude.forschungseinrichtung > 0);
+    return box("Forschung", a ? forschungFortschritt(a) :
+      "<p class=\"hinweis\">" + (ohne ? "Noch keine Forschungseinrichtung – zuerst unter Anlagen bauen." : "Keine laufende Forschung. Es läuft immer nur eine Forschung gleichzeitig – unabhängig vom Bauauftrag.") + "</p>" +
+      (seite && seite.id === "forschung" ? "" : "<a class=\"knopf klein\" href=\"" + (ohne ? "#anlagen" : "#forschung") + "\">" + (ohne ? "Forschungseinrichtung bauen" : "Zur Forschung") + "</a>"), "", " id=\"forschung-box\"");
+  }
+  function vorListe(f) {
+    var vs = FO.voraussetzungen(zustand, f);
+    if (!vs.length) return "<p class=\"vor-liste\"><span class=\"vor ok\">keine Voraussetzungen</span></p>";
+    return "<p class=\"vor-liste\"><span class=\"vor-titel\">Voraussetzungen:</span> " + vs.map(function (gr) {
+      return "<span class=\"vor-gruppe\">" + gr.alternativen.map(function (x) {
+        return "<span class=\"vor " + (x.ok ? "ok" : "fehlt") + "\" title=\"aktuell Stufe " + x.ist + "\">" + (x.ok ? "✔ " : "✘ ") + esc(x.name) + " " + x.stufe + "</span>";
+      }).join(" <em>oder</em> ") + "</span>";
+    }).join(" ") + "</p>";
+  }
+  function wirkungZeile(f, n) {
+    var w = FO.wirkung(f.id, n);
+    return esc(w.text) + (f.wirkung.aktiv ? " <span class=\"wirkt-marke\">wirkt jetzt</span>" : " <span class=\"spaeter-marke\">ab späterem Kapitel</span>");
+  }
+  function forschungKachel(f) {
+    var n = FO.stufe(zustand, f.id), a = zustand.forschungsauftrag, laeuft = a && a.id === f.id, master = FO.istMaster(zustand), zl = FO.ziel(zustand, f.id);
+    var vorOk = FO.voraussetzungenOk(zustand, f);
+    return "<article class=\"anlage forschung-kachel" + (laeuft ? " im-bau" : "") + (n === 0 ? " stufe-0" : "") + (!vorOk ? " gesperrt" : "") + "\" data-forschung=\"" + f.id + "\">" +
+      "<div class=\"anlage-kopf\"><img class=\"anlage-bild\" src=\"" + f.bild + "\" alt=\"\" width=\"72\" height=\"72\"><div class=\"anlage-titel\"><h3>" + f.name + " " + infoKnopf("forschung", f.id, f.name) + "</h3><span class=\"stufe\">Stufe <b>" + n + "</b></span>" +
+      (!vorOk ? "<span class=\"sperr-marke\">🔒 Voraussetzung fehlt" + (master ? " (Master)" : "") + "</span>" : "") + "</div></div>" +
+      "<p class=\"beschreibung\">" + esc(f.beschreibung) + "</p>" + vorListe(f) +
+      "<dl class=\"anlage-werte\"><dt>Kosten Stufe " + zl.stufe + "</dt><dd>" + kostenHtml(zl.kosten) + (master ? " <span class=\"master-marke\">kostenlos</span>" : "") + "</dd>" +
+      "<dt>Dauer</dt><dd>" + (master ? "sofort <span class=\"master-marke\">Master</span>" : F.dauer(zl.dauer)) + "</dd>" +
+      "<dt>Aktuell</dt><dd>" + wirkungZeile(f, n) + "</dd>" +
+      "<dt>Stufe " + zl.stufe + "</dt><dd>" + esc(FO.wirkung(f.id, zl.stufe).text) + "</dd></dl>" +
+      (laeuft ? forschungFortschritt(a) : "<div class=\"bau-aktion\"><button class=\"knopf primaer\" type=\"button\" data-aktion=\"forschen\" data-id=\"" + f.id + "\">" + (master ? "Sofort erforschen → " : "Forschen → Stufe ") + zl.stufe + "</button><span class=\"grund hinweis\"></span></div>") +
+      "</article>";
+  }
+  function seiteForschung() {
+    var p = hp(), stE = p.gebaeude.forschungseinrichtung || 0, master = FO.istMaster(zustand);
+    var einrichtung = box("Forschungseinrichtung", stE > 0 ?
+      "<dl class=\"werte\"><dt>Stufe</dt><dd id=\"forschung-einrichtung-stufe\">" + stE + "</dd><dt>Forschungszeit</dt><dd>÷ " + (1 + FO.einrichtungStufe(zustand)) + " (1 + Stufe)</dd>" +
+      "<dt>Erforschte Stufen</dt><dd>" + D.forschungIds.reduce(function (s, id) { return s + FO.stufe(zustand, id); }, 0) + "</dd><dt>Punkte</dt><dd data-live=\"punkte\"></dd></dl>" +
+      "<p class=\"hinweis\">Roboterforschung verkürzt Bauzeiten, nicht die Forschung. Während einer Forschung kann die Einrichtung nicht ausgebaut werden.</p>"
+      : "<p class=\"forschung-fehlt\" id=\"forschung-hinweis\"><b>Forschungseinrichtung bauen</b> – alle Forschungen finden in der Forschungseinrichtung statt (Stufe 1 nötig).</p>" +
+      "<a class=\"knopf primaer\" href=\"#anlagen\" id=\"knopf-zur-einrichtung\">Zu den Anlagen</a>", "", " id=\"einrichtung-box\"");
+    var ausgeblendet = 0;
+    var gruppen = D.forschungGruppen.map(function (gr) {
+      var liste = D.forschung.filter(function (f) { return f.gruppe === gr.id; });
+      var sicht = liste.filter(function (f) { return FO.sichtbar(zustand, f); });
+      ausgeblendet += liste.length - sicht.length;
+      if (!sicht.length) return "";
+      return box(gr.name, "<div class=\"anlagen-raster\">" + sicht.map(forschungKachel).join("") + "</div>", "<span class=\"box-zahl\">" + sicht.length + "/" + liste.length + "</span>", " data-gruppe=\"" + gr.id + "\"");
+    }).join("");
+    var hinweis = ausgeblendet ? "<p class=\"hinweis\" id=\"forschung-ausgeblendet\">" + ausgeblendet + " weitere Forschung" + (ausgeblendet === 1 ? " ist" : "en sind") + " noch ausgeblendet – sie erscheinen, sobald mindestens eine ihrer Voraussetzungen erfüllt ist. <span class=\"annahme-marke\">Annahme</span></p>"
+      : (master ? "<p class=\"hinweis\">Master: alle Forschungen sichtbar, Voraussetzungen werden ignoriert.</p>" : "");
+    return "<div class=\"zwei-spalten\">" + forschungBox() + einrichtung + "</div>" + hinweis + gruppen;
+  }
+
   // Alle übrigen Menüseiten: nur Titel + neutraler Platzhalter (Inhalt kommt in eigenen Kapiteln)
   function seitePlatzhalter(m) {
     return box(m.name, "<div class=\"platzhalter\"><p class=\"gross\">" + esc(D.PLATZHALTER_TEXT) + "</p></div>");
@@ -486,7 +549,7 @@
       spalten.push({ t: rName(d.werk.ausgabe) + "/h", f: function (s) { return wa(d.werk.basis, s); }, diff: "/h" });
       spalten.push({ t: "Verbrauch/h", f: function (s) { var e = wa(d.werk.basis, s); return Object.keys(d.werk.input).map(function (id) { return F.kurz(d.werk.input[id] * e) + " " + rName(id); }).join(", ") || "–"; } });
     }
-    if (d.stromErzeugt) spalten.push({ t: "Strom", f: function (s) { return wa(d.stromErzeugt, s); }, diff: "" });
+    if (d.stromErzeugt) spalten.push({ t: "Strom", f: function (s) { return wa(d.stromErzeugt, s) * FO.energieFaktor(zustand); }, diff: "" });
     if (d.verbrauch) spalten.push({ t: "Rohöl/h", f: function (s) { return -wa(d.verbrauch.rohoel, s); }, diff: "/h" });
     if (d.stromBedarf) spalten.push({ t: "Strombedarf", f: function (s) { return -wa(d.stromBedarf, s); }, diff: "" });
     if (d.fund) spalten.push({ t: "Fundgröße / 24 Std.", f: function (s) { if (!s) return "–"; var b = SS.kern.geologie.fundBereich(s); return F.zahl(b[0]) + "–" + F.zahl(b[1]); } });
@@ -520,9 +583,25 @@
     return { titel: "Startplatz " + b + " · Stufe " + n + " / " + K.STUFE_MAX, text: "Kapazität = Anzahl Schiffe, die gleichzeitig vom Planeten starten können (Größe egal). Je Stufe +" + F.zahl(K.KAPAZITAET_JE_STUFE[i]) + " Schiffe.",
       extra: "<p class=\"hinweis\">" + vor + "</p>", kopf: kopf, zeilen: zeilen, hinweis: "Gesamt = Kapazität aller Startplätze des Planeten nach diesem Ausbau.", bild: D.gebaeudeNachId("raumflughafen").bild };
   }
+  function infoForschung(f) {
+    var n = FO.stufe(zustand, f.id), master = FO.istMaster(zustand), w0 = FO.wirkung(f.id, n).wert, zeilen = "";
+    var kopf = "<tr><th class=\"z\">Stufe</th><th>Wirkung</th><th class=\"z\">Diff.</th><th>Kosten</th><th class=\"z\">Dauer</th></tr>";
+    for (var s = n; s <= n + INFO_STUFEN; s++) {
+      var w = FO.wirkung(f.id, s), k = s > 0 ? FO.kosten(f, s) : null, d = w.wert - w0, diff;
+      if (s === n || Math.abs(d) < 1e-12) diff = "–";
+      else if (f.wirkung.typ === "bauzeit") diff = "<span class=\"plus\">÷ " + (Math.round(w0 / w.wert * 100) / 100).toLocaleString("de-DE") + "</span>";
+      else diff = "<span class=\"plus\">+" + F.zahl(d) + (f.wirkung.typ === "prozent" ? " %" : "") + "</span>";
+      zeilen += "<tr" + (s === n ? " class=\"aktuell\"" : "") + "><td class=\"z\">" + s + (s === n ? " <small>aktuell</small>" : "") + "</td><td>" + esc(w.text) + "</td><td class=\"z\">" + diff + "</td><td>" +
+        (s === n || !k ? "–" : kostenKurz(k)) + "</td><td class=\"z\">" + (s === n || !k ? "–" : master ? "sofort" : F.dauer(FO.dauerMs(zustand, k))) + "</td></tr>";
+    }
+    var vs = FO.voraussetzungen(zustand, f);
+    var vor = vs.length ? "Voraussetzungen: " + vs.map(function (gr) { return gr.alternativen.map(function (x) { return (x.ok ? "✔ " : "✘ ") + esc(x.name) + " " + x.stufe; }).join(" oder "); }).join(", ") : "Keine Voraussetzungen.";
+    return { titel: f.name + " · Stufe " + n, text: f.info, extra: "<p class=\"hinweis\">" + vor + (f.wirkung.aktiv ? " · <b>wirkt jetzt</b>" : " · Wirkung wird in einem späteren Kapitel angewendet") + "</p>",
+      kopf: kopf, zeilen: zeilen, hinweis: "Dauer mit Forschungseinrichtung Stufe " + (hp().gebaeude.forschungseinrichtung || 0) + " (Zeit ÷ (1 + Stufe)); Roboterforschung wirkt nicht auf Forschung.", bild: f.bild };
+  }
   function zeigeInfo(knopf, angeheftet) {
     var teile = (knopf.getAttribute("data-info") || "").split(":"), art = teile[0], id = teile[1], d;
-    var inh = art === "startplatz" ? infoStartplatz(id) : (d = D.gebaeudeNachId(id)) ? infoGebaeude(d) : null;
+    var inh = art === "startplatz" ? infoStartplatz(id) : art === "forschung" ? (D.forschungNachId(id) ? infoForschung(D.forschungNachId(id)) : null) : (d = D.gebaeudeNachId(id)) ? infoGebaeude(d) : null;
     if (!inh || !zustand) return;
     var f = $("infofenster");
     f.innerHTML = "<div class=\"info-kopf\"><img src=\"" + inh.bild + "\" alt=\"\" width=\"40\" height=\"40\"><h3>" + esc(inh.titel) + "</h3>" +
@@ -564,7 +643,7 @@
   // ---------- Live-Werte (jeder Tick) ----------
   function aktualisiereLive() {
     if (!zustand) return;
-    var u = P.uebersicht(zustand), p = hp(), a = p.bauauftrag, t = jetzt(), Bau = SS.kern.bau;
+    var u = P.uebersicht(zustand), p = hp(), a = p.bauauftrag, fa = zustand.forschungsauftrag, t = jetzt(), Bau = SS.kern.bau;
     var vz = function (n) { return (n > 1e-9 ? "+" : n < -1e-9 ? "−" : "") + zahlFein(Math.abs(n)); };
     Array.prototype.forEach.call(document.querySelectorAll("#bildschirm-spiel [data-live]"), function (el) {
       var k = el.getAttribute("data-live").split(":"), art = k[0], id = k[1];
@@ -597,6 +676,8 @@
           var nf = SS.kern.geologie.naechsterFund(p);
           text = nf != null ? F.dauer(Math.max(0, nf - t)) : "– (Geologiestation bauen)"; break;
         case "bau-rest": text = a ? "noch " + F.dauer(Math.max(0, a.ende - t)) : ""; break;
+        case "forschung-rest": text = fa ? "noch " + F.dauer(Math.max(0, fa.ende - t)) : ""; break;
+        case "forschung-balken": el.style.width = fa ? Math.min(100, Math.max(0, (t - fa.start) / Math.max(1, fa.ende - fa.start) * 100)).toFixed(1) + "%" : "0%"; return;
         case "bau-balken": el.style.width = a ? Math.min(100, Math.max(0, (t - a.start) / (a.ende - a.start) * 100)).toFixed(1) + "%" : "0%"; return;
         case "offline": text = F.dauer(zustand.statistik.offlineMsGesamt); break;
         case "speicherinfo":
@@ -614,6 +695,15 @@
     });
     Array.prototype.forEach.call(document.querySelectorAll("#inhalt button[data-aktion=\"bauen\"]"), function (b) {
       var pr = Bau.pruefe(zustand, p, auftragAus(b));
+      if (b.disabled !== !pr.ok) b.disabled = !pr.ok;
+      var g = b.parentNode.querySelector(".grund");
+      if (g && g.textContent !== pr.grund) g.textContent = pr.grund;
+    });
+    forschKnoepfe();
+  }
+  function forschKnoepfe() {
+    Array.prototype.forEach.call(document.querySelectorAll("#inhalt button[data-aktion=\"forschen\"]"), function (b) {
+      var pr = FO.pruefe(zustand, b.getAttribute("data-id"));
       if (b.disabled !== !pr.ok) b.disabled = !pr.ok;
       var g = b.parentNode.querySelector(".grund");
       if (g && g.textContent !== pr.grund) g.textContent = pr.grund;
@@ -645,6 +735,26 @@
       meldung("Bauauftrag abgebrochen – Rohstoffe erstattet.");
     });
   }
+  function forschen(b) {
+    meldeFertig(P.tick(zustand, jetzt()).fertig);
+    var r = FO.starte(zustand, b.getAttribute("data-id"), jetzt());
+    if (!r.ok) { meldung(r.grund, "schlecht"); aktualisiereLive(); return; }
+    speichern(true);
+    route(true);
+    if (r.sofort) meldung("Sofort erforscht (Master): " + r.auftrag.name + " Stufe " + r.auftrag.stufe, "gut");
+    else meldung("Forschung gestartet: " + r.auftrag.name + " → Stufe " + r.auftrag.stufe + " (" + F.dauer(r.auftrag.ende - r.auftrag.start) + ")", "gut");
+  }
+  function forschungAbbrechen() {
+    var a = zustand.forschungsauftrag;
+    if (!a) return;
+    dialog("Forschung abbrechen?", "<p><b>" + esc(a.name) + " → Stufe " + a.stufe + "</b> wird abgebrochen. Du bekommst alle Rohstoffe zurück.</p>", true).then(function (ok) {
+      if (!ok) return;
+      P.tick(zustand, jetzt());
+      FO.abbrechen(zustand);
+      speichern(true); route(true);
+      meldung("Forschung abgebrochen – Rohstoffe erstattet.");
+    });
+  }
   function meldeFunde(liste) {
     if (!liste || !liste.length) return false;
     var summe = liste.reduce(function (s, f) { return s + f.menge; }, 0);
@@ -669,7 +779,7 @@
     aktualisiereMaster();
     baueMenue();
     route(true);
-    meldung(an ? "MASTER aktiv – Bauzeiten, Kosten und Sperren werden ignoriert." + (fertig.length ? " Laufender Auftrag sofort fertig." : "") : "Master-Modus ausgeschaltet.", an ? "gut" : "");
+    meldung(an ? "MASTER aktiv – Bau-/Forschungszeiten, Kosten und Sperren werden ignoriert." + (fertig.length ? " Laufender Auftrag sofort fertig." : "") : "Master-Modus ausgeschaltet.", an ? "gut" : "");
   }
   function fundTest() {
     meldeFertig(P.tick(zustand, jetzt()).fertig);
@@ -717,7 +827,7 @@
         var gw = off.gewinne[x.id];
         return "<li>" + icon(x) + x.name + ": " + (gw > 0 ? "+" : "−") + F.zahl(Math.abs(gw)) + "</li>";
       }).join("");
-      var fertigListe = off.fertig.map(function (a) { return "<li>✔ " + esc(a.name) + " Stufe " + a.stufe + " fertiggestellt</li>"; }).join("") +
+      var fertigListe = off.fertig.map(function (a) { return "<li>✔ " + esc(a.name) + " Stufe " + a.stufe + (a.art === "forschung" ? " erforscht" : " fertiggestellt") + "</li>"; }).join("") +
         (off.funde || []).map(function (f) { return "<li>🛢 Rohölfeld entdeckt (" + F.uhrzeit(f.zeit) + ", Stufe " + f.stufe + "): +" + F.zahl(f.menge) + "</li>"; }).join("");
       dialog("Willkommen zurück, " + esc(zustand.name) + "!", "<p>Du warst <b>" + F.dauer(off.abwesendMs) + "</b> weg." +
         (off.gekappt ? " Produktion angerechnet: höchstens " + B.OFFLINE_MAX_STUNDEN + " Std." : "") + "</p>" +
@@ -772,6 +882,8 @@
     else if (a === "bauen") bauen(b);
     else if (a === "abbrechen") bauAbbrechen();
     else if (a === "fund-test") fundTest();
+    else if (a === "forschen") forschen(b);
+    else if (a === "forschung-abbrechen") forschungAbbrechen();
     else if (a === "laden") {
       dialog("Letzten Spielstand laden?", "<p>Nicht gespeicherter Fortschritt seit dem letzten Speichern geht verloren (Offline-Produktion wird dabei angerechnet).</p>", true)
         .then(function (ok) { if (ok) { var id = aktivId; stoppeSchleifen(); ladeUndBetrete(id); } });

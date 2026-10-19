@@ -2,7 +2,7 @@
  * Sternenspiel – Hauptmenü (linke Leiste).
  * FEST (Sandro): genau diese 8 Punkte in genau dieser Reihenfolge:
  *   Übersicht, Ressourcen, Anlagen, Forschung, Werft, Verteidigung, Flotte, Weltraum.
- * Inhalt haben: Übersicht, Ressourcen (Kapitel 1/2) und Anlagen (Kapitel 2). Alle anderen Seiten zeigen nur
+ * Inhalt haben: Übersicht, Ressourcen (Kapitel 1/2), Anlagen (Kapitel 2) und Forschung (Kapitel 3). Alle anderen Seiten zeigen nur
  * Titel + neutralen Platzhalter.
  * Jeder Menüpunkt bzw. einzelne Mechaniken bekommen später eigene Kapitel (docs/KAPITELPLAN.md).
  */
@@ -17,7 +17,7 @@
     Object.freeze({ id: "uebersicht",   name: "Übersicht",    platzhalter: false }),
     Object.freeze({ id: "ressourcen",   name: "Ressourcen",   platzhalter: false }),
     Object.freeze({ id: "anlagen",      name: "Anlagen",      platzhalter: false }),
-    Object.freeze({ id: "forschung",    name: "Forschung",    platzhalter: true }),
+    Object.freeze({ id: "forschung",    name: "Forschung",    platzhalter: false }),
     Object.freeze({ id: "werft",        name: "Werft",        platzhalter: true }),
     Object.freeze({ id: "verteidigung", name: "Verteidigung", platzhalter: true }),
     Object.freeze({ id: "flotte",       name: "Flotte",       platzhalter: true }),
