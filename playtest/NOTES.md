@@ -14,6 +14,9 @@
 - Gefunden & behoben: Desktop-Hover-Info nach Ganzseiten-Screenshot durch spätes Scroll-Ereignis geschlossen (Test zeigt erneut);
   Ganzseiten-Screenshot im Master zeigte den festen Kopf mitten im Bild → vorher nach oben scrollen; Text „immer nur eine Forschung“;
   Einzahl „1 kolonisierbarer Planet“ usw.
+- **Live** (https://unexist2010.github.io/sternenspiel/, nach Deploy von 77c1a38, Pages ab 03:29 Uhr mit Forschung):
+  Chromium: `playtest-kapitel3.js` 78/78, `playtest-kapitel2.js` 114/114, `playtest-kapitel2b.js` 94/94, `playtest-kapitel1-profile.js` 67/67;
+  Firefox: 78/78, 114/114, 94/94, 67/67 (kapitel2/2b im ersten Durchlauf je 1 vereinzelter Konsolen-/Anfragefehler, bei Wiederholung grün).
 - Screenshots: `kapitel3-desktop-forschung.png`, `kapitel3-desktop-infofenster-forschung.png`, `kapitel3-handy-forschung.png`,
   `kapitel3-handy-infofenster-forschung.png`, `kapitel3-desktop-uebersicht-forschung.png`, `kapitel3-handy-uebersicht-forschung.png`,
   `kapitel3-master-alle-forschungen.png`, `kapitel3-handy-master-forschung.png`.
