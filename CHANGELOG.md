@@ -1,5 +1,12 @@
 # Changelog – Sternenspiel
 
+## [0.11.0] – 2026-10-31 – Werft im OGame-Retro-Layout
+
+- Werft-Seite neu im Stil des klassischen OGame: **ein Schiff je Zeile** über die volle Breite, **großes Schiffsbild links** (200 px Desktop, 120 px Handy), rechts Name/Info, Anzahl, Beschreibung, Voraussetzungen, Werte und Bau-Steuerung; Gruppen-Boxen innen als Liste (Zebra-Zeilen) statt Kachel-Raster
+- Sandro bestätigt: 24 Schiffe fest, Bodensammler-Werte, alte Schiffe ohne Entsprechung verwerfen (Fragen 43–45 erledigt)
+- Bildvorschläge (2 je Schiff) erzeugt, noch nicht eingebaut – liegen unter `/workspace/sternenspiel-bildvorschlaege/`
+- Playtest Kapitel 4 → Screenshots `kapitel4c-*.png`
+
 ## [0.10.0] – 2026-10-30 – Kapitel 4: Schiffsliste nach Sandro
 
 - Werft neu nach Sandros Schiffsliste v2: **24 Schiffe** (23 aus v2 + **Bodensammler**, von Sandro ergänzt – ersetzt die frühere FEST-Zahl 23)

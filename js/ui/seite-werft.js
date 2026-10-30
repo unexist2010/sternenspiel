@@ -35,8 +35,8 @@
     function kachel(s) {
       var zz = z(), pp = p(), master = WF.istMaster(zz), n = WF.anzahl(pp, s.id), w = WF.werte(zz, s), vorOk = WF.voraussetzungenOk(zz, pp, s);
       var laeuft = (pp.werftauftraege || []).some(function (a) { return a.id === s.id; });
-      return "<article class=\"anlage schiff-kachel" + (laeuft ? " im-bau" : "") + (!vorOk ? " gesperrt" : "") + "\" data-schiff=\"" + s.id + "\">" +
-        "<div class=\"anlage-kopf\"><img class=\"anlage-bild\" src=\"" + s.bild + "\" alt=\"\" width=\"72\" height=\"72\"><div class=\"anlage-titel\"><h3>" + s.name + " " + h.infoKnopf("schiff", s.id, s.name) + "</h3>" +
+      return "<article class=\"schiff-zeile schiff-kachel" + (laeuft ? " im-bau" : "") + (!vorOk ? " gesperrt" : "") + "\" data-schiff=\"" + s.id + "\">" +
+        "<div class=\"schiff-bildspalte\"><img class=\"anlage-bild schiff-bild\" src=\"" + s.bild + "\" alt=\"" + esc(s.name) + "\" width=\"200\" height=\"200\"></div><div class=\"schiff-inhalt\"><div class=\"anlage-kopf schiff-kopf\"><div class=\"anlage-titel\"><h3>" + s.name + " " + h.infoKnopf("schiff", s.id, s.name) + "</h3>" +
         "<span class=\"stufe\">Anzahl <b data-schiff-anzahl=\"" + s.id + "\">" + F.zahl(n) + "</b></span>" +
         (!vorOk ? "<span class=\"sperr-marke\">🔒 Voraussetzung fehlt" + (master ? " (Master)" : "") + "</span>" : "") + "</div></div>" +
         marken(s) + "<p class=\"beschreibung\">" + esc(s.beschreibung) + "</p>" + vorListe(s) +
@@ -49,7 +49,7 @@
         "<div class=\"bau-aktion schiff-bestellung\"><label class=\"menge\"><span>Menge</span><input type=\"number\" min=\"1\" step=\"1\" value=\"1\" inputmode=\"numeric\" data-menge=\"" + s.id + "\" aria-label=\"Menge " + esc(s.name) + "\"></label>" +
         "<button class=\"knopf klein\" type=\"button\" data-aktion=\"schiff-max\" data-id=\"" + s.id + "\">max</button>" +
         "<button class=\"knopf primaer\" type=\"button\" data-aktion=\"schiff-bauen\" data-id=\"" + s.id + "\">" + (master ? "Sofort bauen" : "Bauen") + "</button><span class=\"grund hinweis\"></span></div>" +
-        "</article>";
+        "</div></article>";
     }
 
     function auftragZeile(a, i) {
@@ -83,7 +83,7 @@
       var gruppen = D.schiffGruppen.map(function (gr) {
         var liste = D.schiffe.filter(function (s) { return s.gruppe === gr.id; }), sicht = liste.filter(function (s) { return WF.sichtbar(zz, s); });
         versteckt += liste.length - sicht.length;
-        return h.box(gr.name, "<div class=\"anlagen-raster\">" + sicht.map(kachel).join("") + "</div>", "<span class=\"box-zahl\">" + sicht.length + "</span>", " data-gruppe=\"" + gr.id + "\"");
+        return h.box(gr.name, "<div class=\"schiff-liste\">" + sicht.map(kachel).join("") + "</div>", "<span class=\"box-zahl\">" + sicht.length + "</span>", " data-gruppe=\"" + gr.id + "\"");
       }).join("");
       var hinweis = versteckt ? "<p class=\"hinweis\" id=\"werft-ausgeblendet\">" + versteckt + " Schiff ist noch ausgeblendet – erscheint mit der Antimaterie-Freischaltung. <span class=\"annahme-marke\">Annahme</span></p>" : "";
       return "<div class=\"zwei-spalten\">" + auftragBox(true) + info + "</div>" + hinweis + gruppen;

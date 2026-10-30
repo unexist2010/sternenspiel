@@ -164,6 +164,7 @@ alle Grundkosten/Faktoren/Wirkungswerte (außer Komprimierung +10 %); Graviton-V
 und schreibt Punkte gut; Forschungsauftrag gilt global (wie OGame) und wird am Hauptplaneten geführt.
 
 ### A10. Kapitel 4 „Werft“ (Freigabe 2026-10-30, Version 0.9.0 · Schiffsliste nach Sandro 0.10.0)
+- **Layout (Sandro, 0.11.0):** Werft im OGame-Retro-Stil – je Schiff eine volle Zeile, großes Bild links (200 px, Handy 120 px), Infos und Bau-Steuerung rechts; Gruppen als Boxen mit Liste.
 
 - **FEST:** **24 Schiffe** (Sandros Schiffsliste v2 mit 23 Schiffen + der von Sandro ergänzte **Bodensammler**; das ersetzt die frühere
   FEST-Zahl 23, siehe OFFENE-PUNKTE 43), 5 Waffentypen, 2 Hüllentypen; Solarsatelliten werden in der Werft gebaut. Nur der Menüpunkt

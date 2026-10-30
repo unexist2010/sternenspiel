@@ -1,16 +1,13 @@
 # Sternenspiel – Offene Punkte (Fragen an Sandro)
 
-Stand: 2026-10-30 (0.10.0, Kapitel 4 Schiffsliste nach Sandro) · Alles hier ist bis zur Antwort als **ANNAHME** umgesetzt bzw. vorgemerkt.
+Stand: 2026-10-31 (0.11.0, Kapitel 4 Schiffsliste nach Sandro) · Alles hier ist bis zur Antwort als **ANNAHME** umgesetzt bzw. vorgemerkt.
 
 ## Wichtigste Fragen (bitte zuerst)
 
 | # | Thema | Frage |
 |---|-------|-------|
-| 43 | Werft | **23 oder 24 Schiffe?** Früher war „23 Schiffe“ FEST; mit dem Bodensammler sind es jetzt 24 – umgesetzt sind 24. Passt das so (bleibt 24 die neue feste Zahl)? |
-| 44 | Werft | **Bodensammler-Werte** (ANNAHME): 12.000 M / 8.000 Si / 3.000 Öl, Impuls, Ladung 75.000, Werft 5 + Impuls 3 + Schild 3 + Spionage 2 – ok? |
-| 45 | Werft | **Alte Spielstände:** Jäger, Todesstern & Co. ohne klare Entsprechung werden verworfen (laufende Aufträge erstattet), Transporter/Recycler/… umbenannt – ok? |
 | 41 | Werft | **Bauzeit** je Schiff = (Metall + Silizium) / (2.500 · (1 + Werftstufe)) Std. × Roboterfaktor, mindestens 1 Sek. – ok? |
-| 46 | Bilder | Schiffe haben nur **neutrale Platzhalterbilder**. Nächster Schritt: je Schiff Bildvorschläge zur Auswahl für Sandro. |
+| 46 | Bilder | **In Arbeit:** je Schiff 2 Bildvorschläge (A/B) liegen unter `/workspace/sternenspiel-bildvorschlaege/<id>-a.png` / `-b.png` (Box, nicht im Repo). Sandro wählt je Schiff aus; im Spiel bleiben bis dahin Platzhalter-SVGs. |
 | 37 | Forschung | **Sichtbarkeit:** Forschung erscheint, sobald mindestens eine Voraussetzung erfüllt ist (vorher ausgeblendet, Zähler „X weitere Forschungen“) – so gemeint? |
 
 ## Weitere offene Punkte
@@ -51,6 +48,9 @@ Stand: 2026-10-30 (0.10.0, Kapitel 4 Schiffsliste nach Sandro) · Alles hier ist
 ## Erledigt
 
 - ~~39 Werft-Warteschlange~~ → **unbegrenzt** (Sandro, 0.10.0).
+- ~~43 23 oder 24 Schiffe~~ → **24 bleibt fest** (Sandro, 0.11.0).
+- ~~44 Bodensammler-Werte~~ → bestätigt (12.000 M / 8.000 Si / 3.000 Öl, Ladung 75.000) (Sandro, 0.11.0).
+- ~~45 Alte Schiffe ohne Entsprechung~~ → dürfen verworfen werden (Sandro, 0.11.0).
 - ~~40 Sperre Werft-Ausbau ↔ Schiffbau~~ → ja, bleibt (Sandro, 0.10.0).
 - ~~42 Zivile Schiffe mit Raketen / Antimaterie-Frachter~~ → durch Sandros Schiffsliste ersetzt (Hilfsschiffe unbewaffnet, kein Antimaterie-Frachter).
 

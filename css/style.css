@@ -355,3 +355,24 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .schnellfeuer { line-height: 1.5; }
 #werft-box .knopf { margin-top: 8px; }
 @media (max-width: 600px) { .schiff-bestellung input[type=number] { width: 5em; } }
+
+/* Werft im OGame-Retro-Stil (0.11.0): ein Schiff je Zeile, großes Bild links */
+.schiff-liste { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--rand); }
+.schiff-zeile { display: flex; gap: 14px; padding: 12px; background: rgba(4, 12, 28, 0.9); border-bottom: 1px solid var(--rand); }
+.schiff-zeile:last-child { border-bottom: none; }
+.schiff-zeile:nth-child(even) { background: rgba(10, 26, 52, 0.9); }
+.schiff-zeile.im-bau { box-shadow: inset 3px 0 0 var(--tuerkis); }
+.schiff-bildspalte { flex: none; }
+.schiff-zeile .schiff-bild { width: 200px; height: 200px; border-radius: 0; border: 2px solid var(--rand-hell); background: #000; display: block; }
+.schiff-zeile.gesperrt .schiff-bild { filter: grayscale(.8) brightness(.7); }
+.schiff-inhalt { flex: 1; min-width: 0; }
+.schiff-kopf h3 { color: var(--gold); margin: 0; }
+.schiff-zeile .anlage-werte { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; border-top: 1px dashed var(--rand); padding-top: 6px; }
+@media (max-width: 600px) {
+  .schiff-zeile { gap: 10px; padding: 10px 8px; }
+  .schiff-zeile .schiff-bild { width: 120px; height: 120px; }
+}
+@media (max-width: 380px) {
+  .schiff-zeile { flex-direction: column; }
+  .schiff-zeile .schiff-bild { width: 140px; height: 140px; }
+}

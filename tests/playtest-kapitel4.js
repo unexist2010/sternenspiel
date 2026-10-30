@@ -2,7 +2,7 @@
 // Aufruf:  node tests/playtest-kapitel4.js                  → file:// (ohne Server)
 //          LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel4.js
 //          PLAYTEST_BROWSER=firefox node tests/playtest-kapitel4.js
-// Desktop 1366×768 und Handy 412×915. Screenshots: playtest/kapitel4b-*.png
+// Desktop 1366×768 und Handy 412×915. Screenshots: playtest/kapitel4c-*.png
 "use strict";
 const fs = require("fs");
 const path = require("path");
@@ -46,7 +46,7 @@ async function lauf(browser, g) {
   page.on("console", (m) => { if (m.type() === "error" || m.type() === "warning") fehler.push("console." + m.type() + ": " + m.text()); });
   page.on("requestfailed", (r) => { if (!/favicon/.test(r.url())) fehler.push("requestfailed: " + r.url()); }); // Firefox bricht das Favicon beim Neuladen ab (wie Kapitel 1)
   page.on("request", (r) => { if (!r.url().startsWith(BASIS) && !r.url().startsWith("data:")) fehler.push("externe Anfrage: " + r.url()); });
-  const praefix = `kapitel4b-${BROWSERNAME === "chromium" ? "" : BROWSERNAME + "-"}${LIVE ? "live-" : ""}`;
+  const praefix = `kapitel4c-${BROWSERNAME === "chromium" ? "" : BROWSERNAME + "-"}${LIVE ? "live-" : ""}`;
   const shot = async (n, ganz) => { await page.evaluate(() => { document.getElementById("meldung").className = "meldung"; }); if (ganz) await page.evaluate(() => window.scrollTo(0, 0)); await sleep(300); await page.screenshot({ path: path.join(OUT, praefix + n + ".png"), fullPage: !!ganz }); };
   const ueberlauf = () => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   const geheZu = async (hash, seite) => { await page.evaluate((h) => { location.hash = h; }, hash); await page.waitForSelector(`#inhalt[data-seite="${seite}"]`); await sleep(250); };

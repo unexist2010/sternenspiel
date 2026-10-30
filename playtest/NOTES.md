@@ -125,3 +125,9 @@
 - Screenshots `kapitel1-layout-<handy|desktop>-<seite>.png`:
   start, startplatz, uebersicht, ressourcen, anlagen, forschung, werft, verteidigung, flotte, weltraum,
   weltraum-sektor, weltraum-system, dazu `kapitel1-layout-handy-menue-offen.png`.
+
+## Kapitel 4c – Werft Retro-Layout (0.11.0, 2026-10-31)
+
+- Chromium Desktop 1366×768 + Handy 412×915: `node tests/playtest-kapitel4.js` → 68/68 grün; Screenshots `kapitel4c-*.png`.
+- Firefox lokal nicht gelaufen (Playwright-Firefox-Binary auf der Box fehlt/nicht installierbar).
+- Bildvorschläge je Schiff (A/B, 48 Dateien) unter `/workspace/sternenspiel-bildvorschlaege/` – noch nicht im Spiel, Auswahl durch Sandro offen.
