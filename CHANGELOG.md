@@ -1,5 +1,17 @@
 # Changelog – Sternenspiel
 
+## [0.10.0] – 2026-10-30 – Kapitel 4: Schiffsliste nach Sandro
+
+- Werft neu nach Sandros Schiffsliste v2: **24 Schiffe** (23 aus v2 + **Bodensammler**, von Sandro ergänzt – ersetzt die frühere FEST-Zahl 23)
+  in den Gruppen **Kampfschiffe** (14), **Hilfsschiffe** (5, inkl. Wracksammler/Orbit und Bodensammler/Boden), **Spezial** (5)
+- Neu u. a.: Aufklärer, Kleine/Mittlere/Schwere Drohne, Korvette, Fregatte, Koloss, Titan, Massengutfrachter; Träger mit Hangar (50 Drohnen)
+- **Orbitalverteidigungsplattform** (vorher Orbitalplattform): stationär, Waffenslots + Sondenabwehr als Daten, Bestückung folgt (Platzhalter)
+- Solarsatellit braucht jetzt Energie-Technologie 1; Verbund-Hüllenfaktor 1,25
+- **Werft-Warteschlange unbegrenzt** (vorher 5); Sperre Werft-Ausbau ↔ Schiffbau bleibt
+- Nur **neutrale Platzhalterbilder** je Schiff; Bildvorschläge für Sandro folgen
+- Spielstand **v8** mit Migration: alte IDs 1:1 umbenannt, wo eindeutig, sonst verworfen (Aufträge erstattet)
+- Tests: `tests/werft.test.js` erweitert, `tests/playtest-kapitel4.js` → Screenshots `kapitel4b-*.png`
+
 ## [0.9.0] – 2026-10-30 – Kapitel 4: Werft
 
 - Menüpunkt **Werft** gefüllt: **23 Schiffe** in 3 Gruppen (zivil, Kampf, Spezial), je eigenes SVG (`assets/schiffe/`), Anzahl, Kosten, Bauzeit,

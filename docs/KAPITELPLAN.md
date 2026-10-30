@@ -76,6 +76,13 @@ und kann beim jeweiligen Kapitel wiederverwendet werden.
 
 ## Kapitel 4 – Werft ✅
 
-- 23 Schiffe, 5 Waffentypen, 2 Hüllentypen (FEST), alle Werte ANNAHME (SPEZIFIKATION C8)
+- (0.9.0) 23 Schiffe, 5 Waffentypen, 2 Hüllentypen (FEST), alle Werte ANNAHME (SPEZIFIKATION C8)
 - Werftaufträge je Planet (max. 5), Bauzeit ÷ (1 + Werftstufe) und Roboterforschung, Abbrechen mit Erstattung
 - Verteidigung, Flotte, Weltraum bleiben Platzhalter
+- **0.10.0 – Schiffsliste nach Sandro:** 24 Schiffe (v2 + Bodensammler) in Kampf-/Hilfs-/Spezialschiffe, Warteschlange unbegrenzt,
+  Orbitalverteidigungsplattform stationär (Bestückung Platzhalter), neutrale Platzhalterbilder, Spielstand v8 mit Migration
+- **Merken für das Verteidigungs-/Kampf-Kapitel (Sandro, 2026-10-30 – später wieder aufgreifen):**
+  - Kampfablauf: alles gleichzeitig (OGame-Stil, alle Einheiten kämpfen zusammen – Sandros Tendenz) oder getrennt (Schiffe/Verteidigung)?
+  - Startplätze starten bei einem Angriff automatisch; der Hangar ist geschützt.
+  - Trümmer: im Orbit sammelt der Wracksammler, am Boden der Bodensammler.
+  - Verteidigungsanlagen werden zu Schrott: max. 50 %, abhängig von Forschung.

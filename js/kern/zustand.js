@@ -89,7 +89,7 @@
     });
     neu.werftauftraege = (Array.isArray(p.werftauftraege) ? p.werftauftraege : []).filter(function (w) {
       return w && SS.DATEN.schiffNachId(w.id) && isFinite(w.start) && isFinite(w.ende) && w.stueckMs > 0 && w.menge >= 1 && w.stueckKosten;
-    }).slice(0, SS.BALANCE.WERFT.MAX_AUFTRAEGE).map(function (w) {
+    }).map(function (w) {
       return { art: "schiff", id: w.id, name: SS.DATEN.schiffNachId(w.id).name, menge: Math.floor(w.menge), fertig: Math.max(0, Math.min(Math.floor(w.menge), Math.floor(Number(w.fertig) || 0))),
         stueckMs: Number(w.stueckMs), stueckKosten: w.stueckKosten, start: Number(w.start), ende: Number(w.ende) };
     });
@@ -178,6 +178,24 @@
       z.planeten = [neuerPlanet(true)];
       z.rohstoffe.strom = 0;
     }
+    // v8 (0.10.0): Schiffsliste nach Sandro – alte IDs 1:1 umbenennen, sonst verwerfen; offene Aufträge alter Schiffe erstatten
+    var UM = SS.DATEN.schiffUmbenennung || {};
+    var neueId = function (id) { return SS.DATEN.schiffNachId(id) ? id : (UM[id] && SS.DATEN.schiffNachId(UM[id]) ? UM[id] : null); };
+    if (vorher < 8 && Array.isArray(z.planeten)) z.planeten.forEach(function (p) {
+      if (!p) return;
+      if (p.schiffe && typeof p.schiffe === "object") {
+        var alt = p.schiffe; p.schiffe = {};
+        Object.keys(alt).forEach(function (id) { var n = neueId(id); if (n) p.schiffe[n] = (p.schiffe[n] || 0) + (Math.floor(Number(alt[id]) || 0)); });
+      }
+      if (Array.isArray(p.werftauftraege)) p.werftauftraege = p.werftauftraege.filter(function (w) {
+        if (!w) return false;
+        var n = neueId(w.id);
+        if (n) { w.id = n; return true; }
+        var rest = Math.max(0, Math.floor(Number(w.menge) || 0) - Math.floor(Number(w.fertig) || 0));
+        if (w.stueckKosten && typeof w.stueckKosten === "object") Object.keys(w.stueckKosten).forEach(function (r) { if (r in z.rohstoffe) z.rohstoffe[r] += (Number(w.stueckKosten[r]) || 0) * rest; });
+        return false;
+      });
+    });
     z.planeten = (Array.isArray(z.planeten) && z.planeten.length ? z.planeten : [null]).map(function (p, i) { return planetBereinigen(p, i === 0); });
     // v4 → v5: Rohölfelder entfallen (Hauptplanet bekommt 1.000.000 Vorkommen über planetBereinigen); vorhandene
     // Geologiestation startet ihren 24-h-Takt ab dem letzten Tick; Startplätze über Stufe 10 werden auf 10 gekappt.

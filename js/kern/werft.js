@@ -4,7 +4,7 @@
  *
  * Regeln (ANNAHME, OGame-nah – siehe SPEZIFIKATION C8):
  *  - Werft Stufe ≥ 1 nötig (auch im Master-Modus).
- *  - Eine Werft-Warteschlange je Planet (unabhängig von Bauauftrag und Forschung), höchstens WERFT.MAX_AUFTRAEGE Aufträge;
+ *  - Eine Werft-Warteschlange je Planet (unabhängig von Bauauftrag und Forschung), unbegrenzt viele Aufträge (FEST, Sandro 2026-10-30);
  *    ein Auftrag = Menge × ein Schiffstyp; Aufträge laufen nacheinander, Einheiten werden einzeln fertig.
  *  - Bauzeit je Einheit = (Metall + Silizium) / (2500 · (1 + Werftstufe)) Std. × Roboter-Faktor, mindestens 1 s.
  *  - Kosten werden beim Start abgezogen; Abbrechen erstattet alle noch nicht fertigen Einheiten voll.
@@ -60,7 +60,6 @@
     if (master) return { ok: true, grund: "", kosten: kosten, master: true };
     var fehlt = voraussetzungen(z, p, s).filter(function (v) { return !v.ok; });
     if (fehlt.length) return { ok: false, grund: "Voraussetzung fehlt: " + fehlt.map(function (v) { return v.name + " " + v.stufe; }).join(", ") + ".", gesperrt: true };
-    if (auftraege(p).length >= W().MAX_AUFTRAEGE) return { ok: false, grund: "Warteschlange voll (" + W().MAX_AUFTRAEGE + " Aufträge)." };
     var fe = SS.kern.bau.fehlend(z, kosten);
     if (Object.keys(fe).length) {
       return { ok: false, grund: "Es fehlen: " + Object.keys(fe).map(function (r) { var x = D().rohstoffNachId(r); return (x ? x.name : r) + " " + (SS.format ? SS.format.zahl(fe[r]) : fe[r]); }).join(", ") + ".", fehlend: fe };

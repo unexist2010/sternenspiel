@@ -1,5 +1,14 @@
 # Playtest-Notizen
 
+## Kapitel 4b – Schiffsliste nach Sandro (0.10.0) – 2026-10-30
+
+- `node tests/playtest-kapitel4.js` (Desktop 1366×768 + Handy 412×915): Chromium 68/68, Firefox 68/68 grün; Screenshots `kapitel4b-*.png`.
+- Geprüft: 24 Schiffe in Kampf/Hilf/Spezial, Bodensammler + Orbitalverteidigungsplattform (stationär), Platzhalter-SVGs geladen,
+  Sperrgründe, Warteschlange unbegrenzt (7 Aufträge), Spielstand v8, Info-Fenster, Offline, Master.
+- Regression Kapitel 1/2/2b/3 grün; Node-Tests 80/80.
+- Bilder sind bewusst nur neutrale Platzhalter; Sandro bekommt später Bildvorschläge je Schiff.
+- Testanpassung: Info-Hover per Mausbewegung auf die Knopfmitte (Kachel liegt jetzt weiter oben, Playwright-Hover meldete Überdeckung).
+
 ## Kapitel 4 – Werft (0.9.0) – 2026-10-30
 
 - `tests/playtest-kapitel4.js`: 64/64 grün in Chromium und Firefox (Desktop + Handy)

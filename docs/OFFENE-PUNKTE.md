@@ -1,15 +1,16 @@
 # Sternenspiel – Offene Punkte (Fragen an Sandro)
 
-Stand: 2026-10-30 (0.9.0, nach Kapitel 4) · Alles hier ist bis zur Antwort als **ANNAHME** umgesetzt bzw. vorgemerkt.
+Stand: 2026-10-30 (0.10.0, Kapitel 4 Schiffsliste nach Sandro) · Alles hier ist bis zur Antwort als **ANNAHME** umgesetzt bzw. vorgemerkt.
 
 ## Wichtigste Fragen (bitte zuerst)
 
 | # | Thema | Frage |
 |---|-------|-------|
-| 39 | Werft | **Warteschlange:** bis zu 5 Werftaufträge je Planet, nacheinander abgearbeitet; Abbrechen erstattet die noch nicht gebauten Einheiten voll – ok? |
-| 40 | Werft | **Gegenseitige Sperre:** Während Schiffe gebaut werden, kann die Werft nicht ausgebaut werden (und umgekehrt) – wie OGame. Ok? |
+| 43 | Werft | **23 oder 24 Schiffe?** Früher war „23 Schiffe“ FEST; mit dem Bodensammler sind es jetzt 24 – umgesetzt sind 24. Passt das so (bleibt 24 die neue feste Zahl)? |
+| 44 | Werft | **Bodensammler-Werte** (ANNAHME): 12.000 M / 8.000 Si / 3.000 Öl, Impuls, Ladung 75.000, Werft 5 + Impuls 3 + Schild 3 + Spionage 2 – ok? |
+| 45 | Werft | **Alte Spielstände:** Jäger, Todesstern & Co. ohne klare Entsprechung werden verworfen (laufende Aufträge erstattet), Transporter/Recycler/… umbenannt – ok? |
 | 41 | Werft | **Bauzeit** je Schiff = (Metall + Silizium) / (2.500 · (1 + Werftstufe)) Std. × Roboterfaktor, mindestens 1 Sek. – ok? |
-| 42 | Werft | Zivile Schiffe (Transporter, Recycler, Kolonisationsschiff …) haben kleine **Raketen**-Bewaffnung; Antimaterie-Frachter erst nach Freischaltung sichtbar – so gewollt? |
+| 46 | Bilder | Schiffe haben nur **neutrale Platzhalterbilder**. Nächster Schritt: je Schiff Bildvorschläge zur Auswahl für Sandro. |
 | 37 | Forschung | **Sichtbarkeit:** Forschung erscheint, sobald mindestens eine Voraussetzung erfüllt ist (vorher ausgeblendet, Zähler „X weitere Forschungen“) – so gemeint? |
 
 ## Weitere offene Punkte
@@ -27,7 +28,7 @@ Stand: 2026-10-30 (0.9.0, nach Kapitel 4) · Alles hier ist bis zur Antwort als 
 | 7 | Grundgerüst | Systemnummern global 1–300 (`3:133:5`, jetzt so) oder je Sektor 1–60 (`3:13:5`)? |
 | 9 | Grundgerüst | Namen ok (Universum „Sternenreich“, Sektoren Alpha–Epsilon, erzeugte System-/Planetennamen)? |
 | 11 | Grundgerüst | Offline-Fortschritt: Kappung auf 24 Std. ok? Volle Rate oder reduziert? |
-| 16 | Werft | **Vorschlag umgesetzt – Sandro prüft Namen/Werte** (0.9.0): 23 Schiffe, 5 Waffentypen (Laser, Ionen, Plasma, Raketen, Graviton), 2 Hüllen (Leichtmetall, Verbund); alle Namen, Kosten, Kampfwerte, Voraussetzungen = ANNAHME, Tabelle in SPEZIFIKATION C8. |
+| 16 | Werft | Schiffsliste nach Sandro umgesetzt (0.10.0, 24 Schiffe); offen nur noch Einzelwerte (Tempo-Skala ×125, Kampfwerte) – Tabelle in SPEZIFIKATION C8. Waffen: 5 Waffentypen (Laser, Ionen, Plasma, Raketen, Graviton), 2 Hüllen (Leichtmetall, Verbund); alle Namen, Kosten, Kampfwerte, Voraussetzungen = ANNAHME, Tabelle in SPEZIFIKATION C8. |
 | 17 | Verteidigung | Schutzschild-Autoaktivierung: wann genau, Kosten, Abklingzeit? |
 | 18 | Verteidigung | Trümmer am Boden 50–75 %: Zufall oder abhängig von etwas? Gilt Salvage für Schiffe und Verteidigung? |
 | 19 | Flotte/Startplätze | Treibstoffregeln: welcher Rohstoff, Verbrauchsformel, was bei leerem Tank? |
@@ -38,7 +39,20 @@ Stand: 2026-10-30 (0.9.0, nach Kapitel 4) · Alles hier ist bis zur Antwort als 
 | 25 | Kapitelplan | In welcher Reihenfolge sollen die späteren Kapitel kommen (je Menüpunkt bzw. Mechanik, z. B. Ressourcen → Anlagen → Forschung …)? |
 | 22 | – | Endgültiger Name: „Sternenspiel“, „Sternenreich“ oder „Weltraumspiel“? |
 
+## Merken für das Verteidigungs-/Kampf-Kapitel (Sandro: „merken wir uns für später“)
+
+| # | Thema | Merkpunkt |
+|---|-------|-----------|
+| 47 | Kampf | Kampfablauf alles gleichzeitig (OGame-Stil, Sandros Tendenz) oder getrennt? |
+| 48 | Kampf | Startplätze starten bei Angriff automatisch; Hangar ist geschützt. |
+| 49 | Kampf | Trümmer: Orbit → Wracksammler, Boden → Bodensammler. |
+| 50 | Verteidigung | Verteidigung wird zu Schrott: max. 50 %, abhängig von Forschung. |
+
 ## Erledigt
+
+- ~~39 Werft-Warteschlange~~ → **unbegrenzt** (Sandro, 0.10.0).
+- ~~40 Sperre Werft-Ausbau ↔ Schiffbau~~ → ja, bleibt (Sandro, 0.10.0).
+- ~~42 Zivile Schiffe mit Raketen / Antimaterie-Frachter~~ → durch Sandros Schiffsliste ersetzt (Hilfsschiffe unbewaffnet, kein Antimaterie-Frachter).
 
 - ~~Forschung (Kapitel 3)~~ → freigegeben und umgesetzt (0.8.0): 18 Forschungen, Forschungseinrichtung, ET/Roboter wirken, Rest berechnet.
 - ~~Kunststoff-Freischaltung durch Forschung?~~ → nein, T2/T3 über Punkte (Sandro, 0.8.0).

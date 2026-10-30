@@ -255,16 +255,11 @@ Object.entries(FORSCHUNG_BILDER).forEach(([id, inhalt]) => schreibe(`forschung/$
   const WFARBE = { laser: "#ff5b5b", ionen: "#3fb8ff", plasma: "#c58cf0", raketen: "#ffb347", graviton: "#e9b8ff" };
   const FLAMME = { verbrennung: "#ff9a3c", impuls: "#5fd3ff", hyperraumantrieb: "#b78cff" };
   // Form: [Länge 0–1, Breite 0–1, Flügel 0–1, Art]  Art: pfeil, block, ring, scheibe, kugel, platte
-  const FORM = {
-    kleiner_transporter: [0.55, 0.35, 0.1, "block"], grosser_transporter: [0.75, 0.5, 0.15, "block"], kolonisationsschiff: [0.8, 0.45, 0.3, "ring"],
-    recycler: [0.65, 0.55, 0.45, "block"], spionagesonde: [0.3, 0.2, 0.5, "kugel"], solarsatellit: [0.5, 0.25, 1, "platte"],
-    leichter_jaeger: [0.5, 0.25, 0.55, "pfeil"], schwerer_jaeger: [0.6, 0.32, 0.7, "pfeil"], kreuzer: [0.75, 0.32, 0.45, "pfeil"],
-    schlachtschiff: [0.9, 0.42, 0.6, "pfeil"], bomber: [0.7, 0.5, 0.9, "pfeil"], zerstoerer: [0.95, 0.5, 0.75, "pfeil"],
-    todesstern: [0.9, 0.9, 0, "scheibe"], abfangjaeger: [0.45, 0.2, 0.8, "pfeil"], panzerkreuzer: [0.8, 0.45, 0.35, "block"],
-    schlachtkreuzer: [0.92, 0.38, 0.55, "pfeil"], traeger: [0.95, 0.6, 0.25, "block"], minenleger: [0.6, 0.45, 0.3, "ring"],
-    interzeptor: [0.62, 0.22, 0.95, "pfeil"], orbitalplattform: [0.85, 0.85, 0.6, "ring"], treibstofftanker: [0.7, 0.45, 0.1, "kugel"],
-    kunststoff_frachter: [0.72, 0.5, 0.2, "block"], antimaterie_frachter: [0.85, 0.55, 0.3, "ring"]
-  };
+  // PLATZHALTER (Sandro, 2026-10-30): nur generische Silhouette je Gruppe/Rolle + Waffenfarbe; finale Bilder wählt Sandro später aus Vorschlägen.
+  const ART = { kampf: "pfeil", hilf: "block", spezial: "kugel" };
+  const FORM = new Proxy({ solarsatellit: [0.5, 0.25, 1, "platte"], orbitalverteidigungsplattform: [0.85, 0.85, 0, "ring"] }, {
+    get: (t, id) => t[id] || (() => { const s = SS.DATEN.schiffNachId(id), i = SS.DATEN.schiffIds.indexOf(id); return [0.35 + (i % 14) * 0.045, 0.3 + (i % 5) * 0.05, ART[s.gruppe] === "pfeil" ? 0.5 : 0.1, ART[s.gruppe]]; })()
+  });
   SS.DATEN.schiffe.forEach((s, n) => {
     const [L, B, W, art] = FORM[s.id], r = zufall(4000 + n * 97);
     const rumpf = s.huelle === "verbund" ? ["#5d6b7d", "#9fb0c4"] : ["#8d97a6", "#d7dee8"];

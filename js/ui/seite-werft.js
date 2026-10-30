@@ -63,7 +63,7 @@
       var inhalt = q.length ? q.map(auftragZeile).join("") :
         "<p class=\"hinweis\">" + (ohne ? "Noch keine Werft – zuerst unter Anlagen bauen." : "Keine Schiffe im Bau. Die Werft-Warteschlange läuft unabhängig von Bau und Forschung.") + "</p>";
       if (!aufSeite) inhalt += "<a class=\"knopf klein\" href=\"" + (ohne ? "#anlagen" : "#werft") + "\">" + (ohne ? "Werft bauen" : "Zur Werft") + "</a>";
-      return h.box("Werft-Aufträge", inhalt, "<span class=\"box-zahl\">" + q.length + "/" + SS.BALANCE.WERFT.MAX_AUFTRAEGE + "</span>", " id=\"werft-box\"");
+      return h.box("Werft-Aufträge", inhalt, "<span class=\"box-zahl\">" + q.length + "</span>", " id=\"werft-box\"");
     }
 
     function seite() {

@@ -117,7 +117,7 @@ test("Daten: Andockpunkte für spätere Kapitel", () => {
   const SS = ladeSpiel();
   assert.ok(SS.DATEN.gebaeude.some((g) => g.id === "geologiestation"));
   for (const verboten of ["lager", "speicher", "allianzdepot", "roboterfabrik", "nanitenfabrik"]) assert.ok(!SS.DATEN.gebaeude.some((g) => g.id.includes(verboten)), "kein " + verboten);
-  assert.equal(SS.DATEN.SCHIFFE_ANZAHL_SOLL, 23);
+  assert.equal(SS.DATEN.SCHIFFE_ANZAHL_SOLL, 24);
   assert.equal(SS.DATEN.WAFFENTYPEN_ANZAHL_SOLL, 5);
   assert.equal(SS.DATEN.HUELLENTYPEN_ANZAHL_SOLL, 2);
   assert.ok(Object.isFrozen(SS.BALANCE) && Object.isFrozen(SS.BALANCE.STARTPLAETZE), "Balance zentral & unveränderlich");
