@@ -151,7 +151,7 @@
    */
   function simuliereBis(z, bis, ohneProduktion) {
     var t = z.zeit.letzterTick, gewinne = {}, fertig = [], funde = [];
-    var schritt = B().SIM_SCHRITT_MS, bau = SS.kern.bau, geo = SS.kern.geologie, fo = SS.kern.forschung;
+    var schritt = B().SIM_SCHRITT_MS, bau = SS.kern.bau, geo = SS.kern.geologie, fo = SS.kern.forschung, wf = SS.kern.werft;
     var master = !!(z.einstellungen && z.einstellungen.master);
     var sicherung = 0;
     var faellige = function () {
@@ -161,6 +161,7 @@
           fertig.push(bau.fertigstellen(z, p));
         }
         if (geo) funde = funde.concat(geo.faelligeFunde(p, t));
+        if (wf) fertig = fertig.concat(master ? wf.alleSofort(z, p, t) : wf.faellige(z, p, t)); // Werft: Einheiten einzeln fertig
       });
       var fa = z.forschungsauftrag; // Forschung: ein Auftrag je Spieler, genau zum Endzeitpunkt (Master: sofort)
       if (fa && fo && (fa.ende <= t || master)) { if (fa.ende > t) fa.ende = t; fertig.push(fo.fertigstellen(z)); }
@@ -171,6 +172,8 @@
       if (z.forschungsauftrag && z.forschungsauftrag.ende > t && z.forschungsauftrag.ende < ziel) ziel = z.forschungsauftrag.ende;
       z.planeten.forEach(function (p) {
         if (p.bauauftrag && p.bauauftrag.ende > t && p.bauauftrag.ende < ziel) ziel = p.bauauftrag.ende;
+        var we = wf && wf.naechstesEnde(p);
+        if (we != null && we > t && we < ziel) ziel = we;
         var nf = geo && geo.naechsterFund(p);
         if (nf != null && nf > t && nf < ziel) ziel = nf;
       });

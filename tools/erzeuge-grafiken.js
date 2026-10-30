@@ -247,3 +247,47 @@ const FORSCHUNG_BILDER = {
     <path d="M48 30 a18 18 0 0 1 18 18 M48 66 a18 18 0 0 1 -18 -18" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.7"/>`)
 };
 Object.entries(FORSCHUNG_BILDER).forEach(([id, inhalt]) => schreibe(`forschung/${id}.svg`, svg(96, 96, inhalt)));
+
+// ---------- Kapitel 4: Schiffe (assets/schiffe/<id>.svg, 96×96) – parametrische Silhouetten ----------
+{
+  const SS = {}; globalThis.SS = SS;
+  require(path.join(__dirname, "..", "js", "data", "schiffe.js"));
+  const WFARBE = { laser: "#ff5b5b", ionen: "#3fb8ff", plasma: "#c58cf0", raketen: "#ffb347", graviton: "#e9b8ff" };
+  const FLAMME = { verbrennung: "#ff9a3c", impuls: "#5fd3ff", hyperraumantrieb: "#b78cff" };
+  // Form: [Länge 0–1, Breite 0–1, Flügel 0–1, Art]  Art: pfeil, block, ring, scheibe, kugel, platte
+  const FORM = {
+    kleiner_transporter: [0.55, 0.35, 0.1, "block"], grosser_transporter: [0.75, 0.5, 0.15, "block"], kolonisationsschiff: [0.8, 0.45, 0.3, "ring"],
+    recycler: [0.65, 0.55, 0.45, "block"], spionagesonde: [0.3, 0.2, 0.5, "kugel"], solarsatellit: [0.5, 0.25, 1, "platte"],
+    leichter_jaeger: [0.5, 0.25, 0.55, "pfeil"], schwerer_jaeger: [0.6, 0.32, 0.7, "pfeil"], kreuzer: [0.75, 0.32, 0.45, "pfeil"],
+    schlachtschiff: [0.9, 0.42, 0.6, "pfeil"], bomber: [0.7, 0.5, 0.9, "pfeil"], zerstoerer: [0.95, 0.5, 0.75, "pfeil"],
+    todesstern: [0.9, 0.9, 0, "scheibe"], abfangjaeger: [0.45, 0.2, 0.8, "pfeil"], panzerkreuzer: [0.8, 0.45, 0.35, "block"],
+    schlachtkreuzer: [0.92, 0.38, 0.55, "pfeil"], traeger: [0.95, 0.6, 0.25, "block"], minenleger: [0.6, 0.45, 0.3, "ring"],
+    interzeptor: [0.62, 0.22, 0.95, "pfeil"], orbitalplattform: [0.85, 0.85, 0.6, "ring"], treibstofftanker: [0.7, 0.45, 0.1, "kugel"],
+    kunststoff_frachter: [0.72, 0.5, 0.2, "block"], antimaterie_frachter: [0.85, 0.55, 0.3, "ring"]
+  };
+  SS.DATEN.schiffe.forEach((s, n) => {
+    const [L, B, W, art] = FORM[s.id], r = zufall(4000 + n * 97);
+    const rumpf = s.huelle === "verbund" ? ["#5d6b7d", "#9fb0c4"] : ["#8d97a6", "#d7dee8"];
+    const waffen = Object.keys(s.waffen).map((w) => WFARBE[w]);
+    const len = 30 + L * 50, br = 10 + B * 30, x0 = 48 - len / 2, x1 = 48 + len / 2, cy = 48;
+    let k = `<defs><linearGradient id="r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${rumpf[1]}"/><stop offset="1" stop-color="${rumpf[0]}"/></linearGradient></defs>`;
+    k += `<rect width="96" height="96" rx="14" fill="#0b1324"/>`;
+    for (let i = 0; i < 14; i++) k += `<circle cx="${f(r() * 96)}" cy="${f(r() * 96)}" r="${f(0.4 + r() * 0.8)}" fill="#fff" opacity="${f(0.3 + r() * 0.5)}"/>`;
+    if (s.antrieb) k += `<path d="M${f(x0 + 2)} ${f(cy - br * 0.22)}L${f(x0 - 8 - r() * 6)} ${cy}L${f(x0 + 2)} ${f(cy + br * 0.22)}z" fill="${FLAMME[s.antrieb]}" opacity="0.85"/>`;
+    if (W > 0 && art !== "platte" && art !== "scheibe") {
+      const fw = W * 26, wx = x0 + len * 0.3;
+      k += `<path d="M${f(wx)} ${f(cy - br / 2)}L${f(wx - 8)} ${f(cy - br / 2 - fw)}L${f(wx + 10)} ${f(cy - br / 2)}zM${f(wx)} ${f(cy + br / 2)}L${f(wx - 8)} ${f(cy + br / 2 + fw)}L${f(wx + 10)} ${f(cy + br / 2)}z" fill="${rumpf[0]}" stroke="${rumpf[1]}" stroke-width="0.8"/>`;
+    }
+    if (art === "pfeil") k += `<path d="M${f(x0)} ${f(cy - br / 2)}L${f(x1 - len * 0.25)} ${f(cy - br * 0.35)}L${f(x1)} ${cy}L${f(x1 - len * 0.25)} ${f(cy + br * 0.35)}L${f(x0)} ${f(cy + br / 2)}z" fill="url(#r)" stroke="#e8eef6" stroke-width="0.8"/>`;
+    else if (art === "block") k += `<rect x="${f(x0)}" y="${f(cy - br / 2)}" width="${f(len)}" height="${f(br)}" rx="${f(br * 0.25)}" fill="url(#r)" stroke="#e8eef6" stroke-width="0.8"/>` +
+      Array.from({ length: 3 }, (_, i) => `<rect x="${f(x0 + len * (0.18 + i * 0.22))}" y="${f(cy - br * 0.3)}" width="${f(len * 0.16)}" height="${f(br * 0.6)}" rx="2" fill="${rumpf[0]}" opacity="0.8"/>`).join("");
+    else if (art === "ring") k += `<rect x="${f(x0)}" y="${f(cy - br * 0.25)}" width="${f(len)}" height="${f(br * 0.5)}" rx="4" fill="url(#r)"/><ellipse cx="48" cy="48" rx="${f(br * 0.45)}" ry="${f(br * 0.75)}" fill="none" stroke="${rumpf[1]}" stroke-width="4"/>`;
+    else if (art === "kugel") k += `<rect x="${f(x0)}" y="${f(cy - 3)}" width="${f(len)}" height="6" rx="3" fill="${rumpf[0]}"/><circle cx="48" cy="48" r="${f(br * 0.6)}" fill="url(#r)" stroke="#e8eef6" stroke-width="0.8"/>`;
+    else if (art === "scheibe") k += `<circle cx="48" cy="48" r="34" fill="url(#r)" stroke="#e8eef6" stroke-width="1"/><path d="M14 48h68" stroke="${rumpf[0]}" stroke-width="2"/><circle cx="36" cy="36" r="8" fill="${rumpf[0]}" stroke="${waffen[0]}" stroke-width="2"/>`;
+    else if (art === "platte") k += `<rect x="12" y="38" width="28" height="20" fill="#1f4fa3" stroke="#7fb0ff"/><rect x="56" y="38" width="28" height="20" fill="#1f4fa3" stroke="#7fb0ff"/><path d="M40 48h16" stroke="#cfd8e3" stroke-width="3"/><circle cx="48" cy="48" r="6" fill="url(#r)"/>`;
+    k += `<rect x="${f(x1 - len * 0.32)}" y="${f(cy - 2)}" width="${f(len * 0.12)}" height="4" rx="2" fill="#bfefff" opacity="0.9"/>`;
+    waffen.forEach((fa, i) => { k += `<circle cx="${f(48 + (i - (waffen.length - 1) / 2) * 12)}" cy="${f(cy - br / 2 - 2)}" r="2.6" fill="${fa}"/><circle cx="${f(48 + (i - (waffen.length - 1) / 2) * 12)}" cy="${f(cy + br / 2 + 2)}" r="2.6" fill="${fa}"/>`; });
+    if (s.flag === "antimaterie") k += `<circle cx="48" cy="48" r="6" fill="#ff4fd8" opacity="0.9"/>`;
+    schreibe(`schiffe/${s.id}.svg`, svg(96, 96, k));
+  });
+}

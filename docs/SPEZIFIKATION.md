@@ -163,6 +163,15 @@ und J (6.000); erst dann trägt die Rohölwirtschaft die 1.000 Rohöl je T3-Einh
 alle Grundkosten/Faktoren/Wirkungswerte (außer Komprimierung +10 %); Graviton-Voraussetzung; Master braucht trotzdem die Forschungseinrichtung
 und schreibt Punkte gut; Forschungsauftrag gilt global (wie OGame) und wird am Hauptplaneten geführt.
 
+### A10. Kapitel 4 „Werft“ (Freigabe 2026-10-30, Version 0.9.0)
+
+- **FEST:** 23 Schiffe, 5 Waffentypen, 2 Hüllentypen; Solarsatelliten werden in der Werft gebaut. Nur der Menüpunkt Werft wird gefüllt –
+  Verteidigung, Flotte, Weltraum bleiben Platzhalter.
+- **FEST (Sandros Antworten zu Kapitel 3):** Roboterforschung wie umgesetzt; Energie-Technologie +5 % / Waffen +10 % je Stufe; Graviton braucht
+  ET 12 + Plasma 8; Master braucht die Forschungseinrichtung und schreibt Punkte gut.
+- **ANNAHME:** alle Namen, Werte, Voraussetzungen, Bauzeitformel, Warteschlange (5 Aufträge je Planet), Sperre Werft-Ausbau ↔ Schiffbau,
+  Abbruch-Erstattung, Master braucht die Werft (siehe C8, OFFENE-PUNKTE 16, 39–42).
+
 ---
 
 ## B. Annahmen (ANNAHME – nicht von Sandro festgelegt)
@@ -354,6 +363,9 @@ Start abgezogen, Punkte bei Fertigstellung gutgeschrieben. Gründe für deaktivi
 - **Spielstand v6 (0.8.0):** neu `zustand.forschung = { energie: 0, … }` (alle 18 ids, ganze Zahlen ≥ 0) und `zustand.forschungsauftrag = null |
   { art: "forschung", id, name, stufe, kosten, start, ende, planet }`. Migration v5 → v6 je Profil: fehlende Forschungen = 0, ungültiger
   Auftrag verworfen, T2/T3-Flags nach Punkten gesetzt. `migriere` füllt immer (idempotent), unabhängig von der Versionsnummer.
+- **Spielstand v7 (0.9.0):** je Planet neu `schiffe: { id: Anzahl }` und `werftauftraege: [{ id, menge, fertig, stueckMs, start, … }]` (max. 5);
+  `statistik.schiffeGebaut`. Migration v6 → v7: altes globales `zustand.schiffe` wandert zum Hauptplaneten (Solarsatellit → `solarsatelliten`),
+  ungültige Einträge/Aufträge werden verworfen.
 
 ## C7. Kapitel 3 „Forschung“ – Formeln und Werte (Werte ANNAHME, Regeln FEST siehe A9)
 
@@ -398,3 +410,38 @@ Start abgezogen, Punkte bei Fertigstellung gutgeschrieben. Gründe für deaktivi
 | Graviton-Technologie | Fortgeschritten | 300.000 M · 300.000 Si · 150.000 Öl · 100 K3 | 3 | Energie-Technologie 12 + Plasma-Technologie 8 | Gravitonwaffen (später) freigeschaltet | später |
 
 Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zählen mit – solange es keine Kolonien gibt, wirkungslos.
+
+## C8. Kapitel 4 „Werft“ – Formeln und Werte (Werte ANNAHME, Anzahlen FEST siehe A10)
+
+- Bauzeit je Einheit = (Metall + Silizium) / (2.500 · (1 + Werftstufe)) Std. × Roboterfaktor, mindestens 1 Sek.; Gesamtzeit = Menge × Einheit.
+- Bis zu 5 Aufträge je Planet (max. 100.000 Stück je Auftrag), nacheinander; Einheiten werden laufend (auch offline) ausgeliefert.
+- Abbrechen erstattet die nicht gebauten Einheiten voll. Werft-Ausbau gesperrt, solange Aufträge laufen (und umgekehrt).
+- Kampfwerte: Grundwerte × Forschung (Waffen +10 %/Stufe + Typ-Forschung, Schild/Panzerung +10 %/Stufe); Hüllenpunkte = (M + Si)/10 × Hüllenfaktor.
+- Master-Modus: alle Aufträge sofort fertig, alle Schiffe sichtbar, Werft trotzdem nötig.
+- Daten zentral in `js/data/schiffe.js`, Logik in `js/kern/werft.js`, Seite in `js/ui/seite-werft.js`.
+
+| Schiff | Antrieb | Waffen | Hülle | Kosten M / Si / Öl (+ Kunststoff) | Voraussetzung |
+|---|---|---|---|---|---|
+| Kleiner Transporter | Verbrennung | raketen | Leichtmetall | 2.000 / 2.000 / 0 | Werft 2, verbrennung 2 |
+| Großer Transporter | Impuls | raketen | Leichtmetall | 6.000 / 6.000 / 0 | Werft 4, impuls 2 |
+| Kolonisationsschiff | Impuls | raketen | Leichtmetall | 10.000 / 20.000 / 10.000 | Werft 4, impuls 3 |
+| Recycler | Verbrennung | raketen | Leichtmetall | 10.000 / 6.000 / 2.000 | Werft 4, verbrennung 6, schild 2 |
+| Spionagesonde | Verbrennung | – | Leichtmetall | 0 / 1.000 / 0 | Werft 3, verbrennung 3, spionage 2 |
+| Solarsatellit | – | – | Leichtmetall | 0 / 2.000 / 500 | Werft 1 |
+| Leichter Jäger | Verbrennung | laser | Leichtmetall | 3.000 / 1.000 / 0 | Werft 1, verbrennung 1 |
+| Schwerer Jäger | Impuls | laser | Leichtmetall | 6.000 / 4.000 / 0 | Werft 3, panzerung 2, impuls 2 |
+| Kreuzer | Impuls | ionen | Leichtmetall | 20.000 / 7.000 / 2.000 | Werft 5, impuls 4, ionen 2 |
+| Schlachtschiff | Hyperraum | laser 70 % / plasma 30 % | Leichtmetall | 45.000 / 15.000 / 0 | Werft 7, hyperraumantrieb 4 |
+| Bomber | Impuls | plasma | Verbund | 50.000 / 25.000 / 15.000 + K1 100 | Werft 8, impuls 6, plasma 5 |
+| Zerstörer | Hyperraum | plasma | Verbund | 60.000 / 50.000 / 15.000 + K1 500 | Werft 9, hyperraumantrieb 6, hyperspace 5 |
+| Todesstern | Hyperraum | graviton | Verbund | 5.000.000 / 4.000.000 / 1.000.000 + K3 1.000 | Werft 12, hyperraumantrieb 7, graviton 1 |
+| Abfangjäger | Verbrennung | laser | Leichtmetall | 2.000 / 1.000 / 0 | Werft 1, verbrennung 2 |
+| Panzerkreuzer | Impuls | ionen | Verbund | 25.000 / 12.000 / 3.000 + K1 200 | Werft 6, impuls 4, ionen 3, panzerung 4 |
+| Schlachtkreuzer | Hyperraum | plasma | Verbund | 30.000 / 40.000 / 15.000 + K1 300 | Werft 8, hyperraumantrieb 5, hyperspace 5, plasma 3 |
+| Träger | Hyperraum | raketen | Verbund | 40.000 / 30.000 / 20.000 + K2 200 | Werft 8, hyperraumantrieb 4, computer 6 |
+| Minenleger | Impuls | raketen | Leichtmetall | 12.000 / 8.000 / 4.000 | Werft 5, impuls 3, waffen 3 |
+| Interzeptor | Hyperraum | laser | Leichtmetall | 15.000 / 8.000 / 2.000 | Werft 6, hyperraumantrieb 2, laser 8 |
+| Orbitalplattform | – | ionen 50 % / raketen 50 % | Verbund | 80.000 / 60.000 / 20.000 + K2 300 | Werft 8, schild 6, ionen 5 |
+| Treibstofftanker | Verbrennung | – | Leichtmetall | 8.000 / 6.000 / 2.000 | Werft 4, verbrennung 5 |
+| Kunststoff-Frachter | Impuls | raketen | Leichtmetall | 15.000 / 15.000 / 5.000 + K1 100 | Werft 6, impuls 4, komprimierung 2 |
+| Antimaterie-Frachter | Hyperraum | raketen | Verbund | 100.000 / 80.000 / 40.000 + K3 200 | Werft 10, hyperraumantrieb 6, komprimierung 5 (Flag antimaterie) |

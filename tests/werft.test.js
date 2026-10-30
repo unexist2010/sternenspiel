@@ -1,0 +1,155 @@
+// Kapitel 4 – Werft: 23 Schiffe, Kosten, Voraussetzungen, Bau inkl. Offline, Solarsatelliten-Strom, Master, Migration v7, Forschungsbonus.
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const { ladeSpiel, speicherAttrappe } = require("./lade-spiel");
+
+const STD = 3600000;
+const T0 = Date.UTC(2026, 9, 30, 8, 0, 0);
+const gleich = (a, b) => assert.deepEqual(JSON.parse(JSON.stringify(a)), JSON.parse(JSON.stringify(b)));
+const VIEL = { metall: 1e12, silizium: 1e12, rohoel: 1e12, kunststoff_t1: 1e9, kunststoff_t2: 1e9, kunststoff_t3: 1e9 };
+function setup(geb = {}, roh = {}, fo = {}) {
+  const SS = ladeSpiel();
+  const z = SS.kern.zustand.neuerSpielstand({ jetzt: T0, name: "Test" });
+  Object.assign(z.planeten[0].gebaeude, geb);
+  Object.assign(z.rohstoffe, roh);
+  Object.assign(z.forschung, fo);
+  return { SS, z, p: z.planeten[0], P: SS.kern.produktion, Bau: SS.kern.bau, WF: SS.kern.werft, D: SS.DATEN };
+}
+
+test("Daten: genau 23 Schiffe, 5 Waffentypen, 2 Hüllentypen, je mit Bild, Gruppe und gültigen Bezügen", () => {
+  const { D } = setup();
+  assert.equal(D.schiffe.length, 23);
+  gleich(D.waffentypen.map((w) => w.id), ["laser", "ionen", "plasma", "raketen", "graviton"]);
+  gleich(D.huellentypen.map((h) => h.id), ["leichtmetall", "verbund"]);
+  gleich(D.schiffGruppen.map((g) => g.id), ["zivil", "kampf", "spezial"]);
+  const fs = require("fs"), path = require("path");
+  for (const s of D.schiffe) {
+    assert.equal(s.bild, "assets/schiffe/" + s.id + ".svg");
+    assert.ok(fs.existsSync(path.join(__dirname, "..", s.bild)), s.id + " Bild");
+    assert.ok(D.huellentypNachId(s.huelle), s.id);
+    for (const w of Object.keys(s.waffen)) assert.ok(D.waffentypNachId(w), s.id + " " + w);
+    for (const v of s.vor.forschung) assert.ok(D.forschungNachId(v.id), s.id + " " + v.id);
+    for (const g of Object.keys(s.schnellfeuer)) assert.ok(D.schiffNachId(g), s.id + " SF " + g);
+    assert.ok(s.vor.werft >= 1 && s.beschreibung && s.info, s.id);
+    if (s.huelle === "verbund") assert.ok(Object.keys(s.kosten).some((k) => /kunststoff/.test(k)), s.id + ": Verbund kostet Kunststoff");
+  }
+  gleich(D.schiffNachId("kleiner_transporter").kosten, { metall: 2000, silizium: 2000 });
+  gleich(D.schiffNachId("solarsatellit").kosten, { silizium: 2000, rohoel: 500 });
+});
+
+test("Ohne Werft: kein Bau, klare Meldung; Voraussetzungen werden geprüft", () => {
+  const { z, p, WF } = setup({}, VIEL);
+  assert.equal(WF.pruefe(z, p, "leichter_jaeger", 1).grund, "Zuerst die Werft bauen.");
+  p.gebaeude.werft = 1;
+  const r = WF.pruefe(z, p, "leichter_jaeger", 1);
+  assert.equal(r.ok, false); assert.match(r.grund, /Voraussetzung fehlt: .*Verbrennung/);
+  z.forschung.verbrennung = 1;
+  assert.equal(WF.pruefe(z, p, "leichter_jaeger", 1).ok, true);
+  assert.equal(WF.pruefe(z, p, "kreuzer", 1).ok, false, "Werft 5 fehlt");
+  assert.equal(WF.pruefe(z, p, "leichter_jaeger", 0).ok, false);
+  assert.equal(WF.pruefe(z, p, "solarsatellit", 1).ok, true, "Satellit braucht nur Werft 1");
+});
+
+test("Bau: Kosten werden abgezogen, Einheiten werden einzeln fertig, Punkte und Abbrechen mit Erstattung", () => {
+  const { z, p, WF, D } = setup({ werft: 2 }, { metall: 100000, silizium: 100000, rohoel: 0 }, { verbrennung: 2 });
+  assert.ok(WF.stueckMs(z, p, D.schiffNachId("leichter_jaeger")) >= 1000);
+  const r = WF.starte(z, p, "leichter_jaeger", 4, T0);
+  assert.ok(r.ok);
+  assert.equal(z.rohstoffe.metall, 100000 - 12000); assert.equal(z.rohstoffe.silizium, 100000 - 4000);
+  assert.equal(r.auftrag.ende - r.auftrag.start, r.auftrag.stueckMs * 4);
+  const punkte0 = z.punkte;
+  WF.faellige(z, p, T0 + r.auftrag.stueckMs * 2 + 1);
+  assert.equal(p.schiffe.leichter_jaeger, 2);
+  assert.ok(z.punkte > punkte0);
+  const ab = WF.abbrechen(z, p, 0, T0 + r.auftrag.stueckMs * 2 + 1);
+  assert.equal(ab.erstattet, 2);
+  assert.equal(z.rohstoffe.metall, 100000 - 6000);
+  assert.equal(p.werftauftraege.length, 0);
+});
+
+test("Bauzeit: (M+Si)/(2500·(1+Werft)) h, Roboter verkürzt, Mindestzeit; Warteschlange sequentiell, max. 5", () => {
+  const { z, p, WF, D } = setup({ werft: 1 }, VIEL, { verbrennung: 2, impuls: 2 });
+  const kt = D.schiffNachId("kleiner_transporter");
+  assert.equal(WF.stueckMs(z, p, kt), 4000 / 5000 * STD);
+  p.gebaeude.werft = 3;
+  assert.equal(WF.stueckMs(z, p, kt), 4000 / 10000 * STD);
+  z.forschung.roboter = 2;
+  assert.ok(WF.stueckMs(z, p, kt) < 4000 / 10000 * STD);
+  const a = WF.starte(z, p, "kleiner_transporter", 2, T0).auftrag, b = WF.starte(z, p, "solarsatellit", 3, T0).auftrag;
+  assert.equal(b.start, a.ende);
+  for (let i = 0; i < 3; i++) assert.ok(WF.starte(z, p, "solarsatellit", 1, T0).ok);
+  assert.match(WF.pruefe(z, p, "solarsatellit", 1).grund, /Warteschlange voll/);
+});
+
+test("Werft-Ausbau gesperrt während Schiffbau", () => {
+  const { z, p, WF, Bau } = setup({ werft: 1 }, VIEL);
+  WF.starte(z, p, "solarsatellit", 1, T0);
+  const r = Bau.pruefe(z, p, { art: "gebaeude", id: "werft" });
+  assert.equal(r.ok, false); assert.match(r.grund, /Werft Schiffe baut/);
+});
+
+test("Offline: simuliereBis liefert Satelliten aus, die danach Strom liefern", () => {
+  const { z, p, WF, P } = setup({ werft: 1 }, { metall: 0, silizium: 10000, rohoel: 5000 });
+  const r = WF.starte(z, p, "solarsatellit", 4, T0);
+  assert.ok(r.ok);
+  const vorher = P.uebersicht(z).strom.erzeugung;
+  const erg = P.simuliereBis(z, r.auftrag.ende + 120000);
+  assert.equal(p.solarsatelliten, 4);
+  assert.equal(p.werftauftraege.length, 0);
+  assert.ok(P.uebersicht(z).strom.erzeugung > vorher, "Satelliten erhöhen die Stromerzeugung");
+  assert.ok((erg.fertig || []).some((a) => a.art === "schiff" && a.menge === 4));
+});
+
+test("Master: sofort und kostenlos, Voraussetzungen egal, Werft nötig; Einschalten beendet laufende Aufträge; Punkte", () => {
+  const { z, p, WF, Bau } = setup({ werft: 1 }, { metall: 0, silizium: 4000, rohoel: 1000 });
+  WF.starte(z, p, "solarsatellit", 2, T0);
+  Bau.masterSetzen(z, true, T0 + 1000);
+  assert.equal(p.solarsatelliten, 2); assert.equal(p.werftauftraege.length, 0);
+  const pk = z.punkte, m = z.rohstoffe.metall;
+  const r = WF.starte(z, p, "todesstern", 3, T0 + 2000);
+  assert.ok(r.ok && r.sofort);
+  assert.equal(p.schiffe.todesstern, 3); assert.equal(z.rohstoffe.metall, m); assert.ok(z.punkte > pk);
+  p.gebaeude.werft = 0;
+  assert.equal(WF.pruefe(z, p, "leichter_jaeger", 1).grund, "Zuerst die Werft bauen.");
+});
+
+test("Antimaterie-Frachter ausgeblendet bis zur Freischaltung (Master sieht ihn)", () => {
+  const { z, p, WF, D } = setup({ werft: 12 }, VIEL);
+  const s = D.schiffNachId("antimaterie_frachter");
+  assert.equal(WF.sichtbar(z, s), false);
+  assert.equal(WF.pruefe(z, p, s.id, 1).ok, false);
+  z.einstellungen.master = true;
+  assert.equal(WF.sichtbar(z, s), true);
+});
+
+test("Werte mit Forschungsbonus (bonus()): Waffen, Waffentyp, Schild, Panzerung, Antrieb, Ladung", () => {
+  const { z, WF, D, SS } = setup();
+  const kt = D.schiffNachId("kleiner_transporter"), lj = D.schiffNachId("leichter_jaeger");
+  const g = WF.werte(z, lj);
+  assert.equal(g.angriff, lj.angriff); assert.equal(g.huelle, (3000 + 1000) / 10);
+  z.forschung.waffen = 2; z.forschung.laser = 1; z.forschung.panzerung = 1; z.forschung.verbrennung = 3; z.forschung.hyperspace = 1; z.forschung.komprimierung = 1;
+  const FO = SS.kern.forschung, w = WF.werte(z, lj), k = WF.werte(z, kt);
+  assert.ok(Math.abs(w.angriff - lj.angriff * (1 + FO.bonus(z, "waffen") / 100) * (1 + FO.bonus(z, "laser") / 100)) < 1e-9);
+  assert.ok(Math.abs(w.huelle - 400 * (1 + FO.bonus(z, "panzerung") / 100)) < 1e-9);
+  assert.ok(Math.abs(w.tempo - lj.tempo * (1 + FO.bonus(z, "verbrennung") / 100)) < 1e-9);
+  assert.ok(Math.abs(k.ladung - kt.ladung * (1 + (FO.bonus(z, "hyperspace") + FO.bonus(z, "komprimierung")) / 100)) < 1e-9, "Transporter: beide Ladungsboni");
+  const vb = WF.werte(z, D.schiffNachId("bomber"));
+  assert.equal(vb.grund.huelle, (50000 + 25000) * 1.5 / 10, "Verbund ×1,5");
+});
+
+test("Migration v6 → v7 (Profil): Schiffsbestand je Planet, Werft-Aufträge bereinigt, alter z.schiffe übernommen", () => {
+  const SS = ladeSpiel(), sp = speicherAttrappe(), PR = SS.kern.profile;
+  const a = PR.erstelle(sp, { name: "Alt", jetzt: T0 });
+  const key = PR.spielstandSchluessel(a.profil.id);
+  const v6 = JSON.parse(sp.getItem(key));
+  v6.version = 6; delete v6.planeten[0].schiffe; delete v6.planeten[0].werftauftraege; v6.schiffe = { kreuzer: 3, quatsch: 2 };
+  sp.setItem(key, JSON.stringify(v6));
+  const z = PR.ladeProfil(sp, a.profil.id).zustand;
+  assert.equal(z.version, 7);
+  gleich(z.planeten[0].schiffe, { kreuzer: 3 }); gleich(z.planeten[0].werftauftraege, []); gleich(z.schiffe, {});
+  z.planeten[0].werftauftraege.push({ art: "schiff", id: "kreuzer", name: "Kreuzer", menge: 2, fertig: 0, stueckMs: 1000, stueckKosten: { metall: 1 }, start: T0, ende: T0 + 2000 }, { id: "gibtsnicht" });
+  PR.speichereProfil(sp, a.profil.id, z, T0);
+  const z2 = PR.ladeProfil(sp, a.profil.id).zustand;
+  assert.equal(z2.planeten[0].werftauftraege.length, 1);
+  assert.equal(z2.planeten[0].schiffe.kreuzer >= 3, true);
+});

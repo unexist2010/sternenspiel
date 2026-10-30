@@ -67,6 +67,6 @@ test("Kunststoffwerk T2/T3: Freischaltung über Punkte, Migration setzt Flags be
   assert.equal(Bau.pruefe(z, p, { art: "gebaeude", id: "kunststoffwerk_t2" }).grund, "Ab 500 Punkten.");
   const alt = JSON.parse(JSON.stringify(z)); alt.version = 5; alt.punkte = 6000;
   const m = SS.kern.zustand.migriere(alt);
-  assert.equal(m.version, 6);
+  assert.equal(m.version, SS.BALANCE.SPIELSTAND_VERSION);
   assert.equal(m.freigeschaltet.kunststoffwerk_t2, true); assert.equal(m.freigeschaltet.kunststoffwerk_t3, true);
 });

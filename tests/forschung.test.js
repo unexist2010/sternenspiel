@@ -178,7 +178,7 @@ test("Migration v5 → v6 (Profil): Forschung ergänzt, Auftrag bereinigt, Stand
   v5.freigeschaltet.kunststoffwerk_t2 = false;
   sp.setItem(key, JSON.stringify(v5));
   const z = PR.ladeProfil(sp, a.profil.id).zustand;
-  assert.equal(z.version, 6);
+  assert.equal(z.version, SS.BALANCE.SPIELSTAND_VERSION);
   assert.equal(z.forschung.energie, 3); assert.ok(!("nanit" in z.forschung)); assert.equal(z.forschung.graviton, 0);
   assert.equal(z.forschungsauftrag, null);
   assert.equal(z.freigeschaltet.kunststoffwerk_t2, true, "700 Punkte ≥ 500");

@@ -239,8 +239,8 @@ test("Migration: Profil-Spielstand v3 wird beim Laden zu v5, Rohstoffe bleiben",
   delete v3.planeten; v3.rohstoffe.metall = 4321; v3.rohstoffe.strom = 777;
   sp.setItem(key, JSON.stringify(v3));
   const z = PR.ladeProfil(sp, a.profil.id).zustand;
-  assert.equal(z.version, 6); assert.equal(z.rohstoffe.metall, 4321); assert.equal(z.rohstoffe.strom, 0);
+  assert.equal(z.version, SS.BALANCE.SPIELSTAND_VERSION); assert.equal(z.rohstoffe.metall, 4321); assert.equal(z.rohstoffe.strom, 0);
   assert.equal(z.planeten[0].istHauptplanet, true); assert.equal(z.freigeschaltet.kunststoff_t2, true);
   PR.speichereProfil(sp, a.profil.id, z, T0 + 1);
-  assert.equal(JSON.parse(sp.getItem(key)).version, 6);
+  assert.equal(JSON.parse(sp.getItem(key)).version, SS.BALANCE.SPIELSTAND_VERSION);
 });

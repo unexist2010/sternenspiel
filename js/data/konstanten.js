@@ -16,11 +16,11 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.8.0";
+  SS.VERSION = "0.9.0";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
-    SPIELSTAND_VERSION: 6,   // v2: Heimatplanet · v3: automatischer Start · v4: Kapitel 2 – Planeten mit Gebäuden, Bauauftrag, Startplätzen · v5: Rohölvorkommen/Geologie, Startplätze A–Z, Master-Modus · v6: Forschung (Stufen + Forschungsauftrag), T2/T3-Freischaltung über Punkte
+    SPIELSTAND_VERSION: 7,   // v2: Heimatplanet · v3: automatischer Start · v4: Kapitel 2 – Planeten mit Gebäuden, Bauauftrag, Startplätzen · v5: Rohölvorkommen/Geologie, Startplätze A–Z, Master-Modus · v6: Forschung (Stufen + Forschungsauftrag), T2/T3-Freischaltung über Punkte · v7: Werft – Schiffsbestand je Planet + Werft-Warteschlange
     SPEICHER_SCHLUESSEL: "sternenspiel_spielstand_v1",          // alter Einzel-Spielstand (bis 0.3) – wird als erstes Profil übernommen
     PROFIL_INDEX_SCHLUESSEL: "sternenspiel_profile_v1",         // Liste der Spielerprofile
     PROFIL_SPIELSTAND_PRAEFIX: "sternenspiel_spielstand_p_",    // + Profil-ID = eigener Spielstand je Spieler
@@ -87,6 +87,14 @@
 
     // Solarsatelliten (Bau später in der Werft) – hier nur Energie je Satellit (ANNAHME, OGame ≈ 20–50 je nach Temperatur)
     SOLARSATELLIT_ENERGIE: 30,
+
+    // ---------- Werft (Kapitel 4, alles ANNAHME) ----------
+    // Bauzeit je Einheit = (Metall + Silizium) / (BAUZEIT.TEILER · (1 + Werftstufe)) Std. × Roboter-Faktor (OGame-Werft)
+    WERFT: {
+      MIN_SEKUNDEN: 1,       // Mindestbauzeit je Einheit (OGame: 1 s)
+      MAX_AUFTRAEGE: 5,      // Warteschlange je Planet
+      MAX_MENGE: 100000      // Einheiten je Auftrag
+    },
 
     // ---------- Geologie & Rohölvorkommen (FEST, Nachbesserung 0.7.0) ----------
     // Jeder Planet hat ein bekanntes Rohölvorkommen; die Bohrstation fördert daraus (Förderung = min(Rate, Vorkommen)).

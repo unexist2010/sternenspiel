@@ -1,16 +1,16 @@
 # Sternenspiel – Offene Punkte (Fragen an Sandro)
 
-Stand: 2026-10-19 (0.8.0, nach Kapitel 3) · Alles hier ist bis zur Antwort als **ANNAHME** umgesetzt bzw. vorgemerkt.
+Stand: 2026-10-30 (0.9.0, nach Kapitel 4) · Alles hier ist bis zur Antwort als **ANNAHME** umgesetzt bzw. vorgemerkt.
 
 ## Wichtigste Fragen (bitte zuerst)
 
 | # | Thema | Frage |
 |---|-------|-------|
-| 34 | Forschung | **Roboterforschung:** Sie verkürzt jetzt nur Gebäude-/Startplatz-Bauzeiten (÷ (1 + 1,5 · Stufe)), **nicht** die Forschungszeit – so vorgegeben. In OGame verkürzt aber das Gebäude „Forschungslabor“ die Forschung und die Robotikfabrik den Bau. Soll das so bleiben, und passt die Stärke ÷ 2,5 bei Stufe 1? |
-| 35 | Forschung | **Energie-Technologie +5 % je Stufe** (linear) auf Solarfarm, Ölverbrennung und Satelliten – ok? Und die übrigen Wirkungswerte (Waffen/Schild/Panzerung +10 %, Antriebe +10/20/30 %, Plasma +15 % …) als Vorschlag ok? |
-| 36 | Forschung | **Kosten** (OGame-Retro, Deuterium → Rohöl) und **Kunststoff** nur bei Hyperraumantrieb (200 T1), Forschungsnetzwerk (500 T2), Graviton (100 T3) – ok? Graviton braucht hier ET 12 + Plasma 8 (OGame: Labor 12). |
+| 39 | Werft | **Warteschlange:** bis zu 5 Werftaufträge je Planet, nacheinander abgearbeitet; Abbrechen erstattet die noch nicht gebauten Einheiten voll – ok? |
+| 40 | Werft | **Gegenseitige Sperre:** Während Schiffe gebaut werden, kann die Werft nicht ausgebaut werden (und umgekehrt) – wie OGame. Ok? |
+| 41 | Werft | **Bauzeit** je Schiff = (Metall + Silizium) / (2.500 · (1 + Werftstufe)) Std. × Roboterfaktor, mindestens 1 Sek. – ok? |
+| 42 | Werft | Zivile Schiffe (Transporter, Recycler, Kolonisationsschiff …) haben kleine **Raketen**-Bewaffnung; Antimaterie-Frachter erst nach Freischaltung sichtbar – so gewollt? |
 | 37 | Forschung | **Sichtbarkeit:** Forschung erscheint, sobald mindestens eine Voraussetzung erfüllt ist (vorher ausgeblendet, Zähler „X weitere Forschungen“) – so gemeint? |
-| 38 | Master | Im Master-Modus braucht Forschung trotzdem die Forschungseinrichtung (wie Startplätze den Raumflughafen) und schreibt Punkte gut – ok? |
 
 ## Weitere offene Punkte
 
@@ -27,7 +27,7 @@ Stand: 2026-10-19 (0.8.0, nach Kapitel 3) · Alles hier ist bis zur Antwort als 
 | 7 | Grundgerüst | Systemnummern global 1–300 (`3:133:5`, jetzt so) oder je Sektor 1–60 (`3:13:5`)? |
 | 9 | Grundgerüst | Namen ok (Universum „Sternenreich“, Sektoren Alpha–Epsilon, erzeugte System-/Planetennamen)? |
 | 11 | Grundgerüst | Offline-Fortschritt: Kappung auf 24 Std. ok? Volle Rate oder reduziert? |
-| 16 | Werft | Namen/Werte der 23 Schiffe, 5 Waffentypen, 2 Hüllentypen – Vorgabe oder Vorschlag von mir? |
+| 16 | Werft | **Vorschlag umgesetzt – Sandro prüft Namen/Werte** (0.9.0): 23 Schiffe, 5 Waffentypen (Laser, Ionen, Plasma, Raketen, Graviton), 2 Hüllen (Leichtmetall, Verbund); alle Namen, Kosten, Kampfwerte, Voraussetzungen = ANNAHME, Tabelle in SPEZIFIKATION C8. |
 | 17 | Verteidigung | Schutzschild-Autoaktivierung: wann genau, Kosten, Abklingzeit? |
 | 18 | Verteidigung | Trümmer am Boden 50–75 %: Zufall oder abhängig von etwas? Gilt Salvage für Schiffe und Verteidigung? |
 | 19 | Flotte/Startplätze | Treibstoffregeln: welcher Rohstoff, Verbrauchsformel, was bei leerem Tank? |
@@ -64,3 +64,5 @@ Stand: 2026-10-19 (0.8.0, nach Kapitel 3) · Alles hier ist bis zur Antwort als 
 - ~~Start-Knopf reagiert auf der Live-Seite nicht~~ → Ursache gemischter Browser-Zwischenspeicher nach Update; behoben mit `?v=`-Cache-Schutz + Versionsprüfung (0.4.0, 2026-10-19).
 
 - ~~Startplatz-Wahl A–Z beim Spielstart / Startplatz-Boni / Stufe als Planeten-Eigenschaft~~ → war ein Missverständnis; Sandro hat klargestellt: automatischer Start, Startplätze = Flotten-Startplattformen (2026-10-19).
+
+- ~~Fragen 34, 35, 36, 38 (Roboter, Energie-/Waffenwerte, Kosten/Graviton, Master braucht Einrichtung)~~ → von Sandro bestätigt (2026-10-30, 0.9.0).

@@ -1,6 +1,6 @@
 # Sternenspiel
 
-**Stand:** 2026-10-19 (Europe/Vienna) · **Version:** 0.8.0 · **Status:** Kapitel 3 „Forschung“ erledigt (davor Kapitel 2 „Anlagen“ inkl. Nachbesserung und Sandros Antworten)  
+**Stand:** 2026-10-30 (Europe/Vienna) · **Version:** 0.9.0 · **Status:** Kapitel 4 „Werft“ erledigt (davor Kapitel 3 „Forschung“, Kapitel 2 „Anlagen“)  
 **Für:** Sandro Orsaria · **Sprache:** Deutsch (Oberfläche, Doku, Kommentare) · **Repo:** github.com/unexist2010/sternenspiel · **Live:** https://unexist2010.github.io/sternenspiel/
 
 ## Kurzüberblick
@@ -23,7 +23,10 @@ Grafiken sind **eigene SVGs** (`assets/`, erzeugt mit `tools/erzeuge-grafiken.js
 **Nach einem Update** genügt normales Neuladen: Alle Dateien tragen `?v=<Version>`; passt etwas nicht zusammen, lädt die
 Seite einmal selbst neu oder zeigt „Neu laden“. Spielstände bitte **nicht** löschen – alte Stände werden übernommen.
 
-## Stand nach Kapitel 3 „Forschung“
+## Stand nach Kapitel 4 „Werft“
+
+- **Werft** (neu in 0.9.0): 23 Schiffe, 5 Waffentypen, 2 Hüllen, Werftaufträge (max. 5 je Planet), Solarsatelliten hier gebaut
+
 
 - **Menü** links in fester Reihenfolge: Übersicht, Ressourcen, Anlagen, Forschung, Werft, Verteidigung, Flotte, Weltraum
 - **Übersicht**: Hauptplanet mit Koordinaten (Sektor:System:Planet), Sektor, System; Punkte, laufender Bauauftrag;
@@ -50,6 +53,7 @@ node --test tests/                       # 69 Node-Tests (Kosten, Produktion, En
 node tests/playtest-kapitel2.js          # Browser-Playtest Kapitel 2 (Chromium headless, file://), Screenshots kapitel2-*.png
 node tests/playtest-kapitel2b.js         # Nachbesserung 0.7.0: Master, Info-Fenster, Geologie-Log, Raumflughafen A–Z (kapitel2b-*.png)
 node tests/playtest-kapitel3.js          # Kapitel 3 Forschung: Seite, Voraussetzungen, Info, Offline, Master (kapitel3-*.png)
+node tests/playtest-kapitel4.js          # Kapitel 4 Werft: Schiffe, Aufträge, Info, Übersicht, Master (kapitel4-*.png)
 PLAYTEST_BROWSER=firefox node tests/playtest-kapitel2.js
 node tests/playtest-kapitel1-profile.js  # Profile + Cache-Mix (Chromium/Firefox, file:// + lokaler Server)
 LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel2.js   # gegen die Live-Seite

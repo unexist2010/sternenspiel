@@ -1,5 +1,16 @@
 # Changelog – Sternenspiel
 
+## [0.9.0] – 2026-10-30 – Kapitel 4: Werft
+
+- Menüpunkt **Werft** gefüllt: **23 Schiffe** in 3 Gruppen (zivil, Kampf, Spezial), je eigenes SVG (`assets/schiffe/`), Anzahl, Kosten, Bauzeit,
+  Antrieb, Waffentyp(en) farbig, Hülle, Voraussetzungen grün/rot, Menge + „Max“, Knopf mit Sperrgrund, ⓘ-Info mit Kampfwerten und Schnellfeuer
+- **5 Waffentypen** (Laser, Ionen, Plasma, Raketen, Graviton), **2 Hüllentypen** (Leichtmetall, Verbund) – Anzahlen FEST, Werte ANNAHME
+- **Solarsatelliten** werden jetzt in der Werft gebaut
+- Werftaufträge: bis 5 je Planet, nacheinander, Echtzeit + offline, Abbrechen erstattet Rest; Werft während des Baus nicht ausbaubar (ANNAHME)
+- Übersicht zeigt den laufenden Werftauftrag; Master-Modus stellt Aufträge sofort fertig
+- Spielstand **v7** mit Migration; Fragen 34/35/36/38 geschlossen (von Sandro bestätigt)
+- Tests: `tests/werft.test.js`, `tests/playtest-kapitel4.js`
+
 ## [0.8.0] – 2026-10-19 – Kapitel 2: Antworten umgesetzt · Kapitel 3: Forschung
 
 ### Kapitel 2 – Sandros Antworten

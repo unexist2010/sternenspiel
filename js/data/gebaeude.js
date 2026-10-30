@@ -93,8 +93,8 @@
       info: "Der Raumflughafen ist der Rahmen für 26 Startplätze (A–Z) mit je 10 Stufen. Ihre Summe bestimmt, wie viele Schiffe gleichzeitig vom Planeten starten können. Ein Buchstabe wird baubar, wenn der vorige Stufe 10 hat und die Punkteschwelle erreicht ist.",
       kosten: { metall: 1000, silizium: 600, rohoel: 300 }, faktor: 2.0, maxStufe: 1 },
     { id: "werft", name: "Werft", gruppe: "weitere", bild: "assets/gebaeude/werft.svg",
-      beschreibung: "Baut später Schiffe und Solarsatelliten. Jetzt nur als Gebäude ausbaubar.",
-      info: "Höhere Stufen werden später den Schiffbau beschleunigen. Die Funktion folgt im Werft-Kapitel.",
+      beschreibung: "Baut Schiffe und Solarsatelliten (Menüpunkt „Werft“). Jede Stufe beschleunigt den Schiffbau.",
+      info: "Bauzeit je Schiff ÷ (1 + Werftstufe), zusätzlich verkürzt durch Robotertechnik. Während Schiffe gebaut werden, kann die Werft nicht ausgebaut werden (und umgekehrt).",
       kosten: { metall: 400, silizium: 200, rohoel: 100 }, faktor: 2.0 },
     { id: "verteidigungswerft", name: "Verteidigungswerft", gruppe: "weitere", bild: "assets/gebaeude/verteidigungswerft.svg",
       beschreibung: "Baut später Verteidigungsanlagen. Jetzt nur als Gebäude ausbaubar.",
@@ -110,7 +110,7 @@
 
   // Solarsatelliten: KEIN Gebäude – Bau später in der Werft; hier nur Anzeige/Regler.
   SS.DATEN.solarsatellit = Object.freeze({ id: "solarsatellit", name: "Solarsatelliten", gruppe: "energie", bild: "assets/gebaeude/solarsatellit.svg",
-    beschreibung: "Umkreisen den Planeten und liefern Strom. Gebaut werden sie später in der Werft." });
+    beschreibung: "Umkreisen den Planeten und liefern Strom. Gebaut werden sie in der Werft." });
 
   SS.DATEN.gebaeudeNachId = function (id) {
     for (var i = 0; i < L.length; i++) if (L[i].id === id) return L[i];

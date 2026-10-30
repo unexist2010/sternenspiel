@@ -1,5 +1,12 @@
 # Playtest-Notizen
 
+## Kapitel 4 – Werft (0.9.0) – 2026-10-30
+
+- `tests/playtest-kapitel4.js`: 64/64 grün in Chromium und Firefox (Desktop + Handy)
+- Screenshots: kapitel4-desktop-werft, kapitel4-desktop-infofenster, kapitel4-handy-werft, kapitel4-desktop-uebersicht-werft,
+  kapitel4-handy-uebersicht-werft, kapitel4-master-werft
+- Regression: kapitel2 110/110, kapitel2b 94/94, kapitel1-profile 67/67, kapitel3 78/78
+
 ## Kapitel 3 – Forschung + Antworten zu Kapitel 2 (0.8.0) – 2026-10-19
 - `node --test tests/`: 69/69 grün (neu `tests/antworten.test.js`: keine Stufengrenze, Startplatz Z10 ≤ 365 Tage, große Zahlen,
   T2/T3 über Punkte + Migration; neu `tests/forschung.test.js`: Kostenformeln, Voraussetzungen UND/ODER, Sichtbarkeit,

@@ -81,7 +81,7 @@ test("Menü: genau 8 Punkte in festgelegter Reihenfolge", () => {
   const SS = ladeSpiel();
   gleich(SS.DATEN.menue.map((m) => m.name), ["Übersicht", "Ressourcen", "Anlagen", "Forschung", "Werft", "Verteidigung", "Flotte", "Weltraum"]);
   const platzhalter = SS.DATEN.menue.filter((m) => m.platzhalter);
-  gleich(platzhalter.map((m) => m.id), ["werft", "verteidigung", "flotte", "weltraum"]);
+  gleich(platzhalter.map((m) => m.id), ["verteidigung", "flotte", "weltraum"]);
   assert.ok(SS.DATEN.menue.every((m) => !("kapitel" in m)), "keine Kapitelnummern an den Menüpunkten");
   assert.ok(!/Kapitel \d/.test(SS.DATEN.PLATZHALTER_TEXT), "neutraler Platzhaltertext");
 });
@@ -127,7 +127,7 @@ test("Neuer Spielstand: automatischer Start auf Hauptplanet (v5 mit Planet-Daten
   const SS = ladeSpiel();
   const W = SS.DATEN.weltraum;
   const z = neu(SS, { name: "  Sandro ", zufall: W.zufall(1) });
-  assert.equal(z.version, 6);
+  assert.equal(z.version, SS.BALANCE.SPIELSTAND_VERSION);
   assert.equal(z.name, "Sandro");
   assert.ok(!("startplatz" in z));
   assert.ok(W.leseKoordinaten(W.koordinatenText(z.heimat)), "gültige Koordinate");
@@ -253,7 +253,7 @@ test("Migration v2 → v5: Heimat behalten, Planet mit Gebäuden anlegen, Strom 
   };
   sp.setItem(SS.BALANCE.SPEICHER_SCHLUESSEL, JSON.stringify(v2));
   const z = S.lade(sp).zustand;
-  assert.equal(z.version, 6);
+  assert.equal(z.version, SS.BALANCE.SPIELSTAND_VERSION);
   assert.ok(!("startplatz" in z) && !("gebaeude" in z) && !("lagerstaetten" in z) && !("startplaetze" in z));
   gleich(z.heimat, { sektor: 3, system: 133, planet: 5, name: "Rigo V" });
   assert.equal(z.rohstoffe.metall, 1234); assert.equal(z.rohstoffe.strom, 0, "Strom-Bestand entfällt (Bilanz)");
@@ -268,7 +268,7 @@ test("Migration v1/v3 → v5 und Bereinigung von v5-Ständen", () => {
   const W = SS.DATEN.weltraum, Z = SS.kern.zustand;
   const v1 = { version: 1, name: "Alt", startplatz: { buchstabe: "D", stufe: 13, schwerpunkt: "strom" }, rohstoffe: { metall: 7 }, zeit: { letzterTick: T0 } };
   const z = Z.migriere(JSON.parse(JSON.stringify(v1)), W.zufall(3));
-  assert.equal(z.version, 6);
+  assert.equal(z.version, SS.BALANCE.SPIELSTAND_VERSION);
   assert.ok(W.leseKoordinaten(W.koordinatenText(z.heimat)));
   assert.equal(z.rohstoffe.metall, 7);
   assert.equal(z.zeit.zuletztGespeichert, null);

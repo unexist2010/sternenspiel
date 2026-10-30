@@ -211,7 +211,7 @@ test("Migration v4 → v5 (Profil): Rohölvorkommen statt Felder, Startplätze A
   v4.zeit.letzterTick = T0;
   sp.setItem(key, JSON.stringify(v4));
   const z = PR.ladeProfil(sp, a.profil.id).zustand, p = z.planeten[0];
-  assert.equal(z.version, 6);
+  assert.equal(z.version, SS.BALANCE.SPIELSTAND_VERSION);
   assert.ok(!("rohoelfelder" in p)); assert.equal(p.rohoelVorkommen, 1000000);
   assert.equal(p.startplaetze.length, 26); assert.equal(p.startplaetze[0].stufe, 10); assert.equal(p.startplaetze[1].stufe, 4);
   assert.equal(p.geologie.naechsterFund, T0 + TAG); assert.ok(Array.isArray(p.geologie.funde));

@@ -9,7 +9,8 @@
  *            v4 Kapitel 2: planeten[] mit Gebäuden, Bauauftrag, Reglern, Solarsatelliten, Rohölfeldern und Startplätzen ·
  *            v5 (0.7.0): Rohölvorkommen + Geologie-Log statt Rohölfeldern, Startplätze A–Z (Stufe ≤ 10), Master-Modus,
  *               Sperr-Flags Kunststoffwerk T2/T3, Hangar (vorbereitet) ·
- *            v6 (0.8.0): T2/T3-Freischaltung über Punkte, keine Gebäude-Obergrenze, Forschung (Stufen + Forschungsauftrag)
+ *            v6 (0.8.0): T2/T3-Freischaltung über Punkte, keine Gebäude-Obergrenze, Forschung (Stufen + Forschungsauftrag) ·
+ *            v7 (0.9.0): Werft – planet.schiffe {id: Anzahl} + planet.werftauftraege (Warteschlange)
  */
 (function (g) {
   "use strict";
@@ -51,7 +52,9 @@
       hangar: { schiffe: {} },    // VORBEREITET (Flotten-Kapitel): Schiffe, die nicht auf die Startplätze passen – sicher bei Angriffen
       gebaeude: geb,
       regler: regler,             // Produktionsregler 0–100 % (Schritte à 10)
-      solarsatelliten: 0,         // Bau später in der Werft
+      solarsatelliten: 0,         // Bau in der Werft (Kapitel 4)
+      schiffe: {},                // Kapitel 4: Bestand je Schiffstyp (ohne Solarsatelliten)
+      werftauftraege: [],         // Kapitel 4: Werft-Warteschlange (nacheinander)
       bauauftrag: null,           // ein Auftrag gleichzeitig (OGame)
       startplaetze: SS.DATEN.startplaetzeAnfang()
     };
@@ -79,6 +82,17 @@
       if (isFinite(v)) neu.regler[k] = Math.max(0, Math.min(100, Math.round(v / 10) * 10));
     });
     neu.solarsatelliten = Math.max(0, Math.floor(Number(p.solarsatelliten) || 0));
+    // v7: Schiffsbestand nur für bekannte Schiffe (Solarsatelliten zählen getrennt), Werft-Aufträge nur gültige
+    SS.DATEN.schiffIds.forEach(function (id) {
+      var n = Math.floor(Number(p.schiffe && p.schiffe[id]) || 0);
+      if (id !== "solarsatellit" && n > 0) neu.schiffe[id] = n;
+    });
+    neu.werftauftraege = (Array.isArray(p.werftauftraege) ? p.werftauftraege : []).filter(function (w) {
+      return w && SS.DATEN.schiffNachId(w.id) && isFinite(w.start) && isFinite(w.ende) && w.stueckMs > 0 && w.menge >= 1 && w.stueckKosten;
+    }).slice(0, SS.BALANCE.WERFT.MAX_AUFTRAEGE).map(function (w) {
+      return { art: "schiff", id: w.id, name: SS.DATEN.schiffNachId(w.id).name, menge: Math.floor(w.menge), fertig: Math.max(0, Math.min(Math.floor(w.menge), Math.floor(Number(w.fertig) || 0))),
+        stueckMs: Number(w.stueckMs), stueckKosten: w.stueckKosten, start: Number(w.start), ende: Number(w.ende) };
+    });
     var K = SS.BALANCE.STARTPLAETZE;
     neu.startplaetze = neu.startplaetze.map(function (sp) {
       var alt = (Array.isArray(p.startplaetze) ? p.startplaetze : []).filter(function (x) { return x && x.buchstabe === sp.buchstabe; })[0];
@@ -108,7 +122,7 @@
       freigeschaltet: { kunststoff_t1: true, kunststoff_t2: true, kunststoff_t3: true, antimaterie: false, kunststoffwerk_t2: false, kunststoffwerk_t3: false },
       rohstoffe: rohstoffMap(SS.BALANCE.STARTBESTAND),
       zeit: { letzterTick: jetzt, zuletztGespeichert: null },
-      statistik: { produziertGesamt: rohstoffMap(null), offlineMsGesamt: 0 },
+      statistik: { produziertGesamt: rohstoffMap(null), offlineMsGesamt: 0, schiffeGebaut: 0 },
 
       punkte: 0,             // 1 Punkt je 1000 verbaute Rohstoffe (gewichtet, ANNAHME) – schaltet Startplätze frei
       planeten: [neuerPlanet(true)], // Kapitel 2: [0] = Hauptplanet (Koordinaten/Name in „heimat“)
@@ -116,7 +130,7 @@
       // --- Andockpunkte für spätere Kapitel (ohne Logik) ---
       forschung: neueForschung(),   // Kapitel 3: Stufe je Forschung
       forschungsauftrag: null,      // Kapitel 3: ein Forschungsauftrag gleichzeitig (OGame) – unabhängig vom Bauauftrag
-      schiffe: {},           // späteres Kapitel: Bestand je Schiffstyp
+      schiffe: {},           // v7: leer – Bestand liegt je Planet (planet.schiffe)
       flotten: [],           // späteres Kapitel
       truemmerfelder: [],    // späteres Kapitel
       ereignisse: [],        // späteres Kapitel: KI-Angriffe/Ereignisse
@@ -175,7 +189,15 @@
     SS.kern.bau.freischaltungenPruefen(z); // v6: Kunststoffwerk T2/T3 ab Punkteschwelle frei
     z.forschung = neueForschung(z.forschung);             // v6: alle Forschungen mit Stufe (unbekannte Einträge entfallen)
     z.forschungsauftrag = forschungsauftragBereinigen(z.forschungsauftrag);
-    z.schiffe = z.schiffe || {};
+    // v7: früherer Andockpunkt z.schiffe (Spielerebene) → Bestand des Hauptplaneten
+    if (z.schiffe && typeof z.schiffe === "object") Object.keys(z.schiffe).forEach(function (id) {
+      var n = Math.floor(Number(z.schiffe[id]) || 0), hp = z.planeten[0];
+      if (n <= 0 || !SS.DATEN.schiffNachId(id)) return;
+      if (id === "solarsatellit") hp.solarsatelliten += n; else hp.schiffe[id] = (hp.schiffe[id] || 0) + n;
+    });
+    z.schiffe = {};          // Bestand liegt ab v7 je Planet (planet.schiffe)
+    z.statistik = z.statistik || {};
+    z.statistik.schiffeGebaut = Math.max(0, Math.floor(Number(z.statistik.schiffeGebaut) || 0));
     z.flotten = Array.isArray(z.flotten) ? z.flotten : [];
     z.truemmerfelder = Array.isArray(z.truemmerfelder) ? z.truemmerfelder : [];
     z.ereignisse = Array.isArray(z.ereignisse) ? z.ereignisse : [];

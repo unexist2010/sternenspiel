@@ -339,3 +339,19 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .box-zahl { font-size: .75rem; color: var(--leise); }
 .forschung-fehlt { padding: 10px 12px; border: 1px dashed #c9a23a; border-radius: 4px; background: rgba(201, 162, 58, .1); }
 .balken-fuellung.forschung { background: linear-gradient(90deg, #8a5cf0, #c58cf0); }
+
+/* ---------- Kapitel 4: Werft ---------- */
+.schiff-marken { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
+.waffe-marke, .huelle-marke, .antrieb-marke { font-size: 0.75rem; padding: 1px 7px; border-radius: 999px; border: 1px solid #50617d; color: #cfd8e3; white-space: nowrap; }
+.waffe-marke.leer { opacity: 0.6; }
+.huelle-marke.leichtmetall { border-color: #d7dee8; }
+.huelle-marke.verbund { border-color: #9fb0c4; background: #2a3546; }
+.schiff-bestellung { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.schiff-bestellung .menge { display: flex; align-items: center; gap: 4px; font-size: 0.85rem; }
+.schiff-bestellung input[type=number] { width: 6.5em; padding: 5px 6px; border-radius: 6px; border: 1px solid #3a4a66; background: #0b1324; color: inherit; font: inherit; }
+.schiff-bestellung .grund { flex-basis: 100%; }
+.werft-auftrag + .werft-auftrag { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #2c3a55; }
+.balken-fuellung.werft { background: linear-gradient(90deg, #ffb347, #ff7a3c); }
+.schnellfeuer { line-height: 1.5; }
+#werft-box .knopf { margin-top: 8px; }
+@media (max-width: 600px) { .schiff-bestellung input[type=number] { width: 5em; } }

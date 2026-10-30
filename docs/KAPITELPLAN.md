@@ -1,6 +1,6 @@
 # Sternenspiel – Kapitelplan
 
-Stand: 2026-10-19 (0.8.0) · Jedes Kapitel ist für sich lauffähig, getestet (Node + Browser-Playtest Handy/Desktop) und wird einzeln committet.
+Stand: 2026-10-30 (0.9.0) · Jedes Kapitel ist für sich lauffähig, getestet (Node + Browser-Playtest Handy/Desktop) und wird einzeln committet.
 
 **FEST (Sandro, 2026-10-19):** Kapitel 1 ist **nur Seitenstruktur + Layout**. **Jeder Menüpunkt bzw. einzelne Mechaniken
 bekommen später eigene Kapitel.** Die Weltraum-Ansicht und die Startplätze kommen ebenfalls erst später.
@@ -11,6 +11,7 @@ Reihenfolge und Nummern der späteren Kapitel sind **noch offen** (legt Sandro f
 | 1 | **Reine Seitenstruktur**: 8 Menüseiten im gleichen Layout (ohne Inhalt), Ressourcenleiste als Platzhalter, Übersicht mit Hauptplanet + Koordinaten, Spielerprofile, automatischer Start, Speichern, Start-Fix/Versionsmarke | ✅ **erledigt** (0.5.0, 2026-10-19) |
 | 2 | **Anlagen**: 13 Gebäude in 4 Gruppen, Bauauftrag (1 je Planet), Energie-Bilanz, Kunststoff-Kette, Raumflughafen mit Startplätzen A–Z, Punkte; Ressourcen-Seite + Übersicht zurück; Nachbesserung: Master-Modus, Info-Fenster, Rohölvorkommen + Geologie | ✅ **erledigt** (0.6.0 + 0.7.0, 2026-10-19) |
 | 3 | **Forschung**: 18 Forschungen in 5 Gruppen, Forschungseinrichtung, 1 Forschung gleichzeitig (Echtzeit + offline), Voraussetzungen inkl. ODER, Energie-Technologie + Roboterforschung wirken, übrige Wirkungen über `bonus()`; vorher Sandros Antworten zu Kapitel 2 (T2/T3 über Punkte, keine Stufengrenze, Startplätze ÷ 11) | ✅ **erledigt** (0.8.0, 2026-10-19) |
+| 4 | **Werft**: 23 Schiffe (3 Gruppen), 5 Waffentypen, 2 Hüllen, eigenes SVG je Schiff, Warteschlange (5 je Planet, Echtzeit + offline), Solarsatelliten in der Werft, Übersicht zeigt Werftauftrag | ✅ **erledigt** (0.9.0, 2026-10-30) |
 | später | eigene Kapitel je Menüpunkt bzw. Mechanik (siehe unten) | offen |
 | – | Offene Punkte | laufend: `docs/OFFENE-PUNKTE.md` |
 
@@ -72,3 +73,9 @@ Reihenfolge und Nummern der späteren Kapitel sind **noch offen** (legt Sandro f
 
 Die frühere Umsetzung von Rohstofftabelle, Weltraum-Navigation und Startplatz-Info (0.2.0–0.4.0) liegt in der Git-Historie
 und kann beim jeweiligen Kapitel wiederverwendet werden.
+
+## Kapitel 4 – Werft ✅
+
+- 23 Schiffe, 5 Waffentypen, 2 Hüllentypen (FEST), alle Werte ANNAHME (SPEZIFIKATION C8)
+- Werftaufträge je Planet (max. 5), Bauzeit ÷ (1 + Werftstufe) und Roboterforschung, Abbrechen mit Erstattung
+- Verteidigung, Flotte, Weltraum bleiben Platzhalter
