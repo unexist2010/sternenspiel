@@ -44,7 +44,7 @@ async function lauf(browser, g) {
   const fehler = [];
   page.on("pageerror", (e) => fehler.push("pageerror: " + e.message));
   page.on("console", (m) => { if (m.type() === "error" || m.type() === "warning") fehler.push("console." + m.type() + ": " + m.text()); });
-  page.on("requestfailed", (r) => fehler.push("requestfailed: " + r.url()));
+  page.on("requestfailed", (r) => { if (!/favicon/.test(r.url())) fehler.push("requestfailed: " + r.url()); }); // Firefox bricht das Favicon beim Neuladen ab (wie Kapitel 1)
   page.on("request", (r) => { if (!r.url().startsWith(BASIS) && !r.url().startsWith("data:")) fehler.push("externe Anfrage: " + r.url()); });
   const praefix = `kapitel4b-${BROWSERNAME === "chromium" ? "" : BROWSERNAME + "-"}${LIVE ? "live-" : ""}`;
   const shot = async (n, ganz) => { await page.evaluate(() => { document.getElementById("meldung").className = "meldung"; }); if (ganz) await page.evaluate(() => window.scrollTo(0, 0)); await sleep(300); await page.screenshot({ path: path.join(OUT, praefix + n + ".png"), fullPage: !!ganz }); };
@@ -188,7 +188,7 @@ async function lauf(browser, g) {
   if (!handy) await shot("master-werft", true);
   await page.click("#knopf-master"); await sleep(200);
   ok(await ueberlauf() <= 0, "Kein waagrechter Überlauf");
-  ok(fehler.length === 0, "Keine Konsolen-/Seitenfehler, keine externen Anfragen" + (fehler.length ? ":\n  " + fehler.join("\n  ") : ""));
+  ok(fehler.length === 0, "Keine Konsolen-/Seitenfehler, keine externen Anfragen" + (fehler.length ? ":\n  " + fehler.map((x) => JSON.stringify(x)).join("\n  ") : ""));
   await ctx.close();
 }
 (async () => {
