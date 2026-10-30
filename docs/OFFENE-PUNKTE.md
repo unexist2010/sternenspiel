@@ -7,7 +7,7 @@ Stand: 2026-10-31 (0.11.0, Kapitel 4 Schiffsliste nach Sandro) · Alles hier ist
 | # | Thema | Frage |
 |---|-------|-------|
 | 41 | Werft | **Bauzeit** je Schiff = (Metall + Silizium) / (2.500 · (1 + Werftstufe)) Std. × Roboterfaktor, mindestens 1 Sek. – ok? |
-| 46 | Bilder | **In Arbeit:** je Schiff 2 Bildvorschläge (A/B) liegen unter `/workspace/sternenspiel-bildvorschlaege/<id>-a.png` / `-b.png` (Box, nicht im Repo). Sandro wählt je Schiff aus; im Spiel bleiben bis dahin Platzhalter-SVGs. |
+| 46 | Bilder | **Wartet auf Auswahl:** alle 48 Bildvorschläge (24 Schiffe × A/B) liegen unter `/workspace/sternenspiel-bildvorschlaege/<id>-a.png` / `-b.png` (Box, nicht im Repo). Sandro wählt je Schiff aus; im Spiel bleiben bis dahin Platzhalter-SVGs. |
 | 37 | Forschung | **Sichtbarkeit:** Forschung erscheint, sobald mindestens eine Voraussetzung erfüllt ist (vorher ausgeblendet, Zähler „X weitere Forschungen“) – so gemeint? |
 
 ## Weitere offene Punkte
