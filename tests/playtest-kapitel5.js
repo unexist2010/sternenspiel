@@ -147,7 +147,22 @@ async function lauf(browser, g) {
   await page.fill("#sim-anzahl", "50");
   await page.click('[data-aktion="sim-start"]'); await sleep(300);
   const ber = await page.textContent("#sim-ausgabe");
-  ok(/Phase 1 – Orbit/.test(ber) && /Phase 2 – Boden/.test(ber) && /Trümmerfeld Orbit/.test(ber), "Simulator: Bericht mit Orbit, Boden, Trümmer");
+  ok(/Phase 1 – Orbit/.test(ber) && /Phase 2 – Boden/.test(ber) && /Trümmerfelder/.test(ber), "Simulator: Bericht mit Orbit, Boden, Trümmer");
+  // Kapitel Kampfsystem / Kampfbericht (0.14.0)
+  const kb = await Z(() => { const b = document.getElementById("kampf-bericht"), t = (s) => b.querySelector(s);
+    return { sieger: !!t("[data-sieger]"), summe: /Verluste Angreifer/.test(t(".kb-summe").textContent) && /Verluste Verteidiger/.test(t(".kb-summe").textContent),
+      kopfOben: b.firstElementChild.classList.contains("kb-kopf"), phasen: b.querySelectorAll(".kb-phase").length, runden: b.querySelectorAll(".kb-runden th").length,
+      rot: b.querySelectorAll(".kb-phase .kb-verlust.kb-gegner").length, gruen: b.querySelectorAll(".kb-phase .kb-verlust.kb-eigen").length,
+      farbeRot: (t(".kb-verlust.kb-gegner") ? getComputedStyle(t(".kb-verlust.kb-gegner")).color : ""), farbeGruen: (t(".kb-verlust.kb-eigen") ? getComputedStyle(t(".kb-verlust.kb-eigen")).color : ""),
+      details: b.querySelectorAll("details.kb-details").length, truemmerLetzt: b.lastElementChild.id === "kb-truemmer" }; });
+  ok(kb.sieger && kb.summe && kb.kopfOben, "Kampfbericht: Sieger + Verlustsumme ganz oben");
+  ok(kb.phasen === 2 && kb.runden > 2, `Kampfbericht: Phase 1/2 mit Runden (${kb.runden} Spaltenköpfe)`);
+  ok(kb.rot > 0 && kb.gruen > 0 && kb.farbeRot !== kb.farbeGruen, `Verluste farbig: rot ${kb.rot} (${kb.farbeRot}), grün ${kb.gruen} (${kb.farbeGruen})`);
+  ok(kb.details >= 1 && kb.truemmerLetzt, "Details-Dropdown je Phase, Trümmerfelder am Ende");
+  await page.locator("#kampf-bericht details.kb-details").first().evaluate((d) => { d.open = true; });
+  ok(await page.isVisible("#kampf-bericht details.kb-details .kb-huellen"), "Details aufgeklappt: Hüllenstände sichtbar");
+  await page.locator("#kampf-bericht").evaluate((e) => e.scrollIntoView());
+  await Z(() => { document.getElementById("meldung").className = "meldung"; }); await sleep(300); await page.locator("#kampf-bericht").screenshot({ path: path.join(OUT, `kapitel-kampfsystem-${g.name}-bericht.png`) });
   ok((await Z(() => JSON.stringify(window.SS.app.zustand.planeten[0].verteidigung))) === vorher, "Simulator ändert den Spielstand nicht");
   await page.locator("#sim-box").evaluate((e) => e.scrollIntoView());
   await shot(handy ? "handy-simulator" : "desktop-simulator");

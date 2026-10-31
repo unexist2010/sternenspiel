@@ -1,6 +1,6 @@
 # Sternenspiel – Kapitelplan
 
-Stand: 2026-10-31 (0.12.1) · Jedes Kapitel ist für sich lauffähig, getestet (Node + Browser-Playtest Handy/Desktop) und wird einzeln committet.
+Stand: 2026-10-31 (0.14.0) · Jedes Kapitel ist für sich lauffähig, getestet (Node + Browser-Playtest Handy/Desktop) und wird einzeln committet.
 
 **FEST (Sandro, 2026-10-19):** Kapitel 1 ist **nur Seitenstruktur + Layout**. **Jeder Menüpunkt bzw. einzelne Mechaniken
 bekommen später eigene Kapitel.** Die Weltraum-Ansicht und die Startplätze kommen ebenfalls erst später.
@@ -13,7 +13,8 @@ Reihenfolge und Nummern der späteren Kapitel sind **noch offen** (legt Sandro f
 | 3 | **Forschung**: 18 Forschungen in 5 Gruppen, Forschungseinrichtung, 1 Forschung gleichzeitig (Echtzeit + offline), Voraussetzungen inkl. ODER, Energie-Technologie + Roboterforschung wirken, übrige Wirkungen über `bonus()`; vorher Sandros Antworten zu Kapitel 2 (T2/T3 über Punkte, keine Stufengrenze, Startplätze ÷ 11) | ✅ **erledigt** (0.8.0, 2026-10-19) |
 | 4 | **Werft**: 23 Schiffe (3 Gruppen), 5 Waffentypen, 2 Hüllen, eigenes SVG je Schiff, Warteschlange (5 je Planet, Echtzeit + offline), Solarsatelliten in der Werft, Übersicht zeigt Werftauftrag | ✅ **erledigt** (0.9.0, 2026-10-30) |
 | 5 | **Verteidigung**: Verteidigungswerft, 10 Anlagen (inkl. Orbitalplattform), Zwei-Hüllen-System, 7 Waffentypen, Kampfkern Orbit → Boden, Trümmer/Reparatur/Schrott, Kampf-Simulator | ✅ **erledigt** (0.12.0, 2026-10-31) |
-| 6 | **Flotte** (Kampf live, Trümmer einsammeln, Startplätze im Betrieb) | offen |
+| 6 | **Flotte**: Flottenfenster (Startbahnen/Hangar, Presets), Senden, Missionen, Seitenleiste | ✅ **erledigt** (0.13.0 + 0.13.1, 2026-10-31) |
+| Kampf | **Kampfsystem / Kampfbericht** (Ergänzung Kampf nach Flotte, Sandro t31u): Spec Phasen/Hüllen/Waffen FEST, Rundenprotokoll je Typ, neuer Kampfbericht (Sieger + Verluste, Phase 1/2 mit Runden, Details-Dropdown, Trümmerfelder) | ✅ **erledigt** (0.14.0, 2026-10-31) |
 | später | eigene Kapitel je Menüpunkt bzw. Mechanik (siehe unten) | offen |
 | – | Offene Punkte | laufend: `docs/OFFENE-PUNKTE.md` |
 
@@ -104,3 +105,11 @@ und kann beim jeweiligen Kapitel wiederverwendet werden.
 - Zwei-Hüllen-System (Metall + Energie gleichzeitig), neue Waffen Maschinenkanone (Gatling) und Magnetkanone (Railgun), Schiffe neu bewaffnet.
 - 9 Verteidigungsanlagen + Orbitalverteidigungsplattform (aus der Werft umgezogen → 24 Schiffe), Verteidigungswerft-Warteschlange, Spielstand v9.
 - Kampfkern + Simulator live; echte Angriffe, Schnellfeuer, Trümmer einsammeln folgen mit Kapitel 6 „Flotte“. Details: SPEZIFIKATION C9.
+
+## Kapitel Kampfsystem / Kampfbericht ✅ (0.14.0)
+
+- Sandro t31u: bis zu 2 Phasen (Orbit, Boden nur bei ≥1 überlebendem Angreifer), Orbitalverteidigung eigenes System, Zwei-Hüllen + Waffentypen FEST (SPEZIFIKATION C11).
+- Kampfkern: Rundenprotokoll je Gruppe (Start, Verluste, Hüllen, zugefügter Schaden, Waffeneinsatz).
+- Kampfbericht (`js/ui/kampfbericht.js`) im Simulator: Sieger + Gesamtverluste oben, Phase 1/2 mit Rundentabellen (Verluste grün = eigene/Verteidiger, rot = Angreifer), Details-Dropdown je Phase, Trümmerfelder am Ende.
+- Echte KI-Angriffe, Schnellfeuer, Zufall, Beute, Trümmer einsammeln: später (OFFENE-PUNKTE 67–73).
+

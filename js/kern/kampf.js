@@ -9,6 +9,7 @@
  *  - Zwei Hüllen (Metall + Energie), gleichzeitig angreifbar; nach Zusammenbruch der Energiehülle Bonus für metallwirksame Waffen,
  *    reine Energiewaffen nahezu wirkungslos.
  *  - Trümmer: Orbit = Schiffe (Wracksammler); Boden = Verteidigung: Teil Reparatur (Forschung), Rest Schrott (Bodensammler), max 50 %.
+ *  - Kampfbericht (Kapitel Kampfsystem, t31u): Rundenprotokoll je Gruppe (Start, Verluste, Hüllen, Schaden, Waffeneinsatz).
  * ANNAHME (alle Zahlen in SS.BALANCE.KAMPF):
  *  - Feuer verteilt sich proportional zur Anzahl der Ziele (Erwartungswert statt Würfeln); 6 Runden je Phase; Schaden gleichzeitig am Rundenende.
  *  - Energiehülle regeneriert nicht. FEST (t27u): Ziele ohne Energiehülle zählen wie „Hülle gebrochen“ (Bonus/Malus gilt).
@@ -55,7 +56,7 @@
   }
 
   function waffenProfil(waffen) {
-    return Object.keys(waffen).map(function (w) { var wt = D().waffentypNachId(w); return { anteil: waffen[w], e: wt.profil.energie, m: wt.profil.metall }; });
+    return Object.keys(waffen).map(function (w) { var wt = D().waffentypNachId(w); return { id: w, anteil: waffen[w], e: wt.profil.energie, m: wt.profil.metall }; });
   }
   function gruppe(art, def, n, w) {
     return { art: art, id: def.id, name: def.name, kosten: def.kosten, vorher: n, n: n, angriff: w.angriff, profil: waffenProfil(def.waffen),
@@ -83,21 +84,35 @@
     return { e: e, m: m };
   }
 
-  /** Eine Phase: Seite A gegen Seite B, optionaler Planetenschild auf Seite B. → Rundenprotokoll */
+  /** Momentaufnahme einer Gruppe (für das Rundenprotokoll). */
+  function snap(x) { return { art: x.art, id: x.id, name: x.name, n: x.n, energie: x.energie, metall: x.metall }; }
+  function rund(v) { return Math.round(v * 10) / 10; }
+
+  /**
+   * Eine Phase: Seite A (Angreifer) gegen Seite B, optionaler Planetenschild auf Seite B. → Rundenprotokoll
+   * Kampfbericht (t31u): je Runde und Gruppe Startanzahl + Verluste dieser Runde, Hüllenstände danach,
+   * zugefügter Schaden (Energie/Metall) je Seite und aggregierter Waffeneinsatz (Schüsse + Schaden je Waffentyp).
+   */
   function phase(A, B, schild) {
     var runden = [], R = K().RUNDEN_JE_PHASE;
     var lebt = function (l) { return l.filter(function (x) { return x.n > 0 && !x.schutzschild; }); };
     for (var r = 1; r <= R; r++) {
       var a = lebt(A), b = lebt(B);
       if (!a.length || !b.length) break;
-      var dmg = new Map();
+      var vorA = a.map(snap), vorB = b.map(snap);
+      var dmg = new Map(), zugefuegt = { angreifer: { e: 0, m: 0 }, verteidiger: { e: 0, m: 0 } }, waffen = { angreifer: {}, verteidiger: {} };
       var feuer = function (von, ziele, aufB) {
-        var summe = ziele.reduce(function (s, t) { return s + t.n; }, 0);
+        var summe = ziele.reduce(function (s, t) { return s + t.n; }, 0), seite = aufB ? "angreifer" : "verteidiger";
         von.forEach(function (gq) {
           if (!(gq.angriff > 0) || !gq.profil.length) return;
           ziele.forEach(function (t) {
             var schuesse = gq.n * t.n / summe, s = schaden(gq.angriff, gq.profil, t), d = dmg.get(t) || { e: 0, m: 0, schild: aufB && schild };
             d.e += schuesse * s.e; d.m += schuesse * s.m; dmg.set(t, d);
+            zugefuegt[seite].e += schuesse * s.e; zugefuegt[seite].m += schuesse * s.m;
+            gq.profil.forEach(function (w) { // Waffeneinsatz: Anteil der Schüsse + Schaden je Waffentyp
+              var ws = schaden(gq.angriff, [w], t), o = waffen[seite][w.id] || (waffen[seite][w.id] = { schuesse: 0, e: 0, m: 0 });
+              o.schuesse += schuesse * w.anteil; o.e += schuesse * ws.e; o.m += schuesse * ws.m;
+            });
           });
         });
       };
@@ -113,7 +128,20 @@
         t.n = t.metall <= 1e-6 ? 0 : Math.min(t.n, Math.ceil(t.metall / t.metallJe - 1e-9));
         t.energie = Math.min(t.energie, t.n * t.energieJe);
       });
-      runden.push({ runde: r, angreifer: lebt(A).reduce(function (s, x) { return s + x.n; }, 0), verteidiger: lebt(B).reduce(function (s, x) { return s + x.n; }, 0), schildRest: schild ? schild.energie : null, schildAbsorb: schildAbsorb });
+      var gr = function (vor, liste) {
+        return vor.map(function (v, i) {
+          var x = liste[i];
+          return { art: v.art, id: v.id, name: v.name, start: v.n, verloren: v.n - x.n, rest: x.n,
+            energieVorher: rund(v.energie), metallVorher: rund(v.metall), energie: rund(x.energie), metall: rund(x.metall),
+            energieMax: rund(v.n * x.energieJe), metallMax: rund(v.n * x.metallJe), energieGebrochen: x.energieJe > 0 && x.energie <= 1e-9 };
+        });
+      };
+      var wl = function (o) { return Object.keys(o).map(function (id) { return { id: id, schuesse: rund(o[id].schuesse), e: rund(o[id].e), m: rund(o[id].m) }; }); };
+      runden.push({ runde: r, angreifer: lebt(A).reduce(function (s, x) { return s + x.n; }, 0), verteidiger: lebt(B).reduce(function (s, x) { return s + x.n; }, 0),
+        schildRest: schild ? schild.energie : null, schildAbsorb: schildAbsorb,
+        gruppen: { angreifer: gr(vorA, a), verteidiger: gr(vorB, b) },
+        schaden: { angreifer: { e: rund(zugefuegt.angreifer.e), m: rund(zugefuegt.angreifer.m) }, verteidiger: { e: rund(zugefuegt.verteidiger.e), m: rund(zugefuegt.verteidiger.m) } },
+        waffen: { angreifer: wl(waffen.angreifer), verteidiger: wl(waffen.verteidiger) } });
     }
     return runden;
   }
@@ -169,7 +197,7 @@
     var verlorenSP = oV.filter(function (x) { return x.art === "schiff" && x.id !== "solarsatellit"; }).reduce(function (s, x) { return s + x.verloren; }, 0);
     var hangarN = Object.keys(vt.hangar).reduce(function (s, id) { return s + vt.hangar[id]; }, 0);
     return {
-      verteilung: vt, phasen: [{ id: "orbit", name: "Orbit", runden: r1 }, { id: "boden", name: "Boden", runden: r2 }],
+      verteilung: vt, phasen: [{ id: "orbit", name: "Orbit", runden: r1, stattgefunden: true, nurOrbital: !!vt.keineFlotte }, { id: "boden", name: "Boden", runden: r2, stattgefunden: restAngreifer }],
       angreifer: aV, orbit: oV, boden: bV, schild: schild ? { start: schild.start, rest: schild.energie, gefallen: schild.energie <= 1e-9, wiederAktiv: true } : null, plattformZerstoerer: grossesSchiff,
       sieger: angreiferRest === 0 ? "verteidiger" : verteidigerRest === 0 ? "angreifer" : "unentschieden",
       truemmerOrbit: truemmerOrbit, schrottBoden: schrottBoden, quoten: { orbit: quoteO, reparatur: repQ, schrott: schrottQ },

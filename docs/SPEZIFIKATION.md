@@ -548,3 +548,27 @@ Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zäh
 - **Flottenfenster (0.13.1):** Tabs „Startplatz“ und „Hangar“ als große, zuklappbare Dropdowns; das Sendeformular steht direkt im Flottenfenster (`#flotte/senden` springt dorthin). Weitere UI-Details: später (Sandro).
 - **Seitenleiste rechts** (Handy unten): alle Flüge mit Mission, Ziel, Restzeit, Fortschritt; live jede Sekunde.
 - Spielstand v10: `planet.flotte.preset`, `z.flotten[]` {id, herkunft, ziel, mission, schiffe, abflug, ankunft, rueckkehr, phase}, `z.favoriten[]`.
+
+## C11. Kapitel „Kampfsystem / Kampfbericht“ (0.14.0; Regeln FEST nach Sandro t31u, Zahlen ANNAHME)
+
+### C11.1 Phasen (FEST)
+- Jeder Angriff hat bis zu **zwei Phasen**. **Phase 1 Orbit**, **Phase 2 Boden** – Phase 2 nur, wenn der Angreifer Phase 1 mit **mindestens einem Schiff** übersteht.
+- **Phase 1:** Angreifer gegen die **Verteidigungsflotte** (Schiffe auf freien Startplätzen/Startbahnen) **und** die **Orbitalverteidigung**. Die Orbitalverteidigung ist ein eigenes, im Orbit stationiertes Verteidigungssystem, unabhängig von den Startbahnen, mit eigenen Ausbaustufen (jede Stufe mehr/stärkere Waffensysteme; derzeit abgebildet über Anzahl der Orbitalverteidigungsplattformen + Stufenbilder – ANNAHME). Gleiche Waffentypen und Hüllenregeln wie Schiffe/Bodenverteidigung.
+- Keine Verteidigungsflotte (alle Startplätze durch eigene Flotten unterwegs belegt, C10) → Phase 1 **nur** gegen die Orbitalverteidigung.
+- **Phase 2:** verbliebene Angreifer gegen die **reine Bodenverteidigung** (alle gebauten Bodenanlagen). Schiffe des Verteidigers nehmen **nicht** teil.
+
+### C11.2 Hüllen und Waffen (FEST, Zahlen ANNAHME → C9.2 / `js/data/schiffe.js`)
+- Jede Einheit hat **Metallhülle + Energiehülle**, beide gleichzeitig beschädigbar, kein Zwang zuerst die Energiehülle zu brechen.
+- Nach Zusammenbruch der Energiehülle: metallwirksame Waffen deutlicher Bonus auf Metall (`BONUS_NACH_ENERGIE`), reine/fast reine Energiewaffen weitgehend wirkungslos (`MALUS_NACH_ENERGIE`).
+- Ballistisch/Raketen: hoch Metall, schwach/wirkungslos Energie · Railgun: mittel Energie, stark Metall · Laser: stark Energie, schwach Metall · Impuls/Ionen: besonders stark Energie, gering Metall · Plasma: stark Energie, mittel–stark Metall · Maschinenkanone: schwach Energie, mittel Metall. Nach Zusammenbruch verstärken sich Ballistik, Railgun, Plasma, Maschinenwaffen; Laser/Impuls/Ionen verlieren den Großteil.
+
+### C11.3 Kampfbericht (FEST)
+- **Ganz oben:** Sieger + kurze Zusammenfassung der Gesamtverluste beider Seiten.
+- **Darunter Phase 1 und Phase 2 getrennt.** Ohne aufgeklappte Details **pro Runde je Schiffs-/Anlagetyp**: Startanzahl der Runde (normal) + Verluste dieser Runde farbig – **grün = eigener Verlust** (Spielersicht = Verteidiger), **rot = gegnerischer Verlust** (Angreifer). Die nächste Runde beginnt mit dem Rest; bis eine Seite keine Einheiten mehr hat oder die Phase endet.
+- **Dropdown je Phase:** genaue Schadensverteilung (Energie/Metall je Seite, Planetenschild-Absorption), Hüllenstände je Gruppe nach jeder Runde, Waffeneinsatz (Schüsse + Schaden je Waffentyp).
+- **Am Ende: Trümmerfelder** – Schiffe → Orbit (Wracksammler), Verteidigungsanlagen → Boden (später am Planeten einsammelbar / Bodensammler). Höhe nach Baukosten der zerstörten Einheiten (Quoten C9.4, ANNAHME).
+- Technik: `SS.kern.kampf.simuliere` liefert je Runde `gruppen.{angreifer,verteidiger}[]` {id, name, start, verloren, rest, energie/metall (+Max, vorher), energieGebrochen}, `schaden.{angreifer,verteidiger}.{e,m}`, `waffen.{…}[]` {id, schuesse, e, m}; `phasen[i].stattgefunden`, `nurOrbital`. UI: `js/ui/kampfbericht.js`.
+
+### C11.4 ANNAHME / später
+- 6 Runden je Phase, Erwartungswerte statt Zufall, Feuer proportional zur Zielanzahl, kein Schnellfeuer, keine Beute; Trümmer-/Reparatur-/Schrottquoten (C9.4) und Def-Werte bleiben ANNAHME. Echte (KI-)Angriffe: später – der Bericht ist derzeit im Kampf-Simulator live.
+

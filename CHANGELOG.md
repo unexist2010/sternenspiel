@@ -1,5 +1,13 @@
 # Changelog – Sternenspiel
 
+## [0.14.0] – 2026-10-31 – Kapitel Kampfsystem / Kampfbericht (Sandro t31u)
+
+- Spezifikation C11: Phasen (Orbit → Boden nur bei ≥1 überlebendem Angreifer), Orbitalverteidigung als eigenes System, Zwei-Hüllen + Waffentypen als FEST; Zahlen bleiben ANNAHME.
+- Kampfkern: Rundenprotokoll je Einheitentyp – Startanzahl, Verluste, Rest, Hüllenstände (Energie/Metall), zugefügter Schaden je Seite, Waffeneinsatz je Waffentyp; Phase 2 als „findet nicht statt“ markiert, wenn kein Angreifer übrig ist. Bisherige Summenfelder bleiben (rückwärtskompatibel).
+- Neuer Kampfbericht (`js/ui/kampfbericht.js`) im Kampf-Simulator: Sieger + Gesamtverluste ganz oben, Phase 1/2 mit Rundentabellen (Verluste grün = eigene/Verteidiger, rot = Angreifer), Details-Dropdown je Phase (Schaden, Hüllen, Waffen), Trümmerfelder am Ende (Orbit/Wracksammler, Boden/Bodensammler).
+- Offene Punkte 67–73 (Schnellfeuer, Zufall, Beute, Salvage, Def-Werte, Orbital-Zerstörung, Universumsgeschwindigkeit/KI-Angriffe): später.
+- Tests: neue Unit-Tests `kampfbericht.test.js`, Playtest Kapitel 5 prüft den Bericht (Screenshots `playtest/kapitel-kampfsystem-*.png`).
+
 ## [0.13.1] – 2026-10-31 – Flotte: Antworten t30u (Offene Punkte 58–66)
 
 - Verteidigung: Keine Verteidigungsflotte nur noch, wenn **alle** Startplätze durch Flotten unterwegs belegt sind; sonst verteidigen die freien Startbahn-Schiffe (Kampfkern + Simulator).

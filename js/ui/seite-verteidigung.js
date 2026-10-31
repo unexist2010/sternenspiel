@@ -69,22 +69,11 @@
         "<div class=\"tabelle-wrap\"><table class=\"info-tabelle\" id=\"waffen-tabelle\"><thead><tr><th>Waffe</th><th class=\"z\">vs Energie</th><th class=\"z\">vs Metall</th><th class=\"z\">Metall nach Zusammenbruch</th><th>Rolle</th></tr></thead><tbody>" + zeilen + "</tbody></table></div>", "", " id=\"waffen-box\"");
     }
 
-    function berichtHtml(b) {
-      var zeile = function (x) { return "<tr><td>" + esc(x.name) + "</td><td class=\"z\">" + F.zahl(x.vorher) + "</td><td class=\"z\">" + F.zahl(x.nachher) + "</td><td class=\"z\">" + (x.verloren ? "−" + F.zahl(x.verloren) : "–") + "</td><td class=\"z\">" + (x.repariert != null ? F.zahl(x.repariert) : "–") + "</td></tr>"; };
-      var tab = function (t, l) { return l.length ? "<h4>" + t + "</h4><div class=\"tabelle-wrap\"><table class=\"info-tabelle\"><thead><tr><th>Einheit</th><th class=\"z\">vorher</th><th class=\"z\">nachher</th><th class=\"z\">verloren</th><th class=\"z\">repariert</th></tr></thead><tbody>" + l.map(zeile).join("") + "</tbody></table></div>" : "<h4>" + t + "</h4><p class=\"hinweis\">keine</p>"; };
-      var sieg = { angreifer: "Angreifer gewinnt", verteidiger: "Verteidigung hält", unentschieden: "Unentschieden" }[b.sieger];
-      var rs = function (r) { return F.zahl(r.metall) + " Metall · " + F.zahl(r.silizium) + " Silizium"; };
-      return "<div class=\"kampf-bericht\" id=\"kampf-bericht\"><p><b data-sieger=\"" + b.sieger + "\">" + sieg + "</b> · Orbit " + b.phasen[0].runden.length + " Runden · Boden " + b.phasen[1].runden.length + " Runden" +
-        (b.schild ? " · Planetenschild " + (b.schild.gefallen ? "gefallen (nach dem Angriff wieder aktiv)" : "hält (" + zahl(b.schild.rest) + " / " + zahl(b.schild.start) + ")") : "") + "</p>" +
-        tab("Angreifer", b.angreifer) + tab("Phase 1 – Orbit (Startplätze + Orbitalplattform)", b.orbit) + tab("Phase 2 – Boden", b.boden) +
-        "<p class=\"hinweis\">Trümmerfeld Orbit (Wracksammler, " + Math.round(b.quoten.orbit * 100) + " %): " + rs(b.truemmerOrbit) + "<br>Schrott Boden (Bodensammler, " + Math.round(b.quoten.schrott * 100) + " %): " + rs(b.schrottBoden) +
-        "<br>Reparatur Verteidigung: " + Math.round(b.quoten.reparatur * 100) + " % · Hangar geschützt: " + F.zahl(Object.keys(b.verteilung.hangar).reduce(function (s, k) { return s + b.verteilung.hangar[k]; }, 0)) +
-        " Schiffe · rücken nach dem Kampf nach: " + F.zahl(b.nachruecken) + "</p></div>";
-    }
+    function berichtHtml(b) { return SS.ui.kampfbericht.html(b); } // Kapitel Kampfsystem: js/ui/kampfbericht.js
     function simulator() {
       var opts = D.schiffe.filter(function (s) { return s.gruppe === "kampf"; }).map(function (s) { return "<option value=\"" + s.id + "\">" + esc(s.name) + "</option>"; }).join("");
       return h.box("Kampf-Simulator (Test)", "<p class=\"hinweis\">Probe-Angriff auf diesen Planeten: Phase 1 Orbit, Phase 2 Boden. Der Spielstand wird <b>nicht</b> verändert. " +
-        "Angreifer ohne Forschung; kein Schnellfeuer, kein Zufall (Erwartungswerte). Echte Angriffe kommen mit den Flotten (Kapitel 6). <span class=\"annahme-marke\">Platzhalter</span></p>" +
+        "Angreifer ohne Forschung; kein Schnellfeuer, kein Zufall (Erwartungswerte). Der Bericht folgt dem Kapitel Kampfsystem (Sieger, Phase 1/2 mit Runden, Details, Trümmer). Echte Angriffe (KI/Flotten) folgen später. <span class=\"annahme-marke\">Platzhalter: Angriffe</span></p>" +
         "<div class=\"bau-aktion\"><label class=\"menge\"><span>Schiff</span><select id=\"sim-schiff\">" + opts + "</select></label>" +
         "<label class=\"menge\"><span>Anzahl</span><input type=\"number\" id=\"sim-anzahl\" min=\"1\" value=\"10\"></label>" +
         "<label class=\"menge\"><span>Bergung</span><input type=\"checkbox\" id=\"sim-bergung\"></label>" +

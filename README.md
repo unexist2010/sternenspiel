@@ -1,6 +1,6 @@
 # Sternenspiel
 
-**Stand:** 2026-10-30 (Europe/Vienna) · **Version:** 0.11.1 · **Status:** Kapitel 4 „Werft“ mit Sandros Schiffsliste erledigt (davor Kapitel 3 „Forschung“, Kapitel 2 „Anlagen“)  
+**Stand:** 2026-10-31 (Europe/Vienna) · **Version:** 0.14.0 · **Status:** Kapitel „Kampfsystem / Kampfbericht“ erledigt (davor Kapitel 6 „Flotte“, Kapitel 5 „Verteidigung“)  
 **Für:** Sandro Orsaria · **Sprache:** Deutsch (Oberfläche, Doku, Kommentare) · **Repo:** github.com/unexist2010/sternenspiel · **Live:** https://unexist2010.github.io/sternenspiel/
 
 ## Kurzüberblick

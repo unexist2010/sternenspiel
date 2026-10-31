@@ -416,3 +416,23 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .flotte-tab > summary::before { content: "▸ "; } .flotte-tab[open] > summary::before { content: "▾ "; }
 .flotte-tab > summary .tab-zahl { float: right; opacity: .8; }
 .send-ladung > summary { cursor: pointer; margin: .4rem 0; }
+
+/* Kampfbericht (Kapitel Kampfsystem, 0.14.0): grün = eigener Verlust (Verteidiger), rot = gegnerischer Verlust (Angreifer) */
+.kampf-bericht .kb-kopf { padding: .6rem .8rem; border: 1px solid #3a4a6a; border-radius: 6px; margin-bottom: .8rem; background: rgba(255,255,255,.03); }
+.kampf-bericht .kb-kopf > b { font-size: 1.15em; }
+.kampf-bericht .kb-sieg-verteidiger > b { color: #5fd17a; }
+.kampf-bericht .kb-sieg-angreifer > b { color: #ff6b6b; }
+.kampf-bericht .kb-summe { margin: .3rem 0 0; }
+.kb-verlust { font-weight: bold; white-space: nowrap; }
+.kb-verlust.kb-eigen { color: #5fd17a; }
+.kb-verlust.kb-gegner { color: #ff6b6b; }
+.kb-null { opacity: .45; }
+.kb-start { white-space: nowrap; }
+.kb-phase { margin: 1rem 0; padding-top: .4rem; border-top: 1px solid #2c3854; }
+.kb-runden td, .kb-runden th { white-space: nowrap; }
+.kb-details { margin: .5rem 0; }
+.kb-details > summary { cursor: pointer; color: #8fb8ff; padding: .3rem 0; }
+.kb-detail-runde h5 { margin: .6rem 0 .2rem; }
+.kb-huellen .kb-seite td { font-weight: bold; opacity: .8; }
+.kb-gebrochen { color: #ffb347; }
+.kb-truemmer { border-top: 1px solid #2c3854; padding-top: .4rem; }

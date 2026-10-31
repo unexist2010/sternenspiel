@@ -55,6 +55,18 @@ Stand: 2026-10-31 (0.13.1 Antworten t30u zu 58–66) · Alles hier ist bis zur A
 - **62** Missionen wie OGame: **Stationieren = nur hin** (Rohöl einfach), **Transport = hin und zurück** – **FEST**. Übrige Missionen bis zum Weltraum-Kapitel hin und zurück (ANNAHME).
 - **63** Transport: Ressourcen werden am Ziel **sofort entladen**, Flotte kehrt **sofort und automatisch** zurück – **FEST**.
 
+## Kapitel Kampfsystem / Kampfbericht (0.14.0) – bewusst SPÄTER
+
+| # | Bereich | Punkt |
+|---|---------|-------|
+| 67 | Kampf | **Schnellfeuer** im Kampf (Daten vorhanden, nicht angewendet). |
+| 68 | Kampf | **Zufall** (Trefferverteilung würfeln) statt Erwartungswerte; Rundenzahl 6 je Phase = ANNAHME. |
+| 69 | Kampf | **Beute** nach gewonnenem Angriff. |
+| 70 | Trümmer | **Salvage-Details**: Quoten Orbit/Boden/Reparatur/Schrott, Einsammeln mit Wracksammler/Bodensammler (siehe 54). |
+| 71 | Werte | **Def-Werte-Feinschliff** (Kosten, Angriff, Hüllen; siehe 56). |
+| 72 | Orbital | **Orbitalverteidigung**: Ausbaustufen als echtes Stufen-System? Zerstörung nur bei überlebendem Koloss/Titan – feste Regel oder Chance? |
+| 73 | Allgemein | **Universumsgeschwindigkeit** (Faktor für Flug/Bau) und **echte KI-Angriffe** mit Kampfbericht in den Nachrichten. |
+
 ## Kapitel 5 Verteidigung (0.12.0) – offen „später“ (Sandro t27u)
 
 | # | Thema | Frage |
