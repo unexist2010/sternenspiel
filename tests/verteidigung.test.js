@@ -121,7 +121,8 @@ test("Zwei-Hüllen: reine Laser-Flotte gegen Metall-Drohnen fast wirkungslos; Bo
   const K = SS.BALANCE.KAMPF;
   const ohne = { energie: 0, energieJe: 0 }, mit = { energie: 0, energieJe: 10 }, voll = { energie: 100, energieJe: 10 };
   const laser = [{ anteil: 1, e: 1, m: 0.25 }], rail = [{ anteil: 1, e: 0.6, m: 1 }];
-  assert.equal(KA.schaden(100, laser, ohne).e, 0); assert.equal(KA.schaden(100, laser, ohne).m, 25);
+  assert.equal(KA.schaden(100, laser, ohne).e, 0); assert.equal(KA.schaden(100, laser, ohne).m, 25 * K.MALUS_NACH_ENERGIE, "ohne Energiehülle = wie gebrochen (t27u)");
+  assert.equal(KA.schaden(100, rail, ohne).m, 100 * K.BONUS_NACH_ENERGIE, "Railgun-Bonus auch ohne Energiehülle (t27u)");
   assert.equal(KA.schaden(100, rail, mit).m, 100 * K.BONUS_NACH_ENERGIE, "Railgun-Bonus nach Zusammenbruch");
   assert.equal(KA.schaden(100, laser, mit).m, 25 * K.MALUS_NACH_ENERGIE, "Laser nach Zusammenbruch geschwächt");
   assert.equal(KA.schaden(100, rail, voll).m, 100, "kein Bonus solange Energiehülle steht");
@@ -152,4 +153,19 @@ test("Planetenschild absorbiert Bodenschaden; Reparatur + Schrott ≤ 50 %, Berg
   KA.anwenden(z, p, stark);
   assert.ok(p.truemmer.orbit.metall >= 0 && p.truemmer.boden.metall > 0, "Schrott am Boden");
   assert.ok((p.verteidigung.maschinennest || 0) < 50);
+});
+
+test("t27u: Planetenschild ohne Cooldown; Orbitalplattform 100 % wieder da außer bei Titan", () => {
+  const { z, p, KA } = setup({ verteidigungswerft: 1 });
+  p.verteidigung = { maschinennest: 10, schildkuppel: 1, orbitalverteidigungsplattform: 5 };
+  const b = KA.simuliere(z, p, { angreifer: { schlachtschiff: 300 } });
+  assert.ok(b.schild.gefallen && b.schild.wiederAktiv);
+  const sk = b.boden.find((x) => x.id === "schildkuppel"); assert.equal(sk.verloren, 0, "Schild nie zerstört");
+  const pf = b.orbit.find((x) => x.id === "orbitalverteidigungsplattform");
+  assert.ok(pf.verloren > 0); assert.equal(pf.zerstoert, 0); assert.equal(b.plattformZerstoerer, false);
+  KA.anwenden(z, p, b);
+  assert.equal(p.verteidigung.orbitalverteidigungsplattform, 5); assert.equal(p.verteidigung.schildkuppel, 1);
+  const t = KA.simuliere(z, p, { angreifer: { titan: 5 } });
+  const pt = t.orbit.find((x) => x.id === "orbitalverteidigungsplattform");
+  assert.equal(t.plattformZerstoerer, true); assert.ok(pt.verloren > 0 && pt.zerstoert > 0, "Titan zerstört Plattformen dauerhaft");
 });

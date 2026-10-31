@@ -16,7 +16,7 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.12.0";
+  SS.VERSION = "0.12.1";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
@@ -104,7 +104,7 @@
       BONUS_SCHWELLE: 0.5,         // Waffe gilt als „metallwirksam“, wenn profil.metall ≥ 0,5
       BONUS_NACH_ENERGIE: 1.5,     // ×1,5 auf die Metallhülle, sobald die Energiehülle des Ziels zusammengebrochen ist
       MALUS_NACH_ENERGIE: 0.5,     // reine Energiewaffen (metall < Schwelle) danach nur noch ×0,5 (≈ wirkungslos)
-      BONUS_OHNE_ENERGIEHUELLE: false, // Ziele, die nie eine Energiehülle hatten, bekommen KEINEN Bonus (reine Metallschiffe bleiben nützlich)
+      BONUS_OHNE_ENERGIEHUELLE: true, // FEST (Sandro t27u, 0.12.1): Ziele ohne Energiehülle zählen wie „Hülle schon gebrochen“ → Bonus/Malus gilt
       ENERGIE_REGENERATION: false, // Energiehülle lädt sich innerhalb eines Kampfes nicht wieder auf
       TRUEMMER_ORBIT: 0.3,         // Anteil Metall+Silizium zerstörter Schiffe/Orbitalplattformen als Trümmerfeld (OGame 30 %)
       TRUEMMER_ORBIT_BERGUNG: 0.8, // Spezialisierung „Bergung“ (Spec Salvage, Sandro): 80 % Orbit
@@ -115,7 +115,9 @@
       SCHROTT_JE_STUFE: 0.025,     // … + 2,5 % je Stufe Robotertechnik
       SCHROTT_MAX: 0.5,            // FEST (Sandro): max. 50 %
       SCHROTT_BERGUNG_GRUND: 0.5,  // Bergung: 50–75 % Boden (Sandro)
-      SCHROTT_BERGUNG_MAX: 0.75
+      SCHROTT_BERGUNG_MAX: 0.75,
+      PLANETENSCHILD_COOLDOWN: false, // FEST (Sandro t27u): Schildkuppel/Festungsschild kein Cooldown, nach jedem Angriff automatisch wieder aktiv
+      PLATTFORM_ZERSTOERER: ["titan"] // FEST (Sandro t27u): Orbitalplattformen kommen nach Angriff zu 100 % wieder (wie OGame-Mond), außer ein überlebendes sehr großes Schiff (Liste, ANNAHME: nur Titan) war dabei
     },
 
     // ---------- Geologie & Rohölvorkommen (FEST, Nachbesserung 0.7.0) ----------

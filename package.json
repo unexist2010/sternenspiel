@@ -1,6 +1,6 @@
 {
   "name": "sternenspiel",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "private": true,
   "description": "Sternenspiel – Offline-Browser-Aufbauspiel im Weltraum (Kapitel 5: Verteidigung 0.12.0)",
   "scripts": {

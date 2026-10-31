@@ -1,5 +1,12 @@
 # Changelog – Sternenspiel
 
+## [0.12.1] – 2026-10-31 – Antworten t27u (Offene Punkte 51–57)
+- Kampf: Bonus ×1,5 / Malus ×0,5 gilt auch für Ziele **ohne** Energiehülle (wie „Hülle gebrochen“). 6 Runden/Phase bestätigt.
+- Planetenschild (Schildkuppel/Festungsschild): kein Cooldown, nach jedem Angriff automatisch wieder aktiv (nie zerstört).
+- Orbitalverteidigungsplattform: nach Angriff immer 100 % wieder da (wie OGame-Mond), außer ein Titan überlebt beim Angreifer → dann normale Verluste/Trümmer.
+- Trümmer/Bergung/Werte (54/56) und Verteidigungs-Bilder (57) als „später“ markiert; Platzhalter bleiben.
+- Neuer Test; Version 0.12.1.
+
 ## [0.12.0] – 2026-10-31 – Kapitel 5: Verteidigung
 - **Menüpunkt Verteidigung** jetzt echt (Retro-Layout wie Werft): Verteidigungswerft-Info, Aufträge, Anlagen in Gruppen Geschütze/Schilde/Orbit, Waffen-&-Hüllen-Tabelle, Kampf-Simulator.
 - **10 Anlagen:** Maschinen-Nest, Raketenbatterie, Laser-Turm, Puls-Laser, Magnetkanone, Ionen-Geschütz, Plasma-Turm, Schildkuppel, Festungsschild, Orbitalverteidigungsplattform (aus der Werft umgezogen, 6 Stufenbilder bleiben) → **24 Schiffe**.

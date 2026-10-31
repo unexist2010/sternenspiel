@@ -1,6 +1,6 @@
 # Sternenspiel – Offene Punkte (Fragen an Sandro)
 
-Stand: 2026-10-31 (0.12.0, Kapitel 5 Verteidigung) · Alles hier ist bis zur Antwort als **ANNAHME** umgesetzt bzw. vorgemerkt.
+Stand: 2026-10-31 (0.12.1, Antworten t27u zu 51–57) · Alles hier ist bis zur Antwort als **ANNAHME** umgesetzt bzw. vorgemerkt.
 
 ## Wichtigste Fragen (bitte zuerst)
 
@@ -36,17 +36,20 @@ Stand: 2026-10-31 (0.12.0, Kapitel 5 Verteidigung) · Alles hier ist bis zur Ant
 | 25 | Kapitelplan | In welcher Reihenfolge sollen die späteren Kapitel kommen (je Menüpunkt bzw. Mechanik, z. B. Ressourcen → Anlagen → Forschung …)? |
 | 22 | – | Endgültiger Name: „Sternenspiel“, „Sternenreich“ oder „Weltraumspiel“? |
 
-## Kapitel 5 Verteidigung (0.12.0) – neue Fragen
+## Kapitel 5 Verteidigung (0.12.0) – offen „später“ (Sandro t27u)
 
 | # | Thema | Frage |
 |---|-------|-------|
-| 51 | Kampf | Zahlen ok? Bonus nach Energie-Zusammenbruch ×1,5 (metallwirksam) / ×0,5 (reine Energie), 6 Runden je Phase, Feuer anteilig nach Stückzahl, keine Energie-Regeneration. |
-| 52 | Kampf | Ziele ganz ohne Energiehülle (Drohnen): kein Bonus für Railgun & Co. – oder sollen sie wie „Hülle schon gebrochen“ zählen? |
-| 53 | Schild | Planetenschild (Schildkuppel 2.000 / Festungsschild 10.000, je max. 1) fängt Bodenschaden ab, immer automatisch aktiv (Solo-Regel) – Kosten/Abklingzeit gewünscht? |
-| 54 | Trümmer | Orbit 30 % (Bergung 80 %); Reparatur 50 % + 2 %/Panzerung (max. 80 %); Schrott 25 % + 2,5 %/Roboter (max. 50 %, Bergung 50–75 %) – ok? Ist „Bergung“ eine Forschung, ein Schiff oder eine Option? |
-| 55 | Orbitalplattform | Wird repariert wie Verteidigung, nicht reparierte Reste gehen ins Orbit-Trümmerfeld – ok? |
-| 56 | Werte | Anlagen-Kosten/Kampfwerte und neue Schiffs-Bewaffnung (SPEZIFIKATION C9) – bitte prüfen; Schnellfeuer bleibt bis Kapitel 6 aus. |
-| 57 | Bilder | Verteidigungsanlagen haben SVG-Platzhalter – eigene Bilder gewünscht? |
+| 54 | Trümmer | **SPÄTER** (Sandro: „machen wir später genauer“): Orbit 30 % (Bergung 80 %); Reparatur 50 % + 2 %/Panzerung (max. 80 %); Schrott 25 % + 2,5 %/Roboter (max. 50 %, Bergung 50–75 %). Ist „Bergung“ eine Forschung, ein Schiff oder eine Option? – bleibt ANNAHME, wird neu erklärt. |
+| 56 | Werte | **SPÄTER** (zusammen mit 54): Anlagen-Kosten/Kampfwerte und Schiffs-Bewaffnung (SPEZIFIKATION C9) bleiben ANNAHME; Schnellfeuer bis Kapitel 6 aus. |
+| 57 | Bilder | **SPÄTER:** Verteidigungsanlagen bekommen eigene Bilder (Sandro: ja) – bis dahin SVG-Platzhalter. |
+
+## Beantwortet (0.12.1, Sandro t27u)
+
+- **51** Kampf-Zahlen ok: ×1,5 metallwirksam / ×0,5 reine Energie nach Energie-Zusammenbruch, max. 6 Runden je Phase – **FEST**.
+- **52** Ziele ohne Energiehülle (nie vorhanden oder schon weg) bekommen den Bonus/Malus wie „Hülle gebrochen“ – **FEST**, umgesetzt.
+- **53** Schildkuppel/Festungsschild: **kein Cooldown**, nach jedem Angriff automatisch wieder aktiv (wird nie zerstört) – **FEST**, umgesetzt.
+- **55** Orbitalverteidigungsplattform: nach Angriff immer **100 %** wieder da (wie OGame-Mond); nur ein sehr großes Schiff (Titan, Liste `PLATTFORM_ZERSTOERER`, ANNAHME: Titan muss den Kampf überleben) zerstört sie dauerhaft – dann Reparatur-Quote, Rest → Orbit-Trümmer. **FEST**, umgesetzt. Welche Schiffe außer Titan (Koloss?) zählen und Zerstörungs-Chance wie Mondzerstörung → später.
 
 ## Merken für das Verteidigungs-/Kampf-Kapitel (erledigt in 0.12.0, siehe SPEZIFIKATION C9) (Sandro: „merken wir uns für später“)
 

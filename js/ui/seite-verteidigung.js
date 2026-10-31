@@ -65,7 +65,7 @@
       }).join("");
       return h.box("Waffen & Hüllen", "<p class=\"hinweis\">Jedes Schiff und jede Anlage hat eine <b>Metallhülle</b> und eine <b>Energiehülle</b>; beide werden gleichzeitig getroffen. " +
         "Fällt die Energiehülle, treffen metallwirksame Waffen die Metallhülle ×" + F.rate(K.BONUS_NACH_ENERGIE) + ", reine Energiewaffen nur noch ×" + F.rate(K.MALUS_NACH_ENERGIE) + ". " +
-        "Ziele ganz ohne Energiehülle (frühe Schiffe) bekommen keinen Bonus – Laser &amp; Ionen sind gegen sie nahezu wirkungslos. <span class=\"annahme-marke\">Annahme: Zahlen</span></p>" +
+        "Ziele ganz ohne Energiehülle (frühe Schiffe) zählen wie „Hülle schon gebrochen“: Metallwaffen bekommen den Bonus, Laser &amp; Ionen sind nahezu wirkungslos. Planetenschild ohne Abklingzeit – nach jedem Angriff wieder aktiv. Orbitalplattformen sind danach immer wieder vollständig da, außer ein Titan hat überlebt. <span class=\"annahme-marke\">Annahme: Zahlen</span></p>" +
         "<div class=\"tabelle-wrap\"><table class=\"info-tabelle\" id=\"waffen-tabelle\"><thead><tr><th>Waffe</th><th class=\"z\">vs Energie</th><th class=\"z\">vs Metall</th><th class=\"z\">Metall nach Zusammenbruch</th><th>Rolle</th></tr></thead><tbody>" + zeilen + "</tbody></table></div>", "", " id=\"waffen-box\"");
     }
 
@@ -75,7 +75,7 @@
       var sieg = { angreifer: "Angreifer gewinnt", verteidiger: "Verteidigung hält", unentschieden: "Unentschieden" }[b.sieger];
       var rs = function (r) { return F.zahl(r.metall) + " Metall · " + F.zahl(r.silizium) + " Silizium"; };
       return "<div class=\"kampf-bericht\" id=\"kampf-bericht\"><p><b data-sieger=\"" + b.sieger + "\">" + sieg + "</b> · Orbit " + b.phasen[0].runden.length + " Runden · Boden " + b.phasen[1].runden.length + " Runden" +
-        (b.schild ? " · Planetenschild " + (b.schild.gefallen ? "gefallen" : "hält (" + zahl(b.schild.rest) + " / " + zahl(b.schild.start) + ")") : "") + "</p>" +
+        (b.schild ? " · Planetenschild " + (b.schild.gefallen ? "gefallen (nach dem Angriff wieder aktiv)" : "hält (" + zahl(b.schild.rest) + " / " + zahl(b.schild.start) + ")") : "") + "</p>" +
         tab("Angreifer", b.angreifer) + tab("Phase 1 – Orbit (Startplätze + Orbitalplattform)", b.orbit) + tab("Phase 2 – Boden", b.boden) +
         "<p class=\"hinweis\">Trümmerfeld Orbit (Wracksammler, " + Math.round(b.quoten.orbit * 100) + " %): " + rs(b.truemmerOrbit) + "<br>Schrott Boden (Bodensammler, " + Math.round(b.quoten.schrott * 100) + " %): " + rs(b.schrottBoden) +
         "<br>Reparatur Verteidigung: " + Math.round(b.quoten.reparatur * 100) + " % · Hangar geschützt: " + F.zahl(Object.keys(b.verteilung.hangar).reduce(function (s, k) { return s + b.verteilung.hangar[k]; }, 0)) +

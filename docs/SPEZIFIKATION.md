@@ -477,7 +477,7 @@ Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zäh
 ### C9.2 Zwei-Hüllen-System (FEST)
 - Jede Einheit hat **Metallhülle** und **Energiehülle** (Datenfeld `schild` = Energiehülle); beide werden **gleichzeitig** getroffen: Schaden je Waffe = Angriff × Anteil × Profil (vs Energie / vs Metall).
 - Nach Zusammenbruch der Energiehülle: metallwirksame Waffen (Profil Metall ≥ 0,5) ×1,5 auf Metall, reine Energiewaffen ×0,5 (ANNAHME-Zahlen).
-- Ziele **ohne** Energiehülle (frühe Schiffe 1–3, Drohnen) bekommen keinen Bonus (ANNAHME) → Laser/Ionen gegen sie fast wirkungslos. Energiehülle regeneriert nicht zwischen Runden (ANNAHME).
+- Ziele **ohne** Energiehülle (nie vorhanden oder schon weg) zählen wie „Hülle gebrochen“: metallwirksame Waffen ×1,5, Laser/Ionen ×0,5 (**FEST** Sandro t27u, 0.12.1). Energiehülle regeneriert nicht zwischen Runden (ANNAHME).
 - Gemischte Bewaffnung in festen Anteilen (z. B. Fregatte 50 % Magnetkanone / 50 % Laser). Forschungsbonus: Waffentechnik + anteilig Waffentyp-Forschung (Raketen/Gatling/Railgun nur Waffentechnik, ANNAHME).
 
 | Anlage | Phase | Waffen | Hülle | Kosten | Angriff / Energiehülle | Max | Voraussetzungen |
@@ -533,5 +533,6 @@ Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zäh
 
 ### C9.5 Was live ist / Platzhalter
 - Live: Bau, Warteschlange, Offline, Master, Kampfkern `SS.kern.kampf.simuliere/anwenden` (Unit-getestet), **Kampf-Simulator** auf der Seite (ändert den Spielstand nicht).
+- **0.12.1 (Sandro t27u, FEST):** Planetenschild ohne Cooldown – nach jedem Angriff automatisch wieder aktiv, wird nie zerstört. Orbitalverteidigungsplattform nach Angriff immer 100 % wieder da (wie OGame-Mond); nur wenn ein Schiff aus `BALANCE.KAMPF.PLATTFORM_ZERSTOERER` (Titan) beim Angreifer überlebt, gelten Verluste normal (Reparatur-Quote, Rest → Orbit-Trümmer). Trümmer/Bergung/Werte: später (OFFENE-PUNKTE 54/56).
 - Platzhalter: echte Angriffe (Flotten, KI – Kapitel 6+), Schnellfeuer im Kampf (Daten vorhanden, nicht angewendet), Zufall, Beute, Trümmer einsammeln, Sondenabwehr/Waffenslots der Plattform.
 - Spielstand **v9**: `planet.verteidigung`, `planet.verteidigungsauftraege`, `planet.truemmer`; Migration v8→v9 verschiebt Orbitalplattform-Schiffe in die Verteidigung, offene Werft-Aufträge dafür werden erstattet.

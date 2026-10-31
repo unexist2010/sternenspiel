@@ -11,12 +11,13 @@
  *  - Trümmer: Orbit = Schiffe (Wracksammler); Boden = Verteidigung: Teil Reparatur (Forschung), Rest Schrott (Bodensammler), max 50 %.
  * ANNAHME (alle Zahlen in SS.BALANCE.KAMPF):
  *  - Feuer verteilt sich proportional zur Anzahl der Ziele (Erwartungswert statt Würfeln); 6 Runden je Phase; Schaden gleichzeitig am Rundenende.
- *  - Energiehülle regeneriert nicht; Ziele ohne Energiehülle bekommen keinen Bonus.
+ *  - Energiehülle regeneriert nicht. FEST (t27u): Ziele ohne Energiehülle zählen wie „Hülle gebrochen“ (Bonus/Malus gilt).
  *  - Startplatz-Belegung: stärkste Kampfschiffe zuerst (Reihenfolge der Schiffsliste rückwärts), dann Hilfs-/Spezialschiffe;
  *    Solarsatelliten stehen immer im Orbit (zählen nicht auf Startplätze). Rest = Hangar.
  *  - Schildkuppel/Festungsschild: gemeinsamer Planetenschild, fängt Boden-Schaden (Energie + Metall) zuerst ab; aktiviert sich
- *    bei jedem Angriff automatisch (Solo-Regel). Fällt er, zählen die Schilde als zerstört (reparierbar).
- *  - Orbitalplattform: zerstörte Plattformen werden wie Verteidigung repariert, Rest geht ins ORBIT-Trümmerfeld.
+ *    FEST (t27u): kein Cooldown – auch wenn er im Kampf fällt, ist er nach dem Angriff automatisch wieder aktiv (wird nie zerstört).
+ *  - Orbitalplattform FEST (t27u): nach dem Angriff immer zu 100 % wieder da (wie OGame-Mond). Nur wenn ein sehr großes Schiff
+ *    (BALANCE.KAMPF.PLATTFORM_ZERSTOERER, z. B. Titan) beim Angreifer den Kampf überlebt, gelten Verluste normal (Reparatur-Quote, Rest → Orbit-Trümmer).
  *  - Schnellfeuer wird in dieser ersten Simulation NICHT angewendet (Platzhalter, Kapitel 6).
  *  - Spezialisierung „Bergung“ (Spec Salvage) = Option {bergung:true}; ein Klassen-System gibt es noch nicht.
  */
@@ -129,7 +130,7 @@
     if (schild) schild.start = schild.energie;
     var restAngreifer = angreifer.some(function (x) { return x.n > 0; });
     var r2 = restAngreifer ? phase(angreifer, boden, schild) : [];
-    if (schild && schild.energie <= 1e-9) schilde.forEach(function (x) { x.n = 0; }); // Planetenschild zusammengebrochen
+    schilde.forEach(function (x) { x.n = x.vorher; }); // Planetenschild: kein Cooldown, nach dem Angriff automatisch wieder aktiv (t27u)
     var aV = verluste(angreifer), oV = verluste(orbitV), bV = verluste(boden);
     // Trümmer Orbit: alle zerstörten Schiffe beider Seiten + Rest der Orbitalplattformen
     var quoteO = opt.bergung ? k.TRUEMMER_ORBIT_BERGUNG : k.TRUEMMER_ORBIT;
@@ -138,7 +139,11 @@
       : Math.min(k.SCHROTT_MAX, k.SCHROTT_GRUND + k.SCHROTT_JE_STUFE * stufe(z, "roboter"));
     var kostenVon = function (x) { return (x.art === "schiff" ? D().schiffNachId(x.id) : D().verteidigungNachId(x.id)).kosten; };
     var defVerl = oV.filter(function (x) { return x.art === "verteidigung"; }).concat(bV);
-    defVerl.forEach(function (x) { x.repariert = Math.round(x.verloren * repQ); x.zerstoert = x.verloren - x.repariert; });
+    var grossesSchiff = angreifer.some(function (x) { return x.n > 0 && (k.PLATTFORM_ZERSTOERER || []).indexOf(x.id) >= 0; });
+    defVerl.forEach(function (x) {
+      var q = x.id === "orbitalverteidigungsplattform" && !grossesSchiff ? 1 : repQ; // Plattform wie OGame-Mond
+      x.repariert = Math.round(x.verloren * q); x.zerstoert = x.verloren - x.repariert;
+    });
     var orbitTeile = aV.concat(oV.filter(function (x) { return x.art === "schiff"; })).map(function (x) { return { kosten: kostenVon(x), anzahl: x.verloren }; })
       .concat(oV.filter(function (x) { return x.art === "verteidigung"; }).map(function (x) { return { kosten: kostenVon(x), anzahl: x.zerstoert }; }));
     var truemmerOrbit = wert(orbitTeile, quoteO);
@@ -151,7 +156,7 @@
     var hangarN = Object.keys(vt.hangar).reduce(function (s, id) { return s + vt.hangar[id]; }, 0);
     return {
       verteilung: vt, phasen: [{ id: "orbit", name: "Orbit", runden: r1 }, { id: "boden", name: "Boden", runden: r2 }],
-      angreifer: aV, orbit: oV, boden: bV, schild: schild ? { start: schild.start, rest: schild.energie, gefallen: schild.energie <= 1e-9 } : null,
+      angreifer: aV, orbit: oV, boden: bV, schild: schild ? { start: schild.start, rest: schild.energie, gefallen: schild.energie <= 1e-9, wiederAktiv: true } : null, plattformZerstoerer: grossesSchiff,
       sieger: angreiferRest === 0 ? "verteidiger" : verteidigerRest === 0 ? "angreifer" : "unentschieden",
       truemmerOrbit: truemmerOrbit, schrottBoden: schrottBoden, quoten: { orbit: quoteO, reparatur: repQ, schrott: schrottQ },
       nachruecken: Math.min(verlorenSP, hangarN), live: { schnellfeuer: false, zufall: false, beute: false }
