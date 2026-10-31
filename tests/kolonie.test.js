@@ -58,6 +58,11 @@ test("Kolonisieren: Planet entsteht, Kolonieschiff verbraucht, Flotte + Ladung d
   // Kolonie hat alle Gebäude (Stufe 0) und produziert Grundproduktion
   assert.deepEqual(Object.keys(k.gebaeude).sort(), Object.keys(hp.gebaeude).sort());
   assert.ok(SS.kern.produktion.uebersicht(z, k).netto.metall > 0);
+  // 0.18.1: Startplatz A Stufe 1 → Kapazität > 0, Flotte kann von der Kolonie starten
+  assert.equal(k.gebaeude.raumflughafen, 1); assert.equal(k.startplaetze[0].stufe, 1);
+  assert.ok(SS.kern.bau.kapazitaet(k) > 0);
+  const rk = FL.pruefe(z, k, { schiffe: { korvette: 1 }, ziel: { sektor: h.sektor, system: h.system, planet: h.planet }, mission: "stationieren" });
+  assert.ok(rk.ok, rk.grund);
   // Speichern/Laden
   const kopie = JSON.parse(JSON.stringify(z)); SS.kern.zustand.migriere(kopie);
   assert.equal(kopie.planeten[1].kolonie, true); assert.equal(kopie.planeten[1].schiffe.korvette, 1);

@@ -1,5 +1,8 @@
 # Changelog – Sternenspiel
 
+## [0.18.1] – 2026-10-31 – Hotfix Kolonie-Startplätze
+- **Fix:** Neue Kolonie startet mit Raumflughafen 1 und Startplatz A Stufe 1 – vorher Kapazität 0 („Nur 0 Startplätze frei“), stationierte Flotte konnte nicht starten. Test ergänzt.
+
 ## [0.18.0] – 2026-10-31 – Kolonisieren wie OGame + Balance (Sandro t49u)
 - **Kolonisieren:** Bei Ankunft entsteht ein neuer Planet (Position 1–12, frei), das Kolonieschiff wird verbraucht, restliche Schiffe bleiben dort stationiert, Ladung wird entladen (gemeinsames Lager). Limit Astrophysik: ⌈Stufe/2⌉ Kolonien. Neue Kolonie = gleiche Gebäudeliste (startet leer, mit Grundproduktion). Speichern/Laden ok.
 - **Planetenliste links** (klickbar, Wechsel des aktiven Planeten für Übersicht/Anlagen/Flotte); **Schnellwahl eigener Planeten** im Sendefenster (→ Stationieren).

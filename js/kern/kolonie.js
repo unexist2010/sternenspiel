@@ -37,6 +37,8 @@
     var p = SS.kern.zustand.neuerPlanet(false);
     p.id = "k" + z.kolonieZaehler + "-" + f.ziel.system + "-" + f.ziel.planet;
     p.kolonie = true;
+    // 0.18.1: Raumflughafen 1 + Startplatz A Stufe 1, damit die stationierte Flotte sofort starten kann
+    p.gebaeude.raumflughafen = 1; if (p.startplaetze && p.startplaetze[0]) p.startplaetze[0].stufe = 1;
     p.koordinaten = { sektor: f.ziel.sektor, system: f.ziel.system, planet: f.ziel.planet };
     p.name = (f.zielName && f.zielName.indexOf("[") < 0 ? f.zielName : "Kolonie " + z.kolonieZaehler).slice(0, 24);
     var rest = JSON.parse(JSON.stringify(f.schiffe));
