@@ -722,6 +722,8 @@
       if (g && g.textContent !== pr.grund) g.textContent = pr.grund;
       var n = document.querySelector("[data-schiff-anzahl=\"" + id + "\"]"), an = F.zahl(SS.kern.werft.anzahl(hp(), id));
       if (n && n.textContent !== an) n.textContent = an;
+      var k = document.querySelector("article[data-schiff=\"" + id + "\"] img.schiff-bild"), sd = SS.DATEN.schiffNachId(id);
+      if (k && sd) { var src = SS.DATEN.schiffBild(sd, SS.kern.werft.anzahl(hp(), id)); if (k.getAttribute("src") !== src) k.setAttribute("src", src); }
     });
   }
   function schiffBauen(b) {

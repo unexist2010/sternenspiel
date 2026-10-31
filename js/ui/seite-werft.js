@@ -36,7 +36,7 @@
       var zz = z(), pp = p(), master = WF.istMaster(zz), n = WF.anzahl(pp, s.id), w = WF.werte(zz, s), vorOk = WF.voraussetzungenOk(zz, pp, s);
       var laeuft = (pp.werftauftraege || []).some(function (a) { return a.id === s.id; });
       return "<article class=\"schiff-zeile schiff-kachel" + (laeuft ? " im-bau" : "") + (!vorOk ? " gesperrt" : "") + "\" data-schiff=\"" + s.id + "\">" +
-        "<div class=\"schiff-bildspalte\"><img class=\"anlage-bild schiff-bild\" src=\"" + s.bild + "\" alt=\"" + esc(s.name) + "\" width=\"200\" height=\"200\"></div><div class=\"schiff-inhalt\"><div class=\"anlage-kopf schiff-kopf\"><div class=\"anlage-titel\"><h3>" + s.name + " " + h.infoKnopf("schiff", s.id, s.name) + "</h3>" +
+        "<div class=\"schiff-bildspalte\"><img class=\"anlage-bild schiff-bild\" src=\"" + D.schiffBild(s, n) + "\" alt=\"" + esc(s.name) + "\" width=\"200\" height=\"200\"></div><div class=\"schiff-inhalt\"><div class=\"anlage-kopf schiff-kopf\"><div class=\"anlage-titel\"><h3>" + s.name + " " + h.infoKnopf("schiff", s.id, s.name) + "</h3>" +
         "<span class=\"stufe\">Anzahl <b data-schiff-anzahl=\"" + s.id + "\">" + F.zahl(n) + "</b></span>" +
         (!vorOk ? "<span class=\"sperr-marke\">🔒 Voraussetzung fehlt" + (master ? " (Master)" : "") + "</span>" : "") + "</div></div>" +
         marken(s) + "<p class=\"beschreibung\">" + esc(s.beschreibung) + "</p>" + vorListe(s) +
@@ -103,7 +103,7 @@
           "<p class=\"hinweis\">Voraussetzungen: " + vor + "</p>" +
           "<p class=\"hinweis schnellfeuer\">Schnellfeuer gegen: " + sfText(sf.gegen) + "<br>Schnellfeuer von: " + sfText(sf.von) + "</p>",
         kopf: "<tr><th>Wert</th><th class=\"z\">Grund</th><th class=\"z\">mit Forschung</th><th class=\"z\">Bonus</th></tr>", zeilen: zeilen,
-        hinweis: "Werte ohne Kampf – Kampf, Flug und Verbrauch folgen in späteren Kapiteln. Alle Schiffswerte sind Vorschläge (Annahme).", bild: s.bild };
+        hinweis: "Werte ohne Kampf – Kampf, Flug und Verbrauch folgen in späteren Kapiteln. Alle Schiffswerte sind Vorschläge (Annahme).", bild: D.schiffBild(s, WF.anzahl(pp, s.id)) };
     }
 
     /** Live-Werte der Werft-Aufträge. → Text, oder null wenn erledigt (Balken) bzw. unbekannt (undefined) */

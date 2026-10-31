@@ -181,3 +181,17 @@ test("Migration v6 → v7 (Profil): Schiffsbestand je Planet, Werft-Aufträge be
   assert.equal(z2.planeten[0].werftauftraege.length, 1);
   assert.equal(z2.planeten[0].schiffe.kreuzer >= 3, true);
 });
+
+test("0.11.3: Orbitalverteidigungsplattform – 6 Stufenbilder nach Anzahl, Bomber PNG", () => {
+  const { D } = setup();
+  const fs = require("fs"), path = require("path");
+  const o = D.schiffNachId("orbitalverteidigungsplattform");
+  assert.equal(o.bild, "assets/schiffe/orbitalverteidigungsplattform.svg");
+  assert.equal(D.schiffBild(o), o.bild);
+  const erwartet = [[0, 1], [1, 1], [2, 2], [3, 2], [4, 3], [6, 3], [7, 4], [10, 4], [11, 5], [20, 5], [21, 6], [500, 6]];
+  for (const [n, st] of erwartet) assert.equal(D.schiffBild(o, n), "assets/schiffe/orbitalverteidigungsplattform-" + st + ".png", "Anzahl " + n);
+  for (let i = 1; i <= 6; i++) assert.ok(fs.existsSync(path.join(__dirname, "..", "assets/schiffe/orbitalverteidigungsplattform-" + i + ".png")));
+  const b = D.schiffNachId("bomber");
+  assert.equal(b.bild, "assets/schiffe/bomber.png");
+  assert.equal(D.schiffBild(b, 5), b.bild);
+});

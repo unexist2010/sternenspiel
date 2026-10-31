@@ -179,16 +179,31 @@
       beschreibung: "Fliegt nicht – zerstört Flotten schon im Orbit.",
       info: "Begrenzte Waffenslots: 2, ab Computer 10 drei (Ionen, Plasma, Raketen oder Laser; Graviton nicht). Spionagesonden-Abschuss erst ab Spionage 12 + Computer 12. Bestückung folgt im Verteidigungs-/Kampf-Kapitel." }
   ];
-  // 0.11.2: von Sandro freigegebene Bilder (PNG, 400×400); alle übrigen bleiben SVG-Platzhalter
+  // 0.11.2/0.11.3: von Sandro freigegebene Bilder (PNG, 400×400); alle übrigen bleiben SVG-Platzhalter
   var PNG_FREIGEGEBEN = { aufklaerer: 1, kleine_drohne: 1, mittlere_drohne: 1, schwere_drohne: 1, korvette: 1, fregatte: 1, zerstoerer: 1,
     kreuzer: 1, schlachtkreuzer: 1, schlachtschiff: 1, traeger: 1, koloss: 1, mittlerer_frachter: 1, wracksammler: 1,
     spionagesonde: 1, kolonieschiff: 1, treibstofftanker: 1,
-    titan: 1, kleiner_frachter: 1, bodensammler: 1, solarsatellit: 1 };
+    titan: 1, kleiner_frachter: 1, bodensammler: 1, solarsatellit: 1,
+    bomber: 1 }; // 0.11.3: Bomber G
   SS.DATEN.schiffPngFreigegeben = Object.freeze(Object.keys(PNG_FREIGEGEBEN));
   L.forEach(function (s) {
     s.bild = "assets/schiffe/" + s.id + (PNG_FREIGEGEBEN[s.id] ? ".png" : ".svg");
     Object.freeze(s.kosten); Object.freeze(s.waffen); Object.freeze(s.schnellfeuer); Object.freeze(s.vor.forschung); Object.freeze(s.vor); if (s.waffenslots) Object.freeze(s.waffenslots); if (s.hangar) Object.freeze(s.hangar); Object.freeze(s);
   });
+  // 0.11.3: Orbitalverteidigungsplattform zeigt je nach Anzahl am Planeten eines von 6 Stufenbildern
+  // (assets/schiffe/orbitalverteidigungsplattform-1..6.png). Schwellen = Mindestanzahl je Stufe:
+  // Stufe 1: 0–1 · Stufe 2: 2–3 · Stufe 3: 4–6 · Stufe 4: 7–10 · Stufe 5: 11–20 · Stufe 6: 21+
+  // Ohne Anzahl (undefined/null) bleibt s.bild = SVG-Fallback.
+  var STUFEN_BILDER = { orbitalverteidigungsplattform: [0, 2, 4, 7, 11, 21] };
+  SS.DATEN.schiffBildStufenSchwellen = Object.freeze({ orbitalverteidigungsplattform: Object.freeze(STUFEN_BILDER.orbitalverteidigungsplattform.slice()) });
+  SS.DATEN.schiffBildStufe = function (id, anzahl) {
+    var sw = STUFEN_BILDER[id]; if (!sw || typeof anzahl !== "number" || !isFinite(anzahl)) return 0;
+    var st = 1; for (var i = 0; i < sw.length; i++) if (anzahl >= sw[i]) st = i + 1; return st;
+  };
+  SS.DATEN.schiffBild = function (s, anzahl) {
+    var st = SS.DATEN.schiffBildStufe(s.id, anzahl);
+    return st ? "assets/schiffe/" + s.id + "-" + st + ".png" : s.bild;
+  };
   SS.DATEN.schiffe = Object.freeze(L);
   SS.DATEN.schiffIds = Object.freeze(L.map(function (s) { return s.id; }));
   // 0.10.0: alte Schiff-IDs aus 0.9.0 → neue (1:1-Nachfolger); nicht aufgeführte alte IDs werden verworfen

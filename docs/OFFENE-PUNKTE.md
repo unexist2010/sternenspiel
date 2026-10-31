@@ -103,3 +103,10 @@ Stand: 2026-10-31 (0.11.0, Kapitel 4 Schiffsliste nach Sandro) · Alles hier ist
 - Massengutfrachter: Basis C, Fronttriebwerke entfernt → Vorschläge `massengutfrachter-e.png`, `-f.png` (Sandro will nochmal sehen)
 - Bomber: C/D abgelehnt → Reserve `bomber-reserve-*.png` (Bomber A/B, Korvette B, Zerstörer B, Schlachtschiff B, Schlachtkreuzer B + Umbau ohne Fronttriebwerk) und neue `bomber-e/f/g.png`
 - Orbitalverteidigungsplattform: neue Vorschläge `-e` bis `-h`
+
+## Schiffsbilder (Sandro, 0.11.3)
+**Eingebaut (PNG):** Bomber G (`assets/schiffe/bomber.png`) → jetzt 22 Schiffe mit PNG.
+**Orbitalverteidigungsplattform – 6 Stufenbilder** (`assets/schiffe/orbitalverteidigungsplattform-1.png` … `-6.png`, Serie klein → Festung).
+Bild richtet sich nach der Anzahl am Planeten (`SS.DATEN.schiffBild`, Schwellen in `js/data/schiffe.js`):
+Stufe 1: 0–1 · Stufe 2: 2–3 · Stufe 3: 4–6 · Stufe 4: 7–10 · Stufe 5: 11–20 · Stufe 6: 21+. Ohne Anzahl SVG-Fallback.
+**Offen:** Massengutfrachter – neue Vorschläge `massengutfrachter-g/h/i.png` (alle Triebwerke nur am Heck), wartet auf Sandros Auswahl.
