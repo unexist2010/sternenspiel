@@ -1,5 +1,11 @@
 # Changelog – Sternenspiel
 
+## [0.20.1] – 2026-10-31 – KI nur an aktiven Spieltagen + „Neues Spiel“ (Sandro pt57u)
+- **FEST (pt57u): Die KI-Welt lebt nur an Tagen, an denen du aktiv spielst.** Pro Kalendertag mit geöffnetem/geladenem Spiel wird genau **ein** Welt-Tag simuliert (neue Planeten 2–5, Wachstum, Piraten-Überfälle, TF-Alter, Rivalen-Countdown). Spielst du einen Tag nicht, steht alles still – beim nächsten Laden wird **nichts** nachgezogen (vorher bis zu 120 Tage).
+- KI-Tagesangaben (Rivale 14 Tage inaktiv, TF 7 Tage) zählen jetzt in **Spieltagen** (`z.ki.spieltag`). Alte 0.20.0-Stände werden stetig übernommen.
+- Unverändert: Offline-Produktion der Minen, Flotten-Ankünfte, Bau-/Forschungszeiten laufen weiter wie bisher.
+- **Neues Spiel (alles löschen):** Knopf „Neues Spiel“ unten im Menü und in der Übersicht (Box Spielstand). Löscht nach Rückfrage alle `sternenspiel*`-Daten im Browser (alle Spieler, Master, KI-Welt) und lädt neu → Startbildschirm, komplett von vorn. „Zurücksetzen“ (nur aktueller Spieler, Name+Koordinaten bleiben) gibt es weiterhin.
+
 ## [0.20.0] – 2026-10-31 – KI-Grundlage: Siedler, Piraten, Rivalen (Sandro t53–t55u)
 - Neues Modul `js/kern/ki.js`; KI-Planeten in `z.ki.npc` (Alpha/Beta bleiben in `z.gegner`). Spionage, Angriff, Beute, Bergung funktionieren gegen KI-Planeten wie gegen Testgegner.
 - **Siedler:** viel Verteidigung, Schiffe überwiegend zivil (Frachter), viele Rohstoffe (lukrativ), wachsen langsam nach (15 % des Defizits/Tag).

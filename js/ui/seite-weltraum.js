@@ -28,7 +28,7 @@
         r.truemmerOrbit = pt(ep && ep.truemmer, "orbit"); r.schrottBoden = pt(ep && ep.truemmer, "boden");
         r.schild = !!(SS.kern.bergung && SS.kern.bergung.schildStatus(ep, Date.now()).aktiv); }
       else if (x) { r.truemmerOrbit = pt(x.truemmer, "orbit"); r.art = "gegner"; r.name = x.name; r.spieler = x.name;
-        if (x.ki && SS.kern.ki) { var jt = (z.zeit && z.zeit.letzterTick) || Date.now(); r.kiArt = x.ki.art; r.punkte = SS.kern.ki.punkte(z, x, jt); r.kiAktiv = SS.kern.ki.aktiv(x, jt); r.tfAlter = SS.kern.ki.tfAlterTage(x, jt); } r.vernichtet = !(FL.summe(x.schiffe) + FL.summe(x.verteidigung)); }
+        if (x.ki && SS.kern.ki) { var jt = (z.zeit && z.zeit.letzterTick) || Date.now(); r.kiArt = x.ki.art; r.punkte = SS.kern.ki.punkte(z, x, jt); r.kiAktiv = SS.kern.ki.aktiv(x, jt, z); r.tfAlter = SS.kern.ki.tfAlterTage(x, jt, z); } r.vernichtet = !(FL.summe(x.schiffe) + FL.summe(x.verteidigung)); }
       return r;
     });
   }

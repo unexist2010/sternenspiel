@@ -200,7 +200,7 @@
     if (delta > max) { var k = simuliereBis(z, jetzt - max, true); fertig = k.fertig; funde = k.funde; } // gekappter Teil: nur Bau + Funde
     var r = simuliereBis(z, jetzt);
     var fl = SS.kern.flotte ? SS.kern.flotte.faellige(z, jetzt) : []; // Kapitel 6
-    if (SS.kern.ki) SS.kern.ki.tick(z, jetzt); // 0.20.0: KI-Welt tageweise nachziehen: Ankunft/Rückkehr (auch offline)
+    if (SS.kern.ki) SS.kern.ki.tick(z, jetzt); // 0.20.0: KI-Welt: 1 Welt-Tag je aktivem Spieltag, kein Nachziehen (0.20.1): Ankunft/Rückkehr (auch offline)
     return { ms: Math.min(delta, max), gewinne: r.gewinne, fertig: fertig.concat(r.fertig, fl), funde: funde.concat(r.funde) };
   }
 

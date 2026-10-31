@@ -1,5 +1,5 @@
 /*
- * Sternenspiel – KI-Grundlage (0.20.0, Sandro t53–t55u).
+ * Sternenspiel – KI-Grundlage (0.20.0/0.20.1, Sandro t53–t55u).
  * NPC-Planeten leben in z.ki.npc (gleiches Format wie z.gegner) mit Zusatzfeld ki = { art, faktor, seit, tfSeit }; Alpha/Beta (ohne ki) bleiben.
  * FEST:
  *  - Arten: siedler (viel Verteidigung/„Minen“, Schiffe meist zivil, wachsen langsam nach, viele Rohstoffe = lukrativ),
@@ -8,7 +8,10 @@
  *  - Stärke folgt den Spielerpunkten (Sandro pt55u): max. +10 %; ≈10 % stärker, ≈15 % gleich/leicht schwächer, Rest deutlich schwächer.
  *  - Trümmerfelder an KI-Planeten wachsen bei weiteren Überfällen und verschwinden nach max. 7 Tagen.
  *  - ≤5 neue Planeten/Tag; ≤50 % Belegung je System (Siedler+Piraten); keine direkten Nachbarpositionen (nicht in Reihe).
- *  - Ereignisse werden tageweise beim Laden/Tick nachgezogen (deterministisch aus z.ki.saat + Tag).
+ *  - 0.20.1 (Sandro pt57u FEST): Die KI-Welt lebt NUR an Tagen, an denen der Spieler aktiv spielt. Pro aktivem Kalendertag
+ *    (= Tick bei geöffnetem/geladenem Spiel) wird genau EIN Welt-Tag simuliert (Wachstum, Überfälle, TF-Alter, neue Planeten,
+ *    Rivalen-Countdown). Offline-Tage werden NICHT nachgezogen – die Welt steht still. Alle KI-Tagesangaben (seit, tfSeit)
+ *    zählen in Spieltagen (z.ki.spieltag). Minen-Offline-Produktion ist davon unberührt.
  *  - Kein Diplo/Allianz, keine KI-Expedition, kein KI-Koloniekrieg, keine Angriffe auf den Spieler.
  * ANNAHME: KI siedelt nicht in Systemen mit eigenen Planeten oder Testgegnern (leichtes Early Game, Testphase unverändert).
  */
@@ -19,7 +22,7 @@
   var TAG = 86400000;
   var K = {
     NEU_PRO_TAG_MAX: 5, NEU_PRO_TAG_MIN: 2, BELEGUNG_MAX: 0.5, RIVALEN: 5, RIVALEN_AKTIV_TAGE: 14, RIVALE_INAKTIV_FAKTOR: 0.5,
-    PIRATEN_ANTEIL: 0.1, PIRAT_UEBERFALL_CHANCE: 0.35, TF_MAX_TAGE: 7, NPC_MAX: 400, NACHHOL_TAGE_MAX: 120,
+    PIRATEN_ANTEIL: 0.1, PIRAT_UEBERFALL_CHANCE: 0.35, TF_MAX_TAGE: 7, NPC_MAX: 400,
     MAX_UEBER_SPIELER: 1.10, DRIFT: 0.05, MIN_PUNKTE: 20, HEIMSEKTOR_ANTEIL: 0.7,
     NACHWUCHS: { siedler: 0.15, pirat: 0.35, rivale: 0.25 } // Anteil des Defizits, der pro Tag nachwächst
   };
@@ -109,7 +112,7 @@
 
   function initialisiere(z, jetzt) {
     var tag = tagVon(jetzt);
-    z.ki = { saat: (Math.floor(jetzt) ^ 0x5eed) >>> 0, letzterTag: tag, zaehler: 0, start: tag, npc: [] };
+    z.ki = { saat: (Math.floor(jetzt) ^ 0x5eed) >>> 0, letzterTag: tag, spieltag: tag, zaehler: 0, start: tag, npc: [] };
     var r = zufall(z.ki.saat);
     for (var i = 0; i < K.RIVALEN; i++) { var k = suchePosition(z, r, (i % SS.BALANCE.WELTRAUM.SEKTOREN) + 1); if (k) neuerNpc(z, r, "rivale", tag, k); }
   }
@@ -160,14 +163,18 @@
     npcs(z, "rivale").forEach(function (n) { if (tag - n.ki.seit === K.RIVALEN_AKTIV_TAGE && meld) meld.push({ art: "ki", text: n.name + " ist aktiv geworden." }); });
   }
 
-  /** Tick-Hook: zieht vergangene Tage nach. Gibt Meldungen zurück. */
+  /** Aktueller Spieltag (zählt nur aktive Tage). Ohne z/ältere Stände: Kalendertag. */
+  function spielTag(z, jetzt) { return z && z.ki && isFinite(z.ki.spieltag) ? z.ki.spieltag : tagVon(jetzt); }
+
+  /** Tick-Hook (0.20.1): neuer Kalendertag mit Aktivität → genau EIN Welt-Tag. Offline-Tage werden nicht nachgezogen. */
   function tick(z, jetzt) {
     if (!z || !z.planeten || !z.planeten.length) return [];
     if (!z.ki || typeof z.ki !== "object" || !isFinite(z.ki.letzterTag)) initialisiere(z, jetzt);
+    if (!isFinite(z.ki.spieltag)) z.ki.spieltag = z.ki.letzterTag; // Migration 0.20.0 → Spieltage stetig weiterzählen
     var heute = tagVon(jetzt), meld = [];
     if (heute <= z.ki.letzterTag) return meld;
-    var von = Math.max(z.ki.letzterTag + 1, heute - K.NACHHOL_TAGE_MAX + 1);
-    for (var t = von; t <= heute; t++) simuliereTag(z, t, meld);
+    z.ki.spieltag += 1;
+    simuliereTag(z, z.ki.spieltag, meld);
     z.ki.letzterTag = heute;
     return meld;
   }
@@ -183,14 +190,14 @@
     Object.keys(liste || {}).forEach(function (id) { var v = Math.max(0, Math.round(liste[id] * f)); if (v > 0 || liste[id] > 0) out[id] = Math.max(liste[id] > 0 ? 1 : 0, v); });
     return out;
   }
-  function tfAlterTage(n, jetzt) { return n.ki && n.ki.tfSeit !== null && n.ki.tfSeit !== undefined ? tagVon(jetzt) - n.ki.tfSeit : null; }
+  function tfAlterTage(n, jetzt, z) { return n.ki && n.ki.tfSeit !== null && n.ki.tfSeit !== undefined ? spielTag(z, jetzt) - n.ki.tfSeit : null; }
   function bereinigeKi(x) {
     if (!x || typeof x !== "object" || !MIX[x.art]) return undefined;
     return { art: x.art, faktor: Math.max(0.05, Math.min(K.MAX_UEBER_SPIELER, Number(x.faktor) || 0.5)), seit: Math.floor(Number(x.seit) || 0),
       tfSeit: x.tfSeit === null || x.tfSeit === undefined ? null : Math.floor(Number(x.tfSeit) || 0) };
   }
 
-  SS.kern.ki = { K: K, TAG: TAG, tick: tick, initialisiere: initialisiere, simuliereTag: simuliereTag, punkte: function (z, n, jetzt) { return punkte(z, n, tagVon(jetzt)); },
-    aktiv: function (n, jetzt) { return aktiv(n, tagVon(jetzt)); }, zielBestand: zielBestand, suchePosition: suchePosition, npcs: npcs,
+  SS.kern.ki = { K: K, TAG: TAG, tick: tick, initialisiere: initialisiere, simuliereTag: simuliereTag, punkte: function (z, n, jetzt) { return punkte(z, n, spielTag(z, jetzt)); },
+    aktiv: function (n, jetzt, z) { return aktiv(n, spielTag(z, jetzt)); }, spielTag: spielTag, zielBestand: zielBestand, suchePosition: suchePosition, npcs: npcs,
     driftFaktor: driftFaktor, drift: drift, tfAlterTage: tfAlterTage, bereinigeKi: bereinigeKi, wuerfleFaktor: wuerfleFaktor, zufall: zufall, NAMEN: NAMEN };
 })(typeof globalThis !== "undefined" ? globalThis : this);

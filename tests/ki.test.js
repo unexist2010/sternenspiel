@@ -27,9 +27,11 @@ test("≤5 neue Planeten je Tag, ≤50 % Belegung je System, keine Nachbarpositi
     SS.kern.ki.tick(z, T0 + d * TAG);
     const n = KI.npcs(z).length; assert.ok(n - vorher <= 5); vorher = n;
   }
-  // 30 Tage offline auf einmal → ebenfalls nachgezogen
+  // 0.20.1 (pt57u): 30 Tage offline → nur EIN Welt-Tag (heute), kein Nachziehen
+  const st = z.ki.spieltag;
   SS.kern.ki.tick(z, T0 + 60 * TAG);
-  assert.ok(KI.npcs(z).length > vorher);
+  assert.equal(z.ki.spieltag, st + 1);
+  assert.ok(KI.npcs(z).length - vorher <= 5);
   const proSys = {};
   KI.npcs(z).forEach((n) => { (proSys[n.system] = proSys[n.system] || []).push(n); });
   for (const l of Object.values(proSys)) {
@@ -67,11 +69,11 @@ test("Piraten: Siedler-TF wächst, ohne Kampfbericht/Flug, verschwindet nach 7 T
   const s = KI.npcs(z, "siedler")[0];
   s.truemmer.orbit.metall = 5000; s.ki.tfSeit = null;
   const t = T0 + 26 * TAG; SS.kern.ki.tick(z, t);
-  assert.equal(KI.tfAlterTage(s, t), 0);
+  assert.equal(KI.tfAlterTage(s, t, z), 0);
   for (let d = 1; d <= 6; d++) SS.kern.ki.tick(z, t + d * TAG);
   assert.ok(s.truemmer.orbit.metall >= 5000, "Tag 7 noch da (wächst evtl.)");
   SS.kern.ki.tick(z, t + 7 * TAG);
-  assert.ok(s.truemmer.orbit.metall === 0 || KI.tfAlterTage(s, t + 7 * TAG) === 0, "nach 7 Tagen weg");
+  assert.ok(s.truemmer.orbit.metall === 0 || KI.tfAlterTage(s, t + 7 * TAG, z) === 0, "nach 7 Tagen weg");
   // Pirat-Überfall erzeugt TF irgendwo
   for (let d = 38; d <= 60; d++) SS.kern.ki.tick(z, T0 + d * TAG);
   assert.ok(KI.npcs(z, "siedler").some((n) => n.truemmer.orbit.metall > 0));
@@ -92,4 +94,22 @@ test("Spionage-Bericht driftet täglich leicht (±5 %), Weltraum zeigt Art + Pun
   const z2 = SS.kern.zustand.migriere(JSON.parse(JSON.stringify(z)));
   assert.equal(KI.npcs(z2).length, KI.npcs(z).length);
   assert.equal(z2.ki.saat, z.ki.saat);
+});
+
+test("0.20.1 pt57u: Welt steht still an Offline-Tagen (keine Gründungen, Überfälle, Rivalen-Countdown)", () => {
+  const { SS, z, KI } = setup();
+  const n0 = KI.npcs(z).length, st0 = z.ki.spieltag;
+  SS.kern.ki.tick(z, T0 + 3 * 3600000); // gleicher Tag → nichts
+  assert.equal(KI.npcs(z).length, n0);
+  SS.kern.ki.tick(z, T0 + 120 * TAG); // 120 Tage weg → genau 1 Welt-Tag
+  assert.equal(z.ki.spieltag, st0 + 1);
+  assert.ok(KI.npcs(z).length - n0 <= 5);
+  const r = KI.npcs(z, "rivale")[0];
+  assert.ok(!KI.aktiv(r, T0 + 120 * TAG, z), "Rivale bleibt inaktiv – nur 1 Spieltag vergangen");
+  for (let d = 1; d <= 13; d++) SS.kern.ki.tick(z, T0 + (120 + d) * TAG);
+  assert.ok(KI.aktiv(r, T0 + 133 * TAG, z), "nach 14 aktiven Tagen aktiv");
+  // Alter Stand (0.20.0) ohne spieltag → migriert stetig
+  delete z.ki.spieltag; z.ki.letzterTag = Math.floor((T0 + 133 * TAG) / TAG);
+  SS.kern.ki.tick(z, T0 + 200 * TAG);
+  assert.equal(z.ki.spieltag, Math.floor((T0 + 133 * TAG) / TAG) + 1);
 });

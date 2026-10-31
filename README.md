@@ -10,7 +10,9 @@ im Retro-Stil klassischer Browser-Weltraumspiele: links das Menü, in der Mitte 
 Grafiken sind **eigene SVGs** (`assets/`, erzeugt mit `tools/erzeuge-grafiken.js`) – keine fremden Assets.
 
 - Reines **HTML/CSS/JavaScript** – kein Build, kein Server, keine externen Quellen (CDNs, Schriften).
-- Läuft **offline** per Doppelklick auf `index.html`; Spielstand in `localStorage`.
+- Läuft **offline** per Doppelklick auf `index.html`; Spielstand in `localStorage` (`sternenspiel_profile_v1` + `sternenspiel_spielstand_p_<id>`).
+- **Komplett neu anfangen:** Menü → „Neues Spiel“ (unten) → bestätigen. Löscht alle `sternenspiel*`-Daten in diesem Browser und lädt neu.
+- **KI-Welt (ab 0.20.1):** lebt nur an Tagen, an denen gespielt wird (1 Welt-Tag pro aktivem Tag, Offline-Tage werden nicht nachgezogen).
 - **Responsiv**: Desktop mit fester Menüleiste links, Handy mit ausklappbarem Menü (☰).
 
 ## Starten
@@ -30,7 +32,7 @@ Seite einmal selbst neu oder zeigt „Neu laden“. Spielstände bitte **nicht**
 
 - **Menü** links in fester Reihenfolge: Übersicht, Ressourcen, Anlagen, Forschung, Werft, Verteidigung, Flotte, Weltraum
 - **Übersicht**: Hauptplanet mit Koordinaten (Sektor:System:Planet), Sektor, System; Punkte, laufender Bauauftrag;
-  Knöpfe Speichern / Laden / Spieler wechseln / Zurücksetzen
+  Knöpfe Speichern / Laden / Spieler wechseln / Zurücksetzen / **Neues Spiel (alles löschen)**
 - **Ressourcen**: Rohstofftabelle (Bestand, Produktion, Verbrauch, Netto je Std.), Energiebilanz mit Produktionsfaktor,
   Produktion je Gebäude mit Reglern 0–100 %
 - **Anlagen**: Kacheln in 4 Gruppen – Ressourcenabbau (Metallmine, Siliziummine, Bohrstation), Energie (Solarfarm,

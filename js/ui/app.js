@@ -416,8 +416,9 @@
       "<button class=\"knopf primaer\" data-aktion=\"speichern\">Speichern</button>" +
       "<button class=\"knopf\" data-aktion=\"laden\">Laden</button>" +
       "<button class=\"knopf\" data-aktion=\"wechseln\">Spieler wechseln</button>" +
-      "<button class=\"knopf gefahr\" data-aktion=\"zuruecksetzen\">Zurücksetzen</button></div>" +
-      "<p class=\"hinweis\">Zurücksetzen betrifft nur diesen Spieler.</p>");
+      "<button class=\"knopf gefahr\" data-aktion=\"zuruecksetzen\">Zurücksetzen</button>" +
+      "<button class=\"knopf gefahr\" data-aktion=\"neues-spiel-alles\">Neues Spiel (alles löschen)</button></div>" +
+      "<p class=\"hinweis\">Zurücksetzen betrifft nur diesen Spieler. „Neues Spiel“ löscht alle Spieler in diesem Browser.</p>");
     var rohoel = box("Rohölvorkommen",
       "<dl class=\"werte\"><dt>Vorkommen</dt><dd><b id=\"uebersicht-vorkommen\" data-live=\"vorkommen\"></b> Rohöl</dd>" +
       "<dt>Förderung</dt><dd data-live=\"foerderung\"></dd>" +
@@ -1067,6 +1068,22 @@
     });
   }
 
+  /** 0.20.1 (Sandro pt57u): „Neues Spiel“ – löscht ALLE Sternenspiel-Daten in diesem Browser (alle Spieler, Master, KI-Welt) und lädt neu. */
+  function alleSternenspielSchluessel() {
+    var l = [];
+    try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf("sternenspiel") === 0) l.push(k); } } catch (e) { /* flüchtiger Speicher */ }
+    return l;
+  }
+  function neuesSpielAllesLoeschen() {
+    dialog("Neues Spiel – alles löschen?", "<p><b>Alle</b> Spieler und Spielstände in diesem Browser werden <b>unwiderruflich gelöscht</b>. Danach beginnst du komplett von vorn.</p>", true).then(function (ok) {
+      if (!ok) return;
+      stoppeSchleifen(); zustand = null; aktivId = null;
+      alleSternenspielSchluessel().forEach(function (k) { try { localStorage.removeItem(k); } catch (e) { /* egal */ } });
+      location.replace(location.pathname + "?neu=" + Date.now());
+    });
+  }
+  window.SS.ui = window.SS.ui || {}; window.SS.ui.alleSternenspielSchluessel = alleSternenspielSchluessel;
+
   // ---------- Ereignisse ----------
   an("form-neu", "submit", function (e) { e.preventDefault(); starteNeuesSpiel(); });
   an("profil-liste", "click", function (e) {
@@ -1087,6 +1104,7 @@
     e.preventDefault(); wechslePlanet(a.getAttribute("data-planet")); schliesseMenue();
   });
   an("knopf-schnellspeichern", "click", function () { speichern(false); });
+  an("knopf-neues-spiel-alles", "click", neuesSpielAllesLoeschen);
   an("knopf-spieler-wechseln", "click", spielerWechseln);
   an("inhalt", "click", function (e) {
     var b = e.target.closest("[data-aktion]");
@@ -1095,6 +1113,7 @@
     if (a === "wr-spionage") { e.preventDefault(); spionageSchnell(b.getAttribute("data-koord")); return; }
     if (a === "speichern") speichern(false);
     else if (a === "wechseln") spielerWechseln();
+    else if (a === "neues-spiel-alles") neuesSpielAllesLoeschen();
     else if (a === "zuruecksetzen") zuruecksetzen();
     else if (a === "bauen") bauen(b);
     else if (a === "abbrechen") bauAbbrechen();

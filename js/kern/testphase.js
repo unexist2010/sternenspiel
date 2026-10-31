@@ -61,7 +61,7 @@
       bodenbewegungen: bew, hinweis: HINWEIS[bew ? "ja" : "nein"] };
     if (gg.ki && SS.kern.ki) { // 0.20.0: KI-Planet – Punkte + täglicher Drift ±5 % (Bericht nie ganz exakt)
       var KI = SS.kern.ki; b.schiffe = KI.drift(z, gg, b.schiffe, jetzt); b.verteidigung = KI.drift(z, gg, b.verteidigung, jetzt);
-      b.art = gg.ki.art; b.punkte = Math.round(KI.punkte(z, gg, jetzt) * KI.driftFaktor(z, gg, jetzt)); b.tfAlterTage = KI.tfAlterTage(gg, jetzt); }
+      b.art = gg.ki.art; b.punkte = Math.round(KI.punkte(z, gg, jetzt) * KI.driftFaktor(z, gg, jetzt)); b.tfAlterTage = KI.tfAlterTage(gg, jetzt, z); }
     z.letzterSpionagebericht = b;
     return b;
   }
