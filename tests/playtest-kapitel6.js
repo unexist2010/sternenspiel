@@ -107,12 +107,13 @@ async function lauf(browser, g) {
   await page.waitForSelector('#inhalt[data-seite="flotte"][data-unterseite=""]'); await sleep(300);
   ok((await zahl("#fl-unterwegs")) === n && (await zahl("#fl-frei")) === kap - n, `Nach Start: ${n} belegt, ${kap - n} frei`);
   ok((await zahl("#fl-startbahn")) === kap - n, "Rest-Startbahn nach Preset neu gefüllt");
-  ok(/Keine Verteidigungsflotte/.test(await page.textContent("#fl-verteidigung")), "Hinweis: keine Verteidigungsflotte");
+  ok(/starten bei einem Angriff/.test(await page.textContent("#fl-verteidigung")), "Teilbelegung: Rest-Startbahn verteidigt (t30u)");
   ok(/Spionieren/.test(await page.textContent("#flotten-leiste")) && (await page.$$("#flotten-leiste .flug")).length === 1, "Seitenleiste zeigt Flug");
   const r1 = await page.textContent("#flotten-leiste [data-live^=flug-rest]"); await sleep(2200);
   ok(r1 !== await page.textContent("#flotten-leiste [data-live^=flug-rest]"), "Restzeit läuft live");
   const kampf = await Z(() => { const S = window.SS, z = S.app.zustand, p = z.planeten[0]; const b = S.kern.kampf.simuliere(z, p, { angreifer: { kleine_drohne: 5 } }); return b.orbit.map((x) => x.id); });
-  ok(!kampf.includes("kleine_drohne") && kampf.includes("orbitalverteidigungsplattform"), "Kampf: Orbit nur Plattform (+Satelliten)");
+  ok(kampf.includes("orbitalverteidigungsplattform") && kampf.length > 1, "Kampf: Teilbelegung – Rest-Startbahn kämpft mit Plattform");
+  ok(await page.$("#tab-startplatz[open]") && await page.$("#tab-hangar[open]") && await page.$("#send-box"), "Tabs Startplatz/Hangar + Senden im Flottenfenster");
   await shot("unterwegs" + (handy ? "-handy" : ""), !handy);
   for (const s of ["#uebersicht", "#werft"]) { await geheZu(s, s.slice(1)); ok((await page.$$("#flotten-leiste .flug")).length === 1, "Leiste auch auf " + s); }
   if (!handy) await shot("leiste-werft");

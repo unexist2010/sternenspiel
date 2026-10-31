@@ -187,7 +187,7 @@
     tickTimer = setInterval(function () {
       var r = P.tick(zustand, jetzt());
       var neu = meldeFertig(r.fertig); if (meldeFunde(r.funde)) neu = true;
-      if (neu) { speichern(true); baueMenue(); if (seite && seite.id === "flotte" && seite.teile[0] === "senden") { baueFlottenLeiste(); aktualisiereLive(); } else route(true); } else aktualisiereLive();
+      if (neu) { speichern(true); baueMenue(); if (seite && seite.id === "flotte" && sendeFormularBenutzt()) { baueFlottenLeiste(); aktualisiereLive(); } else route(true); } else aktualisiereLive();
     }, B.TICK_MS);
     autoTimer = setInterval(function () { speichern(true); }, B.AUTOSPEICHERN_MS);
   }
@@ -241,7 +241,8 @@
     var html = id === "uebersicht" ? seiteUebersicht() : id === "ressourcen" ? seiteRessourcen() :
       id === "anlagen" ? (seite.teile[0] === "raumflughafen" ? seiteRaumflughafen() : seiteAnlagen()) :
       id === "forschung" ? seiteForschung() : id === "werft" ? WU().seite() : id === "verteidigung" ? VU().seite() : id === "flotte" ? FU().seite() : seitePlatzhalter(m);
-    var y = window.scrollY;
+    var y = window.scrollY, zu = {};
+    Array.prototype.forEach.call(document.querySelectorAll("#inhalt details[id]"), function (d) { zu[d.id] = !d.open; });
     schliesseInfo();
     $("inhalt").innerHTML = "<h1 class=\"seiten-titel\">" + m.name + "</h1>" + html;
     $("inhalt").setAttribute("data-seite", id);
@@ -249,9 +250,11 @@
     document.title = m.name + " – Sternenspiel";
     if (!scrollBehalten) schliesseMenue();
     baueFlottenLeiste();
+    Object.keys(zu).forEach(function (k) { var d = $(k); if (d && zu[k]) d.open = false; });
     if (id === "flotte") FU().aktualisiereSenden(document);
     aktualisiereLive();
     window.scrollTo(0, scrollBehalten ? y : 0);
+    if (id === "flotte" && seite.teile[0] === "senden" && !scrollBehalten && $("senden") && $("senden").scrollIntoView) $("senden").scrollIntoView();
   }
 
   // Werft-Seite (js/ui/seite-werft.js) – bekommt die gemeinsamen Helfer
@@ -266,6 +269,11 @@
   }
   function baueFlottenLeiste() { var l = $("flotten-leiste"); if (l && zustand) l.innerHTML = FU().leiste(); }
   // Kapitel 6: Flotten-Aktionen
+  /** Sendeformular im Flottenfenster angefasst? Dann beim Tick nicht neu aufbauen (Eingaben bleiben). */
+  function sendeFormularBenutzt() {
+    var k = $("send-koord"); if (k && k.value) return true;
+    return Array.prototype.some.call(document.querySelectorAll("#inhalt input[data-send-menge], #inhalt input[data-send-ladung]"), function (i) { return Number(i.value) > 0; });
+  }
   function sendeFeld(fn) { Array.prototype.forEach.call(document.querySelectorAll("#inhalt input[data-send-menge]"), fn); FU().aktualisiereSenden(document); }
   function sendMax(b) {
     var id = b.getAttribute("data-id"), inp = document.querySelector("#inhalt input[data-send-menge=\"" + id + "\"]"); if (!inp) return;
@@ -290,8 +298,9 @@
     P.tick(zustand, jetzt());
     var a = FU().formular(document), r = SS.kern.flotte.senden(zustand, hp(), a, jetzt());
     if (!r.ok) { meldung(r.grund, "schlecht"); FU().aktualisiereSenden(document); return; }
-    meldung(F.zahl(r.anzahl) + " Schiffe unterwegs: " + r.mission.name + " → " + D.weltraum.koordinatenText(r.ziel) + " (Ankunft in " + F.dauer(r.dauer) + ").", "gut");
-    speichern(true); location.hash = "#flotte";
+    meldung(F.zahl(r.anzahl) + " Schiffe unterwegs: " + r.mission.name + " → " + D.weltraum.koordinatenText(r.ziel) + (r.dauer ? " (Ankunft in " + F.dauer(r.dauer) + ")." : " (Master: Ankunft sofort)."), "gut");
+    if (r.meldungen && r.meldungen.length) meldeFertig(r.meldungen);
+    speichern(true); if (location.hash === "#flotte") route(false); else location.hash = "#flotte";
   }
   var vertUi = null;
   function VU() {
@@ -1040,7 +1049,7 @@
     else if (a === "sim-start") simStart();
     else if (a === "send-max") sendMax(b);
     else if (a === "send-alle") sendAlle();
-    else if (a === "send-keine") sendeFeld(function (i) { i.value = 0; });
+    else if (a === "send-keine") { Array.prototype.forEach.call(document.querySelectorAll("#inhalt input[data-send-ladung]"), function (i) { i.value = 0; }); sendeFeld(function (i) { i.value = 0; }); }
     else if (a === "send-favorit") sendFavorit();
     else if (a === "send-los") sendLos();
     else if (a === "laden") {
@@ -1051,7 +1060,7 @@
   an("inhalt", "input", function (e) {
     if (e.target.matches && e.target.matches("input[data-menge]") && zustand) werftKnoepfe();
     if (e.target.matches && e.target.matches("input[data-def-menge]") && zustand) defKnoepfe();
-    if (e.target.matches && e.target.matches("input[data-send-menge], #send-koord") && zustand) FU().aktualisiereSenden(document);
+    if (e.target.matches && e.target.matches("input[data-send-menge], input[data-send-ladung], #send-koord") && zustand) FU().aktualisiereSenden(document);
   });
   an("inhalt", "change", function (e) {
     if (zustand && e.target.id === "flotte-preset") { SS.kern.flotte.setzePreset(hp(), e.target.value); speichern(true); route(true); return; }

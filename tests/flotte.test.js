@@ -63,7 +63,7 @@ test("Senden: Grenze = freie Startplätze, Prüfungen, Flug, Rückkehr gibt Plä
   assert.equal(FL.frei(z, p), kap - n, "Startplätze bleiben belegt");
   const sb = FL.startbahnen(z, p);
   assert.equal(sum(sb.startplatz), kap - n, "Rest-Startbahn neu nach Preset gefüllt");
-  assert.equal(sb.verteidigt, false);
+  assert.equal(sb.verteidigt, true, "Teilbelegung: Rest verteidigt (t30u)");
   assert.equal(FL.pruefe(z, p, { schiffe: { kreuzer: kap - n + 1 }, ziel: k, mission: "angriff" }).ok, false);
   // Ankunft → Rückflug → zurück
   let m = FL.faellige(z, T0 + r.dauer);
@@ -74,14 +74,18 @@ test("Senden: Grenze = freie Startplätze, Prüfungen, Flug, Rückkehr gibt Plä
   assert.equal(p.schiffe.kreuzer, kap + 50); assert.equal(FL.frei(z, p), kap);
 });
 
-test("Kampf: Flotte unterwegs → keine Verteidigungsflotte, nur Orbitalplattform + Boden", () => {
+test("Kampf: ALLE Startplätze belegt → keine Verteidigungsflotte; Teilbelegung → Rest verteidigt", () => {
   const { SS, z, p, FL, KA } = setup();
   const kap = SS.kern.bau.kapazitaet(p);
-  p.schiffe = { kreuzer: kap * 2 }; p.verteidigung = { orbitalverteidigungsplattform: 1, raketenbatterie: 10 };
+  p.schiffe = { kreuzer: kap * 3 }; p.verteidigung = { orbitalverteidigungsplattform: 1, raketenbatterie: 10 };
   let vt = KA.verteilung(p, z); assert.equal(sum(vt.startplatz), kap);
   let b = KA.simuliere(z, p, { angreifer: { kleine_drohne: 5 } });
   assert.ok(b.orbit.some((x) => x.id === "kreuzer"));
   assert.ok(FL.senden(z, p, { schiffe: { kreuzer: 1 }, ziel: zielK(SS, z), mission: "transportieren" }, T0).ok);
+  vt = KA.verteilung(p, z); assert.equal(sum(vt.startplatz), kap - 1, "Teilbelegung: Rest verteidigt"); assert.equal(vt.keineFlotte, false);
+  b = KA.simuliere(z, p, { angreifer: { kleine_drohne: 5 } });
+  assert.ok(b.orbit.some((x) => x.id === "kreuzer"));
+  assert.ok(FL.senden(z, p, { schiffe: { kreuzer: kap - 1 }, ziel: zielK(SS, z), mission: "transportieren" }, T0).ok);
   vt = KA.verteilung(p, z); assert.equal(sum(vt.startplatz), 0); assert.equal(vt.keineFlotte, true);
   b = KA.simuliere(z, p, { angreifer: { kleine_drohne: 5 } });
   assert.ok(!b.orbit.some((x) => x.id === "kreuzer"), "kein Kreuzer im Orbit");
@@ -102,4 +106,23 @@ test("Flugzeit/Verbrauch/Entfernung, Favoriten, Master kostenlos, Migration v9 �
   alt.flotten = [{ kaputt: 1 }];
   const m = SS.kern.zustand.migriere(alt);
   assert.equal(m.version, 10); assert.deepEqual(J(m.flotten), []); assert.deepEqual(J(m.favoriten), []); assert.equal(m.planeten[0].flotte.preset, "gesunder_mix");
+});
+
+test("0.13.1: Master sofort, Transport entlädt + kehrt zurück, Stationieren nur hin", () => {
+  const { SS, z, p, FL } = setup();
+  const k = zielK(SS, z);
+  p.schiffe = { kleiner_frachter: 0, kleine_drohne: 10 };
+  const kapL = FL.ladekapazitaet({ kleine_drohne: 10 });
+  z.rohstoffe.metall = 1e6; z.rohstoffe.rohoel = 1e6;
+  assert.match(FL.pruefe(z, p, { schiffe: { kleine_drohne: 10 }, ziel: k, mission: "transportieren", ladung: { metall: kapL + 1 } }).grund, /Ladekapazität/);
+  const m0 = z.rohstoffe.metall;
+  const r = FL.senden(z, p, { schiffe: { kleine_drohne: 10 }, ziel: k, mission: "transportieren", ladung: { metall: kapL } }, T0);
+  assert.ok(r.ok, r.grund); assert.equal(z.rohstoffe.metall, m0 - kapL);
+  FL.faellige(z, T0 + r.dauer);
+  assert.equal(z.flotten[0].phase, "rueck"); assert.ok(!z.flotten[0].ladung, "entladen"); assert.match(z.flotten[0].bericht, /entladen/);
+  FL.faellige(z, T0 + 2 * r.dauer); assert.equal(z.flotten.length, 0); assert.equal(p.schiffe.kleine_drohne, 10);
+  assert.equal(FL.hinUndZurueck("stationieren"), false); assert.equal(FL.hinUndZurueck("transportieren"), true);
+  z.einstellungen.master = true;
+  const r2 = FL.senden(z, p, { schiffe: { kleine_drohne: 3 }, ziel: k, mission: "angriff" }, T0);
+  assert.equal(r2.dauer, 0); assert.equal(r2.rohoel, 0); assert.equal(z.flotten.length, 0, "Master: Ankunft + Rückkehr sofort"); assert.equal(p.schiffe.kleine_drohne, 10);
 });

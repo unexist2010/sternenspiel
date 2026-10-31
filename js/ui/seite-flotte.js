@@ -1,6 +1,6 @@
 /*
  * Sternenspiel – Seite „Flotte“ (Kapitel 6) + rechte Seitenleiste „Flotten unterwegs“.
- * Flottenfenster (Startbahnen/Hangar, Preset-Dropdown), Sendefenster (#flotte/senden). Beim Laden DOM-frei (Node-Tests).
+ * Flottenfenster (Startbahnen/Hangar, Preset-Dropdown), Sendefenster im Flottenfenster integriert (0.13.1; #flotte/senden springt dorthin). Beim Laden DOM-frei (Node-Tests).
  */
 (function (g) {
   "use strict";
@@ -35,7 +35,6 @@
 
     // ---------- Flottenfenster ----------
     function seite() {
-      if ((h.teile() || [])[0] === "senden") return sendefenster();
       var zz = z(), pp = p(), sb = FL.startbahnen(zz, pp), t = Date.now();
       var flyHangar = Object.keys(pp.schiffe || {}).some(function (id) { return pp.schiffe[id] > 0 && FL.fliegt(D.schiffNachId(id)); });
       var eigene = zz.flotten.filter(function (f) { return f.herkunft === pp.id; });
@@ -49,14 +48,16 @@
       var verteid = sb.kapazitaet === 0 ? "<p class=\"forschung-fehlt\" id=\"fl-hinweis\">Keine Startplätze – im <a href=\"#anlagen/raumflughafen\">Raumflughafen</a> Startplätze ausbauen.</p>" :
         sb.verteidigt ? "<p class=\"hinweis gut\" id=\"fl-verteidigung\">Die Schiffe auf den Startbahnen starten bei einem Angriff als Verteidigungsflotte.</p>" :
         "<p class=\"forschung-fehlt\" id=\"fl-verteidigung\"><b>Keine Verteidigungsflotte:</b> eine eigene Flotte belegt Startplätze. Bei einem Angriff kämpft im Orbit nur die Orbitalverteidigungsplattform, danach die Bodenverteidigung.</p>";
-      var startb = h.box("Startbahnen", kopf + presetSel + "<p class=\"hinweis\">" + esc(pr.text) + " (Tausch mit dem Hangar geschieht automatisch).</p>" + verteid +
+      var startb = h.box("Startplatz", kopf + presetSel + "<p class=\"hinweis\">" + esc(pr.text) + " (Tausch mit dem Hangar geschieht automatisch).</p>" + verteid +
         schiffListe(sb.startplatz, "Keine Schiffe auf den Startbahnen.", " id=\"liste-startbahn\""),
-        "<a class=\"knopf primaer\" href=\"#flotte/senden\" id=\"knopf-senden\"" + (sb.frei > 0 && flyHangar ? "" : " aria-disabled=\"true\"") + ">Flotte senden</a>", " id=\"box-startbahnen\"");
+        "<a class=\"knopf primaer\" href=\"#flotte/senden\" id=\"knopf-senden\"" + (sb.frei > 0 && flyHangar ? "" : " aria-disabled=\"true\"") + ">Flotte senden ↓</a>", " id=\"box-startbahnen\"");
       var hangar = h.box("Hangar", "<p class=\"hinweis\">Alle übrigen Schiffe – geschützt bei Angriffen.</p>" + schiffListe(sb.hangar, "Hangar leer.", " id=\"liste-hangar\"") +
         (pp.solarsatelliten ? "<p class=\"hinweis\">Solarsatelliten im Orbit: " + F.zahl(pp.solarsatelliten) + " (fliegen nicht).</p>" : ""), "", " id=\"box-hangar\"");
       var unterwegs = h.box("Unterwegs von diesem Planeten", eigene.length ? "<ul class=\"flug-liste\" id=\"liste-unterwegs\">" + eigene.map(function (f) { return flugZeile(f, t, false); }).join("") + "</ul>" :
         "<p class=\"hinweis\" id=\"liste-unterwegs\">Keine Flotte unterwegs – alle " + F.zahl(sb.kapazitaet) + " Startplätze stehen zur Verfügung.</p>", "", " id=\"box-unterwegs\"");
-      return "<div class=\"zwei-spalten\">" + startb + hangar + "</div>" + unterwegs;
+      // 0.13.1 (Sandro t30u): OGame-artig – Tabs „Startplatz“ und „Hangar“ als große, zuklappbare Dropdowns; Senden im Flottenfenster.
+      var tab = function (id, titel, zahl, inhalt) { return "<details class=\"flotte-tab\" id=\"tab-" + id + "\" open><summary>" + titel + " <span class=\"tab-zahl\">" + F.zahl(zahl) + "</span></summary>" + inhalt + "</details>"; };
+      return "<div class=\"flotte-tabs\">" + tab("startplatz", "Startplatz", sb.aufStartbahn, startb) + tab("hangar", "Hangar", FL.summe(sb.hangar), hangar) + "</div>" + sendefenster() + unterwegs;
     }
 
     // ---------- Sendefenster ----------
@@ -69,6 +70,8 @@
           "<td><input type=\"number\" min=\"0\" max=\"" + n + "\" value=\"0\" inputmode=\"numeric\" data-send-menge=\"" + id + "\" aria-label=\"Anzahl " + esc(s.name) + "\"> " +
           "<button type=\"button\" class=\"knopf klein\" data-aktion=\"send-max\" data-id=\"" + id + "\">max</button></td></tr>";
       }).join("");
+      var ladung = "<details class=\"send-ladung\" id=\"send-ladung\"><summary>Ladung (nur Transport)</summary><div class=\"send-ziel\">" + D.rohstoffe.filter(function (r) { return r.id !== "strom" && (zz.rohstoffe[r.id] || 0) > 0; }).map(function (r) {
+        return "<label>" + esc(r.name) + " <input type=\"number\" min=\"0\" value=\"0\" inputmode=\"numeric\" size=\"8\" data-send-ladung=\"" + r.id + "\"></label>"; }).join("") + "</div></details>";
       var opts = "<option value=\"\">Koordinaten eingeben …</option><optgroup label=\"Eigene Planeten\">" + FL.eigenePlaneten(zz).map(function (e) {
         return "<option value=\"" + kt(e) + "\">" + esc(e.name) + " [" + kt(e) + "]</option>"; }).join("") + "</optgroup>" +
         (zz.favoriten.length ? "<optgroup label=\"Favoriten\">" + zz.favoriten.map(function (f) { return "<option value=\"" + kt(f) + "\">★ " + esc(f.name) + " [" + kt(f) + "]</option>"; }).join("") + "</optgroup>" : "");
@@ -80,17 +83,19 @@
         "<div class=\"send-ziel\"><label>Ziel <select id=\"send-ziel\">" + opts + "</select></label>" +
         "<label>Koordinaten <input id=\"send-koord\" type=\"text\" placeholder=\"S:SYS:P\" autocomplete=\"off\" size=\"10\"></label>" +
         "<button type=\"button\" class=\"knopf\" data-aktion=\"send-favorit\">☆ Als Favorit</button></div>" +
-        "<div class=\"send-ziel\"><label>Mission <select id=\"send-mission\">" + mis + "</select></label></div>" +
+        "<div class=\"send-ziel\"><label>Mission <select id=\"send-mission\">" + mis + "</select></label></div>" + ladung +
         "<dl class=\"werte\" id=\"send-vorschau\"></dl><p id=\"send-grund\" class=\"grund\"></p>" +
-        "<p><button type=\"button\" class=\"knopf primaer\" data-aktion=\"send-los\" id=\"knopf-lossenden\" disabled>Lossenden</button> <a class=\"knopf\" href=\"#flotte\" id=\"knopf-send-zu\">Schließen</a></p>";
-      return "<div class=\"send-fenster\">" + h.box("Flotte senden – Auswahl", inhalt, "<a class=\"knopf\" href=\"#flotte\" aria-label=\"Schließen\">✕</a>", " id=\"send-box\"") + "</div>";
+        "<p><button type=\"button\" class=\"knopf primaer\" data-aktion=\"send-los\" id=\"knopf-lossenden\" disabled>Lossenden</button> <button type=\"button\" class=\"knopf\" data-aktion=\"send-keine\" id=\"knopf-send-zu\">Zurücksetzen</button></p>";
+      return "<div class=\"send-fenster\" id=\"senden\">" + h.box("Flotte senden", inhalt, "", " id=\"send-box\"") + "</div>";
     }
     /** Formular lesen (zur Laufzeit, im Browser). */
     function formular(doc) {
       var schiffe = {};
       Array.prototype.forEach.call(doc.querySelectorAll("input[data-send-menge]"), function (i) { var n = Math.floor(Number(i.value) || 0); if (n > 0) schiffe[i.getAttribute("data-send-menge")] = n; });
+      var ladung = {};
+      Array.prototype.forEach.call(doc.querySelectorAll("input[data-send-ladung]"), function (i) { var n = Math.floor(Number(i.value) || 0); if (n > 0) ladung[i.getAttribute("data-send-ladung")] = n; });
       var k = doc.getElementById("send-koord"), m = doc.getElementById("send-mission");
-      return { schiffe: schiffe, ziel: W().leseKoordinaten(k ? k.value : ""), mission: m ? m.value : "", koordText: k ? k.value : "" };
+      return { schiffe: schiffe, ladung: ladung, ziel: W().leseKoordinaten(k ? k.value : ""), mission: m ? m.value : "", koordText: k ? k.value : "" };
     }
     /** Vorschau + Knopfzustand aktualisieren. */
     function aktualisiereSenden(doc) {
@@ -101,7 +106,8 @@
       var v = doc.getElementById("send-vorschau");
       v.innerHTML = r.dauer ? "<dt>Entfernung</dt><dd>" + F.zahl(r.entfernung) + "</dd><dt>Tempo (langsamstes Schiff)</dt><dd>" + F.zahl(r.tempo) + "</dd>" +
         "<dt>Flugzeit (einfach)</dt><dd id=\"send-dauer\">" + F.dauer(r.dauer) + "</dd><dt>Ankunft</dt><dd>" + F.uhrzeit(Date.now() + r.dauer) + "</dd>" +
-        "<dt>Rohöl" + (a.mission === "stationieren" ? "" : " (Hin + Rück)") + "</dt><dd id=\"send-rohoel\">" + F.zahl(r.rohoel) + "</dd>" : "";
+        "<dt>Ladekapazität</dt><dd id=\"send-kapazitaet\">" + F.zahl(r.ladungSumme || 0) + " / " + F.zahl(r.kapazitaet || 0) + "</dd>" +
+        "<dt>Rohöl" + (a.mission === "stationieren" ? " (nur Hinflug)" : " (Hin + Rück)") + "</dt><dd id=\"send-rohoel\">" + F.zahl(r.rohoel) + "</dd>" : "";
       doc.getElementById("send-grund").textContent = r.ok ? "" : r.grund;
       doc.getElementById("knopf-lossenden").disabled = !r.ok;
       return r;

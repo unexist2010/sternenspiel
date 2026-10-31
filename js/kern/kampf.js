@@ -29,8 +29,9 @@
 
   /** Startplatz-/Hangar-Verteilung der Schiffe eines Planeten. → { startplatz:{id:n}, hangar:{id:n}, kapazitaet, belegt } */
   /**
-   * Kapitel 6: mit Spielstand z gilt das Flotten-Preset; ist eine eigene Flotte unterwegs (Startplätze belegt),
-   * gibt es KEINE Verteidigungsflotte im Orbit (Sandro, pt29u) → Phase 1 nur Orbitalplattform, Phase 2 Boden.
+   * Kapitel 6: mit Spielstand z gilt das Flotten-Preset; die freien (nicht durch Flotten unterwegs belegten) Startplätze
+   * verteidigen. Nur wenn ALLE Startplätze belegt sind, gibt es KEINE Verteidigungsflotte (Sandro t30u)
+   * → Phase 1 nur Orbitalplattform, Phase 2 Boden.
    * Ohne z: alte Reihenfolge (stärkste Kampfschiffe zuerst).
    */
   function verteilung(p, z) {

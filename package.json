@@ -1,8 +1,8 @@
 {
   "name": "sternenspiel",
-  "version": "0.12.1",
+  "version": "0.13.1",
   "private": true,
-  "description": "Sternenspiel – Offline-Browser-Aufbauspiel im Weltraum (Kapitel 5: Verteidigung 0.12.0)",
+  "description": "Sternenspiel – Offline-Browser-Aufbauspiel im Weltraum (Kapitel 6: Flotte 0.13.1)",
   "scripts": {
     "test": "node --test tests/*.test.js",
     "playtest": "node tests/playtest-kapitel2.js && node tests/playtest-kapitel2b.js && node tests/playtest-kapitel1-profile.js && node tests/playtest-kapitel3.js && node tests/playtest-kapitel4.js && node tests/playtest-kapitel5.js && node tests/playtest-kapitel6.js",

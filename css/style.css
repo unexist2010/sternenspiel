@@ -409,3 +409,10 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
   .rahmen { grid-template-columns: var(--menue-breite) minmax(0, 1fr) 230px; }
   .flotten-leiste { position: sticky; top: var(--kopf-hoehe); bottom: auto; max-height: calc(100vh - var(--kopf-hoehe)); border-top: 0; border-left: 2px solid var(--rand); padding: 12px 10px; min-height: 200px; }
 }
+
+/* 0.13.1 Flottenfenster: Tabs Startplatz/Hangar als große zuklappbare Dropdowns (OGame-artig) */
+.flotte-tabs { display: grid; gap: .6rem; margin-bottom: .8rem; }
+.flotte-tab > summary { cursor: pointer; font-size: 1.15rem; font-weight: 700; padding: .7rem 1rem; border: 1px solid rgba(255,255,255,.18); border-radius: 8px; background: rgba(255,255,255,.06); list-style: none; }
+.flotte-tab > summary::before { content: "▸ "; } .flotte-tab[open] > summary::before { content: "▾ "; }
+.flotte-tab > summary .tab-zahl { float: right; opacity: .8; }
+.send-ladung > summary { cursor: pointer; margin: .4rem 0; }

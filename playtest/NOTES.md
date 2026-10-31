@@ -166,3 +166,6 @@ Stufe 1: 0–1 · Stufe 2: 2–3 · Stufe 3: 4–6 · Stufe 4: 7–10 · Stufe 5
 - `node tests/playtest-kapitel6.js`: 60/60 grün (Desktop 1366×768 + Handy 412×915). Screenshots `playtest/kapitel6-*.png` (Flottenfenster, Sendefenster, unterwegs, Leiste auf Werft).
 - Alle älteren Playtests grün (Kap. 2, 2b, 1-Profile, 3, 4, 5); Unit-Tests 96/96.
 - Fix: Infofenster überdeckte bei schmalerem Inhalt (wegen Seitenleiste) den eigenen Knopf → jetzt seitlich daneben.
+
+## 0.13.1 – Antworten t30u
+- Teilbelegung der Startplätze → Rest verteidigt (Playtest Kapitel 6 geprüft); Tabs + Senden im Flottenfenster; alle 7 Playtests grün.

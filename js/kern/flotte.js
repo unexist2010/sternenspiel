@@ -15,8 +15,8 @@
   ];
   var MISSIONEN = [
     { id: "kolonisieren", name: "Kolonisieren", text: "Braucht mindestens ein Kolonieschiff." },
-    { id: "transportieren", name: "Transportieren", text: "Fliegt hin und kehrt zurück (Ladung folgt)." },
-    { id: "stationieren", name: "Stationieren", text: "Schiffe bleiben auf einem anderen eigenen Planeten." },
+    { id: "transportieren", name: "Transportieren", text: "Hin und zurück: Ladung wird am Ziel sofort entladen, die Flotte kehrt automatisch zurück." },
+    { id: "stationieren", name: "Stationieren", text: "Nur Hinflug: Schiffe bleiben auf einem anderen eigenen Planeten." },
     { id: "spionieren", name: "Spionieren", text: "Braucht mindestens eine Spionagesonde." },
     { id: "angriff", name: "Angriff", text: "Greift das Ziel an (Gegner folgen mit dem Weltraum-Kapitel)." },
     { id: "unterstuetzen", name: "Unterstützen", text: "Hilft am Ziel bei der Verteidigung (folgt mit Gegnern)." }
@@ -61,16 +61,17 @@
 
   /**
    * Flottenfenster: Startbahnen (Kapazität minus unterwegs) + Hangar.
-   * Sandro (pt29u): Ist eine eigene Flotte unterwegs, gibt es im Orbit KEINE Verteidigungsflotte (verteidigt = false).
+   * Sandro (t30u, FEST): Nur wenn ALLE Startplätze durch Flotten unterwegs belegt sind, gibt es KEINE Verteidigungsflotte.
+   * Teilbelegung (z. B. 70 von 100) → die übrigen 30 Startbahn-Schiffe verteidigen.
    */
   function startbahnen(z, p) {
     var kap = kapazitaet(p), unterwegs = belegt(z, p), platz = Math.max(0, kap - unterwegs), pr = preset(p);
     var v = verteile(z, p.schiffe || {}, platz, pr);
     return { kapazitaet: kap, unterwegs: unterwegs, frei: platz, startplatz: v.startplatz, hangar: v.hangar, aufStartbahn: v.belegt,
-      preset: pr, verteidigt: unterwegs === 0 };
+      preset: pr, verteidigt: unterwegs === 0 || platz > 0 };
   }
 
-  // ---------- Entfernung, Flugzeit, Rohöl (OGame-ähnlich, ANNAHME) ----------
+  // ---------- Entfernung, Flugzeit, Rohöl (OGame-Formeln, FEST Sandro t30u; Tempo je Schiff verschieden, langsamstes zählt) ----------
   function entfernung(a, b) {
     if (a.system !== b.system) return FB().DIST_SYSTEM_BASIS + FB().DIST_JE_SYSTEM * Math.abs(a.system - b.system);
     if (a.planet !== b.planet) return FB().DIST_PLANET_BASIS + FB().DIST_JE_PLANET * Math.abs(a.planet - b.planet);
@@ -96,6 +97,11 @@
     return (z.planeten || []).map(function (p) { var k = herkunftKoord(z, p); return { id: p.id, name: p.name, sektor: k.sektor, system: k.system, planet: k.planet }; });
   }
   var gleicheKoord = function (a, b) { return a && b && a.sektor === b.sektor && a.system === b.system && a.planet === b.planet; };
+
+  /** Ladekapazität der gewählten Schiffe. */
+  function ladekapazitaet(schiffe) { return Object.keys(schiffe).reduce(function (s, id) { return s + (D().schiffNachId(id).ladung || 0) * schiffe[id]; }, 0); }
+  /** Hin + Rück? Stationieren = nur Hinflug (OGame), alles andere hin und zurück. */
+  function hinUndZurueck(missionId) { return missionId !== "stationieren"; }
 
   /** Vorschau + Prüfung eines Sendeauftrags. auftrag = {schiffe:{id:n}, ziel:{sektor,system,planet}, mission} */
   function pruefe(z, p, auftrag) {
@@ -123,7 +129,16 @@
     if ((mission.id === "angriff") && zielEigen) { r.grund = "Eigene Planeten kann man nicht angreifen."; return r; }
     var dist = entfernung(start, ziel), v = tempo(z, schiffe), master = SS.kern.werft.istMaster(z);
     r.entfernung = dist; r.tempo = v; r.dauer = flugzeitMs(dist, v);
-    r.rohoel = master ? 0 : verbrauch(schiffe, dist, mission.id !== "stationieren");
+    if (master) r.dauer = 0; // Master: Flugzeit sofort (Sandro t30u)
+    r.rohoel = master ? 0 : verbrauch(schiffe, dist, hinUndZurueck(mission.id));
+    r.kapazitaet = ladekapazitaet(schiffe);
+    var ladung = {}, lsum = 0;
+    if (mission.id === "transportieren") Object.keys((auftrag && auftrag.ladung) || {}).forEach(function (rid) {
+      var n = Math.floor(Number(auftrag.ladung[rid]) || 0); if (n > 0 && rid !== "strom" && rid in z.rohstoffe) { ladung[rid] = n; lsum += n; } });
+    r.ladung = ladung; r.ladungSumme = lsum;
+    if (lsum > r.kapazitaet) { r.grund = "Ladung " + lsum + " > Ladekapazität " + r.kapazitaet + "."; return r; }
+    var knapp = Object.keys(ladung).filter(function (rid) { return ladung[rid] + (rid === "rohoel" ? r.rohoel : 0) > (z.rohstoffe[rid] || 0); })[0];
+    if (knapp) { r.grund = "Nicht genug " + knapp + " für die Ladung."; return r; }
     if (r.rohoel > (z.rohstoffe.rohoel || 0)) { r.grund = "Nicht genug Rohöl (" + r.rohoel + " nötig)."; return r; }
     r.ok = true; r.mission = mission; r.ziel = { sektor: ziel.sektor, system: ziel.system, planet: ziel.planet }; r.zielEigen = zielEigen || null;
     return r;
@@ -134,11 +149,14 @@
     if (!r.ok) return r;
     Object.keys(r.schiffe).forEach(function (id) { p.schiffe[id] -= r.schiffe[id]; if (p.schiffe[id] <= 0) delete p.schiffe[id]; });
     z.rohstoffe.rohoel -= r.rohoel;
+    Object.keys(r.ladung).forEach(function (rid) { z.rohstoffe[rid] -= r.ladung[rid]; });
     z.flottenZaehler = (z.flottenZaehler || 0) + 1;
     var f = { id: "f" + z.flottenZaehler, herkunft: p.id, start: herkunftKoord(z, p), ziel: r.ziel, zielName: auftrag.zielName || (r.zielEigen ? r.zielEigen.name : ""),
-      mission: r.mission.id, schiffe: r.schiffe, anzahl: r.anzahl, abflug: jetzt, ankunft: jetzt + r.dauer, rueckkehr: null, phase: "hin" };
+      mission: r.mission.id, schiffe: r.schiffe, anzahl: r.anzahl, abflug: jetzt, ankunft: jetzt + r.dauer, rueckkehr: null, phase: "hin",
+      ladung: Object.keys(r.ladung).length ? r.ladung : undefined };
     z.flotten.push(f);
     r.flotte = f;
+    if (r.dauer === 0) r.meldungen = faellige(z, jetzt); // Master: Ankunft (und ggf. Rückkehr) sofort
     return r;
   }
 
@@ -166,8 +184,15 @@
           return;
         }
         // ANNAHME: Ohne Gegner/Kolonien (Weltraum-Kapitel) haben Missionen am Ziel noch keine Wirkung → Rückflug.
+        // Transport (Sandro t30u, FEST): Ladung sofort entladen, Flotte kehrt sofort und automatisch zurück.
+        // ANNAHME: Rohstoffe sind global (ein Lager je Spieler) → bei eigenem Ziel wieder gutgeschrieben; fremdes Ziel = abgeliefert.
+        var entl = "";
+        if (f.mission === "transportieren" && f.ladung) {
+          if (eigen) Object.keys(f.ladung).forEach(function (rid) { z.rohstoffe[rid] = (z.rohstoffe[rid] || 0) + f.ladung[rid]; });
+          entl = " – Ladung entladen (" + summe(f.ladung) + ")"; f.entladen = f.ladung; delete f.ladung;
+        }
         f.phase = "rueck"; f.rueckkehr = f.ankunft + (f.ankunft - f.abflug);
-        f.bericht = m.name + " bei " + ziel + ": " + (f.mission === "transportieren" || f.mission === "unterstuetzen" ? "Ziel erreicht" : "kein Gegner/keine Wirkung (folgt im Weltraum-Kapitel)");
+        f.bericht = m.name + " bei " + ziel + ": " + (f.mission === "transportieren" || f.mission === "unterstuetzen" ? "Ziel erreicht" + entl : "kein Gegner/keine Wirkung (folgt im Weltraum-Kapitel)");
         meld.push({ art: "flotte", name: m.name, text: "Flotte erreicht " + ziel + " (" + m.name + ")" });
       }
       if (f.phase === "rueck" && jetzt >= f.rueckkehr) {
@@ -194,6 +219,6 @@
     PRESETS: PRESETS, MISSIONEN: MISSIONEN, presetNachId: presetNachId, missionNachId: missionNachId,
     fliegt: fliegt, preset: preset, setzePreset: setzePreset, belegt: belegt, frei: frei, verteile: verteile, startbahnen: startbahnen,
     entfernung: entfernung, tempo: tempo, flugzeitMs: flugzeitMs, verbrauch: verbrauch, herkunftKoord: herkunftKoord, eigenePlaneten: eigenePlaneten,
-    pruefe: pruefe, senden: senden, status: status, faellige: faellige, favoritHinzu: favoritHinzu, favoritWeg: favoritWeg, summe: summe
+    pruefe: pruefe, ladekapazitaet: ladekapazitaet, hinUndZurueck: hinUndZurueck, senden: senden, status: status, faellige: faellige, favoritHinzu: favoritHinzu, favoritWeg: favoritWeg, summe: summe
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

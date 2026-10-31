@@ -1,6 +1,6 @@
 # Sternenspiel – Offene Punkte (Fragen an Sandro)
 
-Stand: 2026-10-31 (0.13.0 Kapitel 6 Flotte, neue Fragen 58–66) · Alles hier ist bis zur Antwort als **ANNAHME** umgesetzt bzw. vorgemerkt.
+Stand: 2026-10-31 (0.13.1 Antworten t30u zu 58–66) · Alles hier ist bis zur Antwort als **ANNAHME** umgesetzt bzw. vorgemerkt.
 
 ## Wichtigste Fragen (bitte zuerst)
 
@@ -36,19 +36,24 @@ Stand: 2026-10-31 (0.13.0 Kapitel 6 Flotte, neue Fragen 58–66) · Alles hier i
 | 25 | Kapitelplan | In welcher Reihenfolge sollen die späteren Kapitel kommen (je Menüpunkt bzw. Mechanik, z. B. Ressourcen → Anlagen → Forschung …)? |
 | 22 | – | Endgültiger Name: „Sternenspiel“, „Sternenreich“ oder „Weltraumspiel“? |
 
-## Kapitel 6 Flotte (0.13.0) – neu
+## Kapitel 6 Flotte – offen (Stand 0.13.1)
 
 | # | Thema | Frage |
 |---|-------|-------|
-| 58 | Presets | Regeln ok? Gesunder Mix = Kampfschiffe anteilig nach Bestand, Rest nach Feuerkraft; Energie/Metall/Feuerkraft = sortiert nach diesem Wert; bewaffnete Kampfschiffe immer vor Hilfs-/Spezialschiffen. |
-| 59 | Verteidigung | Laut Vorgabe verteidigen auch die **übrigen** Startbahn-Schiffe nicht, solange irgendeine eigene Flotte unterwegs ist – so gemeint, oder nur bei voller Belegung? |
-| 60 | Flugzeit | OGame-Formeln für Entfernung/Flugzeit/Rohöl (Rohöl für Hin + Rück beim Start) – ok? Universumstempo 1? |
-| 61 | Master | Master-Modus: Flug kostet kein Rohöl, dauert aber echt – oder auch sofort? |
-| 62 | Missionen | Bis Gegner/Kolonien existieren, fliegen alle Missionen hin und zurück; Stationieren nur zu anderem eigenem Planeten – ok? |
-| 63 | Transport | Ladungsauswahl (Rohstoffe mitnehmen) im Sendefenster – wann? |
-| 64 | Rückruf | Soll man Flotten zurückrufen können (OGame: ja)? |
-| 65 | Sendefenster | Als eigene Seite (#flotte/senden) statt Popup – ok? |
-| 66 | Handy | Seitenleiste auf dem Handy als Leiste unten – ok? |
+| 58 | Presets | **SPÄTER** (Sandro t30u: „checken wir später mal“) – Regeln bleiben ANNAHME, nichts geändert. |
+| 63 | Transport | Ladungsauswahl ist da (0.13.1); Ziel-Lager: Rohstoffe sind global → bei eigenem Ziel gutgeschrieben, bei fremdem abgeliefert (ANNAHME). |
+| 64 | Rückruf | Rückruf von Flotten (OGame: ja)? – offen. |
+| 65 | Sendefenster | **Teilweise:** Senden jetzt im Flottenfenster, Tabs „Startplatz“/„Hangar“ als große zuklappbare Dropdowns. „Rest erklär ich später“ (Sandro). |
+| 66 | Handy | Seitenleiste auf dem Handy unten – offen. |
+| – | Universumstempo | `UNIVERSUM_TEMPO` = 1 (ANNAHME, nicht bestätigt). |
+
+## Beantwortet (0.13.1, Sandro t30u)
+
+- **59** Verteidigung: **nur wenn ALLE Startplätze** durch Flotten unterwegs belegt sind, gibt es keine Verteidigungsflotte; bei z. B. 70/100 verteidigen die übrigen 30 Startbahn-Schiffe – **FEST**, Kampfkern + Simulator angepasst.
+- **60** OGame-Flugformeln bleiben, Tempo je Schiff unterschiedlich (langsamstes zählt) – **FEST**.
+- **61** Master: Flugzeit **sofort** (Ankunft sofort, Rückflug ebenfalls sofort, kein Rohöl) – **FEST**.
+- **62** Missionen wie OGame: **Stationieren = nur hin** (Rohöl einfach), **Transport = hin und zurück** – **FEST**. Übrige Missionen bis zum Weltraum-Kapitel hin und zurück (ANNAHME).
+- **63** Transport: Ressourcen werden am Ziel **sofort entladen**, Flotte kehrt **sofort und automatisch** zurück – **FEST**.
 
 ## Kapitel 5 Verteidigung (0.12.0) – offen „später“ (Sandro t27u)
 

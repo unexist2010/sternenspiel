@@ -1,5 +1,15 @@
 # Changelog – Sternenspiel
 
+## [0.13.1] – 2026-10-31 – Flotte: Antworten t30u (Offene Punkte 58–66)
+
+- Verteidigung: Keine Verteidigungsflotte nur noch, wenn **alle** Startplätze durch Flotten unterwegs belegt sind; sonst verteidigen die freien Startbahn-Schiffe (Kampfkern + Simulator).
+- OGame-Flugformeln + unterschiedliche Schiffstempi als FEST dokumentiert.
+- Master: Flugzeit sofort (Ankunft/Rückkehr sofort).
+- Missionen: Stationieren nur hin, Transport hin und zurück; Transport-Ladung im Sendeformular, am Ziel sofort entladen, automatische Rückkehr.
+- Flottenfenster: Tabs Startplatz/Hangar als große zuklappbare Dropdowns, Senden integriert (keine separate Seite mehr).
+- Presets: unverändert, Offener Punkt 58 „später“.
+- Tests: Unit + Playtest Kapitel 6 angepasst/erweitert.
+
 ## [0.13.0] – 2026-10-31 – Kapitel 6: Flotte
 - **Menüpunkt Flotte** jetzt echt. **Flottenfenster:** Startbahnen (Kapazität = Startplatz-Kapazität in Schiffen) und Hangar; Preset-Dropdown *Gesunder Mix / Starke Energiehülle / Starke Metallhülle / Maximale Feuerkraft* füllt die Startbahnen automatisch (Standard: Gesunder Mix). Die Startbahn-Schiffe sind die Verteidigungsflotte.
 - **Sendefenster** („Flotte senden“): freie Schiffswahl bis zu den freien Startplätzen (max/Alle/Keine), Ziel per Dropdown (eigene Planeten + Favoriten) oder Koordinaten, Favorit speichern, 6 Missionen (Kolonisieren, Transportieren, Stationieren, Spionieren, Angriff, Unterstützen), Vorschau Entfernung/Tempo/Flugzeit/Ankunft/Rohöl, Knopf **Lossenden**.

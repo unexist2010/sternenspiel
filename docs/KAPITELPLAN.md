@@ -92,7 +92,7 @@ und kann beim jeweiligen Kapitel wiederverwendet werden.
 - **0.11.4 – Frachter-Leiter:** neuer Großer Frachter (250.000), Massengutfrachter 1.000.000 → 25 Schiffe fest.
 - **Vorgemerkt (Sandro, t25u):** Orbitalverteidigungsplattform gehört künftig zur **Verteidigung (Kapitel 5)**, nicht zur Werft – Umzug beim Bau von Kapitel 5 (Schiffsanzahl dann neu prüfen).
 
-## Kapitel 6 – Flotte ✅ (0.13.0)
+## Kapitel 6 – Flotte ✅ (0.13.0, 0.13.1 Antworten t30u)
 
 - Flottenfenster (Startbahnen + Hangar, 4 Presets), Sendefenster (Schiffe, Ziel, Favoriten, 6 Missionen, Lossenden), rechte Seitenleiste mit Flügen live.
 - Fliegende Flotte → keine Orbit-Verteidigungsflotte (nur Plattform, dann Boden).
