@@ -95,7 +95,7 @@ async function lauf(browser, g) {
 
   await geheZu("#verteidigung", "verteidigung");
   ok(await page.isVisible("#def-hinweis") && (await kachelIds()).length === 0, "Ohne Verteidigungswerft: Hinweis, keine Kacheln");
-  ok(await page.isVisible("#waffen-tabelle") && (await page.$$eval("#waffen-tabelle tbody tr", (r) => r.length)) === 7, "Waffentabelle: 7 Waffentypen");
+  ok(await page.isVisible("#waffen-tabelle") && (await page.$$eval("#waffen-tabelle tbody tr", (r) => r.length)) === 6, "Waffentabelle: 6 Waffentypen");
   await page.click("#knopf-vw-bauen");
   await page.waitForSelector('#inhalt[data-seite="anlagen"]');
   ok(true, "Link führt zu Anlagen");
@@ -132,7 +132,7 @@ async function lauf(browser, g) {
   await shot(handy ? "handy-verteidigung" : "desktop-verteidigung", !handy);
 
   let inf = await oeffneInfo('article[data-def="magnetkanone"] .info-knopf');
-  ok(inf.sichtbar && inf.imBild && /Energiehülle/.test(inf.text) && /Metallhülle/.test(inf.text) && /Magnetkanone/.test(inf.text), `Info Magnetkanone sichtbar ${JSON.stringify(inf.r)}`);
+  ok(inf.sichtbar && inf.imBild && /Energiehülle/.test(inf.text) && /Metallhülle/.test(inf.text) && /Railgun/.test(inf.text), `Info Railgun-Turm sichtbar ${JSON.stringify(inf.r)}`);
   if (!handy) await shot("desktop-infofenster");
   await schliesseInfo();
 
@@ -143,8 +143,8 @@ async function lauf(browser, g) {
 
   // Kampf-Simulator
   const vorher = await Z(() => JSON.stringify(window.SS.app.zustand.planeten[0].verteidigung));
-  await page.selectOption("#sim-schiff", "schwere_drohne");
-  await page.fill("#sim-anzahl", "50");
+  await page.selectOption("#sim-schiff", "kleine_drohne");
+  await page.fill("#sim-anzahl", "10");
   await page.click('[data-aktion="sim-start"]'); await sleep(300);
   const ber = await page.textContent("#sim-ausgabe");
   ok(/Phase 1 – Orbit/.test(ber) && /Phase 2 – Boden/.test(ber) && /Trümmerfelder/.test(ber), "Simulator: Bericht mit Orbit, Boden, Trümmer");

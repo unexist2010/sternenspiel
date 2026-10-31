@@ -124,11 +124,11 @@
       info: "Je Stufe wird eine weitere Forschungseinrichtung eines anderen Planeten mit der forschenden verbunden; ihre Stufen addieren sich für die Forschungszeit. Solange es nur den Hauptplaneten gibt, ist das Netzwerk wirkungslos – es wirkt erst mit Kolonien.",
       kosten: { metall: 240000, silizium: 400000, rohoel: 160000, kunststoff_t2: 500 }, faktor: 2,
       wirkung: { typ: "anzahl", basis: 0, je: 1, ziel: "verbundene Forschungseinrichtungen", ziel1: "verbundene Forschungseinrichtung", aktiv: false } },
-    { id: "graviton", name: "Graviton-Technologie", gruppe: "fortgeschritten", vor: [[v("energie", 12)], [v("plasma", 8)]],
-      beschreibung: "Bündelt Gravitonen zu einem künstlichen Schwerkraftfeld – die Spitze der Forschung.",
-      info: "Schaltet in späteren Kapiteln Gravitonwaffen bzw. Spezialschiffe frei. Sehr teuer, mit Kunststoff T3; Kosten ×3 je Stufe.",
+    { id: "emp", name: "EMP-Technologie", gruppe: "fortgeschritten", vor: [[v("energie", 12)], [v("plasma", 8)]],
+      beschreibung: "Elektromagnetischer Puls – legt Energiehüllen schwacher und mittlerer Schiffe lahm (nur Titan).",
+      info: "0.17.0 (ersetzt Graviton): Schaltet den Titan frei. Im Kampf setzt jeder Titan zu Beginn jeder Phase die Energiehülle von bis zu 25 × Stufe gegnerischen Einheiten auf 0 – nur Einheiten mit Energiehülle ≤ 1.000 × Stufe. Sehr teuer, mit Kunststoff T3; Kosten ×3 je Stufe.",
       kosten: { metall: 300000, silizium: 300000, rohoel: 150000, kunststoff_t3: 100 }, faktor: 3,
-      wirkung: { typ: "freischaltung", ziel: "Gravitonwaffen (später)", aktiv: false } }
+      wirkung: { typ: "anzahl", basis: 0, je: 25, ziel: "Einheiten je Titan mit EMP", ziel1: "Einheit je Titan mit EMP", aktiv: true } }
   ];
   L.forEach(function (f) {
     f.bild = "assets/forschung/" + f.id + ".svg";

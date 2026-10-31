@@ -13,7 +13,7 @@ function setup(geb = {}, roh = {}, fo = {}) {
   Object.assign(z.planeten[0].gebaeude, geb); Object.assign(z.rohstoffe, roh); Object.assign(z.forschung, fo);
   return { SS, z, p: z.planeten[0], P: SS.kern.produktion, Bau: SS.kern.bau, VT: SS.kern.verteidigung, KA: SS.kern.kampf, D: SS.DATEN };
 }
-const ALLE_FO = { energie: 20, laser: 20, ionen: 20, plasma: 20, graviton: 20, waffen: 20, schild: 20, panzerung: 20, roboter: 20, computer: 20, spionage: 20, hyperspace: 20, verbrennung: 20, impuls: 20, hyperraumantrieb: 20 };
+const ALLE_FO = { energie: 20, laser: 20, ionen: 20, plasma: 20, emp: 20, waffen: 20, schild: 20, panzerung: 20, roboter: 20, computer: 20, spionage: 20, hyperspace: 20, verbrennung: 20, impuls: 20, hyperraumantrieb: 20 };
 
 test("Daten: 10 Anlagen (9 Verteidigung + Orbitalplattform), Gruppen, Bilder, gültige Bezüge", () => {
   const { D } = setup();
@@ -37,7 +37,16 @@ test("Waffenprofile: Raketen/Gatling/Railgun metallstark, Laser/Ionen energiesta
   const { D } = setup();
   const w = (id) => D.waffentypNachId(id).profil;
   for (const id of ["raketen", "gatling", "railgun"]) assert.ok(w(id).metall >= 0.7, id);
-  for (const id of ["laser", "ionen"]) assert.ok(w(id).energie >= 1 && w(id).metall <= 0.3, id);
+  for (const id of ["laser", "ionen"]) assert.ok(w(id).energie >= 1 && w(id).metall < 0.5, id); // 0.17.0: Laser teils Metall (0,45), Ionen 0,25
+  assert.ok(w("ionen").energie > w("laser").energie && w("ionen").metall < w("laser").metall);
+  assert.equal(w("plasma").energie, w("plasma").metall); assert.equal(D.waffentypNachId("railgun").ignoriertEnergie, true);
+  assert.ok(!D.waffentypNachId("graviton"), "0.17.0: Graviton entfernt");
+  gleich(D.schiffe.filter((s) => s.emp).map((s) => s.id), ["titan"]);
+  // Energiehüllen 15–30 % der Metallhülle ab der Korvette (0.17.0)
+  for (const id of ["korvette", "fregatte", "zerstoerer", "kreuzer", "bomber", "schlachtkreuzer", "schlachtschiff", "traeger", "koloss", "titan"]) {
+    const s = D.schiffNachId(id), m = (s.kosten.metall + s.kosten.silizium) / 10 * D.huellentypNachId(s.huelle).faktor, q = s.schild / m;
+    assert.ok(q >= 0.15 && q <= 0.31, id + " Energieanteil " + q.toFixed(2));
+  }
   for (const id of ["aufklaerer", "kleine_drohne", "mittlere_drohne", "schwere_drohne"]) {
     const s = D.schiffNachId(id); assert.ok(!Object.keys(s.waffen).some((x) => x === "laser" || x === "ionen"), id + " keine reinen Energiewaffen");
   }
@@ -134,6 +143,28 @@ test("Zwei-Hüllen: reine Laser-Flotte gegen Metall-Drohnen fast wirkungslos; Bo
   const eigen = (b) => b.boden.reduce((s, x) => s + x.verloren * k(SS.DATEN.verteidigungNachId(x.id)), 0);
   assert.ok(eigen(bM) < eigen(bL), "Magnetkanone verliert weniger Kostenwert als Laser gegen Metall-Drohnen");
   assert.ok(bM.phasen[1].runden.length <= bL.phasen[1].runden.length, "und ist schneller fertig");
+});
+
+test("0.17.0: Railgun ignoriert Energiehülle, Metallhülle 0 = tot, EMP nur am Titan je Forschungsstufe", () => {
+  const { KA, SS } = setup();
+  const K = SS.BALANCE.KAMPF, voll = { energie: 1000, energieJe: 100 };
+  const rg = [{ id: "railgun", anteil: 1, e: 0, m: 1, durch: true }];
+  assert.equal(KA.schaden(100, rg, voll).e, 0, "kein Energieschaden");
+  assert.equal(KA.schaden(100, rg, voll).m, 100 * K.BONUS_NACH_ENERGIE, "voller Metallschaden trotz stehender Energiehülle");
+  // Metall-tot: Kreuzer mit voller Energiehülle sterben, sobald die Metallhülle weg ist (Railgun-Turm trifft nur Metall)
+  const s = setup({ verteidigungswerft: 1 }); s.p.verteidigung = { magnetkanone: 60 };
+  const b = s.KA.simuliere(s.z, s.p, { angreifer: { kreuzer: 3 } });
+  const r1 = b.phasen[1].runden[0].gruppen.angreifer[0];
+  assert.equal(b.angreifer[0].nachher, 0, "Kreuzer vernichtet");
+  assert.ok(r1.energieVorher > 0 && b.phasen[1].runden[0].schaden.verteidiger.e === 0, "nur Metallschaden, Energiehülle nie angegriffen");
+  // EMP: Titan mit EMP 1 legt Energiehüllen ≤ 1000 lahm (Railgun-Turm 800 ja, Plasma-Turm 2500 nicht); ohne Forschung nichts
+  const emp = (st, ziel) => { const t = setup({ verteidigungswerft: 1 }); t.p.verteidigung = ziel;
+    return t.KA.simuliere(t.z, t.p, { angreifer: { titan: 1 }, angreiferZustand: { forschung: { emp: st } } }).phasen[1].emp; };
+  gleich(emp(0, { magnetkanone: 10 }), []);
+  const e1 = emp(1, { magnetkanone: 40, plasmaturm: 5 });
+  assert.equal(e1.length, 1); assert.equal(e1[0].ziel, "magnetkanone"); assert.equal(e1[0].einheiten, K.EMP_ZIELE_JE_STUFE);
+  const e3 = emp(3, { magnetkanone: 40, plasmaturm: 5 });
+  gleich(e3.map((x) => [x.ziel, x.einheiten]), [["plasmaturm", 5], ["magnetkanone", 40]]); // Stufe 3: Reichweite 3000, 75 Ziele, größte Energiehülle zuerst
 });
 
 test("Planetenschild absorbiert Bodenschaden; Reparatur + Schrott ≤ 50 %, Bergung 50–75 % / Orbit 80 %; anwenden", () => {

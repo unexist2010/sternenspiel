@@ -16,7 +16,7 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.16.2";
+  SS.VERSION = "0.17.0";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
@@ -142,6 +142,8 @@
       SCHROTT_BERGUNG_GRUND: 0.5,  // Bergung: 50–75 % Boden (Sandro)
       SCHROTT_BERGUNG_MAX: 0.75,
       PLANETENSCHILD_COOLDOWN: false, // FEST (Sandro t27u): Schildkuppel/Festungsschild kein Cooldown, nach jedem Angriff automatisch wieder aktiv
+      EMP_GRENZE_JE_STUFE: 1000,   // 0.17.0 (Sandro t47u): EMP trifft nur Einheiten mit Energiehülle ≤ 1.000 × EMP-Stufe (ANNAHME)
+      EMP_ZIELE_JE_STUFE: 25,      // … bis 25 Einheiten je Titan und EMP-Stufe (ANNAHME)
       PLATTFORM_ZERSTOERER: ["titan"] // FEST (Sandro t27u): Orbitalplattformen kommen nach Angriff zu 100 % wieder (wie OGame-Mond), außer ein überlebendes sehr großes Schiff (Liste, ANNAHME: nur Titan) war dabei
     },
 

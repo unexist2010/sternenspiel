@@ -1,5 +1,14 @@
 # Changelog – Sternenspiel
 
+## [0.17.0] – 2026-10-31 – Waffen neu: MG/Raketen/Laser/Ionen/Plasma/Railgun + EMP am Titan (Sandro t47u)
+
+- **Papier-Balance zuerst:** `tools/balance-sim.js` (gleiche Regeln wie `kampf.js`), viele Probeläufe, Ergebnis in `docs/BALANCE-WAFFEN.md` (Faktoren, Hüllenziele, Bewaffnung, Matrizen, Beispielkämpfe Early/Mid/Late).
+- **6 Waffentypen:** Maschinengewehr (E 0,3 / M 0,9), Raketen (0,2/1,1), Laser (1,0/0,45), Ionen (1,5/0,25), Plasma (1,0/1,0), **Railgun** (ignoriert Energiehülle, Metall 1,0, immer ×1,5). Graviton entfernt; Maschinenkanone → Maschinengewehr, Magnetkanone → Railgun (Verteidigung „Railgun-Turm“, id bleibt `magnetkanone`).
+- **Metallhülle 0 = tot**, auch mit Rest-Energiehülle (explizit dokumentiert + getestet). Kein Schnellfeuer.
+- **EMP nur am Titan:** Forschung „EMP-Technologie“ ersetzt Graviton (gleiche Kosten/Voraussetzungen, Spielstand-Migration). Je Stufe L: vor jeder Phase Energiehülle von bis zu 25·L Einheiten mit Energiehülle ≤ 1.000·L auf 0; Planetenschilde immun; Hinweis im Kampfbericht.
+- **Neue Werte:** alle 14 Kampfschiffe + 8 Verteidigungsanlagen (Angriff, Energiehülle ≈ 15–30 % der Metallhülle ab Korvette, frühe Schiffe Metallfokus), Info-Texte angepasst.
+- Tests: 121 grün (neu: Railgun-Durchschlag, Metall-tot, EMP-Stufen); Playtests 3/4/5 angepasst und grün.
+
 ## [0.16.2] – 2026-10-31 – Spionagesonde OGame-schnell (Sandro t44u)
 
 - **Spionagesonde:** Grundtempo 125.000 → **100.000.000** (OGame-Niveau) – Spionageflüge dauern nur noch Sekunden.

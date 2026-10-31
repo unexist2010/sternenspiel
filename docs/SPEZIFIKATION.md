@@ -496,6 +496,8 @@ Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zäh
 | Waffe | vs Energie | vs Metall | Rolle |
 |---|---|---|---|
 | Raketen (raketen) | ×0.1 | ×1 | Ballistisch – hoch gegen Metall, kaum gegen Energie |
+> **Ab 0.17.0 ersetzt:** Waffen/Faktoren/Werte siehe `docs/BALANCE-WAFFEN.md` (MG, Raketen, Laser, Ionen, Plasma, Railgun; Graviton → EMP am Titan). Die folgende Tabelle ist historisch.
+
 | Maschinenkanone (gatling) | ×0.3 | ×0.7 | Gatling – Metall mittel, Energie schwach (frühe Einheiten) |
 | Magnetkanone (railgun) | ×0.6 | ×1 | Railgun/Hybrid – Energie mittel, Metall stark |
 | Laser (laser) | ×1 | ×0.25 | Stark gegen Energie, schwach gegen Metall |

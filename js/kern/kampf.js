@@ -19,6 +19,8 @@
  *    FEST (t27u): kein Cooldown – auch wenn er im Kampf fällt, ist er nach dem Angriff automatisch wieder aktiv (wird nie zerstört).
  *  - Orbitalplattform FEST (t27u): nach dem Angriff immer zu 100 % wieder da (wie OGame-Mond). Nur wenn ein sehr großes Schiff
  *    (BALANCE.KAMPF.PLATTFORM_ZERSTOERER, z. B. Titan) beim Angreifer den Kampf überlebt, gelten Verluste normal (Reparatur-Quote, Rest → Orbit-Trümmer).
+ *  - 0.17.0 (Sandro t47u): Railgun ignoriert die Energiehülle (voller Metallschaden ×BONUS_NACH_ENERGIE, kein Energieschaden);
+ *    EMP nur am Titan (siehe emp()); Metallhülle 0 = tot, egal wie viel Energie übrig. Balance: docs/BALANCE-WAFFEN.md.
  *  - Schnellfeuer wird in dieser ersten Simulation NICHT angewendet (Platzhalter, Kapitel 6).
  *  - FEST (Sandro t33u, 0.14.2) ZIVILSCHIFFE: alles mit gruppe !== "kampf" (Frachter, Wrack-/Bodensammler, Sonden, Kolonieschiff,
  *    Tanker, Solarsatelliten) kämpft NIE und ist kein Ziel („fliegt hinten in der Formation“). Keine Zivil-Verluste, solange die
@@ -64,15 +66,16 @@
   /** Kampfschiff/Verteidigung? Zivilschiffe (gruppe !== "kampf") kämpfen nie (t33u). */
   function istKampf(x) { if (x.art !== "schiff") return true; var d = D().schiffNachId(x.id); return !!d && d.gruppe === "kampf"; }
   function waffenProfil(waffen) {
-    return Object.keys(waffen).map(function (w) { var wt = D().waffentypNachId(w); return { id: w, anteil: waffen[w], e: wt.profil.energie, m: wt.profil.metall }; });
+    return Object.keys(waffen).map(function (w) { var wt = D().waffentypNachId(w); return { id: w, anteil: waffen[w], e: wt.profil.energie, m: wt.profil.metall, durch: !!wt.ignoriertEnergie }; });
   }
   function gruppe(art, def, n, w) {
     return { art: art, id: def.id, name: def.name, kosten: def.kosten, vorher: n, n: n, angriff: w.angriff, profil: waffenProfil(def.waffen),
-      energieJe: w.energie, metallJe: w.metall, energie: w.energie * n, metall: w.metall * n, schutzschild: !!def.schutzschild, phase: def.phase || "orbit" };
+      energieJe: w.energie, metallJe: w.metall, energie: w.energie * n, metall: w.metall * n, schutzschild: !!def.schutzschild, phase: def.phase || "orbit", emp: def.emp ? (w.empStufe || 0) : 0 };
   }
   function schiffGruppen(z, schiffe) {
     return Object.keys(schiffe || {}).filter(function (id) { return schiffe[id] > 0 && D().schiffNachId(id); }).map(function (id) {
-      var s = D().schiffNachId(id); return gruppe("schiff", s, schiffe[id], SS.kern.werft.werte(z, s));
+      var s = D().schiffNachId(id), w = SS.kern.werft.werte(z, s); if (s.emp) w = Object.assign({}, w, { empStufe: stufe(z, "emp") });
+      return gruppe("schiff", s, schiffe[id], w);
     });
   }
   function defGruppen(z, p, phase) {
@@ -85,6 +88,7 @@
   function schaden(a, pr, t) {
     var k = K(), kaputt = t.energie <= 1e-9 && (t.energieJe > 0 || k.BONUS_OHNE_ENERGIEHUELLE), e = 0, m = 0;
     pr.forEach(function (w) {
+      if (w.durch) { m += a * w.anteil * w.m * k.BONUS_NACH_ENERGIE; return; } // 0.17.0 Railgun: ignoriert die Energiehülle (wie gebrochen)
       e += a * w.anteil * w.e;
       m += a * w.anteil * w.m * (kaputt ? (w.m >= k.BONUS_SCHWELLE ? k.BONUS_NACH_ENERGIE : k.MALUS_NACH_ENERGIE) : 1);
     });
@@ -101,8 +105,30 @@
    * Kampfbericht (t31u): je Runde und Gruppe Startanzahl + Verluste dieser Runde, Hüllenstände danach,
    * zugefügter Schaden (Energie/Metall) je Seite und aggregierter Waffeneinsatz (Schüsse + Schaden je Waffentyp).
    */
+  /**
+   * 0.17.0 EMP (Sandro t47u): jeder lebende Titan mit EMP-Stufe L setzt vor Runde 1 die Energiehülle von bis zu
+   * EMP_ZIELE_JE_STUFE × L gegnerischen Einheiten auf 0 – nur Gruppen mit Energiehülle je Einheit ≤ EMP_GRENZE_JE_STUFE × L,
+   * größte Energiehülle zuerst. Planetenschilde (schutzschild) sind immun. → Liste der Treffer fürs Protokoll.
+   */
+  function emp(von, ziele, seite) {
+    var k = K(), out = [];
+    von.forEach(function (x) {
+      if (!(x.emp > 0) || !(x.n > 0)) return;
+      var rest = x.n * k.EMP_ZIELE_JE_STUFE * x.emp, grenze = k.EMP_GRENZE_JE_STUFE * x.emp;
+      ziele.filter(function (t) { return t.n > 0 && !t.schutzschild && t.energieJe > 0 && t.energieJe <= grenze && t.energie > 1e-9; })
+        .sort(function (a, b) { return b.energieJe - a.energieJe; }).forEach(function (t) {
+          if (rest <= 0) return;
+          var anteil = Math.min(1, rest / t.n); rest -= Math.min(rest, t.n);
+          out.push({ seite: seite, von: x.id, ziel: t.id, name: t.name, einheiten: Math.round(anteil * t.n), energieWeg: rund(t.energie * anteil) });
+          t.energie *= 1 - anteil;
+        });
+    });
+    return out;
+  }
+
   function phase(A, B, schild) {
     var runden = [], R = K().RUNDEN_JE_PHASE;
+    var empTreffer = emp(A, B, "angreifer").concat(emp(B, A, "verteidiger"));
     var lebt = function (l) { return l.filter(function (x) { return x.n > 0 && !x.schutzschild; }); };
     for (var r = 1; r <= R; r++) {
       var a = lebt(A), b = lebt(B);
@@ -133,6 +159,7 @@
         }
         t.energie = Math.max(0, t.energie - d.e);
         t.metall = Math.max(0, t.metall - d.m);
+        // FEST (Sandro t47u): Metallhülle 0 = Einheit zerstört, egal wie viel Energiehülle übrig ist
         t.n = t.metall <= 1e-6 ? 0 : Math.min(t.n, Math.ceil(t.metall / t.metallJe - 1e-9));
         t.energie = Math.min(t.energie, t.n * t.energieJe);
       });
@@ -151,6 +178,7 @@
         schaden: { angreifer: { e: rund(zugefuegt.angreifer.e), m: rund(zugefuegt.angreifer.m) }, verteidiger: { e: rund(zugefuegt.verteidiger.e), m: rund(zugefuegt.verteidiger.m) } },
         waffen: { angreifer: wl(waffen.angreifer), verteidiger: wl(waffen.verteidiger) } });
     }
+    runden.emp = empTreffer;
     return runden;
   }
 
@@ -212,7 +240,7 @@
     var verlorenSP = oV.filter(function (x) { return x.art === "schiff" && x.id !== "solarsatellit"; }).reduce(function (s, x) { return s + x.verloren; }, 0);
     var hangarN = Object.keys(vt.hangar).reduce(function (s, id) { return s + vt.hangar[id]; }, 0);
     return {
-      verteilung: vt, phasen: [{ id: "orbit", name: "Orbit", runden: r1, stattgefunden: true, nurOrbital: !!vt.keineFlotte }, { id: "boden", name: "Boden", runden: r2, stattgefunden: restAngreifer }],
+      verteilung: vt, phasen: [{ id: "orbit", name: "Orbit", runden: r1, stattgefunden: true, nurOrbital: !!vt.keineFlotte, emp: r1.emp || [] }, { id: "boden", name: "Boden", runden: r2, stattgefunden: restAngreifer, emp: r2.emp || [] }],
       angreifer: aV, orbit: oV, boden: bV, schild: schild ? { start: schild.start, rest: schild.energie, gefallen: schild.energie <= 1e-9, wiederAktiv: true } : null, plattformZerstoerer: grossesSchiff,
       sieger: angreiferRest === 0 ? "verteidiger" : verteidigerRest === 0 ? "angreifer" : "unentschieden",
       truemmerOrbit: truemmerOrbit, schrottBoden: schrottBoden, quoten: { orbit: quoteO, reparatur: repQ, schrott: schrottQ },

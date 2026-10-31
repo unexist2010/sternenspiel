@@ -65,6 +65,7 @@
     var ende = ph.runden[ph.runden.length - 1], grund = !ende.angreifer ? "Angreifer vernichtet" : !ende.verteidiger ? "Verteidigung dieser Phase vernichtet" : "Rundenlimit erreicht";
     return "<section class=\"kb-phase\" data-phase=\"" + ph.id + "\">" + kopf +
       (ph.nurOrbital ? "<p class=\"hinweis\">Keine Verteidigungsflotte (alle Startplätze durch Flotten unterwegs belegt) – nur Orbitalverteidigung.</p>" : "") +
+      ((ph.emp || []).length ? "<p class=\"hinweis kb-emp\">EMP: " + ph.emp.map(function (e) { return (e.seite === "angreifer" ? "Angreifer" : "Verteidiger") + "-Titan legt " + zahl(e.einheiten) + "× " + esc(e.name) + " lahm (Energiehülle −" + zahl(e.energieWeg) + " → 0)"; }).join("; ") + "</p>" : "") +
       rundenTabelle("Angreifer", ph.runden, "gegner", "angreifer") + rundenTabelle("Verteidiger", ph.runden, "eigen", "verteidiger") +
       "<p class=\"hinweis\">" + ph.runden.length + " Runden · Ende: " + grund + (b.schild && ph.id === "boden" ? " · Planetenschild " + (b.schild.gefallen ? "gefallen (nach dem Angriff wieder aktiv)" : "hält (" + zahl(b.schild.rest) + " / " + zahl(b.schild.start) + ")") : "") + "</p>" +
       details(ph.runden) + "</section>";

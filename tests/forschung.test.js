@@ -19,7 +19,7 @@ const VIEL = { metall: 1e12, silizium: 1e12, rohoel: 1e12, kunststoff_t1: 1e9, k
 test("Liste: genau die 18 vorgegebenen Forschungen, je mit Bild, Gruppe, Wirkung; keine Obergrenze", () => {
   const { D } = setup();
   gleich(D.forschungIds, ["energie", "roboter", "computer", "waffen", "schild", "panzerung", "laser", "ionen", "plasma", "verbrennung", "impuls",
-    "hyperraumantrieb", "spionage", "astrophysik", "komprimierung", "hyperspace", "netzwerk", "graviton"]);
+    "hyperraumantrieb", "spionage", "astrophysik", "komprimierung", "hyperspace", "netzwerk", "emp"]);
   for (const f of D.forschung) {
     assert.ok(f.bild === "assets/forschung/" + f.id + ".svg");
     assert.ok(D.forschungGruppen.some((g) => g.id === f.gruppe), f.id);
@@ -37,7 +37,7 @@ test("Kostenformel OGame: Basis · Faktor^(n−1); Roboter überproportional (2,
   gleich(FO.kosten(D.forschungNachId("astrophysik"), 2), { metall: 7000, silizium: 14000, rohoel: 7000 });
   assert.equal(D.forschungNachId("roboter").faktor, 2.5);
   gleich(FO.kosten(D.forschungNachId("roboter"), 3), { metall: 2500, silizium: 750, rohoel: 1250 });
-  assert.ok(FO.kosten(D.forschungNachId("graviton"), 1).kunststoff_t3 > 0, "späte Forschung mit Kunststoff");
+  assert.ok(FO.kosten(D.forschungNachId("emp"), 1).kunststoff_t3 > 0, "späte Forschung mit Kunststoff");
   assert.ok(isFinite(FO.kosten(D.forschungNachId("energie"), 60).silizium), "Stufe 60 berechenbar");
 });
 
@@ -60,7 +60,7 @@ test("Voraussetzungen UND/ODER, blockieren den Start; Komprimierung: Hyperspace 
   z.forschung.computer = 0; z.forschung.hyperspace = 2;
   assert.equal(FO.voraussetzungenOk(z, k), true, "Hyperspace 2 reicht");
   // Graviton ET 12 + Plasma 8
-  gleich(D.forschungNachId("graviton").vor, [[{ id: "energie", stufe: 12 }], [{ id: "plasma", stufe: 8 }]]);
+  gleich(D.forschungNachId("emp").vor, [[{ id: "energie", stufe: 12 }], [{ id: "plasma", stufe: 8 }]]);
 });
 
 test("Sichtbarkeit: ohne Voraussetzung sichtbar, sonst sobald mindestens eine erfüllt; Master zeigt alle", () => {
@@ -72,7 +72,7 @@ test("Sichtbarkeit: ohne Voraussetzung sichtbar, sonst sobald mindestens eine er
   assert.ok(!sicht().includes("ionen") && !sicht().includes("plasma"), "Ionen (Laser 5 / ET 4) noch keine erfüllt");
   z.forschung.energie = 4;
   assert.ok(sicht().includes("ionen"), "eine von zwei Voraussetzungen reicht für die Sichtbarkeit");
-  assert.ok(!sicht().includes("graviton") && !sicht().includes("hyperraumantrieb") && !sicht().includes("komprimierung"));
+  assert.ok(!sicht().includes("emp") && !sicht().includes("hyperraumantrieb") && !sicht().includes("komprimierung"));
   z.forschung.computer = 4;
   assert.ok(sicht().includes("komprimierung"), "ODER-Gruppe erfüllt");
   assert.ok(sicht().includes("netzwerk") === false);
@@ -150,8 +150,8 @@ test("Master: Forschung sofort, kostenlos, Voraussetzungen ignoriert; laufende F
   const fertig = Bau.masterSetzen(z, true, T0 + 1000);
   assert.ok(fertig.some((a) => a && a.art === "forschung")); assert.equal(z.forschung.energie, 1);
   z.rohstoffe.metall = 0; z.rohstoffe.silizium = 0; z.rohstoffe.rohoel = 0;
-  const r = FO.starte(z, "graviton", T0 + 2000);
-  assert.equal(r.ok, true); assert.equal(r.sofort, true); assert.equal(z.forschung.graviton, 1);
+  const r = FO.starte(z, "emp", T0 + 2000);
+  assert.equal(r.ok, true); assert.equal(r.sofort, true); assert.equal(z.forschung.emp, 1);
   assert.equal(z.rohstoffe.metall, 0, "nichts abgezogen");
   assert.ok(z.punkte > 750, "Punkte trotzdem gutgeschrieben (Annahme)");
   z.planeten[0].gebaeude.forschungseinrichtung = 0;
@@ -160,11 +160,11 @@ test("Master: Forschung sofort, kostenlos, Voraussetzungen ignoriert; laufende F
 
 test("Wirkungen und zentrale bonus()-Funktion für spätere Kapitel", () => {
   const { FO, z } = setup();
-  Object.assign(z.forschung, { laser: 3, computer: 2, astrophysik: 3, komprimierung: 2, plasma: 2, spionage: 5, graviton: 1, hyperspace: 4, impuls: 1 });
+  Object.assign(z.forschung, { laser: 3, computer: 2, astrophysik: 3, komprimierung: 2, plasma: 2, spionage: 5, emp: 1, hyperspace: 4, impuls: 1 });
   assert.equal(FO.bonus(z, "laser"), 30); assert.equal(FO.wirkung("laser", 3).text, "+30 % Laserwaffen-Schaden");
   assert.equal(FO.bonus(z, "computer"), 3, "1 + 2 Flotten-Slots");
   assert.equal(FO.bonus(z, "astrophysik"), 2); assert.equal(FO.bonus(z, "komprimierung"), 20);
-  assert.equal(FO.bonus(z, "plasma"), 30); assert.equal(FO.bonus(z, "spionage"), 5); assert.equal(FO.bonus(z, "graviton"), 1);
+  assert.equal(FO.bonus(z, "plasma"), 30); assert.equal(FO.bonus(z, "spionage"), 5); assert.equal(FO.bonus(z, "emp"), 25);
   assert.equal(FO.bonus(z, "hyperspace"), 20); assert.equal(FO.bonus(z, "impuls"), 20);
   assert.equal(FO.energieFaktor(z), 1);
 });
@@ -179,7 +179,7 @@ test("Migration v5 → v6 (Profil): Forschung ergänzt, Auftrag bereinigt, Stand
   sp.setItem(key, JSON.stringify(v5));
   const z = PR.ladeProfil(sp, a.profil.id).zustand;
   assert.equal(z.version, SS.BALANCE.SPIELSTAND_VERSION);
-  assert.equal(z.forschung.energie, 3); assert.ok(!("nanit" in z.forschung)); assert.equal(z.forschung.graviton, 0);
+  assert.equal(z.forschung.energie, 3); assert.ok(!("nanit" in z.forschung)); assert.equal(z.forschung.emp, 0);
   assert.equal(z.forschungsauftrag, null);
   assert.equal(z.freigeschaltet.kunststoffwerk_t2, true, "700 Punkte ≥ 500");
   z.forschungsauftrag = { art: "forschung", id: "laser", name: "Laser-Technologie", stufe: 1, kosten: { metall: 200 }, start: T0, ende: T0 + 1000 };

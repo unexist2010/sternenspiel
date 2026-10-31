@@ -128,7 +128,7 @@ async function lauf(browser, g) {
   // ---- Sichtbarkeit / Voraussetzungen ----
   await geheZu("#forschung", "forschung");
   ids = await kachelIds();
-  ok(ids.includes("verbrennung") && !ids.includes("laser") && !ids.includes("graviton"), "ET 1: Verbrennungstriebwerk erscheint, Laser (ET 2) noch nicht");
+  ok(ids.includes("verbrennung") && !ids.includes("laser") && !ids.includes("emp"), "ET 1: Verbrennungstriebwerk erscheint, Laser (ET 2) noch nicht");
   await aendern(() => { window.SS.app.zustand.forschung.energie = 3; });
   ids = await kachelIds();
   ok(["laser", "schild", "impuls", "hyperspace"].every((i) => ids.includes(i)) && !ids.includes("ionen"), "ET 3: Laser, Schild, Impuls, Hyperspace sichtbar; Ionen nicht");
@@ -181,8 +181,8 @@ async function lauf(browser, g) {
   await geheZu("#forschung", "forschung");
   ok((await kachelIds()).length === 18, "Master: alle 18 Forschungen sichtbar");
   const m0 = await Z(() => window.SS.app.zustand.rohstoffe.metall);
-  await page.click('article[data-forschung="graviton"] button[data-aktion="forschen"]'); await sleep(250);
-  ok((await fo("graviton")) === 1 && Math.abs((await Z(() => window.SS.app.zustand.rohstoffe.metall)) - m0) < 1000, "Master: Graviton sofort und kostenlos trotz fehlender Voraussetzungen");
+  await page.click('article[data-forschung="emp"] button[data-aktion="forschen"]'); await sleep(250);
+  ok((await fo("emp")) === 1 && Math.abs((await Z(() => window.SS.app.zustand.rohstoffe.metall)) - m0) < 1000, "Master: EMP sofort und kostenlos trotz fehlender Voraussetzungen");
   await page.click('article[data-forschung="roboter"] button[data-aktion="forschen"]'); await sleep(250);
   ok((await fo("roboter")) === 1, "Master: Roboterforschung sofort Stufe 1");
   await shot(handy ? "handy-master-forschung" : "master-alle-forschungen", !handy);

@@ -146,7 +146,7 @@ async function lauf(browser, g) {
   // ---- Info ----
   let inf = await oeffneInfo('article[data-schiff="kleine_drohne"] .info-knopf');
   ok(inf.sichtbar && inf.imBild, `Info Kleine Drohne ${handy ? "per Antippen" : "per Hover"} sichtbar und im Bild ${JSON.stringify(inf.r)}`);
-  ok(/Schnellfeuer gegen/.test(inf.text) && /Angriff/.test(inf.text) && /Leichtmetall/.test(inf.text) && /Maschinenkanone/.test(inf.text), "Info: Werte, Hülle, Waffen, Schnellfeuer");
+  ok(/Schnellfeuer gegen/.test(inf.text) && /Angriff/.test(inf.text) && /Leichtmetall/.test(inf.text) && /Maschinengewehr/.test(inf.text), "Info: Werte, Hülle, Waffen, Schnellfeuer");
   if (!handy) await shot("desktop-infofenster");
   await schliesseInfo();
 

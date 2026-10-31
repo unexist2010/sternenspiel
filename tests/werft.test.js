@@ -16,10 +16,10 @@ function setup(geb = {}, roh = {}, fo = {}) {
   return { SS, z, p: z.planeten[0], P: SS.kern.produktion, Bau: SS.kern.bau, WF: SS.kern.werft, D: SS.DATEN };
 }
 
-test("Daten: genau 24 Schiffe, 7 Waffentypen, 2 Hüllentypen, je mit Bild, Gruppe und gültigen Bezügen", () => {
+test("Daten: genau 24 Schiffe, 6 Waffentypen, 2 Hüllentypen, je mit Bild, Gruppe und gültigen Bezügen", () => {
   const { D } = setup();
   assert.equal(D.schiffe.length, 24);
-  gleich(D.waffentypen.map((w) => w.id), ["raketen", "gatling", "railgun", "laser", "ionen", "plasma", "graviton"]);
+  gleich(D.waffentypen.map((w) => w.id), ["gatling", "raketen", "laser", "ionen", "plasma", "railgun"]);
   gleich(D.huellentypen.map((h) => h.id), ["leichtmetall", "verbund"]);
   gleich(D.schiffGruppen.map((g) => g.id), ["kampf", "hilf", "spezial"]);
   const fs = require("fs"), path = require("path");
@@ -160,7 +160,7 @@ test("Werte mit Forschungsbonus (bonus()): Waffen, Waffentyp, Schild, Panzerung,
   const FO = SS.kern.forschung, w = WF.werte(z, lj), k = WF.werte(z, kt);
   assert.ok(Math.abs(w.angriff - lj.angriff * (1 + FO.bonus(z, "waffen") / 100)) < 1e-9, "Gatling/Raketen: nur Waffentechnik");
   const ko = D.schiffNachId("korvette");
-  assert.ok(Math.abs(WF.werte(z, ko).angriff - ko.angriff * (1 + FO.bonus(z, "waffen") / 100) * (1 + 0.6 * FO.bonus(z, "laser") / 100)) < 1e-9, "Korvette 60 % Laser");
+  assert.ok(Math.abs(WF.werte(z, ko).angriff - ko.angriff * (1 + FO.bonus(z, "waffen") / 100) * (1 + 0.5 * FO.bonus(z, "laser") / 100)) < 1e-9, "Korvette 50 % Laser");
   assert.ok(Math.abs(w.huelle - 300 * (1 + FO.bonus(z, "panzerung") / 100)) < 1e-9);
   assert.ok(Math.abs(w.tempo - lj.tempo * (1 + FO.bonus(z, "verbrennung") / 100)) < 1e-9);
   assert.ok(Math.abs(k.ladung - kt.ladung * (1 + (FO.bonus(z, "hyperspace") + FO.bonus(z, "komprimierung")) / 100)) < 1e-9, "Transporter: beide Ladungsboni");

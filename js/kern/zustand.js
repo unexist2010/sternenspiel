@@ -27,6 +27,7 @@
   function neueForschung(alt) {
     var f = {};
     SS.DATEN.forschungIds.forEach(function (id) { f[id] = Math.max(0, Math.floor(Number(alt && alt[id]) || 0)); });
+    if (alt && alt.graviton && !alt.emp) f.emp = Math.max(0, Math.floor(Number(alt.graviton) || 0)); // 0.17.0: Graviton → EMP
     return f;
   }
   function forschungsauftragBereinigen(a) {

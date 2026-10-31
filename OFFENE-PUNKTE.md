@@ -32,3 +32,9 @@
 - **Kleiner Frachter** bewusst early-schnell (ähnlich kleinen Kampfschiffen) – bestätigt, keine Änderung.
 - **Spionagesonde** OGame-schnell (Tempo 100.000.000, Flüge in Sekunden).
 - **Große Schiffe** (Koloss, Titan) langsam, aber nicht RIP-extrem – Titan ohne Auftrag nicht ändern.
+
+## 0.17.0 – Waffen neu + EMP (t47u)
+- **ANNAHME:** EMP-Zahlen 25 Einheiten und Energiehülle ≤ 1.000 je Stufe; Graviton-Forschung wird zu EMP-Technologie (gleiche Kosten, Stufen migriert).
+- **ANNAHME:** Titan ist von kostengleicher Flotte in einem Kampf nicht zu besiegen (Hülle aus Kostenformel) – ok oder Titan-Hülle senken?
+- **Offen:** Ionengeschütz bleibt schwach (Spezialist gegen Energiehüllen); Schlachtkreuzer Glaskanone mit mehr Angriff als Schlachtschiff; Zerstörer ≈ Kreuzer im Angriff.
+- **ANNAHME:** Verteidigungs-id `magnetkanone` bleibt (Anzeige „Railgun-Turm“) für Spielstand-Kompatibilität.
