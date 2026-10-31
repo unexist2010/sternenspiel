@@ -73,7 +73,7 @@
     function simulator() {
       var opts = D.schiffe.filter(function (s) { return s.gruppe === "kampf"; }).map(function (s) { return "<option value=\"" + s.id + "\">" + esc(s.name) + "</option>"; }).join("");
       return h.box("Kampf-Simulator (Test)", "<p class=\"hinweis\">Probe-Angriff auf diesen Planeten: Phase 1 Orbit, Phase 2 Boden. Der Spielstand wird <b>nicht</b> verändert. " +
-        "Angreifer ohne Forschung; kein Schnellfeuer, kein Zufall (Erwartungswerte). Der Bericht folgt dem Kapitel Kampfsystem (Sieger, Phase 1/2 mit Runden, Details, Trümmer). Echte Angriffe (KI/Flotten) folgen später. <span class=\"annahme-marke\">Platzhalter: Angriffe</span></p>" +
+        "Angreifer ohne Forschung; kein Zufall (Erwartungswerte). Der Bericht folgt dem Kapitel Kampfsystem (Sieger, Phase 1/2 mit Runden, Details, Trümmer). Echte Angriffe (KI/Flotten) folgen später. <span class=\"annahme-marke\">Platzhalter: Angriffe</span></p>" +
         "<div class=\"bau-aktion\"><label class=\"menge\"><span>Schiff</span><select id=\"sim-schiff\">" + opts + "</select></label>" +
         "<label class=\"menge\"><span>Anzahl</span><input type=\"number\" id=\"sim-anzahl\" min=\"1\" value=\"10\"></label>" +
         "<label class=\"menge\"><span>Bergung</span><input type=\"checkbox\" id=\"sim-bergung\"></label>" +

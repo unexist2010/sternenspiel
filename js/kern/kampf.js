@@ -21,7 +21,7 @@
  *    (BALANCE.KAMPF.PLATTFORM_ZERSTOERER, z. B. Titan) beim Angreifer den Kampf überlebt, gelten Verluste normal (Reparatur-Quote, Rest → Orbit-Trümmer).
  *  - 0.17.0 (Sandro t47u): Railgun ignoriert die Energiehülle (voller Metallschaden ×BONUS_NACH_ENERGIE, kein Energieschaden);
  *    EMP nur am Titan (siehe emp()); Metallhülle 0 = tot, egal wie viel Energie übrig. Balance: docs/BALANCE-WAFFEN.md.
- *  - Schnellfeuer wird in dieser ersten Simulation NICHT angewendet (Platzhalter, Kapitel 6).
+ *  - Kein Schnellfeuer (gestrichen, Sandro 0.22.1).
  *  - FEST (Sandro t33u, 0.14.2) ZIVILSCHIFFE: alles mit gruppe !== "kampf" (Frachter, Wrack-/Bodensammler, Sonden, Kolonieschiff,
  *    Tanker, Solarsatelliten) kämpft NIE und ist kein Ziel („fliegt hinten in der Formation“). Keine Zivil-Verluste, solange die
  *    eigenen Kampfschiffe nicht alle vernichtet sind. Angreifer: 0 Kampfschiffe übrig → alle Zivilschiffe der Flotte vernichtet.
@@ -245,7 +245,7 @@
       sieger: angreiferRest === 0 ? "verteidiger" : verteidigerRest === 0 ? "angreifer" : "unentschieden",
       truemmerOrbit: truemmerOrbit, schrottBoden: schrottBoden, quoten: { orbit: quoteO, reparatur: repQ, schrott: schrottQ },
       zivil: { angreifer: zivilA.map(snap), verteidiger: zivilV.map(snap), angreiferVernichtet: !aKampfRest && zivilA.length > 0, verteidigerVernichtet: orbitVerloren && zivilV.length > 0 },
-      nachruecken: Math.min(verlorenSP, hangarN), live: { schnellfeuer: false, zufall: false, beute: false }
+      nachruecken: Math.min(verlorenSP, hangarN), live: { zufall: false, beute: false }
     };
   }
 

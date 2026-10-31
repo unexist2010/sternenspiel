@@ -122,7 +122,7 @@ test("Kampf: Verteilung Startplatz/Hangar; simuliere ändert nichts; Orbit vor B
   gleich(b.phasen.map((x) => x.id), ["orbit", "boden"]);
   assert.ok(b.orbit.some((x) => x.id === "orbitalverteidigungsplattform"), "Plattform kämpft im Orbit");
   assert.ok(b.boden.some((x) => x.id === "raketenbatterie"), "Raketenbatterie am Boden");
-  assert.equal(b.live.schnellfeuer, false);
+  assert.equal(b.live.schnellfeuer, undefined);
 });
 
 test("Zwei-Hüllen: reine Laser-Flotte gegen Metall-Drohnen fast wirkungslos; Bonus nach Energie-Zusammenbruch", () => {

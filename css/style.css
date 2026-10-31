@@ -352,7 +352,6 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .schiff-bestellung .grund { flex-basis: 100%; }
 .werft-auftrag + .werft-auftrag { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #2c3a55; }
 .balken-fuellung.werft { background: linear-gradient(90deg, #ffb347, #ff7a3c); }
-.schnellfeuer { line-height: 1.5; }
 #werft-box .knopf { margin-top: 8px; }
 @media (max-width: 600px) { .schiff-bestellung input[type=number] { width: 5em; } }
 

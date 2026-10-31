@@ -104,14 +104,14 @@ und kann beim jeweiligen Kapitel wiederverwendet werden.
 - Kampfregeln nach Sandro (t26s2/t26u): Phase Orbit (Startplätze + Orbitalplattform) → Phase Boden; Hangar geschützt, Nachrücken nach dem Kampf.
 - Zwei-Hüllen-System (Metall + Energie gleichzeitig), neue Waffen Maschinenkanone (Gatling) und Magnetkanone (Railgun), Schiffe neu bewaffnet.
 - 9 Verteidigungsanlagen + Orbitalverteidigungsplattform (aus der Werft umgezogen → 24 Schiffe), Verteidigungswerft-Warteschlange, Spielstand v9.
-- Kampfkern + Simulator live; echte Angriffe, Schnellfeuer, Trümmer einsammeln folgen mit Kapitel 6 „Flotte“. Details: SPEZIFIKATION C9.
+- Kampfkern + Simulator live; echte Angriffe, Trümmer einsammeln folgen mit Kapitel 6 „Flotte“. Details: SPEZIFIKATION C9.
 
 ## Kapitel Kampfsystem / Kampfbericht ✅ (0.14.0)
 
 - Sandro t31u: bis zu 2 Phasen (Orbit, Boden nur bei ≥1 überlebendem Angreifer), Orbitalverteidigung eigenes System, Zwei-Hüllen + Waffentypen FEST (SPEZIFIKATION C11).
 - Kampfkern: Rundenprotokoll je Gruppe (Start, Verluste, Hüllen, zugefügter Schaden, Waffeneinsatz).
 - Kampfbericht (`js/ui/kampfbericht.js`) im Simulator: Sieger + Gesamtverluste oben, Phase 1/2 mit Rundentabellen (Verluste grün = eigene/Verteidiger, rot = Angreifer), Details-Dropdown je Phase, Trümmerfelder am Ende.
-- Echte KI-Angriffe, Schnellfeuer, Zufall, Beute, Trümmer einsammeln: später (OFFENE-PUNKTE 67–73).
+- Echte KI-Angriffe, Zufall, Beute, Trümmer einsammeln: später (OFFENE-PUNKTE 67–73).
 
 
 ## 0.16.0 – Weltraum-Ansicht (Sandro pt40u)

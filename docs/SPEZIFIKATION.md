@@ -438,7 +438,7 @@ Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zäh
 
 | Gruppe | Schiff | Antrieb | Waffen | Hülle | Kosten M / Si / Öl (+ Kunststoff) | Angriff / Schild | Tempo | Ladung | Voraussetzung |
 |---|---|---|---|---|---|---|---|---|---|
-| Kampf | Aufklärer | verbrennung | laser | Leichtmetall | 1.500 / 1.500 / 500 | 10 / 10 | 22.500 | 100 | Werft 1, verbrennung 2, spionage 1 |
+| Kampf | Aufklärer | verbrennung | laser | Leichtmetall | 1.500 / 150 / 500 | 10 / 10 | 22.500 | 100 | Werft 1, verbrennung 2, spionage 1 |
 | Kampf | Kleine Drohne | verbrennung | laser | Leichtmetall | 2.500 / 500 / 0 | 40 / 5 | 17.500 | 50 | Werft 1, verbrennung 1, computer 1 |
 | Kampf | Mittlere Drohne | verbrennung | laser 70 % / raketen 30 % | Leichtmetall | 5.000 / 1.000 / 200 | 80 / 15 | 16.250 | 80 | Werft 2, verbrennung 3, computer 2, laser 2 |
 | Kampf | Schwere Drohne | impuls | laser 50 % / raketen 50 % | Leichtmetall | 9.000 / 2.000 / 500 | 150 / 30 | 13.750 | 120 | Werft 3, impuls 2, computer 3, panzerung 2 |
@@ -536,7 +536,7 @@ Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zäh
 ### C9.5 Was live ist / Platzhalter
 - Live: Bau, Warteschlange, Offline, Master, Kampfkern `SS.kern.kampf.simuliere/anwenden` (Unit-getestet), **Kampf-Simulator** auf der Seite (ändert den Spielstand nicht).
 - **0.12.1 (Sandro t27u, FEST):** Planetenschild ohne Cooldown – nach jedem Angriff automatisch wieder aktiv, wird nie zerstört. Orbitalverteidigungsplattform nach Angriff immer 100 % wieder da (wie OGame-Mond); nur wenn ein Schiff aus `BALANCE.KAMPF.PLATTFORM_ZERSTOERER` (Titan) beim Angreifer überlebt, gelten Verluste normal (Reparatur-Quote, Rest → Orbit-Trümmer). Trümmer/Bergung/Werte: später (OFFENE-PUNKTE 54/56).
-- Platzhalter: echte Angriffe (Flotten, KI – Kapitel 6+), Schnellfeuer im Kampf (Daten vorhanden, nicht angewendet), Zufall, Beute, Trümmer einsammeln, Sondenabwehr/Waffenslots der Plattform.
+- Platzhalter: echte Angriffe (Flotten, KI – Kapitel 6+), Zufall, Beute, Trümmer einsammeln, Sondenabwehr/Waffenslots der Plattform.
 - Spielstand **v9**: `planet.verteidigung`, `planet.verteidigungsauftraege`, `planet.truemmer`; Migration v8→v9 verschiebt Orbitalplattform-Schiffe in die Verteidigung, offene Werft-Aufträge dafür werden erstattet.
 
 ## C10. Kapitel 6 „Flotte“ (0.13.0; Regeln FEST nach Sandro pt29u, Zahlen ANNAHME)
@@ -572,7 +572,7 @@ Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zäh
 - Technik: `SS.kern.kampf.simuliere` liefert je Runde `gruppen.{angreifer,verteidiger}[]` {id, name, start, verloren, rest, energie/metall (+Max, vorher), energieGebrochen}, `schaden.{angreifer,verteidiger}.{e,m}`, `waffen.{…}[]` {id, schuesse, e, m}; `phasen[i].stattgefunden`, `nurOrbital`. UI: `js/ui/kampfbericht.js`.
 
 ### C11.4 ANNAHME / später
-- 6 Runden je Phase, Erwartungswerte statt Zufall, Feuer proportional zur Zielanzahl, kein Schnellfeuer, keine Beute; Trümmer-/Reparatur-/Schrottquoten (C9.4) und Def-Werte bleiben ANNAHME. Echte (KI-)Angriffe: später – der Bericht ist derzeit im Kampf-Simulator live.
+- 6 Runden je Phase, Erwartungswerte statt Zufall, Feuer proportional zur Zielanzahl, kein Schnellfeuer (gestrichen), keine Beute; Trümmer-/Reparatur-/Schrottquoten (C9.4) und Def-Werte bleiben ANNAHME. Echte (KI-)Angriffe: später – der Bericht ist derzeit im Kampf-Simulator live.
 
 
 ## Testphase (0.14.1, ANNAHME)

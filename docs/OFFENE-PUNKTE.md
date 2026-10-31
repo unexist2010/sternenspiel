@@ -59,7 +59,7 @@ Stand: 2026-10-31 (0.13.1 Antworten t30u zu 58–66) · Alles hier ist bis zur A
 
 | # | Bereich | Punkt |
 |---|---------|-------|
-| 67 | Kampf | **Schnellfeuer** im Kampf (Daten vorhanden, nicht angewendet). |
+| 67 | Kampf | ~~Schnellfeuer~~ **gestrichen** (0.22.1, Sandro): keine Daten, keine Anzeige, nicht im Kampf. |
 | 68 | Kampf | **Zufall** (Trefferverteilung würfeln) statt Erwartungswerte; Rundenzahl 6 je Phase = ANNAHME. |
 | 69 | Kampf | **Beute** nach gewonnenem Angriff. |
 | 70 | Trümmer | **Salvage-Details**: Quoten Orbit/Boden/Reparatur/Schrott, Einsammeln mit Wracksammler/Bodensammler (siehe 54). |
@@ -72,7 +72,7 @@ Stand: 2026-10-31 (0.13.1 Antworten t30u zu 58–66) · Alles hier ist bis zur A
 | # | Thema | Frage |
 |---|-------|-------|
 | 54 | Trümmer | **SPÄTER** (Sandro: „machen wir später genauer“): Orbit 30 % (Bergung 80 %); Reparatur 50 % + 2 %/Panzerung (max. 80 %); Schrott 25 % + 2,5 %/Roboter (max. 50 %, Bergung 50–75 %). Ist „Bergung“ eine Forschung, ein Schiff oder eine Option? – bleibt ANNAHME, wird neu erklärt. |
-| 56 | Werte | **SPÄTER** (zusammen mit 54): Anlagen-Kosten/Kampfwerte und Schiffs-Bewaffnung (SPEZIFIKATION C9) bleiben ANNAHME; Schnellfeuer bis Kapitel 6 aus. |
+| 56 | Werte | **SPÄTER** (zusammen mit 54): Anlagen-Kosten/Kampfwerte und Schiffs-Bewaffnung (SPEZIFIKATION C9) bleiben ANNAHME; Schnellfeuer gestrichen. |
 | 57 | Bilder | **SPÄTER:** Verteidigungsanlagen bekommen eigene Bilder (Sandro: ja) – bis dahin SVG-Platzhalter. |
 
 ## Beantwortet (0.12.1, Sandro t27u)
@@ -165,7 +165,7 @@ Stufe 1: 0–1 · Stufe 2: 2–3 · Stufe 3: 4–6 · Stufe 4: 7–10 · Stufe 5
 
 ## 0.14.1 – Testphase (t32u)
 - **Erledigt:** Testphase mit 2 Minimal-Gegnern, echte Spionage/Angriffe.
-- **Später:** vollständiges Weltraum-Kapitel, KI-Gegner/Wellen, Beute, Schnellfeuer, Zufall (Kolonisierung erledigt 0.18.0).
+- **Später:** vollständiges Weltraum-Kapitel, KI-Gegner/Wellen, Beute, Zufall (Kolonisierung erledigt 0.18.0).
 - **Offen:** Orbitalverteidigungsplattform für schwache Gegner zu stark (bei Alpha deshalb weggelassen, sonst Unentschieden).
 - **Offen:** Spionagesonden-Verluste/Sichtbarkeit ohne Master; Reparaturquote rundet bei 1 Anlage auf „repariert“ (ANNAHME).
 

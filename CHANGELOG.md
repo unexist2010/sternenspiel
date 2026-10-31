@@ -1,5 +1,10 @@
 # Changelog – Sternenspiel
 
+## [0.22.1] – 2026-10-31 – Schnellfeuer gestrichen, Aufklärer billiger (Sandro pt66u)
+
+- **Schnellfeuer komplett entfernt:** War nie in der Kampfberechnung aktiv (nur Daten + Anzeige im Werft-ⓘ). Jetzt auch Daten (`schnellfeuer`-Matrix in `schiffe.js`), `Werft.schnellfeuer()`, Werft-Info-Anzeige, CSS, Kampf-Flag `live.schnellfeuer` und Doku-Hinweise entfernt.
+- **Aufklärer** (günstigstes Kampfschiff): Kosten 1.500 Metall / **150 Silizium** / 500 Rohöl (vorher 1.500 / 1.500 / 500) – Silizium ist im Early Game knapp.
+
 ## [0.22.0] – 2026-10-31 – Warteschlangen für Gebäude & Forschung, Startplätze ×2 (Sandro pt65u)
 
 - **Bau-Warteschlange:** pro Planet **10 Warteplätze** zusätzlich zum laufenden Auftrag (`p.bauschlange`). Einreihen geht auch **ohne genug Rohstoffe**; der erste Eintrag startet automatisch (FIFO), sobald nichts läuft und die Rohstoffe reichen (Rohstoffe werden erst beim Start abgezogen). Beim Einreihen geprüft: Höchststufe (inkl. bereits eingereihter Stufen), Sperren, Raumflughafen, Startplatz-Freischaltung (Vorgänger auch über die Schlange), Schlange voll.

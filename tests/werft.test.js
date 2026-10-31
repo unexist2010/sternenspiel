@@ -30,7 +30,6 @@ test("Daten: genau 24 Schiffe, 6 Waffentypen, 2 Hüllentypen, je mit Bild, Grupp
     assert.ok(D.huellentypNachId(s.huelle), s.id);
     for (const w of Object.keys(s.waffen)) assert.ok(D.waffentypNachId(w), s.id + " " + w);
     for (const v of s.vor.forschung) assert.ok(D.forschungNachId(v.id), s.id + " " + v.id);
-    for (const g of Object.keys(s.schnellfeuer)) assert.ok(D.schiffNachId(g) || D.verteidigungNachId(g), s.id + " SF " + g);
     assert.ok(s.vor.werft >= 1 && s.beschreibung && s.info, s.id);
     if (s.huelle === "verbund") assert.ok(Object.keys(s.kosten).some((k) => /kunststoff/.test(k)), s.id + ": Verbund kostet Kunststoff");
   }

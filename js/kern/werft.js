@@ -167,16 +167,10 @@
     };
   }
 
-  /** Schnellfeuer: gegen wen (aus Daten) und von wem (Gegenrichtung). */
-  function schnellfeuer(s) {
-    var gegen = Object.keys(s.schnellfeuer).map(function (id) { return { id: id, n: s.schnellfeuer[id] }; });
-    var von = D().schiffe.filter(function (x) { return x.schnellfeuer[s.id]; }).map(function (x) { return { id: x.id, n: x.schnellfeuer[s.id] }; });
-    return { gegen: gegen, von: von };
-  }
 
   SS.kern.werft = {
     werftStufe: werftStufe, anzahl: anzahl, sichtbar: sichtbar, stueckMs: stueckMs, voraussetzungen: voraussetzungen, voraussetzungenOk: voraussetzungenOk,
     pruefe: pruefe, maxBezahlbar: maxBezahlbar, starte: starte, faellige: faellige, naechstesEnde: naechstesEnde, abbrechen: abbrechen,
-    alleSofort: alleSofort, werte: werte, waffenFaktor: waffenFaktor, schnellfeuer: schnellfeuer, istMaster: istMaster
+    alleSofort: alleSofort, werte: werte, waffenFaktor: waffenFaktor, istMaster: istMaster
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);
