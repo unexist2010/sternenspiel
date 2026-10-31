@@ -92,6 +92,12 @@ und kann beim jeweiligen Kapitel wiederverwendet werden.
 - **0.11.4 – Frachter-Leiter:** neuer Großer Frachter (250.000), Massengutfrachter 1.000.000 → 25 Schiffe fest.
 - **Vorgemerkt (Sandro, t25u):** Orbitalverteidigungsplattform gehört künftig zur **Verteidigung (Kapitel 5)**, nicht zur Werft – Umzug beim Bau von Kapitel 5 (Schiffsanzahl dann neu prüfen).
 
+## Kapitel 6 – Flotte ✅ (0.13.0)
+
+- Flottenfenster (Startbahnen + Hangar, 4 Presets), Sendefenster (Schiffe, Ziel, Favoriten, 6 Missionen, Lossenden), rechte Seitenleiste mit Flügen live.
+- Fliegende Flotte → keine Orbit-Verteidigungsflotte (nur Plattform, dann Boden).
+- Missionen wirken am Ziel erst mit Gegnern/Kolonien (Weltraum-Kapitel); bis dahin Hin- und Rückflug. Details: SPEZIFIKATION C10.
+
 ## Kapitel 5 – Verteidigung ✅ (0.12.0)
 
 - Kampfregeln nach Sandro (t26s2/t26u): Phase Orbit (Startplätze + Orbitalplattform) → Phase Boden; Hangar geschützt, Nachrücken nach dem Kampf.

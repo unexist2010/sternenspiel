@@ -536,3 +536,13 @@ Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zäh
 - **0.12.1 (Sandro t27u, FEST):** Planetenschild ohne Cooldown – nach jedem Angriff automatisch wieder aktiv, wird nie zerstört. Orbitalverteidigungsplattform nach Angriff immer 100 % wieder da (wie OGame-Mond); nur wenn ein Schiff aus `BALANCE.KAMPF.PLATTFORM_ZERSTOERER` (Titan) beim Angreifer überlebt, gelten Verluste normal (Reparatur-Quote, Rest → Orbit-Trümmer). Trümmer/Bergung/Werte: später (OFFENE-PUNKTE 54/56).
 - Platzhalter: echte Angriffe (Flotten, KI – Kapitel 6+), Schnellfeuer im Kampf (Daten vorhanden, nicht angewendet), Zufall, Beute, Trümmer einsammeln, Sondenabwehr/Waffenslots der Plattform.
 - Spielstand **v9**: `planet.verteidigung`, `planet.verteidigungsauftraege`, `planet.truemmer`; Migration v8→v9 verschiebt Orbitalplattform-Schiffe in die Verteidigung, offene Werft-Aufträge dafür werden erstattet.
+
+## C10. Kapitel 6 „Flotte“ (0.13.0; Regeln FEST nach Sandro pt29u, Zahlen ANNAHME)
+
+- **Startbahnen** = Startplatz-Kapazität (Schiffe). Preset (Gesunder Mix [Standard], Starke Energiehülle, Starke Metallhülle, Maximale Feuerkraft) füllt sie automatisch; Rest steht im **Hangar** (geschützt). Solarsatelliten fliegen nicht und zählen nicht.
+- Startbahn-Schiffe = Verteidigungsflotte, **außer** eine eigene Flotte belegt Startplätze: dann Phase 1 nur Orbitalverteidigungsplattform (+ Satelliten), Phase 2 Boden.
+- **Senden:** höchstens „freie Startplätze“ Schiffe; Ziel = eigener Planet, Favorit oder Koordinaten g:s:p; Missionen Kolonisieren (Kolonieschiff nötig), Transportieren, Stationieren (nur anderer eigener Planet), Spionieren (Spionagesonde nötig), Angriff, Unterstützen. Nach dem Start wird die Rest-Startbahn nach Preset aufgefüllt.
+- **Formeln (ANNAHME, OGame):** Entfernung anderes System 2700 + 95·ΔSystem, gleiches System 1000 + 5·ΔPosition, gleiche Koordinate 5 (eine Galaxie); Flugzeit s = 3500·√(10·Entf./Tempo) + 10 (Tempo = langsamstes Schiff); Rohöl = 1 + Σ(Verbrauch·Anzahl)·Entf./35000·4 je Strecke, Hin + Rück beim Start bezahlt. Konstanten `BALANCE.FLOTTE`.
+- Ankunft: ohne Gegner keine Wirkung → Rückflug; Stationieren bleibt am Zielplanet. Meldungen bei Ankunft/Rückkehr.
+- **Seitenleiste rechts** (Handy unten): alle Flüge mit Mission, Ziel, Restzeit, Fortschritt; live jede Sekunde.
+- Spielstand v10: `planet.flotte.preset`, `z.flotten[]` {id, herkunft, ziel, mission, schiffe, abflug, ankunft, rueckkehr, phase}, `z.favoriten[]`.

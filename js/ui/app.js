@@ -24,7 +24,7 @@
 
   var SS = window.SS;
   var benoetigt = ["BALANCE", "DATEN", "kern", "format"];
-  var fehltModul = !SS || benoetigt.some(function (k) { return !SS[k]; }) || !SS.kern.profile || !SS.kern.zustand || !SS.kern.bau || !SS.kern.geologie || !SS.kern.forschung || !SS.kern.werft || !SS.kern.verteidigung || !SS.kern.kampf || !SS.DATEN.verteidigung || !SS.DATEN.schiffe || !(SS.ui && SS.ui.werft && SS.ui.verteidigung) || !SS.DATEN.forschung || !SS.DATEN.gebaeudeGruppen || !SS.DATEN.weltraum || !SS.DATEN.menue;
+  var fehltModul = !SS || benoetigt.some(function (k) { return !SS[k]; }) || !SS.kern.profile || !SS.kern.zustand || !SS.kern.bau || !SS.kern.geologie || !SS.kern.forschung || !SS.kern.werft || !SS.kern.verteidigung || !SS.kern.kampf || !SS.DATEN.verteidigung || !SS.DATEN.schiffe || !(SS.ui && SS.ui.werft && SS.ui.verteidigung && SS.ui.flotte) || !SS.kern.flotte || !SS.DATEN.forschung || !SS.DATEN.gebaeudeGruppen || !SS.DATEN.weltraum || !SS.DATEN.menue;
 
   // ---------- Versionsprüfung (Schutz gegen gemischten Browser-Cache: neues HTML + alte Skripte oder umgekehrt) ----------
   var htmlVersion = document.documentElement.getAttribute("data-version");
@@ -187,7 +187,7 @@
     tickTimer = setInterval(function () {
       var r = P.tick(zustand, jetzt());
       var neu = meldeFertig(r.fertig); if (meldeFunde(r.funde)) neu = true;
-      if (neu) { speichern(true); baueMenue(); route(true); } else aktualisiereLive();
+      if (neu) { speichern(true); baueMenue(); if (seite && seite.id === "flotte" && seite.teile[0] === "senden") { baueFlottenLeiste(); aktualisiereLive(); } else route(true); } else aktualisiereLive();
     }, B.TICK_MS);
     autoTimer = setInterval(function () { speichern(true); }, B.AUTOSPEICHERN_MS);
   }
@@ -240,7 +240,7 @@
     var m = D.menuePunkt(id);
     var html = id === "uebersicht" ? seiteUebersicht() : id === "ressourcen" ? seiteRessourcen() :
       id === "anlagen" ? (seite.teile[0] === "raumflughafen" ? seiteRaumflughafen() : seiteAnlagen()) :
-      id === "forschung" ? seiteForschung() : id === "werft" ? WU().seite() : id === "verteidigung" ? VU().seite() : seitePlatzhalter(m);
+      id === "forschung" ? seiteForschung() : id === "werft" ? WU().seite() : id === "verteidigung" ? VU().seite() : id === "flotte" ? FU().seite() : seitePlatzhalter(m);
     var y = window.scrollY;
     schliesseInfo();
     $("inhalt").innerHTML = "<h1 class=\"seiten-titel\">" + m.name + "</h1>" + html;
@@ -248,6 +248,8 @@
     $("inhalt").setAttribute("data-unterseite", seite.teile[0] || "");
     document.title = m.name + " – Sternenspiel";
     if (!scrollBehalten) schliesseMenue();
+    baueFlottenLeiste();
+    if (id === "flotte") FU().aktualisiereSenden(document);
     aktualisiereLive();
     window.scrollTo(0, scrollBehalten ? y : 0);
   }
@@ -257,6 +259,39 @@
   function WU() {
     return werftUi || (werftUi = SS.ui.werft({ esc: esc, box: box, kostenHtml: kostenHtml, infoKnopf: infoKnopf,
       zustand: function () { return zustand; }, hp: hp }));
+  }
+  var flotteUi = null;
+  function FU() {
+    return flotteUi || (flotteUi = SS.ui.flotte({ esc: esc, box: box, zustand: function () { return zustand; }, hp: hp, teile: function () { return seite ? seite.teile : []; } }));
+  }
+  function baueFlottenLeiste() { var l = $("flotten-leiste"); if (l && zustand) l.innerHTML = FU().leiste(); }
+  // Kapitel 6: Flotten-Aktionen
+  function sendeFeld(fn) { Array.prototype.forEach.call(document.querySelectorAll("#inhalt input[data-send-menge]"), fn); FU().aktualisiereSenden(document); }
+  function sendMax(b) {
+    var id = b.getAttribute("data-id"), inp = document.querySelector("#inhalt input[data-send-menge=\"" + id + "\"]"); if (!inp) return;
+    var andere = 0; sendeFeld(function (i) { if (i !== inp) andere += Math.floor(Number(i.value) || 0); });
+    inp.value = Math.max(0, Math.min(Number(inp.max), SS.kern.flotte.frei(zustand, hp()) - andere)); FU().aktualisiereSenden(document);
+  }
+  function sendAlle() {
+    var rest = SS.kern.flotte.frei(zustand, hp());
+    sendeFeld(function (i) { var n = Math.min(Number(i.max), rest); i.value = n; rest -= n; });
+  }
+  function sendFavorit() {
+    var a = FU().formular(document);
+    if (!a.ziel) { meldung("Erst gültige Koordinaten eingeben (S:SYS:P).", "schlecht"); return; }
+    if (SS.kern.flotte.favoritHinzu(zustand, a.ziel)) { meldung("Favorit gespeichert: " + D.weltraum.koordinatenText(a.ziel), "gut"); speichern(true); var k = a.koordText, m = $("send-mission").value, werte = {};
+      Array.prototype.forEach.call(document.querySelectorAll("#inhalt input[data-send-menge]"), function (i) { werte[i.getAttribute("data-send-menge")] = i.value; });
+      route(true); $("send-koord").value = k; $("send-ziel").value = D.weltraum.koordinatenText(a.ziel); $("send-mission").value = m;
+      Array.prototype.forEach.call(document.querySelectorAll("#inhalt input[data-send-menge]"), function (i) { i.value = werte[i.getAttribute("data-send-menge")] || 0; });
+      FU().aktualisiereSenden(document);
+    } else meldung("Schon als Favorit gespeichert.", "");
+  }
+  function sendLos() {
+    P.tick(zustand, jetzt());
+    var a = FU().formular(document), r = SS.kern.flotte.senden(zustand, hp(), a, jetzt());
+    if (!r.ok) { meldung(r.grund, "schlecht"); FU().aktualisiereSenden(document); return; }
+    meldung(F.zahl(r.anzahl) + " Schiffe unterwegs: " + r.mission.name + " → " + D.weltraum.koordinatenText(r.ziel) + " (Ankunft in " + F.dauer(r.dauer) + ").", "gut");
+    speichern(true); location.hash = "#flotte";
   }
   var vertUi = null;
   function VU() {
@@ -640,7 +675,10 @@
     var links = Math.min(Math.max(rand, r.left + r.width / 2 - w / 2), vw - w - rand);
     var oben = r.bottom + 6;
     if (oben + h > vh - rand) oben = r.top - h - 6;          // passt nicht darunter → darüber
-    if (oben < rand) oben = Math.max(rand, Math.min(vh - h - rand, r.bottom + 6)); // auch nicht darüber → im Bild halten
+    if (oben < rand) { // weder darunter noch darüber → seitlich neben den Knopf, damit er frei bleibt
+      oben = Math.max(rand, Math.min(vh - h - rand, r.top + r.height / 2 - h / 2));
+      if (r.left - w - 6 >= rand) links = r.left - w - 6; else if (r.right + 6 + w <= vw - rand) links = r.right + 6;
+    }
     f.style.left = Math.round(links) + "px"; f.style.top = Math.round(oben) + "px";
   }
   function schliesseInfo() {
@@ -662,6 +700,7 @@
       var wert = id ? zustand.rohstoffe[id] : 0, gi = id && u.gebaeude[id];
       var text;
       if (art.indexOf("vert-") === 0) { var vl = VU().live(el, art, id, t); if (vl === null || vl === undefined) return; if (el.textContent !== vl) el.textContent = vl; return; }
+      if (art.indexOf("flug-") === 0) { var fl = FU().live(el, art, id, t); if (fl === null || fl === undefined) return; if (el.textContent !== fl) el.textContent = fl; return; }
       if (art.indexOf("werft-") === 0) { var wl = WU().live(el, art, id, t); if (wl === null || wl === undefined) return; if (el.textContent !== wl) el.textContent = wl; return; }
       switch (art) {
         case "bestand-kurz": text = F.kurz(wert); break;
@@ -806,6 +845,7 @@
     });
   }
   function fertigText(a) {
+    if (a.art === "flotte") return a.text;
     return a.art === "schiff" || a.art === "verteidigung" ? F.zahl(a.menge) + "× " + a.name : a.name + " Stufe " + a.stufe;
   }
   function forschKnoepfe() {
@@ -900,7 +940,7 @@
   function meldeFertig(liste) {
     if (!liste || !liste.length) return false;
     var a = liste[liste.length - 1];
-    meldung("Fertig: " + fertigText(a), "gut");
+    meldung(a.art === "flotte" ? a.text : "Fertig: " + fertigText(a), "gut");
     return true;
   }
 
@@ -998,6 +1038,11 @@
     else if (a === "def-max") defMax(b);
     else if (a === "def-abbrechen") defAbbrechen(b);
     else if (a === "sim-start") simStart();
+    else if (a === "send-max") sendMax(b);
+    else if (a === "send-alle") sendAlle();
+    else if (a === "send-keine") sendeFeld(function (i) { i.value = 0; });
+    else if (a === "send-favorit") sendFavorit();
+    else if (a === "send-los") sendLos();
     else if (a === "laden") {
       dialog("Letzten Spielstand laden?", "<p>Nicht gespeicherter Fortschritt seit dem letzten Speichern geht verloren (Offline-Produktion wird dabei angerechnet).</p>", true)
         .then(function (ok) { if (ok) { var id = aktivId; stoppeSchleifen(); ladeUndBetrete(id); } });
@@ -1006,8 +1051,12 @@
   an("inhalt", "input", function (e) {
     if (e.target.matches && e.target.matches("input[data-menge]") && zustand) werftKnoepfe();
     if (e.target.matches && e.target.matches("input[data-def-menge]") && zustand) defKnoepfe();
+    if (e.target.matches && e.target.matches("input[data-send-menge], #send-koord") && zustand) FU().aktualisiereSenden(document);
   });
   an("inhalt", "change", function (e) {
+    if (zustand && e.target.id === "flotte-preset") { SS.kern.flotte.setzePreset(hp(), e.target.value); speichern(true); route(true); return; }
+    if (zustand && e.target.id === "send-ziel") { if (e.target.value) $("send-koord").value = e.target.value; FU().aktualisiereSenden(document); return; }
+    if (zustand && e.target.id === "send-mission") { FU().aktualisiereSenden(document); return; }
     var sel = e.target.closest("select[data-regler]");
     if (!sel || !zustand) return;
     P.tick(zustand, jetzt());

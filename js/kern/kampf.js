@@ -28,7 +28,20 @@
   var D = function () { return SS.DATEN; }, K = function () { return SS.BALANCE.KAMPF; };
 
   /** Startplatz-/Hangar-Verteilung der Schiffe eines Planeten. → { startplatz:{id:n}, hangar:{id:n}, kapazitaet, belegt } */
-  function verteilung(p) {
+  /**
+   * Kapitel 6: mit Spielstand z gilt das Flotten-Preset; ist eine eigene Flotte unterwegs (Startplätze belegt),
+   * gibt es KEINE Verteidigungsflotte im Orbit (Sandro, pt29u) → Phase 1 nur Orbitalplattform, Phase 2 Boden.
+   * Ohne z: alte Reihenfolge (stärkste Kampfschiffe zuerst).
+   */
+  function verteilung(p, z) {
+    if (z && SS.kern.flotte) {
+      var sb = SS.kern.flotte.startbahnen(z, p);
+      var sat = {}, hgAll = {};
+      if (!sb.verteidigt) Object.keys(p.schiffe || {}).forEach(function (id) { if (id !== "solarsatellit" && p.schiffe[id] > 0) hgAll[id] = p.schiffe[id]; });
+      else Object.keys(sb.hangar).forEach(function (id) { if (id !== "solarsatellit") hgAll[id] = sb.hangar[id]; });
+      return { startplatz: sb.verteidigt ? sb.startplatz : sat, hangar: hgAll, kapazitaet: sb.kapazitaet, belegt: sb.verteidigt ? sb.aufStartbahn : 0,
+        unterwegs: sb.unterwegs, keineFlotte: !sb.verteidigt };
+    }
     var kap = SS.kern.bau.kapazitaet(p), rest = kap, sp = {}, hg = {};
     var reihe = D().schiffe.filter(function (s) { return s.gruppe === "kampf"; }).reverse()
       .concat(D().schiffe.filter(function (s) { return s.gruppe !== "kampf" && s.id !== "solarsatellit"; }));
@@ -119,7 +132,7 @@
   function simuliere(z, p, opt) {
     opt = opt || {};
     var k = K(), az = opt.angreiferZustand || { forschung: {} };
-    var vt = verteilung(p);
+    var vt = verteilung(p, z);
     var angreifer = schiffGruppen(az, opt.angreifer);
     var orbitV = schiffGruppen(z, vt.startplatz).concat(p.solarsatelliten > 0 ? [gruppe("schiff", D().schiffNachId("solarsatellit"), p.solarsatelliten, SS.kern.werft.werte(z, D().schiffNachId("solarsatellit")))] : [])
       .concat(defGruppen(z, p, "orbit"));

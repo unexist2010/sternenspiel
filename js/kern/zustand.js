@@ -49,6 +49,7 @@
       istHauptplanet: !!istHauptplanet,
       rohoelVorkommen: istHauptplanet ? G.START_VORKOMMEN_HAUPTPLANET : G.START_VORKOMMEN_ANDERE, // bekanntes Rohöl (Bohrstation fördert daraus)
       geologie: SS.kern.geologie.neu(), // { naechsterFund, funde: [{zeit, stufe, menge}], zufall }
+      flotte: { preset: SS.BALANCE.FLOTTE.STANDARD_PRESET }, // Kapitel 6: Startbahn-Preset (Hangar = Rest, wird berechnet)
       hangar: { schiffe: {} },    // VORBEREITET (Flotten-Kapitel): Schiffe, die nicht auf die Startplätze passen – sicher bei Angriffen
       gebaeude: geb,
       regler: regler,             // Produktionsregler 0–100 % (Schritte à 10)
@@ -75,6 +76,7 @@
         .slice(-SS.BALANCE.GEOLOGIE.LOG_MAX);
       if (isFinite(Number(geo.zufall)) && geo.zufall != null) neu.geologie.zufall = Number(geo.zufall) >>> 0;
     }
+    if (p.flotte && SS.kern.flotte && SS.kern.flotte.presetNachId(p.flotte.preset)) neu.flotte = { preset: p.flotte.preset };
     if (p.hangar && typeof p.hangar === "object" && p.hangar.schiffe && typeof p.hangar.schiffe === "object") neu.hangar = { schiffe: p.hangar.schiffe };
     SS.DATEN.gebaeude.forEach(function (d) {
       var st = Math.floor(Number(p.gebaeude && p.gebaeude[d.id]) || 0);
@@ -148,7 +150,9 @@
       forschung: neueForschung(),   // Kapitel 3: Stufe je Forschung
       forschungsauftrag: null,      // Kapitel 3: ein Forschungsauftrag gleichzeitig (OGame) – unabhängig vom Bauauftrag
       schiffe: {},           // v7: leer – Bestand liegt je Planet (planet.schiffe)
-      flotten: [],           // späteres Kapitel
+      flotten: [],           // Kapitel 6: Flotten im Flug
+      favoriten: [],         // Kapitel 6: gespeicherte Ziel-Koordinaten
+      flottenZaehler: 0,
       truemmerfelder: [],    // späteres Kapitel
       ereignisse: [],        // späteres Kapitel: KI-Angriffe/Ereignisse
       einstellungen: { schildAutoaktivierung: true, master: false } // Schild: Solo-Regel (Wirkung später) · master: Testmodus je Profil
@@ -249,7 +253,11 @@
     z.schiffe = {};          // Bestand liegt ab v7 je Planet (planet.schiffe)
     z.statistik = z.statistik || {};
     z.statistik.schiffeGebaut = Math.max(0, Math.floor(Number(z.statistik.schiffeGebaut) || 0));
-    z.flotten = Array.isArray(z.flotten) ? z.flotten : [];
+    z.flotten = (Array.isArray(z.flotten) ? z.flotten : []).filter(function (f) {  // v10: nur gültige Flüge behalten
+      return f && f.id && f.schiffe && typeof f.schiffe === "object" && f.ziel && isFinite(f.ankunft) && (f.phase === "hin" || (f.phase === "rueck" && isFinite(f.rueckkehr)));
+    });
+    z.favoriten = (Array.isArray(z.favoriten) ? z.favoriten : []).filter(function (k) { return k && SS.DATEN.weltraum.leseKoordinaten(k.sektor + ":" + k.system + ":" + k.planet); });
+    z.flottenZaehler = Math.max(0, Math.floor(Number(z.flottenZaehler) || 0));
     z.truemmerfelder = Array.isArray(z.truemmerfelder) ? z.truemmerfelder : [];
     z.ereignisse = Array.isArray(z.ereignisse) ? z.ereignisse : [];
     z.einstellungen = z.einstellungen || {};

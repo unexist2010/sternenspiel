@@ -5,7 +5,7 @@
  *  - Startplätze A bis Z (26), jeder mit 10 Ausbaustufen
  *  - Buchstabe X erst baubar, wenn der vorige Buchstabe Stufe 10 hat UND der Spieler die Mindest-Punktzahl für X hat
  *  - Kapazität = Anzahl Schiffe, die gleichzeitig vom Planeten starten können (Größe egal); A10 ≈ 100, bis Z10 ≈ 10 Mrd.
- *  - Für später (Flotten-Kapitel, NICHT umgesetzt): Schiffe, die nicht auf die Startplätze passen, stehen automatisch im
+ *  - Flotten-Kapitel (umgesetzt 0.13.0, js/kern/flotte.js): Schiffe, die nicht auf die Startplätze passen, stehen automatisch im
  *    Hangar (sicher bei Angriffen, keine Wahl); beim Versand sind alle Schiffe sichtbar, gleichzeitig unterwegs höchstens
  *    „Kapazität“; Kapazität wird erst nach Rückkehr/Zerstörung/Umstationierung frei.
  * ANNAHME: Kapazität je Stufe, Kosten, Punkteschwellen (siehe konstanten.js → STARTPLAETZE, Tabelle in SPEZIFIKATION).
@@ -22,7 +22,7 @@
     K.MAX_ANZAHL + " Startplätze (A–Z), jeder mit " + K.STUFE_MAX + " Ausbaustufen.",
     "Ein Buchstabe wird baubar, wenn der vorige Stufe " + K.VORGAENGER_STUFE + " erreicht hat und deine Punkte die Schwelle erreichen.",
     "Kapazität = Anzahl Schiffe, die gleichzeitig vom Planeten starten können (Größe egal); es zählt die Summe aller Startplätze.",
-    "Schiffe, die nicht auf die Startplätze passen, stehen später automatisch sicher im Hangar (Flotten-Kapitel)."
+    "Schiffe, die nicht auf die Startplätze passen, stehen automatisch sicher im Hangar; welche Schiffe auf den Startbahnen stehen, bestimmt das Preset im Menü Flotte."
   ]);
 
   /** Anfangszustand der Startplätze eines Planeten: alle Stufe 0 (noch nicht gebaut). */

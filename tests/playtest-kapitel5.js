@@ -86,11 +86,11 @@ async function lauf(browser, g) {
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   ok((await page.getAttribute("html", "data-version")) === VERSION && (await Z(() => window.SS.VERSION)) === VERSION, `Version ${VERSION}`);
-  ok(/Kapitel 5 · Verteidigung/.test(await page.textContent(".fusszeile")), "Fußzeile: Kapitel 5 · Verteidigung");
+  ok(/Kapitel \d+ · /.test(await page.textContent(".fusszeile")), "Fußzeile: Kapitel n");
   await page.fill("#eingabe-name", "Sandro");
   await page.click("#knopf-neues-spiel");
   await page.waitForSelector('#inhalt[data-seite="uebersicht"]');
-  ok(await Z(() => { const z = window.SS.app.zustand, p = z.planeten[0]; return z.version === 9 && JSON.stringify(p.verteidigung) === "{}" && Array.isArray(p.verteidigungsauftraege) && p.truemmer && p.truemmer.orbit; }), "Spielstand v9: leerer Verteidigungsbestand, Trümmerfeld");
+  ok(await Z(() => { const z = window.SS.app.zustand, p = z.planeten[0]; return z.version === window.SS.BALANCE.SPIELSTAND_VERSION && JSON.stringify(p.verteidigung) === "{}" && Array.isArray(p.verteidigungsauftraege) && p.truemmer && p.truemmer.orbit; }), "Spielstand aktuell: leerer Verteidigungsbestand, Trümmerfeld");
   ok(/Verteidigungswerft bauen/.test(await page.textContent("#def-box")), "Übersicht: Verteidigungs-Kasten mit Link");
 
   await geheZu("#verteidigung", "verteidigung");

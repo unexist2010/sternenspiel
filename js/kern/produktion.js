@@ -194,12 +194,13 @@
     if (!(delta > 0)) {
       z.zeit.letzterTick = jetzt; // Uhr zurückgestellt: nichts gutschreiben, ab jetzt weiterrechnen
       var r0 = simuliereBis(z, jetzt); // Master: auch ohne Zeitfortschritt sofort fertigstellen
-      return { ms: 0, gewinne: {}, fertig: r0.fertig, funde: r0.funde };
+      return { ms: 0, gewinne: {}, fertig: r0.fertig.concat(SS.kern.flotte ? SS.kern.flotte.faellige(z, jetzt) : []), funde: r0.funde };
     }
     var max = B().OFFLINE_MAX_STUNDEN * MS_PRO_STUNDE, fertig = [], funde = [];
     if (delta > max) { var k = simuliereBis(z, jetzt - max, true); fertig = k.fertig; funde = k.funde; } // gekappter Teil: nur Bau + Funde
     var r = simuliereBis(z, jetzt);
-    return { ms: Math.min(delta, max), gewinne: r.gewinne, fertig: fertig.concat(r.fertig), funde: funde.concat(r.funde) };
+    var fl = SS.kern.flotte ? SS.kern.flotte.faellige(z, jetzt) : []; // Kapitel 6: Ankunft/Rückkehr (auch offline)
+    return { ms: Math.min(delta, max), gewinne: r.gewinne, fertig: fertig.concat(r.fertig, fl), funde: funde.concat(r.funde) };
   }
 
   function offlineFortschritt(z, jetzt) {

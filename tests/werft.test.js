@@ -145,7 +145,7 @@ test("Migration v7 → v8: alte IDs 1:1 umbenannt, übrige verworfen, offene Auf
     { art: "schiff", id: "minenleger", name: "Minenleger", menge: 3, fertig: 1, stueckMs: 1000, stueckKosten: { metall: 100 }, start: T0, ende: T0 + 3000 }];
   sp.setItem(key, JSON.stringify(v7));
   const z = PR.ladeProfil(sp, a.profil.id).zustand;
-  assert.equal(z.version, 9);
+  assert.equal(z.version, SS.BALANCE.SPIELSTAND_VERSION);
   gleich(z.planeten[0].schiffe, { wracksammler: 2, kleiner_frachter: 5, kreuzer: 1 });
   gleich(z.planeten[0].werftauftraege.map((w) => w.id), [], "0.12.0: Orbitalplattform-Auftrag erstattet (jetzt Verteidigung)");
   assert.equal(z.rohstoffe.metall, 201, "2 offene Minenleger + 1 Orbitalplattform erstattet");
@@ -176,7 +176,7 @@ test("Migration v6 → v7 (Profil): Schiffsbestand je Planet, Werft-Aufträge be
   v6.version = 6; delete v6.planeten[0].schiffe; delete v6.planeten[0].werftauftraege; v6.schiffe = { kreuzer: 3, quatsch: 2 };
   sp.setItem(key, JSON.stringify(v6));
   const z = PR.ladeProfil(sp, a.profil.id).zustand;
-  assert.equal(z.version, 9);
+  assert.equal(z.version, SS.BALANCE.SPIELSTAND_VERSION);
   gleich(z.planeten[0].schiffe, { kreuzer: 3 }); gleich(z.planeten[0].werftauftraege, []); gleich(z.schiffe, {});
   z.planeten[0].werftauftraege.push({ art: "schiff", id: "kreuzer", name: "Kreuzer", menge: 2, fertig: 0, stueckMs: 1000, stueckKosten: { metall: 1 }, start: T0, ende: T0 + 2000 }, { id: "gibtsnicht" });
   PR.speichereProfil(sp, a.profil.id, z, T0);

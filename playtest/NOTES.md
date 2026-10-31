@@ -161,3 +161,8 @@
 Bild richtet sich nach der Anzahl am Planeten (`SS.DATEN.schiffBild`, Schwellen in `js/data/schiffe.js`):
 Stufe 1: 0–1 · Stufe 2: 2–3 · Stufe 3: 4–6 · Stufe 4: 7–10 · Stufe 5: 11–20 · Stufe 6: 21+. Ohne Anzahl SVG-Fallback.
 **Offen:** Massengutfrachter – neue Vorschläge `massengutfrachter-g/h/i.png` (alle Triebwerke nur am Heck), wartet auf Sandros Auswahl.
+
+## 0.13.0 – Kapitel 6 Flotte
+- `node tests/playtest-kapitel6.js`: 60/60 grün (Desktop 1366×768 + Handy 412×915). Screenshots `playtest/kapitel6-*.png` (Flottenfenster, Sendefenster, unterwegs, Leiste auf Werft).
+- Alle älteren Playtests grün (Kap. 2, 2b, 1-Profile, 3, 4, 5); Unit-Tests 96/96.
+- Fix: Infofenster überdeckte bei schmalerem Inhalt (wegen Seitenleiste) den eigenen Knopf → jetzt seitlich daneben.

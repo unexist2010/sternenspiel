@@ -1,5 +1,15 @@
 # Changelog – Sternenspiel
 
+## [0.13.0] – 2026-10-31 – Kapitel 6: Flotte
+- **Menüpunkt Flotte** jetzt echt. **Flottenfenster:** Startbahnen (Kapazität = Startplatz-Kapazität in Schiffen) und Hangar; Preset-Dropdown *Gesunder Mix / Starke Energiehülle / Starke Metallhülle / Maximale Feuerkraft* füllt die Startbahnen automatisch (Standard: Gesunder Mix). Die Startbahn-Schiffe sind die Verteidigungsflotte.
+- **Sendefenster** („Flotte senden“): freie Schiffswahl bis zu den freien Startplätzen (max/Alle/Keine), Ziel per Dropdown (eigene Planeten + Favoriten) oder Koordinaten, Favorit speichern, 6 Missionen (Kolonisieren, Transportieren, Stationieren, Spionieren, Angriff, Unterstützen), Vorschau Entfernung/Tempo/Flugzeit/Ankunft/Rohöl, Knopf **Lossenden**.
+- Nach dem Start zeigt das Flottenfenster belegte/freie Startplätze; die Rest-Startbahn wird nach Preset neu gefüllt.
+- **Solange eine eigene Flotte unterwegs ist:** keine Orbit-Verteidigungsflotte – Phase 1 nur Orbitalverteidigungsplattform (+ Solarsatelliten), Phase 2 Bodenverteidigung (Kampfkern + Simulator).
+- **Rechte Seitenleiste** (immer sichtbar; Handy: unten): Flotten im Flug mit Mission, Ziel, Restzeit (live, h:mm:ss) und Fortschritt %.
+- Flugzeit/Entfernung/Verbrauch nach OGame-Formeln (ANNAHME), Rückkehr der Schiffe, Meldung bei Ankunft/Rückkehr.
+- Infofenster: passt es weder unter noch über den Knopf, erscheint es seitlich daneben.
+- Spielstand **v10** (planet.flotte.preset, z.flotten, z.favoriten). Tests `tests/flotte.test.js`, Playtest `tests/playtest-kapitel6.js` (Screenshots `playtest/kapitel6-*.png`).
+
 ## [0.12.1] – 2026-10-31 – Antworten t27u (Offene Punkte 51–57)
 - Kampf: Bonus ×1,5 / Malus ×0,5 gilt auch für Ziele **ohne** Energiehülle (wie „Hülle gebrochen“). 6 Runden/Phase bestätigt.
 - Planetenschild (Schildkuppel/Festungsschild): kein Cooldown, nach jedem Angriff automatisch wieder aktiv (nie zerstört).

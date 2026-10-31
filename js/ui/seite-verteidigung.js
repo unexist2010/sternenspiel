@@ -102,7 +102,7 @@
         return h.box("Verteidigung", "<p class=\"forschung-fehlt\" id=\"def-hinweis\"><b>Verteidigungswerft bauen</b> – Verteidigungsanlagen und die Orbitalverteidigungsplattform werden in der Verteidigungswerft gebaut (Stufe 1 nötig, auch im Master-Modus).</p>" +
           "<a class=\"knopf primaer\" href=\"#anlagen\" id=\"knopf-vw-bauen\">Verteidigungswerft bauen</a>", "", " id=\"def-info\"") + waffenTabelle();
       }
-      var vt = KA.verteilung(pp), sum = function (o) { return Object.keys(o).reduce(function (s, k) { return s + o[k]; }, 0); };
+      var vt = KA.verteilung(pp, zz), sum = function (o) { return Object.keys(o).reduce(function (s, k) { return s + o[k]; }, 0); };
       var bestand = D.verteidigung.reduce(function (s, d) { return s + (d.schutzschild ? 0 : VT.anzahl(pp, d.id)); }, 0);
       var schild = D.verteidigung.filter(function (d) { return d.schutzschild; }).reduce(function (s, d) { return s + VT.anzahl(pp, d.id) * VT.werte(zz, d).energie; }, 0);
       var info = h.box("Verteidigungswerft", "<dl class=\"werte\"><dt>Stufe</dt><dd id=\"vw-stufe\">" + st + "</dd><dt>Bauzeit</dt><dd>÷ " + (1 + st) + " (1 + Stufe) × Roboter</dd>" +

@@ -16,11 +16,11 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.12.1";
+  SS.VERSION = "0.13.0";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
-    SPIELSTAND_VERSION: 9,   // v2: Heimatplanet · v3: automatischer Start · v4: Kapitel 2 – Planeten mit Gebäuden, Bauauftrag, Startplätzen · v5: Rohölvorkommen/Geologie, Startplätze A–Z, Master-Modus · v6: Forschung (Stufen + Forschungsauftrag), T2/T3-Freischaltung über Punkte · v7: Werft – Schiffsbestand je Planet + Werft-Warteschlange · v8: Schiffsliste nach Sandro (24 Schiffe, Umbenennung; 0.11.4: 25), Warteschlange unbegrenzt · v9: Verteidigung (planet.verteidigung + verteidigungsauftraege, Orbitalplattform Schiff→Verteidigung, planet.truemmer)
+    SPIELSTAND_VERSION: 10,  // v2: Heimatplanet · v3: automatischer Start · v4: Kapitel 2 – Planeten mit Gebäuden, Bauauftrag, Startplätzen · v5: Rohölvorkommen/Geologie, Startplätze A–Z, Master-Modus · v6: Forschung (Stufen + Forschungsauftrag), T2/T3-Freischaltung über Punkte · v7: Werft – Schiffsbestand je Planet + Werft-Warteschlange · v8: Schiffsliste nach Sandro (24 Schiffe, Umbenennung; 0.11.4: 25), Warteschlange unbegrenzt · v9: Verteidigung (planet.verteidigung + verteidigungsauftraege, Orbitalplattform Schiff→Verteidigung, planet.truemmer) · v10: Flotte (planet.flotte.preset, z.flotten im Flug, z.favoriten)
     SPEICHER_SCHLUESSEL: "sternenspiel_spielstand_v1",          // alter Einzel-Spielstand (bis 0.3) – wird als erstes Profil übernommen
     PROFIL_INDEX_SCHLUESSEL: "sternenspiel_profile_v1",         // Liste der Spielerprofile
     PROFIL_SPIELSTAND_PRAEFIX: "sternenspiel_spielstand_p_",    // + Profil-ID = eigener Spielstand je Spieler
@@ -99,6 +99,16 @@
     VERTEIDIGUNG: { MIN_SEKUNDEN: 1, MAX_MENGE: 100000 },
 
     // ---------- Kampf (Kapitel 5): Zwei Hüllen + zwei Phasen (Regeln FEST Sandro, Zahlen ANNAHME) ----------
+    // Kapitel 6 – Flotte. ANNAHME: Entfernung/Flugzeit/Verbrauch nach OGame-Formeln (Systemnummern global 1–300).
+    FLOTTE: {
+      STANDARD_PRESET: "gesunder_mix",
+      DIST_SYSTEM_BASIS: 2700, DIST_JE_SYSTEM: 95,     // anderes System
+      DIST_PLANET_BASIS: 1000, DIST_JE_PLANET: 5,      // gleiches System
+      DIST_GLEICH: 5,
+      ZEIT_FAKTOR: 3500,          // Sekunden = 3500 · √(10 · Entfernung / Tempo) + 10
+      UNIVERSUM_TEMPO: 1,
+      VERBRAUCH_FAKTOR: 4         // Rohöl = 1 + Σ Verbrauch · Entfernung / 35000 · 4 (je Strecke; Hin + Rück beim Start bezahlt)
+    },
     KAMPF: {
       RUNDEN_JE_PHASE: 6,          // ANNAHME (OGame: 6 Runden)
       BONUS_SCHWELLE: 0.5,         // Waffe gilt als „metallwirksam“, wenn profil.metall ≥ 0,5

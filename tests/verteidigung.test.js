@@ -89,7 +89,7 @@ test("Migration v8 → v9: Orbitalplattform-Schiffe → Verteidigung, offene Wer
   v8.planeten[0].werftauftraege = [{ art: "schiff", id: "orbitalverteidigungsplattform", name: "O", menge: 4, fertig: 1, stueckMs: 1000, stueckKosten: { metall: 10 }, start: T0, ende: T0 + 4000 }];
   sp.setItem(key, JSON.stringify(v8));
   const z = PR.ladeProfil(sp, a.profil.id).zustand;
-  assert.equal(z.version, 9);
+  assert.equal(z.version, SS.BALANCE.SPIELSTAND_VERSION);
   gleich(z.planeten[0].schiffe, { kreuzer: 2 });
   gleich(z.planeten[0].verteidigung, { orbitalverteidigungsplattform: 3 });
   gleich(z.planeten[0].werftauftraege, []); assert.equal(z.rohstoffe.metall, 30);

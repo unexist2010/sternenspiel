@@ -20,7 +20,7 @@
     Object.freeze({ id: "forschung",    name: "Forschung",    platzhalter: false }),
     Object.freeze({ id: "werft",        name: "Werft",        platzhalter: false }),
     Object.freeze({ id: "verteidigung", name: "Verteidigung", platzhalter: false }),
-    Object.freeze({ id: "flotte",       name: "Flotte",       platzhalter: true }),
+    Object.freeze({ id: "flotte",       name: "Flotte",       platzhalter: false }),
     Object.freeze({ id: "weltraum",     name: "Weltraum",     platzhalter: true })
   ]);
 
