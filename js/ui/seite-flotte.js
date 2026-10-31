@@ -73,8 +73,9 @@
     function berichteBox() {
       var zz = z(), out = "", s = zz.letzterSpionagebericht, b = zz.letzterKampfbericht;
       var namen = function (o, art) { var ids = Object.keys(o || {}); return ids.length ? ids.map(function (id) { var d = art === "s" ? D.schiffNachId(id) : D.verteidigungNachId(id); return esc(d ? d.name : id) + " " + F.zahl(o[id]); }).join(", ") : "keine"; };
-      if (s) out += h.box("Letzter Spionagebericht – " + esc(s.name) + " [" + kt(s.koordinaten) + "]", "<p id=\"spionage-bericht\">Schiffe: " + namen(s.schiffe, "s") + "<br>Verteidigung: " + namen(s.verteidigung, "v") +
-        "<br>Trümmer Orbit: " + F.zahl(s.truemmer.orbit.metall) + " Metall · " + F.zahl(s.truemmer.orbit.silizium) + " Silizium</p>", "", " id=\"box-spionage\"");
+      if (s) out += h.box("Letzter Spionagebericht – " + esc(s.name) + " [" + kt(s.koordinaten) + "]", "<p id=\"spionage-bericht\">Schiffe (Startplätze): " + namen(s.schiffe, "s") + "<br>Verteidigung: " + namen(s.verteidigung, "v") +
+        "<br>Trümmer Orbit: " + F.zahl(s.truemmer.orbit.metall) + " Metall · " + F.zahl(s.truemmer.orbit.silizium) + " Silizium" +
+        (s.hinweis ? "<br><span id=\"spionage-hinweis\" class=\"spionage-hinweis\">» " + esc(s.hinweis) + "</span>" : "") + "</p>", "", " id=\"box-spionage\"");
       if (b) out += h.box("Letzter Kampfbericht – " + esc(b.ziel ? b.ziel.name + " [" + kt(b.ziel) + "]" : ""), SS.ui.kampfbericht.html(b), "", " id=\"box-kampfbericht\"");
       return out;
     }

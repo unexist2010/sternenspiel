@@ -1,6 +1,6 @@
 # Sternenspiel
 
-**Stand:** 2026-10-31 (Europe/Vienna) · **Version:** 0.14.2 · **Status:** Zivilschiffe + Trümmer bergen (t33u); davor Testphase (Gegner, echte Spionage/Angriffe) erledigt; davor Kapitel „Kampfsystem / Kampfbericht“ (davor Kapitel 6 „Flotte“, Kapitel 5 „Verteidigung“)  
+**Stand:** 2026-10-31 (Europe/Vienna) · **Version:** 0.14.3 · **Status:** Hangar-Schutz + Spionage-Bodenbewegungen (t34u); davor Zivilschiffe + Trümmer bergen (t33u); davor Testphase (Gegner, echte Spionage/Angriffe) erledigt; davor Kapitel „Kampfsystem / Kampfbericht“ (davor Kapitel 6 „Flotte“, Kapitel 5 „Verteidigung“)  
 **Für:** Sandro Orsaria · **Sprache:** Deutsch (Oberfläche, Doku, Kommentare) · **Repo:** github.com/unexist2010/sternenspiel · **Live:** https://unexist2010.github.io/sternenspiel/
 
 ## Kurzüberblick

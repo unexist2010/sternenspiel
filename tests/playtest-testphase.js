@@ -93,6 +93,7 @@ async function lauf(browser, g) {
   // Spionage beider Gegner
   for (const k of gk) await senden({ spionagesonde: 1 }, k, "spionieren");
   ok(await page.isVisible("#box-spionage") && /Kleine Drohne|Maschinennest/.test(await page.textContent("#spionage-bericht")), "Spionageberichte sichtbar");
+  ok(/Bodenbewegungen/.test(await page.textContent("#spionage-bericht")), "Spionage: Bodenbewegungs-Hinweis sichtbar");
   const tr = (i) => Z((i) => JSON.parse(JSON.stringify(window.SS.app.zustand.gegner[i].truemmer)), i);
   const roh = () => Z(() => ({ m: window.SS.app.zustand.rohstoffe.metall, s: window.SS.app.zustand.rohstoffe.silizium }));
   // 0.14.2 (t33u): Alpha OHNE Wracksammler (Frachter zivil dabei), danach Sammelflotte; Beta MIT Wracksammlern

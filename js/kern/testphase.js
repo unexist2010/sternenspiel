@@ -27,7 +27,8 @@
       var t = leerT();
       if (x.truemmer) ["orbit", "boden"].forEach(function (o) { ["metall", "silizium"].forEach(function (r) { t[o][r] = Math.max(0, Number(x.truemmer[o] && x.truemmer[o][r]) || 0); }); });
       return { id: String(x.id), name: String(x.name || x.id).slice(0, 40), sektor: x.sektor, system: x.system, planet: x.planet,
-        schiffe: sch, verteidigung: def, solarsatelliten: Math.max(0, Math.floor(Number(x.solarsatelliten) || 0)), truemmer: t };
+        schiffe: sch, verteidigung: def, solarsatelliten: Math.max(0, Math.floor(Number(x.solarsatelliten) || 0)), truemmer: t,
+        startplaetze: Array.isArray(x.startplaetze) ? x.startplaetze.filter(function (sp) { return sp && sp.buchstabe; }).map(function (sp) { return { buchstabe: String(sp.buchstabe), stufe: Math.max(0, Math.floor(Number(sp.stufe) || 0)) }; }) : undefined };
     });
   }
 
@@ -37,19 +38,27 @@
   function kampfPlanet(gg) {
     var p = { id: "gegner:" + gg.id, schiffe: JSON.parse(JSON.stringify(gg.schiffe)), verteidigung: JSON.parse(JSON.stringify(gg.verteidigung)),
       solarsatelliten: gg.solarsatelliten || 0, flotte: { preset: SS.BALANCE.FLOTTE.STANDARD_PRESET },
-      startplaetze: [{ buchstabe: "A", stufe: 10 }, { buchstabe: "B", stufe: 10 }], gebaeude: {}, truemmer: leerT() }; // 300 Plätze ≫ Bestand
+      startplaetze: gg.startplaetze ? JSON.parse(JSON.stringify(gg.startplaetze)) : [{ buchstabe: "A", stufe: 10 }, { buchstabe: "B", stufe: 10 }], gebaeude: {}, truemmer: leerT() }; // Standard 300 Plätze ≫ Bestand; optional gg.startplaetze (Test Hangar)
     var gz = { forschung: {}, einstellungen: {}, flotten: [], rohstoffe: {} }; // ANNAHME: Gegner ohne Forschung
     return { p: p, z: gz };
   }
 
-  /** Spionage: im Test volle Sichtbarkeit (ANNAHME; ohne Master später abgestuft). */
+  /**
+   * Spionage (FEST Sandro t34u, 0.14.3): sichtbar sind nur Schiffe auf den Startplätzen (gleiche Preset-/Kapazitätslogik wie im Kampf),
+   * Verteidigung und Solarsatelliten. Hangar-Typen/-Zahlen werden NIE übermittelt – nur der Hinweis „bodenbewegungen“ (true = Hangar nicht leer).
+   */
   function spionage(z, gg, jetzt) {
+    var kp = kampfPlanet(gg), vt = SS.kern.kampf.verteilung(kp.p, kp.z), sicht = {};
+    Object.keys(vt.startplatz || {}).forEach(function (id) { if (vt.startplatz[id] > 0) sicht[id] = vt.startplatz[id]; });
+    var bew = Object.keys(vt.hangar || {}).some(function (id) { return vt.hangar[id] > 0; });
     var b = { zeit: jetzt, gegner: gg.id, name: gg.name, koordinaten: { sektor: gg.sektor, system: gg.system, planet: gg.planet },
-      schiffe: JSON.parse(JSON.stringify(gg.schiffe)), verteidigung: JSON.parse(JSON.stringify(gg.verteidigung)), solarsatelliten: gg.solarsatelliten || 0,
-      truemmer: JSON.parse(JSON.stringify(gg.truemmer || leerT())), sichtbarkeit: "voll" };
+      schiffe: sicht, verteidigung: JSON.parse(JSON.stringify(gg.verteidigung)), solarsatelliten: gg.solarsatelliten || 0,
+      truemmer: JSON.parse(JSON.stringify(gg.truemmer || leerT())), sichtbarkeit: "startplaetze",
+      bodenbewegungen: bew, hinweis: HINWEIS[bew ? "ja" : "nein"] };
     z.letzterSpionagebericht = b;
     return b;
   }
+  var HINWEIS = { ja: "Bodenbewegungen erkennbar – möglicherweise weitere Schiffe im Hangar.", nein: "Keine Bodenbewegungen erkennbar." };
 
   /** Angriff einer Flotte f auf Gegner gg: simulieren, Verluste beidseitig anwenden, Trümmer am Gegner sammeln. */
   function angriff(z, f, gg, jetzt) {
@@ -92,7 +101,7 @@
     if (f.mission === "spionieren") {
       var s = spionage(z, gg, jetzt); f.spionagebericht = s;
       var n = function (o) { return Object.keys(o).reduce(function (a, k) { return a + o[k]; }, 0); };
-      return "Spionagebericht " + gg.name + ": " + n(s.schiffe) + " Schiffe, " + n(s.verteidigung) + " Verteidigungsanlagen";
+      return "Spionagebericht " + gg.name + ": " + n(s.schiffe) + " Schiffe, " + n(s.verteidigung) + " Verteidigungsanlagen – " + s.hinweis;
     }
     if (f.mission === "angriff") {
       var b = angriff(z, f, gg, jetzt);

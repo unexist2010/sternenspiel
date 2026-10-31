@@ -7,6 +7,11 @@
 
 ## 0.14.2 – Zivilschiffe + Trümmer bergen (t33u)
 - **Erledigt:** Zivilschiffe kämpfen nicht; Totalverlust vernichtet sie; Mission „Trümmer bergen“; Auto-Bergung mit Wracksammlern nach Sieg; Boden-Schrott nur für Besitzer.
-- **Frage:** Verteidiger-Zivil bei gefallenem Orbit vernichtet (ANNAHME) – oder doch immer geschützt?
-- **Frage:** Bergung nur Trümmer des aktuellen Kampfes oder ganzes Feld (ANNAHME: ganzes Feld bis Kapazität)?
+- **Beantwortet (t34u):** Verteidiger-Zivil auf Startplätzen vernichtet, im Hangar geschützt (siehe 0.14.3).
+- **ANNAHME (bleibt):** Bergung nur Trümmer des aktuellen Kampfes oder ganzes Feld (ANNAHME: ganzes Feld bis Kapazität)?
 - **Offen:** Bodensammler-Mission für eigenen Boden-Schrott; Bergung vom eigenen Planeten; Verteilung der Kapazität auf Metall/Silizium (aktuell Metall zuerst).
+
+## 0.14.3 – Hangar-Schutz + Spionage (t34u)
+- **Erledigt (FEST):** Verteidiger-Zivil nur auf Startplätzen vernichtet, Hangar bleibt; Spionage ohne Hangar-Inhalt, nur Hinweis auf Bodenbewegungen.
+- **ANNAHME (unverändert):** Bergung nimmt das ganze Orbit-Feld bis Kapazität, Metall zuerst, Silizium danach; Gutschrift bei Rückkehr.
+- **Offen:** Hinweis später abhängig von Spionage-Forschung/Sondenanzahl abstufen?

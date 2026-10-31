@@ -23,8 +23,9 @@
  *  - FEST (Sandro t33u, 0.14.2) ZIVILSCHIFFE: alles mit gruppe !== "kampf" (Frachter, Wrack-/Bodensammler, Sonden, Kolonieschiff,
  *    Tanker, Solarsatelliten) kämpft NIE und ist kein Ziel („fliegt hinten in der Formation“). Keine Zivil-Verluste, solange die
  *    eigenen Kampfschiffe nicht alle vernichtet sind. Angreifer: 0 Kampfschiffe übrig → alle Zivilschiffe der Flotte vernichtet.
- *    Verteidiger (ANNAHME, konsistent): Zivil auf Startplätzen + Solarsatelliten werden vernichtet, wenn nach Phase 1 keine
- *    Verteidiger-Orbit-Kampfeinheit (Schiff/Orbitalverteidigung) mehr steht und der Angreifer noch Kampfschiffe hat. Hangar bleibt geschützt.
+ *    Verteidiger (FEST Sandro t34u, 0.14.3): Zivilschiffe der Kampf-Flotte (= auf den Startplätzen, verteilung.startplatz) werden
+ *    vernichtet, wenn nach Phase 1 keine Verteidiger-Orbit-Kampfeinheit mehr steht und der Angreifer noch Kampfschiffe hat.
+ *    Zivil im Hangar (verteilung.hangar) wird NIE vernichtet. Solarsatelliten stehen im Orbit → wie Startplatz-Zivil vernichtet.
  *  - Spezialisierung „Bergung“ (Spec Salvage) = Option {bergung:true}; ein Klassen-System gibt es noch nicht.
  */
 (function (g) {

@@ -585,6 +585,11 @@ Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zäh
 - Ohne Wracksammler bleiben die Orbit-Trümmer am Ziel; neue Mission **„Trümmer bergen“** (`sammeln`, braucht Wracksammler) holt sie später.
 
 **ANNAHME:**
-- Verteidiger-Zivil (Startplätze + Solarsatelliten): kämpft nicht; vernichtet, wenn nach Phase 1 keine Verteidiger-Orbit-Kampfeinheit mehr steht und der Angreifer noch Kampfschiffe hat. Hangar bleibt geschützt.
+- Verteidiger-Zivil (Startplätze + Solarsatelliten): kämpft nicht; vernichtet, wenn nach Phase 1 keine Verteidiger-Orbit-Kampfeinheit mehr steht und der Angreifer noch Kampfschiffe hat. Hangar bleibt geschützt (FEST t34u).
 - Sieger-Wertung zählt nur Kampfschiffe/Verteidigung.
 - Bergung nimmt das gesamte Orbit-Feld am Ziel (nicht nur „dieses Kampfes“), bis Kapazität = 100.000 × Wracksammler (Feld `ladung`), Metall vor Silizium. Gutschrift in `z.rohstoffe` bei Rückkehr.
+
+## Hangar-Schutz + Spionage (0.14.3, Sandro t34u – FEST)
+
+- Verteidiger-Zivilschiffe werden bei verlorenem Orbit nur vernichtet, wenn sie zur Kampf-Flotte gehören (auf den Startplätzen, `verteilung.startplatz`). Zivilschiffe im Hangar werden nie vernichtet. Solarsatelliten stehen im Orbit und fallen mit ihm.
+- Spionagebericht: sichtbar sind Schiffe auf den Startplätzen (Preset-/Kapazitätslogik wie im Kampf), Verteidigung, Solarsatelliten, Trümmer. Welche/wie viele Schiffe im Hangar stehen, ist nie sichtbar. Nur Hinweis: „Bodenbewegungen erkennbar – möglicherweise weitere Schiffe im Hangar.“ (Hangar nicht leer) bzw. „Keine Bodenbewegungen erkennbar.“ (Hangar leer). Feld `bodenbewegungen` (bool) + `hinweis`.

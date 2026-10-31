@@ -1,5 +1,12 @@
 # Changelog – Sternenspiel
 
+## [0.14.3] – 2026-10-31 – Hangar-Schutz + Spionage-Bodenbewegungen (Sandro t34u)
+
+- FEST: Verteidiger-Zivilschiffe werden bei verlorenem Orbit nur vernichtet, wenn sie zur Kampf-Flotte gehören (Startplätze); Zivil im Hangar bleibt immer erhalten. Solarsatelliten (Orbit) fallen mit dem Orbit.
+- Spionagebericht zeigt nur Schiffe auf den Startplätzen (gleiche Preset-/Kapazitätslogik wie im Kampf), Verteidigung, Trümmer. Hangar-Typen/-Zahlen werden nie angezeigt; stattdessen Hinweis „Bodenbewegungen erkennbar – möglicherweise weitere Schiffe im Hangar.“ bzw. „Keine Bodenbewegungen erkennbar.“
+- Testgegner: optionale `startplaetze` (Standard weiterhin 300 Plätze → Hangar leer).
+- Tests: `hangar-spionage.test.js`.
+
 ## [0.14.2] – 2026-10-31 – Zivilschiffe + Trümmer bergen (Sandro t33u)
 
 - Kampfkern: Zivilschiffe (`gruppe !== "kampf"`) kämpfen nicht und sind keine Ziele; bei Totalverlust des Angreifers vernichtet; Verteidiger-Zivil fällt mit dem Orbit (ANNAHME). Bericht `zivil`.
