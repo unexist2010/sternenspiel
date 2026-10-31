@@ -1,6 +1,6 @@
 {
   "name": "sternenspiel",
-  "version": "0.20.1",
+  "version": "0.20.2",
   "private": true,
   "description": "Sternenspiel – Offline-Browser-Aufbauspiel im Weltraum (Testphase: Gegner + Zivilschiffe + Bergung, Expeditionen, Waffen-Umbau + EMP, Kolonisieren 0.18.0)",
   "scripts": {

@@ -1,5 +1,8 @@
 # Changelog – Sternenspiel
 
+## [0.20.2] – 2026-10-31 – Hotfix Versionsanzeige (Sandro pt59u)
+- Startbildschirm (Spielerauswahl) zeigte fest „0.11.4“. `#version-anzeige` wird jetzt beim Start aus `SS.VERSION` gesetzt; HTML-Default auf aktuelle Version. Test in `tests/profile.test.js` erweitert. Cache-Schutz `?v=0.20.2`.
+
 ## [0.20.1] – 2026-10-31 – KI nur an aktiven Spieltagen + „Neues Spiel“ (Sandro pt57u)
 - **FEST (pt57u): Die KI-Welt lebt nur an Tagen, an denen du aktiv spielst.** Pro Kalendertag mit geöffnetem/geladenem Spiel wird genau **ein** Welt-Tag simuliert (neue Planeten 2–5, Wachstum, Piraten-Überfälle, TF-Alter, Rivalen-Countdown). Spielst du einen Tag nicht, steht alles still – beim nächsten Laden wird **nichts** nachgezogen (vorher bis zu 120 Tage).
 - KI-Tagesangaben (Rivale 14 Tage inaktiv, TF 7 Tage) zählen jetzt in **Spieltagen** (`z.ki.spieltag`). Alte 0.20.0-Stände werden stetig übernommen.

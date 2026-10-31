@@ -40,6 +40,9 @@
     try { sessionStorage.removeItem("sternenspiel_neuladen"); } catch (e) { /* egal */ }
   }
 
+  // 0.20.2 (Sandro pt59u): Versionsanzeige am Startbildschirm immer aus SS.VERSION
+  (function () { var va = document.getElementById("version-anzeige"); if (va) va.textContent = SS.VERSION; })();
+
   var B = SS.BALANCE, D = SS.DATEN, W = SS.DATEN.weltraum, P = SS.kern.produktion, S = SS.kern.speicher, Z = SS.kern.zustand, PR = SS.kern.profile, F = SS.format;
 
   var zustand = null;        // aktueller Spielstand (null = nicht im Spiel)

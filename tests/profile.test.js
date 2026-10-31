@@ -20,6 +20,9 @@ test("Profile: Version in Konstanten gesetzt und gleich index.html", () => {
   const refs = [...html.matchAll(/(?:src|href)="((?:js|css)\/[^"]+)"/g)].map((m) => m[1]);
   assert.ok(refs.length >= 14);
   for (const r of refs) assert.ok(r.endsWith("?v=" + SS.VERSION), "Cache-Schutz fehlt: " + r);
+  assert.ok(html.includes(`<span id="version-anzeige">${SS.VERSION}</span>`), "Startbildschirm-Version passt");
+  const app = require("fs").readFileSync(require("path").join(__dirname, "..", "js", "ui", "app.js"), "utf8");
+  assert.match(app, /getElementById\("version-anzeige"\)[^;]*;[^;]*textContent = SS\.VERSION/, "app.js setzt version-anzeige");
 });
 
 test("Profile: anlegen – automatischer Start, eigener Schlüssel, Liste", () => {
