@@ -1,5 +1,15 @@
 # Changelog – Sternenspiel
 
+## [0.15.1] – 2026-10-31 – Expeditionen: Playtest-Fixes (Sandro pt38u)
+
+- Piraten „1 Schiff entkommt“: jetzt klar **Niederlage – Flotte vernichtet, 1 X entkommen (N von M Schiffen verloren)**; Kampfbericht-Kopf passend („Niederlage – Expeditionsflotte vernichtet, 1 X entkommt“ + Hinweis), Expeditions-Sieger-Texte aus Spielersicht.
+- Verzögerung: Normalmodus Rückflug weiterhin ×2 (Text nennt Faktor); Master-Modus ehrlich: „würde 2× so lang dauern (Master-Modus: entfällt, sofort zurück)“ – keine Flugzeit-Lüge.
+- Kampfberichte: neue Liste `z.kampfberichte` (neueste 10, inkl. Piraten + Testphase); Flottenseite: „Ältere Kampfberichte“ aufklappbar.
+- Laderaum: gekappter Fund → „X Metall gefunden, Y aufgenommen – Laderaum voll“; Sendefenster-Hinweis „Laderaum begrenzt Rohstofffunde“.
+- Position 13: Mission „Expedition“ füllt Koordinaten mit Expeditionsraum (System des Planeten, `:13`) vor; Knopf „Expeditionsraum“.
+- Zähler: „Expeditionen unterwegs x / n“, im Master Zusatz „sofort abgeschlossen – Ergebnis unter Letzte Expeditionen“.
+- Tests: 3 neue in `expedition.test.js` (116 grün).
+
 ## [0.15.0] – 2026-10-31 – Expeditionen (Sandro pt36u)
 
 - Neue Mission „Expedition“: Ziel Expeditionsraum `S:SYS:13`, Haltezeit 1…Astrophysik-Stufe h (Auswahl im Sendefenster mit Fundchance), parallel ⌊√Astrophysik⌋.

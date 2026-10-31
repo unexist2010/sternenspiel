@@ -215,7 +215,7 @@
       if (f.phase === "halten" && jetzt >= f.haltEnde) {
         var ev = SS.kern.expedition.ereignis(z, f, f.haltEnde, z._expeditionZufall);
         f.ergebnis = ev; f.bericht = "Expedition " + ziel + ": " + ev.text;
-        z.letzteExpeditionen = [{ zeit: f.haltEnde, ziel: f.ziel, halten: f.halten, art: ev.art, text: ev.text }].concat(z.letzteExpeditionen || []).slice(0, 10);
+        z.letzteExpeditionen = [{ zeit: f.haltEnde, ziel: f.ziel, halten: f.halten, art: ev.art, text: ev.text, master: SS.kern.werft.istMaster(z) }].concat(z.letzteExpeditionen || []).slice(0, 10);
         f.phase = "rueck"; f.rueckkehr = f.haltEnde + Math.round((f.ankunft - f.abflug) * (f.verzoegerung || 1));
         meld.push({ art: "flotte", name: m.name, text: f.bericht });
       }

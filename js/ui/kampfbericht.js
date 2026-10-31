@@ -71,7 +71,9 @@
   }
 
   function berichtHtml(b) {
-    var sieg = { angreifer: "Angreifer gewinnt", verteidiger: "Verteidigung hält – Verteidiger gewinnt", unentschieden: "Unentschieden" }[b.sieger];
+    var sieg = b.expedition ? { angreifer: "Expedition siegt – Piraten abgewehrt", verteidiger: "Piraten gewinnen – Expedition zieht sich zurück", unentschieden: "Unentschieden – beide Seiten aufgerieben" }[b.sieger]
+      : { angreifer: "Angreifer gewinnt", verteidiger: "Verteidigung hält – Verteidiger gewinnt", unentschieden: "Unentschieden" }[b.sieger];
+    if (b.rettung) sieg = "Niederlage – Expeditionsflotte vernichtet, 1 " + esc((SS.DATEN.schiffNachId(b.rettung) || { name: b.rettung }).name) + " entkommt";
     var vt = b.orbit.concat(b.boden);
     var rs = function (r) { return zahl(r.metall) + " Metall · " + zahl(r.silizium) + " Silizium"; };
     var aV = summe(b.angreifer, "verloren"), aS = summe(b.angreifer, "vorher"), vV = summe(vt, "verloren"), vS = summe(vt, "vorher"), rep = summe(vt, "repariert");
@@ -79,7 +81,8 @@
     return "<div class=\"kampf-bericht\" id=\"kampf-bericht\">" +
       "<div class=\"kb-kopf kb-sieg-" + b.sieger + "\"><b data-sieger=\"" + b.sieger + "\">" + sieg + "</b>" +
       "<p class=\"kb-summe\">Verluste Angreifer: " + verlust(aV, "gegner") + " von " + zahl(aS) + " · Verluste Verteidiger: " + verlust(vV, "eigen") + " von " + zahl(vS) +
-      (rep ? " (davon " + zahl(rep) + " Anlagen repariert)" : "") + "</p></div>" +
+      (rep ? " (davon " + zahl(rep) + " Anlagen repariert)" : "") + "</p>" +
+      (b.rettung ? "<p class=\"hinweis kb-rettung\" id=\"kb-rettung\">Restliche Flotte vernichtet – ein Schiff entkommt (Expeditionen enden nie im Totalverlust).</p>" : "") + "</div>" +
       phaseHtml(1, b.phasen[0], "Orbit (Verteidigungsflotte + Orbitalverteidigung)", b) + phaseHtml(2, b.phasen[1], "Boden (Bodenverteidigung)", b) +
       "<section class=\"kb-truemmer\" id=\"kb-truemmer\"><h4>Trümmerfelder</h4><p class=\"hinweis\">" +
       "Orbit – Schiffstrümmer (Wracksammler, " + Math.round(b.quoten.orbit * 100) + " % der Baukosten): <b>" + rs(b.truemmerOrbit) + "</b>" +

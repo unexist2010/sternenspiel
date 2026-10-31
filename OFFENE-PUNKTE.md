@@ -15,3 +15,8 @@
 - **Erledigt (FEST):** Verteidiger-Zivil nur auf Startplätzen vernichtet, Hangar bleibt; Spionage ohne Hangar-Inhalt, nur Hinweis auf Bodenbewegungen.
 - **ANNAHME (unverändert):** Bergung nimmt das ganze Orbit-Feld bis Kapazität, Metall zuerst, Silizium danach; Gutschrift bei Rückkehr.
 - **Offen:** Hinweis später abhängig von Spionage-Forschung/Sondenanzahl abstufen?
+
+## 0.15.1 – Expeditions-Playtest-Fixes (pt38u)
+- **Erledigt:** Rettungs-Text/Bericht stimmig, Master-Verzögerung ehrlich, Kampfberichte-Liste (10), Laderaum-Kappung im Text, Expeditionsraum-Vorausfüllung + Knopf, Zähler-Label.
+- **Offen:** Galaxie-Ansicht gibt es noch nicht → Position 13 dort erst mit dem Weltraum-Kapitel anzeigen.
+- **Unverändert:** Ausschlussliste Schiffsfunde nur Kolonieschiff + stationär (bis Sandro liefert); keine Balance-Änderung.

@@ -75,7 +75,7 @@
     // t33u: Auto-Bergung – Sieg + überlebende Wracksammler in der Angriffsflotte → Orbit-Trümmer nach Phase 2 einsammeln.
     // Boden-Schrott gehört immer dem Planetenbesitzer (Angreifer kann ihn nie sammeln).
     b.geborgen = (b.sieger === "angreifer" && f.schiffe.wracksammler > 0) ? berge(f, gg) : null;
-    f.kampfbericht = b; z.letzterKampfbericht = b;
+    f.kampfbericht = b; SS.kern.expedition.merkeKampfbericht(z, b);
     return b;
   }
 
@@ -162,7 +162,7 @@
     z.favoriten = z.favoriten || [];
     var fav = function (k, name) { z.favoriten = z.favoriten.filter(function (f) { return !gleich(f, k); }); z.favoriten.push({ name: name, sektor: k.sektor, system: k.system, planet: k.planet }); };
     fav(kol.koordinaten, "Testkolonie"); z.gegner.forEach(function (x) { fav(x, x.name); });
-    z.letzterKampfbericht = null; z.letzterSpionagebericht = null;
+    z.letzterKampfbericht = null; z.kampfberichte = []; z.letzterSpionagebericht = null;
     return z;
   }
 

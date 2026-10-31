@@ -159,7 +159,7 @@
       favoriten: [],         // Kapitel 6: gespeicherte Ziel-Koordinaten
       flottenZaehler: 0,
       gegner: [],            // v11 (0.14.1): minimale Test-Gegner (Testphase), volles Weltraum-Kapitel später
-      letzterKampfbericht: null,
+      letzterKampfbericht: null, kampfberichte: [], // 0.15.1
       letzterSpionagebericht: null,
       truemmerfelder: [],    // späteres Kapitel
       ereignisse: [],        // späteres Kapitel: KI-Angriffe/Ereignisse
@@ -269,6 +269,8 @@
     z.flottenZaehler = Math.max(0, Math.floor(Number(z.flottenZaehler) || 0));
     z.gegner = SS.kern.testphase ? SS.kern.testphase.bereinige(z.gegner) : (Array.isArray(z.gegner) ? z.gegner : []); // v11
     if (!z.letzterKampfbericht || typeof z.letzterKampfbericht !== "object") z.letzterKampfbericht = null;
+    z.kampfberichte = (Array.isArray(z.kampfberichte) ? z.kampfberichte : []).filter(function (b) { return b && typeof b === "object"; }).slice(0, 10); // 0.15.1
+    if (!z.kampfberichte.length && z.letzterKampfbericht) z.kampfberichte = [z.letzterKampfbericht];
     if (!z.letzterSpionagebericht || typeof z.letzterSpionagebericht !== "object") z.letzterSpionagebericht = null;
     z.truemmerfelder = Array.isArray(z.truemmerfelder) ? z.truemmerfelder : [];
     z.ereignisse = Array.isArray(z.ereignisse) ? z.ereignisse : [];

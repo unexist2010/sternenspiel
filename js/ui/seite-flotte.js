@@ -76,7 +76,11 @@
       if (s) out += h.box("Letzter Spionagebericht – " + esc(s.name) + " [" + kt(s.koordinaten) + "]", "<p id=\"spionage-bericht\">Schiffe (Startplätze): " + namen(s.schiffe, "s") + "<br>Verteidigung: " + namen(s.verteidigung, "v") +
         "<br>Trümmer Orbit: " + F.zahl(s.truemmer.orbit.metall) + " Metall · " + F.zahl(s.truemmer.orbit.silizium) + " Silizium" +
         (s.hinweis ? "<br><span id=\"spionage-hinweis\" class=\"spionage-hinweis\">» " + esc(s.hinweis) + "</span>" : "") + "</p>", "", " id=\"box-spionage\"");
-      if (b) out += h.box("Letzter Kampfbericht – " + esc(b.ziel ? b.ziel.name + " [" + kt(b.ziel) + "]" : ""), SS.ui.kampfbericht.html(b), "", " id=\"box-kampfbericht\"");
+      var titel = function (x) { return esc(x.ziel ? x.ziel.name + " [" + kt(x.ziel) + "]" : "") + (x.zeit ? " · " + F.uhrzeit(x.zeit) : ""); };
+      if (b) out += h.box("Letzter Kampfbericht – " + titel(b), SS.ui.kampfbericht.html(b), "", " id=\"box-kampfbericht\"");
+      var alt = (zz.kampfberichte || []).filter(function (x) { return x !== b; }); // 0.15.1: ältere Berichte (inkl. Piraten) aufklappbar
+      if (alt.length) out += h.box("Ältere Kampfberichte (" + alt.length + ")", alt.map(function (x, i) {
+        return "<details class=\"kb-alt\" data-kb=\"" + i + "\"><summary>" + (x.expedition ? "☠ " : "⚔ ") + titel(x) + "</summary>" + SS.ui.kampfbericht.html(x).replace(/ id=\"[^"]*\"/g, "") + "</details>"; }).join(""), "", " id=\"box-kampfberichte\"");
       return out;
     }
 

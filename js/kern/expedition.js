@@ -56,10 +56,12 @@
     var kap = SS.kern.flotte.ladekapazitaet(f.schiffe) - wert(f.ladung), menge = Math.floor(cap(z) * (EB().GROESSE_MIN + r() * (1 - EB().GROESSE_MIN)));
     var art = wurf(EB().ROHSTOFFE.map(function (x) { return [x.id, x.gewicht]; }), r);
     var faktor = EB().ROHSTOFFE.filter(function (x) { return x.id === art; })[0].faktor;
-    var n = Math.max(0, Math.min(Math.floor(menge * faktor), kap));
-    if (!n) return { art: "nichts", text: "Rohstoffe gefunden, aber kein Laderaum frei." };
+    var gefunden = Math.max(0, Math.floor(menge * faktor)), n = Math.max(0, Math.min(gefunden, kap)), rn = D().rohstoffNachId(art).name, F = SS.format && SS.format.zahl ? SS.format.zahl : String;
+    if (!n) return { art: "nichts", gefunden: gefunden, text: F(gefunden) + " " + rn + " gefunden, aber kein Laderaum frei – nichts aufgenommen." };
     f.ladung = f.ladung || {}; f.ladung[art] = (f.ladung[art] || 0) + n;
-    return { art: "rohstoffe", rohstoffe: (function () { var o = {}; o[art] = n; return o; })(), text: "Fund: " + n + " " + D().rohstoffNachId(art).name + (n === kap ? " (Laderaum voll)" : "") };
+    var gekappt = n < gefunden; // 0.15.1: Laderaum begrenzt den Fund → klar benennen
+    return { art: "rohstoffe", rohstoffe: (function () { var o = {}; o[art] = n; return o; })(), gefunden: gefunden, gekappt: gekappt,
+      text: gekappt ? F(gefunden) + " " + rn + " gefunden, " + F(n) + " aufgenommen – Laderaum voll" : "Fund: " + F(n) + " " + rn };
   }
   function schiffFund(z, f, r) {
     var pool = schiffPool(z); if (!pool.length) return { art: "nichts", text: "Wracks gesichtet, nichts Brauchbares." };
@@ -89,10 +91,16 @@
     }
     f.anzahl = wert(f.schiffe);
     if (f.ladung) { var kap = SS.kern.flotte.ladekapazitaet(f.schiffe), l = wert(f.ladung); if (l > kap) Object.keys(f.ladung).forEach(function (rid) { f.ladung[rid] = Math.floor(f.ladung[rid] * kap / l); }); }
-    z.letzterKampfbericht = b; f.kampfbericht = b;
-    var verl = wert(vorher) - f.anzahl;
-    return { art: "piraten", text: "Piratenangriff! " + ({ angreifer: "Abgewehrt", verteidiger: "Rückzug", unentschieden: "Unentschieden" }[b.sieger]) + " – " + verl + " Schiffe verloren" + (b.rettung ? " (1 Schiff entkommen)" : "") };
+    merkeKampfbericht(z, b); f.kampfbericht = b;
+    var verl = wert(vorher) - f.anzahl, von = " von " + wert(vorher);
+    // 0.15.1: „Entkommen“ ist eine Niederlage, kein Unentschieden – Text und Bericht passen zusammen.
+    if (b.rettung) return { art: "piraten", text: verl ? "Piratenangriff! Niederlage – Flotte vernichtet, 1 " + D().schiffNachId(b.rettung).name + " entkommen (" + verl + von + " Schiffen verloren)"
+      : "Piratenangriff! Niederlage – " + D().schiffNachId(b.rettung).name + " (einziges Schiff) entkommt knapp" };
+    return { art: "piraten", text: "Piratenangriff! " + ({ angreifer: "Piraten abgewehrt", verteidiger: "Rückzug vor den Piraten", unentschieden: "Unentschieden" }[b.sieger]) + " – " + verl + von + " Schiffen verloren" };
   }
+
+  /** 0.15.1: Kampfberichte-Liste (neueste zuerst, max. 10) + letzterKampfbericht. */
+  function merkeKampfbericht(z, b) { z.letzterKampfbericht = b; z.kampfberichte = [b].concat((z.kampfberichte || []).filter(function (x) { return x !== b; })).slice(0, 10); }
 
   /** Ereignis am Ende der Haltezeit. r = Zufall 0..1 (Tests: fest). Liefert {art, text, ...}; Verzögerung setzt f.verzoegerung (Faktor auf Rückflug). */
   function ereignis(z, f, jetzt, r) {
@@ -101,10 +109,14 @@
     if (r() < fundChance(h)) return wurf([["rohstoffe", e.ANTEIL_ROHSTOFFE], ["schiffe", e.ANTEIL_SCHIFFE]], r) === "schiffe" ? schiffFund(z, f, r) : rohstoffFund(z, f, r);
     var art = wurf([["piraten", e.GEWICHT_PIRATEN], ["verzoegerung", e.GEWICHT_VERZOEGERUNG], ["nichts", e.GEWICHT_NICHTS]], r);
     if (art === "piraten") return piraten(z, f, r, jetzt);
-    if (art === "verzoegerung") { f.verzoegerung = e.VERZOEGERUNG_FAKTOR; return { art: "verzoegerung", text: "Antriebsstörung – Rückflug dauert länger." }; }
+    if (art === "verzoegerung") {
+      // 0.15.1: Master fliegt sofort (Flugzeit 0) → ehrlicher Text statt Fake-„dauert länger“.
+      if (SS.kern.werft.istMaster(z)) return { art: "verzoegerung", text: "Antriebsstörung – Rückflug würde " + e.VERZOEGERUNG_FAKTOR + "× so lang dauern (Master-Modus: entfällt, sofort zurück)." };
+      f.verzoegerung = e.VERZOEGERUNG_FAKTOR; return { art: "verzoegerung", text: "Antriebsstörung – Rückflug dauert " + e.VERZOEGERUNG_FAKTOR + "× so lang." };
+    }
     return { art: "nichts", text: "Die Expedition fand nichts außer leerem Raum." };
   }
 
   SS.kern.expedition = { stufe: stufe, freigeschaltet: freigeschaltet, maxParallel: maxParallel, aktive: aktive, maxHalten: maxHalten, fundChance: fundChance,
-    istZiel: istZiel, leseZiel: leseZiel, pruefe: pruefe, schiffPool: schiffPool, cap: cap, ereignis: ereignis };
+    istZiel: istZiel, leseZiel: leseZiel, pruefe: pruefe, schiffPool: schiffPool, cap: cap, ereignis: ereignis, merkeKampfbericht: merkeKampfbericht };
 })(typeof globalThis !== "undefined" ? globalThis : this);

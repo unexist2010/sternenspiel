@@ -1051,6 +1051,7 @@
     else if (a === "send-alle") sendAlle();
     else if (a === "send-keine") { Array.prototype.forEach.call(document.querySelectorAll("#inhalt input[data-send-ladung]"), function (i) { i.value = 0; }); sendeFeld(function (i) { i.value = 0; }); }
     else if (a === "send-favorit") sendFavorit();
+    else if (a === "send-expeditionsraum") { setzeExpeditionsraum(true); FU().aktualisiereSenden(document); }
     else if (a === "send-los") sendLos();
     else if (a === "testphase-laden") {
       dialog("Testphase laden?", "<p>Master-Modus wird aktiviert. Flotte, Verteidigung und Flüge des Hauptplaneten werden durch den Test-Seed ersetzt; Testkolonie und zwei Testgegner werden angelegt.</p>", true)
@@ -1066,9 +1067,17 @@
     if (e.target.matches && e.target.matches("input[data-def-menge]") && zustand) defKnoepfe();
     if (e.target.matches && e.target.matches("input[data-send-menge], input[data-send-ladung], #send-koord") && zustand) FU().aktualisiereSenden(document);
   });
+  /** 0.15.1: Expeditionsraum (Position 13 im System des aktuellen Planeten) ins Koordinatenfeld; erzwingen = auch wenn schon etwas drinsteht. */
+  function setzeExpeditionsraum(erzwingen) {
+    var k = $("send-koord"), m = $("send-mission"); if (!k) return;
+    if (!erzwingen && SS.kern.expedition.leseZiel(k.value)) return;
+    var h = SS.kern.flotte.herkunftKoord(zustand, hp());
+    k.value = h.sektor + ":" + h.system + ":" + SS.BALANCE.EXPEDITION.POSITION; if (m) m.value = "expedition";
+  }
   an("inhalt", "change", function (e) {
     if (zustand && e.target.id === "flotte-preset") { SS.kern.flotte.setzePreset(hp(), e.target.value); speichern(true); route(true); return; }
     if (zustand && e.target.id === "send-ziel") { if (e.target.value) $("send-koord").value = e.target.value; FU().aktualisiereSenden(document); return; }
+    if (zustand && e.target.id === "send-mission" && e.target.value === "expedition") setzeExpeditionsraum(false); // 0.15.1: Ziel vorausfüllen
     if (zustand && (e.target.id === "send-mission" || e.target.id === "send-halten")) { FU().aktualisiereSenden(document); return; }
     var sel = e.target.closest("select[data-regler]");
     if (!sel || !zustand) return;

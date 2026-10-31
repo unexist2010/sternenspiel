@@ -63,3 +63,36 @@ test("Piraten: Kampf über Kampfkern, nie Totalverlust", () => {
   assert.ok(z.letzterKampfbericht.expedition);
   assert.ok(p.schiffe.spionagesonde >= 1, "mind. 1 Schiff kommt heim");
 });
+
+// 0.15.1 (Sandro pt38u): Playtest-Fixes
+test("0.15.1: Piraten-Rettung = Niederlage, Text + Bericht stimmig; Kampfberichte-Liste", () => {
+  const { SS, z, p, FL, ziel } = setup(1);
+  z._expeditionZufall = fest([0.99, 0, 0.99]);
+  p.schiffe.spionagesonde = (p.schiffe.spionagesonde || 0) + 1;
+  for (let i = 0; i < 12; i++) FL.senden(z, p, { schiffe: { spionagesonde: 1 }, ziel, mission: "expedition", halten: 1 }, T0 + i);
+  const t = z.letzteExpeditionen[0].text, b = z.letzterKampfbericht;
+  if (b.rettung) {
+    assert.match(t, /Niederlage – .*entkomm/); assert.doesNotMatch(t, /Unentschieden|\b0 von/);
+    const html = SS.ui.kampfbericht.html(b); assert.match(html, /Niederlage/); assert.match(html, /kb-rettung/);
+  }
+  assert.equal(z.kampfberichte.length, 10); assert.equal(z.kampfberichte[0], b);
+});
+
+test("0.15.1: Verzögerung – Normal ×2 Rückflug, Master ehrlich ohne Flugzeit-Lüge", () => {
+  let { z, p, FL, ziel } = setup(1);
+  z._expeditionZufall = fest([0.99, 0.4]);
+  const r = FL.senden(z, p, { schiffe: { korvette: 1 }, ziel, mission: "expedition", halten: 1 }, T0);
+  assert.ok(r.ok, r.grund); assert.match(z.letzteExpeditionen[0].text, /Master-Modus: entfällt/);
+  ({ z, p, FL, ziel } = setup(1)); z.einstellungen.master = false; z.rohstoffe.rohoel = 1e9;
+  z._expeditionZufall = fest([0.99, 0.4]);
+  FL.senden(z, p, { schiffe: { korvette: 1 }, ziel, mission: "expedition", halten: 1 }, T0);
+  const f = z.flotten[0]; FL.faellige(z, f.ankunft); FL.faellige(z, f.haltEnde);
+  assert.match(f.ergebnis.text, /2× so lang/); assert.equal(f.rueckkehr - f.haltEnde, 2 * (f.ankunft - f.abflug));
+});
+
+test("0.15.1: Laderaum kappt Fund → „X gefunden, Y aufgenommen – Laderaum voll“", () => {
+  const { z, p, FL, ziel } = setup(9);
+  z.punkte = 1e7; z._expeditionZufall = fest([0, 0, 0.999, 0]);
+  FL.senden(z, p, { schiffe: { korvette: 1 }, ziel, mission: "expedition", halten: 1 }, T0);
+  assert.match(z.letzteExpeditionen[0].text, /gefunden, .* aufgenommen – Laderaum voll|kein Laderaum frei/);
+});
