@@ -572,3 +572,6 @@ Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zäh
 ### C11.4 ANNAHME / später
 - 6 Runden je Phase, Erwartungswerte statt Zufall, Feuer proportional zur Zielanzahl, kein Schnellfeuer, keine Beute; Trümmer-/Reparatur-/Schrottquoten (C9.4) und Def-Werte bleiben ANNAHME. Echte (KI-)Angriffe: später – der Bericht ist derzeit im Kampf-Simulator live.
 
+
+## Testphase (0.14.1, ANNAHME)
+`legeTestphaseAn` erzeugt einen Testspielstand mit Gegnern Alpha/Beta (`z.gegner`). Spionage zeigt Schiffe/Verteidigung; Angriff nutzt den Kampfkern (Phase 1/2) mit Verlusten, Trümmerfeld und Heimflug. Kein Beute-/KI-System.

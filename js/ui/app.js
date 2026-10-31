@@ -1052,6 +1052,10 @@
     else if (a === "send-keine") { Array.prototype.forEach.call(document.querySelectorAll("#inhalt input[data-send-ladung]"), function (i) { i.value = 0; }); sendeFeld(function (i) { i.value = 0; }); }
     else if (a === "send-favorit") sendFavorit();
     else if (a === "send-los") sendLos();
+    else if (a === "testphase-laden") {
+      dialog("Testphase laden?", "<p>Master-Modus wird aktiviert. Flotte, Verteidigung und Flüge des Hauptplaneten werden durch den Test-Seed ersetzt; Testkolonie und zwei Testgegner werden angelegt.</p>", true)
+        .then(function (ok) { if (!ok) return; SS.kern.testphase.legeTestphaseAn(zustand, jetzt()); speichern(true); baueMenue(); route(true); meldung("Testphase geladen – Master aktiv", "gut"); });
+    }
     else if (a === "laden") {
       dialog("Letzten Spielstand laden?", "<p>Nicht gespeicherter Fortschritt seit dem letzten Speichern geht verloren (Offline-Produktion wird dabei angerechnet).</p>", true)
         .then(function (ok) { if (ok) { var id = aktivId; stoppeSchleifen(); ladeUndBetrete(id); } });

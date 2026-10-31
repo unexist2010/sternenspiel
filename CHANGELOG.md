@@ -1,5 +1,13 @@
 # Changelog – Sternenspiel
 
+## [0.14.1] – 2026-10-31 – Testphase: Gegner + echte Spionage/Angriffe (Sandro t32u)
+
+- Minimales Gegnermodell `z.gegner` (Spielstand v11 mit Migration), `letzterKampfbericht`, `letzterSpionagebericht`.
+- `SS.kern.testphase.legeTestphaseAn(z, jetzt)`: Master an, starker Heimatplanet (Flotte + Verteidigung), Testkolonie, 2 Gegner (Alpha/Beta, je ≤5 Einheiten), Favoriten, 100 Mio. Ressourcen. Überschreibt bestehende Daten.
+- Spionage + Angriff auf Gegner: echter Kampf (Phase 1 Orbit, Phase 2 Boden), Bericht gespeichert, Verluste beidseitig, Trümmerfeld, Überlebende fliegen heim.
+- UI: Knopf „Testphase laden“, Optgroup „Gegner“ im Zielmenü, Box „Letzter Kampfbericht“ (kampfbericht.js) + Spionagebericht.
+- Tests: `testphase.test.js`, Playtest `playtest-testphase.js` (Screenshots `playtest/testphase-*.png`).
+
 ## [0.14.0] – 2026-10-31 – Kapitel Kampfsystem / Kampfbericht (Sandro t31u)
 
 - Spezifikation C11: Phasen (Orbit → Boden nur bei ≥1 überlebendem Angreifer), Orbitalverteidigung als eigenes System, Zwei-Hüllen + Waffentypen als FEST; Zahlen bleiben ANNAHME.

@@ -1,0 +1,135 @@
+/*
+ * Sternenspiel – Testphase (0.14.1, Sandro t32u): minimales Gegner-Modell + Test-Seed für Flug/Transport/Spionage/Angriff.
+ * KEIN volles Weltraum-Kapitel: Gegner sind statische Datensätze in z.gegner ohne KI, ohne Produktion, ohne Beute.
+ * Gegner = { id, name, sektor, system, planet, schiffe:{id:n}, verteidigung:{id:n}, solarsatelliten, truemmer }
+ * legeTestphaseAn(z, jetzt) ÜBERSCHREIBT klar (dokumentiert): Master an, Hauptplanet-Bestand/Gebäude/Startplätze,
+ * Zweitplanet „Testkolonie“ und genau zwei Gegner werden neu gesetzt; Flotten unterwegs werden verworfen.
+ * Alle Zahlen = ANNAHME (Test-Seed).
+ */
+(function (g) {
+  "use strict";
+  var SS = (g.SS = g.SS || {});
+  SS.kern = SS.kern || {};
+  var D = function () { return SS.DATEN; };
+  var gleich = function (a, b) { return a && b && a.sektor === b.sektor && a.system === b.system && a.planet === b.planet; };
+  var leerT = function () { return { orbit: { metall: 0, silizium: 0 }, boden: { metall: 0, silizium: 0 } }; };
+
+  function bereinige(liste) {
+    return (Array.isArray(liste) ? liste : []).filter(function (x) {
+      return x && x.id && D().weltraum.leseKoordinaten(x.sektor + ":" + x.system + ":" + x.planet);
+    }).map(function (x) {
+      var sch = {}, def = {};
+      Object.keys(x.schiffe || {}).forEach(function (id) { var n = Math.floor(Number(x.schiffe[id]) || 0); if (n > 0 && D().schiffNachId(id)) sch[id] = n; });
+      Object.keys(x.verteidigung || {}).forEach(function (id) { var n = Math.floor(Number(x.verteidigung[id]) || 0); if (n > 0 && D().verteidigungNachId(id)) def[id] = n; });
+      var t = leerT();
+      if (x.truemmer) ["orbit", "boden"].forEach(function (o) { ["metall", "silizium"].forEach(function (r) { t[o][r] = Math.max(0, Number(x.truemmer[o] && x.truemmer[o][r]) || 0); }); });
+      return { id: String(x.id), name: String(x.name || x.id).slice(0, 40), sektor: x.sektor, system: x.system, planet: x.planet,
+        schiffe: sch, verteidigung: def, solarsatelliten: Math.max(0, Math.floor(Number(x.solarsatelliten) || 0)), truemmer: t };
+    });
+  }
+
+  function gegnerAn(z, k) { return (z.gegner || []).filter(function (x) { return gleich(x, k); })[0] || null; }
+
+  /** Synthetischer Planet + Zustand für SS.kern.kampf.simuliere (Gegner ohne Flotte unterwegs → alle Schiffe verteidigen). */
+  function kampfPlanet(gg) {
+    var p = { id: "gegner:" + gg.id, schiffe: JSON.parse(JSON.stringify(gg.schiffe)), verteidigung: JSON.parse(JSON.stringify(gg.verteidigung)),
+      solarsatelliten: gg.solarsatelliten || 0, flotte: { preset: SS.BALANCE.FLOTTE.STANDARD_PRESET },
+      startplaetze: [{ buchstabe: "A", stufe: 10 }, { buchstabe: "B", stufe: 10 }], gebaeude: {}, truemmer: leerT() }; // 300 Plätze ≫ Bestand
+    var gz = { forschung: {}, einstellungen: {}, flotten: [], rohstoffe: {} }; // ANNAHME: Gegner ohne Forschung
+    return { p: p, z: gz };
+  }
+
+  /** Spionage: im Test volle Sichtbarkeit (ANNAHME; ohne Master später abgestuft). */
+  function spionage(z, gg, jetzt) {
+    var b = { zeit: jetzt, gegner: gg.id, name: gg.name, koordinaten: { sektor: gg.sektor, system: gg.system, planet: gg.planet },
+      schiffe: JSON.parse(JSON.stringify(gg.schiffe)), verteidigung: JSON.parse(JSON.stringify(gg.verteidigung)), solarsatelliten: gg.solarsatelliten || 0,
+      truemmer: JSON.parse(JSON.stringify(gg.truemmer || leerT())), sichtbarkeit: "voll" };
+    z.letzterSpionagebericht = b;
+    return b;
+  }
+
+  /** Angriff einer Flotte f auf Gegner gg: simulieren, Verluste beidseitig anwenden, Trümmer am Gegner sammeln. */
+  function angriff(z, f, gg, jetzt) {
+    var kp = kampfPlanet(gg);
+    var b = SS.kern.kampf.simuliere(kp.z, kp.p, { angreifer: f.schiffe, angreiferZustand: z });
+    b.zeit = jetzt; b.ziel = { id: gg.id, name: gg.name, sektor: gg.sektor, system: gg.system, planet: gg.planet }; b.flotte = f.id;
+    b.angreifer.forEach(function (x) { f.schiffe[x.id] = x.nachher; if (!f.schiffe[x.id]) delete f.schiffe[x.id]; });
+    f.anzahl = Object.keys(f.schiffe).reduce(function (s, id) { return s + f.schiffe[id]; }, 0);
+    SS.kern.kampf.anwenden(kp.z, kp.p, b);
+    gg.schiffe = kp.p.schiffe; gg.verteidigung = {}; Object.keys(kp.p.verteidigung).forEach(function (id) { if (kp.p.verteidigung[id] > 0) gg.verteidigung[id] = kp.p.verteidigung[id]; });
+    gg.solarsatelliten = kp.p.solarsatelliten;
+    gg.truemmer = gg.truemmer || leerT();
+    ["metall", "silizium"].forEach(function (r) { gg.truemmer.orbit[r] += b.truemmerOrbit[r]; gg.truemmer.boden[r] += b.schrottBoden[r]; });
+    f.kampfbericht = b; z.letzterKampfbericht = b;
+    return b;
+  }
+
+  /** Ankunft einer Flotte bei einem Gegner. → Berichtstext oder null (kein Gegner). */
+  function ankunft(z, f, jetzt) {
+    var gg = gegnerAn(z, f.ziel);
+    if (!gg) return null;
+    if (f.mission === "spionieren") {
+      var s = spionage(z, gg, jetzt); f.spionagebericht = s;
+      var n = function (o) { return Object.keys(o).reduce(function (a, k) { return a + o[k]; }, 0); };
+      return "Spionagebericht " + gg.name + ": " + n(s.schiffe) + " Schiffe, " + n(s.verteidigung) + " Verteidigungsanlagen";
+    }
+    if (f.mission === "angriff") {
+      var b = angriff(z, f, gg, jetzt);
+      var sieg = { angreifer: "Sieg", verteidiger: "Niederlage", unentschieden: "Unentschieden" }[b.sieger];
+      return "Angriff auf " + gg.name + ": " + sieg + " – Trümmer Orbit " + b.truemmerOrbit.metall + " M / " + b.truemmerOrbit.silizium + " Si, Boden " + b.schrottBoden.metall + " M / " + b.schrottBoden.silizium + " Si";
+    }
+    if (f.mission === "transportieren") return null; // Transport: Standard („abgeliefert“)
+    return null;
+  }
+
+  /** Freie Planet-Nummern im Heimatsystem (ohne Heimat). */
+  function nachbarn(z, anzahl) {
+    var h = z.heimat, W = SS.BALANCE.WELTRAUM || {}, max = W.PLANETEN_PRO_SYSTEM || 15, out = [];
+    for (var d = 1; out.length < anzahl && d < max; d++) [h.planet + d, h.planet - d].forEach(function (pl) {
+      if (out.length < anzahl && pl >= 1 && pl <= max) out.push({ sektor: h.sektor, system: h.system, planet: pl });
+    });
+    return out;
+  }
+
+  /**
+   * Test-Seed (ÜBERSCHREIBT): Master an, Hauptplanet stark, Zweitplanet, 2 schwache Gegner (je ≤ 5 Einheiten), Favoriten.
+   */
+  function legeTestphaseAn(z, jetzt) {
+    z.einstellungen = z.einstellungen || {}; z.einstellungen.master = true;
+    var hp = z.planeten[0];
+    // offene Aufträge sofort fertig (Master)
+    if (hp.bauauftrag) hp.bauauftrag.ende = jetzt;
+    (hp.werftauftraege || []).forEach(function (w) { w.ende = jetzt; });
+    (hp.verteidigungsauftraege || []).forEach(function (w) { w.ende = jetzt; });
+    if (z.forschungsauftrag) z.forschungsauftrag.ende = jetzt;
+    ["metall", "silizium", "rohoel", "kunststoff_t1", "kunststoff_t2", "kunststoff_t3"].forEach(function (r) { if (r in z.rohstoffe) z.rohstoffe[r] = Math.max(z.rohstoffe[r], 1e8); });
+    var geb = { metallmine: 10, siliziummine: 10, bohrstation: 5, solarfarm: 12, raumflughafen: 1, werft: 2, verteidigungswerft: 2, forschungseinrichtung: 2 };
+    Object.keys(geb).forEach(function (id) { if (id in hp.gebaeude) hp.gebaeude[id] = Math.max(hp.gebaeude[id] || 0, geb[id]); });
+    // Startplätze: A Stufe 10 + B Stufe 3 = 100 + 60 = 160 Plätze (ANNAHME)
+    hp.startplaetze.forEach(function (sp) { if (sp.buchstabe === "A") sp.stufe = 10; if (sp.buchstabe === "B") sp.stufe = Math.max(sp.stufe, 3); });
+    // Test-Seed Flotte (ANNAHME): 36 Kampfschiffe + Frachter + Sonden
+    hp.schiffe = { korvette: 12, zerstoerer: 10, kreuzer: 8, kleine_drohne: 6, kleiner_frachter: 6, mittlerer_frachter: 2, spionagesonde: 5 };
+    hp.verteidigung = { raketenbatterie: 10, laserturm: 6, pulslaser: 2, orbitalverteidigungsplattform: 1 };
+    z.forschung.laser = Math.max(z.forschung.laser || 0, 1);
+    // Zweitplanet + Gegner auf Nachbar-Positionen im Heimatsystem
+    var nb = nachbarn(z, 3);
+    var kol = z.planeten.filter(function (p) { return p.id === "test-kolonie"; })[0];
+    if (!kol) { kol = SS.kern.zustand.neuerPlanet(false); kol.id = "test-kolonie"; z.planeten.push(kol); }
+    kol.name = "Testkolonie"; kol.koordinaten = nb[0]; kol.schiffe = { kleiner_frachter: 1 }; kol.verteidigung = {};
+    kol.gebaeude.raumflughafen = 1; kol.startplaetze[0].stufe = 1;
+    z.gegner = [
+      { id: "alpha", name: "Testgegner Alpha", sektor: nb[1].sektor, system: nb[1].system, planet: nb[1].planet,
+        schiffe: { kleine_drohne: 3, aufklaerer: 1 }, verteidigung: { raketenbatterie: 1 }, solarsatelliten: 0, truemmer: leerT() },
+      { id: "beta", name: "Testgegner Beta", sektor: nb[2].sektor, system: nb[2].system, planet: nb[2].planet,
+        schiffe: { kleine_drohne: 1 }, verteidigung: { maschinennest: 2, laserturm: 2 }, solarsatelliten: 0, truemmer: leerT() }
+    ];
+    z.flotten = []; // ANNAHME: laufende Flüge verwerfen (sauberer Testbeginn)
+    z.favoriten = z.favoriten || [];
+    var fav = function (k, name) { z.favoriten = z.favoriten.filter(function (f) { return !gleich(f, k); }); z.favoriten.push({ name: name, sektor: k.sektor, system: k.system, planet: k.planet }); };
+    fav(kol.koordinaten, "Testkolonie"); z.gegner.forEach(function (x) { fav(x, x.name); });
+    z.letzterKampfbericht = null; z.letzterSpionagebericht = null;
+    return z;
+  }
+
+  SS.kern.testphase = { bereinige: bereinige, gegnerAn: gegnerAn, kampfPlanet: kampfPlanet, spionage: spionage, angriff: angriff, ankunft: ankunft, legeTestphaseAn: legeTestphaseAn };
+})(typeof globalThis !== "undefined" ? globalThis : this);

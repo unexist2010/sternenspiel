@@ -162,3 +162,9 @@ Stufe 1: 0–1 · Stufe 2: 2–3 · Stufe 3: 4–6 · Stufe 4: 7–10 · Stufe 5
 - **ANNAHME Massengutfrachter (neu):** Kosten 120.000 / 90.000 / 30.000 + K1 2.000, Hyperraum, Verbund, Schild 150, Tempo 5.000, Verbrauch 500, Werft 8, Hyperraum 4 + Komprimierung 7.
 - **Offen:** Titan hat ebenfalls 1.000.000 Ladung – ggf. später senken, damit der Massengutfrachter klar der Transporter ist (nicht ohne Auftrag geändert).
 - **Vorgemerkt:** Orbitalverteidigungsplattform → Verteidigung (Kapitel 5) statt Werft; noch nicht umgebaut.
+
+## 0.14.1 – Testphase (t32u)
+- **Erledigt:** Testphase mit 2 Minimal-Gegnern, echte Spionage/Angriffe.
+- **Später:** vollständiges Weltraum-Kapitel, KI-Gegner/Wellen, Beute, Schnellfeuer, Zufall, Kolonisierung.
+- **Offen:** Orbitalverteidigungsplattform für schwache Gegner zu stark (bei Alpha deshalb weggelassen, sonst Unentschieden).
+- **Offen:** Spionagesonden-Verluste/Sichtbarkeit ohne Master; Reparaturquote rundet bei 1 Anlage auf „repariert“ (ANNAHME).

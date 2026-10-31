@@ -57,7 +57,26 @@
         "<p class=\"hinweis\" id=\"liste-unterwegs\">Keine Flotte unterwegs – alle " + F.zahl(sb.kapazitaet) + " Startplätze stehen zur Verfügung.</p>", "", " id=\"box-unterwegs\"");
       // 0.13.1 (Sandro t30u): OGame-artig – Tabs „Startplatz“ und „Hangar“ als große, zuklappbare Dropdowns; Senden im Flottenfenster.
       var tab = function (id, titel, zahl, inhalt) { return "<details class=\"flotte-tab\" id=\"tab-" + id + "\" open><summary>" + titel + " <span class=\"tab-zahl\">" + F.zahl(zahl) + "</span></summary>" + inhalt + "</details>"; };
-      return "<div class=\"flotte-tabs\">" + tab("startplatz", "Startplatz", sb.aufStartbahn, startb) + tab("hangar", "Hangar", FL.summe(sb.hangar), hangar) + "</div>" + sendefenster() + unterwegs;
+      return testphaseBox() + "<div class=\"flotte-tabs\">" + tab("startplatz", "Startplatz", sb.aufStartbahn, startb) + tab("hangar", "Hangar", FL.summe(sb.hangar), hangar) + "</div>" + sendefenster() + unterwegs + berichteBox();
+    }
+
+    // ---------- Testphase (0.14.1, Sandro t32u) ----------
+    function testphaseBox() {
+      var zz = z(), gg = zz.gegner || [];
+      var liste = gg.length ? "<ul class=\"flug-liste\" id=\"liste-gegner\">" + gg.map(function (x) {
+        var n = FL.summe(x.schiffe) + FL.summe(x.verteidigung);
+        return "<li data-gegner=\"" + esc(x.id) + "\"><b>" + esc(x.name) + "</b> [" + kt(x) + "] · " + F.zahl(FL.summe(x.schiffe)) + " Schiffe · " + F.zahl(FL.summe(x.verteidigung)) + " Verteidigung" + (n ? "" : " · <i>vernichtet</i>") + "</li>"; }).join("") + "</ul>" : "";
+      return h.box("Testphase", "<p class=\"hinweis\">Lädt einen Test-Seed: <b>Master-Modus an</b> (Bau/Flug sofort, Rohstoffe frei), starke Flotte + etwas Verteidigung am Hauptplaneten, " +
+        "Zweitplanet „Testkolonie“ und zwei schwache Testgegner (je ≤ 5 Einheiten) im Heimatsystem. <b>Überschreibt</b> Flotte, Verteidigung und Flüge des Hauptplaneten. <span class=\"annahme-marke\">Annahme: Test-Seed</span></p>" + liste,
+        "<button type=\"button\" class=\"knopf\" data-aktion=\"testphase-laden\" id=\"knopf-testphase\">Testphase laden</button>", " id=\"box-testphase\"");
+    }
+    function berichteBox() {
+      var zz = z(), out = "", s = zz.letzterSpionagebericht, b = zz.letzterKampfbericht;
+      var namen = function (o, art) { var ids = Object.keys(o || {}); return ids.length ? ids.map(function (id) { var d = art === "s" ? D.schiffNachId(id) : D.verteidigungNachId(id); return esc(d ? d.name : id) + " " + F.zahl(o[id]); }).join(", ") : "keine"; };
+      if (s) out += h.box("Letzter Spionagebericht – " + esc(s.name) + " [" + kt(s.koordinaten) + "]", "<p id=\"spionage-bericht\">Schiffe: " + namen(s.schiffe, "s") + "<br>Verteidigung: " + namen(s.verteidigung, "v") +
+        "<br>Trümmer Orbit: " + F.zahl(s.truemmer.orbit.metall) + " Metall · " + F.zahl(s.truemmer.orbit.silizium) + " Silizium</p>", "", " id=\"box-spionage\"");
+      if (b) out += h.box("Letzter Kampfbericht – " + esc(b.ziel ? b.ziel.name + " [" + kt(b.ziel) + "]" : ""), SS.ui.kampfbericht.html(b), "", " id=\"box-kampfbericht\"");
+      return out;
     }
 
     // ---------- Sendefenster ----------
@@ -74,6 +93,7 @@
         return "<label>" + esc(r.name) + " <input type=\"number\" min=\"0\" value=\"0\" inputmode=\"numeric\" size=\"8\" data-send-ladung=\"" + r.id + "\"></label>"; }).join("") + "</div></details>";
       var opts = "<option value=\"\">Koordinaten eingeben …</option><optgroup label=\"Eigene Planeten\">" + FL.eigenePlaneten(zz).map(function (e) {
         return "<option value=\"" + kt(e) + "\">" + esc(e.name) + " [" + kt(e) + "]</option>"; }).join("") + "</optgroup>" +
+        ((zz.gegner || []).length ? "<optgroup label=\"Gegner\">" + zz.gegner.map(function (x) { return "<option value=\"" + kt(x) + "\">⚔ " + esc(x.name) + " [" + kt(x) + "]</option>"; }).join("") + "</optgroup>" : "") +
         (zz.favoriten.length ? "<optgroup label=\"Favoriten\">" + zz.favoriten.map(function (f) { return "<option value=\"" + kt(f) + "\">★ " + esc(f.name) + " [" + kt(f) + "]</option>"; }).join("") + "</optgroup>" : "");
       var mis = FL.MISSIONEN.map(function (m) { return "<option value=\"" + m.id + "\">" + m.name + "</option>"; }).join("");
       var inhalt = (ids.length ? "<table class=\"tabelle send-tabelle\"><thead><tr><th>Schiff</th><th>am Planeten</th><th>senden</th></tr></thead><tbody>" + zeilen + "</tbody></table>" +

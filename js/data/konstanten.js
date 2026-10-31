@@ -16,11 +16,11 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.14.0";
+  SS.VERSION = "0.14.1";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
-    SPIELSTAND_VERSION: 10,  // v2: Heimatplanet · v3: automatischer Start · v4: Kapitel 2 – Planeten mit Gebäuden, Bauauftrag, Startplätzen · v5: Rohölvorkommen/Geologie, Startplätze A–Z, Master-Modus · v6: Forschung (Stufen + Forschungsauftrag), T2/T3-Freischaltung über Punkte · v7: Werft – Schiffsbestand je Planet + Werft-Warteschlange · v8: Schiffsliste nach Sandro (24 Schiffe, Umbenennung; 0.11.4: 25), Warteschlange unbegrenzt · v9: Verteidigung (planet.verteidigung + verteidigungsauftraege, Orbitalplattform Schiff→Verteidigung, planet.truemmer) · v10: Flotte (planet.flotte.preset, z.flotten im Flug, z.favoriten)
+    SPIELSTAND_VERSION: 11,  // v2: Heimatplanet · v3: automatischer Start · v4: Kapitel 2 – Planeten mit Gebäuden, Bauauftrag, Startplätzen · v5: Rohölvorkommen/Geologie, Startplätze A–Z, Master-Modus · v6: Forschung (Stufen + Forschungsauftrag), T2/T3-Freischaltung über Punkte · v7: Werft – Schiffsbestand je Planet + Werft-Warteschlange · v8: Schiffsliste nach Sandro (24 Schiffe, Umbenennung; 0.11.4: 25), Warteschlange unbegrenzt · v9: Verteidigung (planet.verteidigung + verteidigungsauftraege, Orbitalplattform Schiff→Verteidigung, planet.truemmer) · v10: Flotte (planet.flotte.preset, z.flotten im Flug, z.favoriten) · v11: z.gegner (Testphase), Kampf-/Spionageberichte
     SPEICHER_SCHLUESSEL: "sternenspiel_spielstand_v1",          // alter Einzel-Spielstand (bis 0.3) – wird als erstes Profil übernommen
     PROFIL_INDEX_SCHLUESSEL: "sternenspiel_profile_v1",         // Liste der Spielerprofile
     PROFIL_SPIELSTAND_PRAEFIX: "sternenspiel_spielstand_p_",    // + Profil-ID = eigener Spielstand je Spieler

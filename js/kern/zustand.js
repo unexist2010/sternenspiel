@@ -10,6 +10,7 @@
  *            v5 (0.7.0): Rohölvorkommen + Geologie-Log statt Rohölfeldern, Startplätze A–Z (Stufe ≤ 10), Master-Modus,
  *               Sperr-Flags Kunststoffwerk T2/T3, Hangar (vorbereitet) ·
  *            v6 (0.8.0): T2/T3-Freischaltung über Punkte, keine Gebäude-Obergrenze, Forschung (Stufen + Forschungsauftrag) ·
+ *            v11 (0.14.1): z.gegner (Test-Gegner), z.letzterKampfbericht/letzterSpionagebericht, Planet-Koordinaten weiterer Planeten
  *            v7 (0.9.0): Werft – planet.schiffe {id: Anzahl} + planet.werftauftraege (Warteschlange)
  */
 (function (g) {
@@ -117,6 +118,10 @@
       var alt = (Array.isArray(p.startplaetze) ? p.startplaetze : []).filter(function (x) { return x && x.buchstabe === sp.buchstabe; })[0];
       return { buchstabe: sp.buchstabe, stufe: alt ? Math.max(0, Math.min(K.STUFE_MAX, Math.floor(Number(alt.stufe) || 0))) : 0 };
     });
+    // 0.14.1: weitere eigene Planeten (Testphase) behalten Koordinaten + Namen
+    if (!istHaupt && p.koordinaten && SS.DATEN.weltraum.leseKoordinaten(p.koordinaten.sektor + ":" + p.koordinaten.system + ":" + p.koordinaten.planet))
+      neu.koordinaten = { sektor: p.koordinaten.sektor, system: p.koordinaten.system, planet: p.koordinaten.planet };
+    if (!istHaupt && p.name) neu.name = String(p.name).slice(0, 24);
     var a = p.bauauftrag;
     if (a && isFinite(a.start) && isFinite(a.ende) && a.kosten && (a.art === "gebaeude" ? SS.DATEN.gebaeudeNachId(a.id) : SS.DATEN.startplatzBuchstaben.indexOf(a.buchstabe) >= 0)) neu.bauauftrag = a;
     return neu;
@@ -153,6 +158,9 @@
       flotten: [],           // Kapitel 6: Flotten im Flug
       favoriten: [],         // Kapitel 6: gespeicherte Ziel-Koordinaten
       flottenZaehler: 0,
+      gegner: [],            // v11 (0.14.1): minimale Test-Gegner (Testphase), volles Weltraum-Kapitel später
+      letzterKampfbericht: null,
+      letzterSpionagebericht: null,
       truemmerfelder: [],    // späteres Kapitel
       ereignisse: [],        // späteres Kapitel: KI-Angriffe/Ereignisse
       einstellungen: { schildAutoaktivierung: true, master: false } // Schild: Solo-Regel (Wirkung später) · master: Testmodus je Profil
@@ -258,6 +266,9 @@
     });
     z.favoriten = (Array.isArray(z.favoriten) ? z.favoriten : []).filter(function (k) { return k && SS.DATEN.weltraum.leseKoordinaten(k.sektor + ":" + k.system + ":" + k.planet); });
     z.flottenZaehler = Math.max(0, Math.floor(Number(z.flottenZaehler) || 0));
+    z.gegner = SS.kern.testphase ? SS.kern.testphase.bereinige(z.gegner) : (Array.isArray(z.gegner) ? z.gegner : []); // v11
+    if (!z.letzterKampfbericht || typeof z.letzterKampfbericht !== "object") z.letzterKampfbericht = null;
+    if (!z.letzterSpionagebericht || typeof z.letzterSpionagebericht !== "object") z.letzterSpionagebericht = null;
     z.truemmerfelder = Array.isArray(z.truemmerfelder) ? z.truemmerfelder : [];
     z.ereignisse = Array.isArray(z.ereignisse) ? z.ereignisse : [];
     z.einstellungen = z.einstellungen || {};

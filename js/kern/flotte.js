@@ -17,8 +17,8 @@
     { id: "kolonisieren", name: "Kolonisieren", text: "Braucht mindestens ein Kolonieschiff." },
     { id: "transportieren", name: "Transportieren", text: "Hin und zurück: Ladung wird am Ziel sofort entladen, die Flotte kehrt automatisch zurück." },
     { id: "stationieren", name: "Stationieren", text: "Nur Hinflug: Schiffe bleiben auf einem anderen eigenen Planeten." },
-    { id: "spionieren", name: "Spionieren", text: "Braucht mindestens eine Spionagesonde." },
-    { id: "angriff", name: "Angriff", text: "Greift das Ziel an (Gegner folgen mit dem Weltraum-Kapitel)." },
+    { id: "spionieren", name: "Spionieren", text: "Braucht mindestens eine Spionagesonde. Gegen Testgegner: Spionagebericht (Schiffe + Verteidigung), danach Rückflug." },
+    { id: "angriff", name: "Angriff", text: "Greift das Ziel an: gegen Testgegner echter Kampf (Phase 1 Orbit + Phase 2 Boden) mit Kampfbericht und Trümmern; Überlebende fliegen zurück." },
     { id: "unterstuetzen", name: "Unterstützen", text: "Hilft am Ziel bei der Verteidigung (folgt mit Gegnern)." }
   ];
   var presetNachId = function (id) { return PRESETS.filter(function (x) { return x.id === id; })[0] || null; };
@@ -186,14 +186,22 @@
         // ANNAHME: Ohne Gegner/Kolonien (Weltraum-Kapitel) haben Missionen am Ziel noch keine Wirkung → Rückflug.
         // Transport (Sandro t30u, FEST): Ladung sofort entladen, Flotte kehrt sofort und automatisch zurück.
         // ANNAHME: Rohstoffe sind global (ein Lager je Spieler) → bei eigenem Ziel wieder gutgeschrieben; fremdes Ziel = abgeliefert.
+        // 0.14.1 Testphase: Spionage/Angriff gegen Test-Gegner (z.gegner) wirken echt.
+        var tp = !eigen && SS.kern.testphase ? SS.kern.testphase.ankunft(z, f, f.ankunft) : null;
+        if (tp) {
+          f.bericht = tp;
+          meld.push({ art: "flotte", name: m.name, text: tp });
+          if (!f.anzahl) { z.flotten.splice(z.flotten.indexOf(f), 1); meld.push({ art: "flotte", name: m.name, text: "Flotte bei " + ziel + " vollständig zerstört" }); return; }
+          f.phase = "rueck"; f.rueckkehr = f.ankunft + (f.ankunft - f.abflug);
+        }
         var entl = "";
         if (f.mission === "transportieren" && f.ladung) {
           if (eigen) Object.keys(f.ladung).forEach(function (rid) { z.rohstoffe[rid] = (z.rohstoffe[rid] || 0) + f.ladung[rid]; });
           entl = " – Ladung entladen (" + summe(f.ladung) + ")"; f.entladen = f.ladung; delete f.ladung;
         }
-        f.phase = "rueck"; f.rueckkehr = f.ankunft + (f.ankunft - f.abflug);
-        f.bericht = m.name + " bei " + ziel + ": " + (f.mission === "transportieren" || f.mission === "unterstuetzen" ? "Ziel erreicht" + entl : "kein Gegner/keine Wirkung (folgt im Weltraum-Kapitel)");
-        meld.push({ art: "flotte", name: m.name, text: "Flotte erreicht " + ziel + " (" + m.name + ")" });
+        if (!tp) { f.phase = "rueck"; f.rueckkehr = f.ankunft + (f.ankunft - f.abflug);
+        f.bericht = m.name + " bei " + ziel + ": " + (f.mission === "transportieren" || f.mission === "unterstuetzen" ? "Ziel erreicht" + entl + (!eigen && SS.kern.testphase && SS.kern.testphase.gegnerAn(z, f.ziel) ? " (abgeliefert)" : "") : "kein Gegner/keine Wirkung (folgt im Weltraum-Kapitel)");
+        meld.push({ art: "flotte", name: m.name, text: "Flotte erreicht " + ziel + " (" + m.name + ")" }); }
       }
       if (f.phase === "rueck" && jetzt >= f.rueckkehr) {
         var hp = planetVonId(z, f.herkunft) || z.planeten[0];

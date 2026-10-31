@@ -21,7 +21,7 @@ test("Daten: 4 Presets, 6 Missionen, Standard-Preset, Spielstand v10", () => {
   const { SS, z, p, FL } = setup();
   assert.deepEqual(J(FL.PRESETS.map((x) => x.name)), ["Gesunder Mix", "Starke Energiehülle", "Starke Metallhülle", "Maximale Feuerkraft"]);
   assert.deepEqual(J(FL.MISSIONEN.map((x) => x.name)), ["Kolonisieren", "Transportieren", "Stationieren", "Spionieren", "Angriff", "Unterstützen"]);
-  assert.equal(FL.preset(p), "gesunder_mix"); assert.equal(z.version, 10);
+  assert.equal(FL.preset(p), "gesunder_mix"); assert.equal(z.version, 11);
   assert.deepEqual(J(z.favoriten), []);
   assert.equal(SS.DATEN.menue.find((m) => m.id === "flotte").platzhalter, false);
 });
@@ -105,7 +105,7 @@ test("Flugzeit/Verbrauch/Entfernung, Favoriten, Master kostenlos, Migration v9 �
   const alt = JSON.parse(JSON.stringify(z)); alt.version = 9; delete alt.favoriten; delete alt.planeten[0].flotte;
   alt.flotten = [{ kaputt: 1 }];
   const m = SS.kern.zustand.migriere(alt);
-  assert.equal(m.version, 10); assert.deepEqual(J(m.flotten), []); assert.deepEqual(J(m.favoriten), []); assert.equal(m.planeten[0].flotte.preset, "gesunder_mix");
+  assert.equal(m.version, 11); assert.deepEqual(J(m.flotten), []); assert.deepEqual(J(m.favoriten), []); assert.equal(m.planeten[0].flotte.preset, "gesunder_mix");
 });
 
 test("0.13.1: Master sofort, Transport entlädt + kehrt zurück, Stationieren nur hin", () => {
