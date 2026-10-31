@@ -165,7 +165,7 @@ Stufe 1: 0–1 · Stufe 2: 2–3 · Stufe 3: 4–6 · Stufe 4: 7–10 · Stufe 5
 
 ## 0.14.1 – Testphase (t32u)
 - **Erledigt:** Testphase mit 2 Minimal-Gegnern, echte Spionage/Angriffe.
-- **Später:** vollständiges Weltraum-Kapitel, KI-Gegner/Wellen, Beute, Schnellfeuer, Zufall, Kolonisierung.
+- **Später:** vollständiges Weltraum-Kapitel, KI-Gegner/Wellen, Beute, Schnellfeuer, Zufall (Kolonisierung erledigt 0.18.0).
 - **Offen:** Orbitalverteidigungsplattform für schwache Gegner zu stark (bei Alpha deshalb weggelassen, sonst Unentschieden).
 - **Offen:** Spionagesonden-Verluste/Sichtbarkeit ohne Master; Reparaturquote rundet bei 1 Anlage auf „repariert“ (ANNAHME).
 

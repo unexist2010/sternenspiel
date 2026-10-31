@@ -46,7 +46,7 @@
     var r = function (id) { var v = p.regler && p.regler[id]; return (v == null ? 100 : v) / 100; };
     var stufe = function (id) { return p.gebaeude[id] || 0; };
     var verfuegbar = function (id) { return dtH ? Math.max(0, st[id] || 0) / dtH : Infinity; };
-    var grund = p.istHauptplanet ? B().GRUNDPRODUKTION_HAUPTPLANET : {};
+    var grund = (p.istHauptplanet || p.kolonie) ? B().GRUNDPRODUKTION_HAUPTPLANET : {}; // 0.18.0: Kolonien wie OGame mit Grundproduktion
     var info = {};
     var eFaktor = SS.kern.forschung ? SS.kern.forschung.energieFaktor(z) : 1; // Energie-Technologie (Kapitel 3, wirkt jetzt)
 
@@ -119,8 +119,8 @@
   }
 
   /** Bequeme Gesamtsicht für die Anzeige (Hauptplanet, Abschnittslänge wie in der Simulation). */
-  function uebersicht(z) {
-    return raten(z, hauptplanetVon(z), B().SIM_SCHRITT_MS / MS_PRO_STUNDE);
+  function uebersicht(z, p) {
+    return raten(z, p || hauptplanetVon(z), B().SIM_SCHRITT_MS / MS_PRO_STUNDE);
   }
 
   /** Netto-Produktion pro Stunde je Rohstoff (Hauptplanet) – Kurzform für Anzeige/Tests. */

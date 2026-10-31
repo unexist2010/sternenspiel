@@ -219,8 +219,24 @@
     $("menue-liste").innerHTML = D.menue.map(function (m) {
       return "<li><a href=\"#" + m.id + "\" data-seite=\"" + m.id + "\">" + m.name + "</a></li>";
     }).join("");
-    var h = zustand.heimat, pl = W.planet(h.system, h.planet);
+    bauePlanetenListe();
+  }
+  /** 0.18.0 (Sandro t49u): Planetenliste links wie OGame – Heimat + Kolonien anklickbar, aktiver Planet markiert. */
+  function bauePlanetenListe() {
+    var h = aktivInfo(), pl = W.planet(h.system, h.planet), ak = hp();
     $("menue-planet").innerHTML = planetBild(pl, "") + "<div><b>" + esc(h.name) + "</b><span>[" + W.koordinatenText(h) + "]</span><small>" + esc(zustand.name) + "</small></div>";
+    var liste = $("planeten-liste"); if (!liste) return;
+    liste.innerHTML = "<div class=\"planeten-kopf\">Planeten <span>" + zustand.planeten.length + "</span></div><ul>" + zustand.planeten.map(function (p, i) {
+      var k = planetKoord(p), bild = W.planet(k.system, k.planet);
+      return "<li><a href=\"#\" data-planet=\"" + esc(p.id) + "\" class=\"" + (p === ak ? "aktiv" : "") + "\"" + (p === ak ? " aria-current=\"true\"" : "") + ">" + planetBild(bild, "") +
+        "<span><b>" + esc(i === 0 ? zustand.heimat.name : p.name || "Kolonie") + "</b><small>[" + W.koordinatenText(k) + "]" + (i === 0 ? " · Heimat" : "") + "</small></span></a></li>";
+    }).join("") + "</ul>";
+  }
+  function planetKoord(p) { return SS.kern.flotte.herkunftKoord(zustand, p); }
+  function aktivInfo() { var p = hp(), k = planetKoord(p); return { sektor: k.sektor, system: k.system, planet: k.planet, name: p === zustand.planeten[0] ? zustand.heimat.name : (p.name || "Kolonie") }; }
+  function wechslePlanet(id) {
+    if (!zustand.planeten.some(function (p) { return p.id === id; })) return;
+    zustand.aktiverPlanet = id; speichern(true); bauePlanetenListe(); route(true);
   }
 
   function oeffneMenue() { $("menue").classList.add("offen"); $("menue-schleier").hidden = false; $("knopf-menue-auf").setAttribute("aria-expanded", "true"); }
@@ -232,6 +248,7 @@
     var teile = location.hash.replace(/^#/, "").split("/").filter(Boolean);
     var id = teile[0] && D.menuePunkt(teile[0]) ? teile[0] : "uebersicht";
     seite = { id: id, teile: teile.slice(1) };
+    bauePlanetenListe(); // 0.18.0: neue Kolonien sofort sichtbar
     Array.prototype.forEach.call(document.querySelectorAll("#menue-liste a"), function (a) {
       var aktiv = a.getAttribute("data-seite") === id;
       a.classList.toggle("aktiv", aktiv);
@@ -339,7 +356,7 @@
       return (i ? "<span class=\"trenner\">›</span>" : "") + (t.href ? "<a href=\"" + t.href + "\">" + t.text + "</a>" : "<span>" + t.text + "</span>");
     }).join("") + "</nav>";
   }
-  function hp() { return zustand.planeten[0]; }
+  function hp() { var a = zustand.aktiverPlanet; return (a && zustand.planeten.filter(function (p) { return p.id === a; })[0]) || zustand.planeten[0]; }
   function rName(id) { var r = D.rohstoffNachId(id); return r ? r.name : id; }
   function zahlFein(n) { return n > 0 && n < 10 ? F.rate(Math.round(n * 100) / 100) : F.rate(n); }
   /** Kostenliste mit Icons; fehlende Mengen werden live rot markiert. */
@@ -364,8 +381,8 @@
 
   // ---------- Seiten ----------
   function seiteUebersicht() {
-    var h = zustand.heimat, pl = W.planet(h.system, h.planet), sys = W.system(h.system);
-    var planetBox = box("Hauptplanet",
+    var h = aktivInfo(), pl = W.planet(h.system, h.planet), sys = W.system(h.system);
+    var planetBox = box(hp() === zustand.planeten[0] ? "Hauptplanet" : "Kolonie",
       "<div class=\"planet-karte\">" + planetBild(pl, "planet-bild") + "<dl class=\"werte\">" +
       "<dt>Planet</dt><dd id=\"uebersicht-planet\">" + esc(h.name) + "</dd>" +
       "<dt>Koordinaten</dt><dd><span class=\"koord\" id=\"uebersicht-koordinaten\" title=\"Sektor:System:Planet\">[" + W.koordinatenText(h) + "]</span></dd>" +
@@ -406,7 +423,7 @@
         "<td class=\"z\" data-live=\"bestand:" + r.id + "\"></td><td class=\"z eng-weg\" data-live=\"prod:" + r.id + "\"></td>" +
         "<td class=\"z eng-weg\" data-live=\"verb:" + r.id + "\"></td><td class=\"z\" data-live=\"netto:" + r.id + "\"></td></tr>";
     }).join("");
-    var rohstoffe = box("Rohstoffe auf " + esc(zustand.heimat.name),
+    var rohstoffe = box("Rohstoffe – Produktion auf " + esc(aktivInfo().name) + " (Lager gemeinsam)",
       "<div class=\"tabelle-huelle\"><table class=\"tabelle\" id=\"rohstoff-tabelle\"><thead><tr><th>Rohstoff</th><th class=\"z\">Bestand</th><th class=\"z eng-weg\">Produktion/h</th><th class=\"z eng-weg\">Verbrauch/h</th><th class=\"z\">Netto/h</th></tr></thead>" +
       "<tbody>" + zeilen + "</tbody></table></div>" +
       "<p class=\"hinweis\">Lager unbegrenzt (keine Speichergebäude). Grundproduktion Hauptplanet: Metall " + B.GRUNDPRODUKTION_HAUPTPLANET.metall + ", Silizium " + B.GRUNDPRODUKTION_HAUPTPLANET.silizium + " pro Std. <span class=\"annahme-marke\">Annahme</span></p>" +
@@ -726,7 +743,7 @@
   // ---------- Live-Werte (jeder Tick) ----------
   function aktualisiereLive() {
     if (!zustand) return;
-    var u = P.uebersicht(zustand), p = hp(), a = p.bauauftrag, fa = zustand.forschungsauftrag, t = jetzt(), Bau = SS.kern.bau;
+    var u = P.uebersicht(zustand, hp()), p = hp(), a = p.bauauftrag, fa = zustand.forschungsauftrag, t = jetzt(), Bau = SS.kern.bau;
     var vz = function (n) { return (n > 1e-9 ? "+" : n < -1e-9 ? "−" : "") + zahlFein(Math.abs(n)); };
     Array.prototype.forEach.call(document.querySelectorAll("#bildschirm-spiel [data-live]"), function (el) {
       var k = el.getAttribute("data-live").split(":"), art = k[0], id = k[1];
@@ -1050,6 +1067,10 @@
     var a = e.target.closest("a[data-seite]");
     if (a && a.getAttribute("href") === location.hash) route(); // gleiche Seite erneut gewählt → Menü trotzdem schließen
   });
+  an("planeten-liste", "click", function (e) {
+    var a = e.target.closest("a[data-planet]"); if (!a) return;
+    e.preventDefault(); wechslePlanet(a.getAttribute("data-planet")); schliesseMenue();
+  });
   an("knopf-schnellspeichern", "click", function () { speichern(false); });
   an("knopf-spieler-wechseln", "click", spielerWechseln);
   an("inhalt", "click", function (e) {
@@ -1076,6 +1097,7 @@
     else if (a === "send-alle") sendAlle();
     else if (a === "send-keine") { Array.prototype.forEach.call(document.querySelectorAll("#inhalt input[data-send-ladung]"), function (i) { i.value = 0; }); sendeFeld(function (i) { i.value = 0; }); }
     else if (a === "send-favorit") sendFavorit();
+    else if (a === "send-planet") { $("send-koord").value = b.getAttribute("data-koord"); $("send-ziel").value = b.getAttribute("data-koord"); if ($("send-mission").value !== "transportieren") $("send-mission").value = "stationieren"; FU().aktualisiereSenden(document); }
     else if (a === "send-expeditionsraum") { setzeExpeditionsraum(true); FU().aktualisiereSenden(document); }
     else if (a === "send-los") sendLos();
     else if (a === "testphase-laden") {

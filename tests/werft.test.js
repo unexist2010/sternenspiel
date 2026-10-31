@@ -40,7 +40,7 @@ test("Daten: genau 24 Schiffe, 6 Waffentypen, 2 Hüllentypen, je mit Bild, Grupp
   const k = (id) => D.schiffNachId(id).kosten;
   for (const d of ["kleine_drohne", "mittlere_drohne", "schwere_drohne"]) assert.ok(k(d).metall > k(d).silizium, d + " metalllastig");
   for (const d of ["traeger", "titan"]) assert.ok(k(d).silizium > k(d).metall, d + " siliziumlastig");
-  assert.ok(k("bomber").kunststoff_t3 >= 1000, "Bomber: hoher T3-Anteil");
+  assert.ok(k("bomber").kunststoff_t2 >= 1000 && !k("bomber").kunststoff_t3, "Bomber: Kunststoff T2 (0.18.0)");
   gleich(D.schiffNachId("solarsatellit").kosten, { silizium: 2000, rohoel: 500 });
 });
 

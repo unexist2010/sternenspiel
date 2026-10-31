@@ -610,3 +610,10 @@ Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zäh
 - **Gegner (FEST): nur Piraten.** Kampf über den bestehenden Kampfkern (Expedition = Angreifer, Piraten = Korvetten/Fregatten/Zerstörer mit 20–60 % der Expeditions-Feuerkraft, ANNAHME). Kampfbericht wie gewohnt.
 - **FEST: Kein Totalverlust-Event.** Selbst wenn die Piraten alles vernichten würden, entkommt 1 Schiff (stärkster Typ nach Anzahl).
 - Code: `js/kern/expedition.js`, Konstanten `SS.BALANCE.EXPEDITION`, Tests `tests/expedition.test.js`.
+
+
+## Kolonisieren & Expedition (0.18.0)
+- Kolonisieren: Ziel Position 1–12, frei; Limit ⌈Astrophysik/2⌉ Kolonien. Bei Ankunft neuer Planet „Kolonie n“, Kolonieschiff verbraucht, übrige Schiffe stationiert, Ladung ins gemeinsame Lager. Keine Rückkehr.
+- Planetenliste links (aktiver Planet), Schnellwahl eigener Planeten im Sendefenster.
+- Expedition :13 im eigenen System: feste Distanz 1315 (≈60 min, Kleiner Frachter, ohne Antriebsforschung). Cap = Punkte×25 (mind. 10 000). Fundgröße ×(1+0,05·h) max ×2; Fundchance +2 %/h max 75 %; Piraten 35–90 % der Flottenstärke, Gewicht 4.
+- Bomber: Kunststoff T2 3000. Startbestand Rohöl 600.

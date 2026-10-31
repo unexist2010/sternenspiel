@@ -1,5 +1,12 @@
 # Changelog – Sternenspiel
 
+## [0.18.0] – 2026-10-31 – Kolonisieren wie OGame + Balance (Sandro t49u)
+- **Kolonisieren:** Bei Ankunft entsteht ein neuer Planet (Position 1–12, frei), das Kolonieschiff wird verbraucht, restliche Schiffe bleiben dort stationiert, Ladung wird entladen (gemeinsames Lager). Limit Astrophysik: ⌈Stufe/2⌉ Kolonien. Neue Kolonie = gleiche Gebäudeliste (startet leer, mit Grundproduktion). Speichern/Laden ok.
+- **Planetenliste links** (klickbar, Wechsel des aktiven Planeten für Übersicht/Anlagen/Flotte); **Schnellwahl eigener Planeten** im Sendefenster (→ Stationieren).
+- **Expedition:** Anflug auf :13 im eigenen System von jeder Position gleich weit (≈60 min mit Kleinem Frachter ohne Antriebsforschung, Forschung verkürzt); andere Systeme wie bisher. Cap Punkte×25 (mind. 10 000) statt ×100. Haltezeit: Fundgröße +5 %/h (max ×2), Fundchance gedrosselt (+2 %/h, max 75 %). Piraten stärker (35–90 % der Flotte, häufiger).
+- **Bomber:** Kunststoff T2 (3000) statt T3. **Startbestand Rohöl** 600 statt 100.
+- Tests: 125 Unit-Tests + neuer Playtest `tests/playtest-kolonie.js` (Desktop + Handy).
+
 ## [0.17.0] – 2026-10-31 – Waffen neu: MG/Raketen/Laser/Ionen/Plasma/Railgun + EMP am Titan (Sandro t47u)
 
 - **Papier-Balance zuerst:** `tools/balance-sim.js` (gleiche Regeln wie `kampf.js`), viele Probeläufe, Ergebnis in `docs/BALANCE-WAFFEN.md` (Faktoren, Hüllenziele, Bewaffnung, Matrizen, Beispielkämpfe Early/Mid/Late).

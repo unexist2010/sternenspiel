@@ -14,7 +14,7 @@
     { id: "max_feuerkraft", name: "Maximale Feuerkraft", text: "Schiffe mit dem höchsten Angriff zuerst" }
   ];
   var MISSIONEN = [
-    { id: "kolonisieren", name: "Kolonisieren", text: "Braucht mindestens ein Kolonieschiff." },
+    { id: "kolonisieren", name: "Kolonisieren", text: "Braucht ein Kolonieschiff und einen leeren Platz (Position 1–12). Bei Ankunft entsteht ein neuer Planet: das Kolonieschiff wird verbraucht, die übrige Flotte bleibt dort stationiert, die Ladung wird entladen. Limit: aufgerundet Astrophysik / 2 Kolonien." },
     { id: "transportieren", name: "Transportieren", text: "Hin und zurück: Ladung wird am Ziel sofort entladen, die Flotte kehrt automatisch zurück." },
     { id: "stationieren", name: "Stationieren", text: "Nur Hinflug: Schiffe bleiben auf einem anderen eigenen Planeten." },
     { id: "spionieren", name: "Spionieren", text: "Braucht mindestens eine Spionagesonde. Gegen Testgegner: Spionagebericht (Schiffe + Verteidigung), danach Rückflug." },
@@ -75,6 +75,9 @@
 
   // ---------- Entfernung, Flugzeit, Rohöl (OGame-Formeln, FEST Sandro t30u; Tempo je Schiff verschieden, langsamstes zählt) ----------
   function entfernung(a, b) {
+    // 0.18.0 (Sandro t49u): Expeditionsraum im eigenen System – gleiche Strecke von jeder Position (≈ 60 min frühe Schiffe)
+    var EP = SS.BALANCE.EXPEDITION && SS.BALANCE.EXPEDITION.POSITION;
+    if (a.system === b.system && a.sektor === b.sektor && (b.planet === EP || a.planet === EP) && a.planet !== b.planet) return FB().DIST_EXPEDITION_EIGEN;
     if (a.system !== b.system) return FB().DIST_SYSTEM_BASIS + FB().DIST_JE_SYSTEM * Math.abs(a.system - b.system);
     if (a.planet !== b.planet) return FB().DIST_PLANET_BASIS + FB().DIST_JE_PLANET * Math.abs(a.planet - b.planet);
     return FB().DIST_GLEICH;
@@ -96,14 +99,14 @@
   }
   /** Eigene Planeten mit Koordinaten (für Ziel-Dropdown). */
   function eigenePlaneten(z) {
-    return (z.planeten || []).map(function (p) { var k = herkunftKoord(z, p); return { id: p.id, name: p.name, sektor: k.sektor, system: k.system, planet: k.planet }; });
+    return (z.planeten || []).map(function (p) { var k = herkunftKoord(z, p); return { id: p.id, name: p.name || (p.istHauptplanet && z.heimat ? z.heimat.name : ""), sektor: k.sektor, system: k.system, planet: k.planet }; });
   }
   var gleicheKoord = function (a, b) { return a && b && a.sektor === b.sektor && a.system === b.system && a.planet === b.planet; };
 
   /** Ladekapazität der gewählten Schiffe. */
   function ladekapazitaet(schiffe) { return Object.keys(schiffe).reduce(function (s, id) { return s + (D().schiffNachId(id).ladung || 0) * schiffe[id]; }, 0); }
   /** Hin + Rück? Stationieren = nur Hinflug (OGame), alles andere hin und zurück. */
-  function hinUndZurueck(missionId) { return missionId !== "stationieren"; }
+  function hinUndZurueck(missionId) { return missionId !== "stationieren" && missionId !== "kolonisieren"; } // 0.18.0: Kolonisieren = nur Hinflug (Rückflug nur bei Fehlschlag, gratis)
 
   /** Vorschau + Prüfung eines Sendeauftrags. auftrag = {schiffe:{id:n}, ziel:{sektor,system,planet}, mission} */
   function pruefe(z, p, auftrag) {
@@ -128,6 +131,7 @@
     if (gleicheKoord(start, ziel)) { r.grund = "Ziel ist der Startplanet."; return r; }
     if (mission.id === "kolonisieren" && !schiffe.kolonieschiff) { r.grund = "Kolonisieren braucht ein Kolonieschiff."; return r; }
     if (mission.id === "kolonisieren" && zielEigen) { r.grund = "Planet gehört dir schon."; return r; }
+    if (mission.id === "kolonisieren" && SS.kern.kolonie) { var kg = SS.kern.kolonie.pruefe(z, ziel); if (kg) { r.grund = kg; return r; } }
     if (mission.id === "spionieren" && !schiffe.spionagesonde) { r.grund = "Spionieren braucht eine Spionagesonde."; return r; }
     if (mission.id === "sammeln" && !schiffe.wracksammler) { r.grund = "Trümmer bergen braucht Wracksammler."; return r; }
     if (mission.id === "stationieren" && !zielEigen) { r.grund = "Stationieren nur auf einem anderen eigenen Planeten."; return r; }
@@ -138,7 +142,7 @@
     r.rohoel = master ? 0 : verbrauch(schiffe, dist, hinUndZurueck(mission.id));
     r.kapazitaet = ladekapazitaet(schiffe);
     var ladung = {}, lsum = 0;
-    if (mission.id === "transportieren") Object.keys((auftrag && auftrag.ladung) || {}).forEach(function (rid) {
+    if (mission.id === "transportieren" || mission.id === "kolonisieren" || mission.id === "stationieren") Object.keys((auftrag && auftrag.ladung) || {}).forEach(function (rid) {
       var n = Math.floor(Number(auftrag.ladung[rid]) || 0); if (n > 0 && rid !== "strom" && rid in z.rohstoffe) { ladung[rid] = n; lsum += n; } });
     r.ladung = ladung; r.ladungSumme = lsum;
     if (lsum > r.kapazitaet) { r.grund = "Ladung " + lsum + " > Ladekapazität " + r.kapazitaet + "."; return r; }
@@ -183,8 +187,20 @@
       if (f.phase === "hin" && jetzt >= f.ankunft) {
         var eigen = eigenePlaneten(z).filter(function (e) { return gleicheKoord(e, f.ziel); })[0];
         if (f.mission === "expedition") { f.phase = "halten"; f.haltEnde = f.ankunft + (f.halteMs || 0); meld.push({ art: "flotte", name: m.name, text: "Expedition erreicht " + ziel + " – hält " + (f.halten || 1) + " h" }); }
+        else if (f.mission === "kolonisieren" && !eigen && SS.kern.kolonie) { // 0.18.0 (Sandro t49u)
+          var kr = SS.kern.kolonie.gruende(z, f);
+          if (kr.planet) {
+            z.flotten.splice(z.flotten.indexOf(f), 1);
+            meld.push({ art: "flotte", name: m.name, text: "Kolonie „" + kr.planet.name + "“ gegründet auf " + ziel + " – Kolonieschiff verbraucht, " + summe(kr.schiffe) + " Schiffe stationiert" + (summe(kr.ladung) ? ", Ladung entladen (" + summe(kr.ladung) + ")" : "") });
+            return;
+          }
+          f.phase = "rueck"; f.rueckkehr = f.ankunft + (f.ankunft - f.abflug); f.bericht = "Kolonisieren fehlgeschlagen: " + kr.fehler;
+          meld.push({ art: "flotte", name: m.name, text: f.bericht + " – Flotte kehrt um" });
+          return;
+        }
         else if (f.mission === "stationieren" && eigen) {
           var zp = planetVonId(z, eigen.id);
+          if (f.ladung) { Object.keys(f.ladung).forEach(function (rid) { z.rohstoffe[rid] = (z.rohstoffe[rid] || 0) + f.ladung[rid]; }); }
           Object.keys(f.schiffe).forEach(function (id) { zp.schiffe[id] = (zp.schiffe[id] || 0) + f.schiffe[id]; });
           z.flotten.splice(z.flotten.indexOf(f), 1);
           meld.push({ art: "flotte", name: m.name, text: "Flotte stationiert auf " + ziel });

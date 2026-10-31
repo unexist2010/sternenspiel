@@ -34,7 +34,7 @@ test("Freischaltung + Limit floor(√Stufe) + Haltezeit", () => {
 
 test("Rohstoff-Fund inkl. Kunststoff T2, gedeckelt an Punkte und Laderaum", () => {
   const { z, p, FL, EX, ziel } = setup(9);
-  z.punkte = 1000; const cap = EX.cap(z); assert.equal(cap, 100000);
+  z.punkte = 1000; const cap = EX.cap(z); assert.equal(cap, 25000);
   const vorher = z.rohstoffe.kunststoff_t2;
   // r: fund(0)<chance, typ rohstoffe(0), größe 1(0.999), art → kunststoff_t2 (0.99)
   z._expeditionZufall = fest([0, 0, 0.999, 0.99]);

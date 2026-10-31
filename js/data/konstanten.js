@@ -16,7 +16,7 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.17.0";
+  SS.VERSION = "0.18.0";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
@@ -70,7 +70,7 @@
     STARTBESTAND: {
       metall: 500,
       silizium: 300,
-      rohoel: 100,
+      rohoel: 600,      // 0.18.0 (t49u): 100 → 600, damit die ersten Flüge/Ölverbrennung nicht sofort blockieren
       strom: 0,                      // Strom ist Bilanz (Erzeugung − Bedarf), kein Lager (ANNAHME)
       kunststoff_t1: 0,
       kunststoff_t2: 0,
@@ -105,6 +105,7 @@
       DIST_SYSTEM_BASIS: 2700, DIST_JE_SYSTEM: 95,     // anderes System
       DIST_PLANET_BASIS: 1000, DIST_JE_PLANET: 5,      // gleiches System
       DIST_GLEICH: 5,
+      DIST_EXPEDITION_EIGEN: 1315, // 0.18.0 (Sandro t49u): Anflug Expeditionsraum (:13) im EIGENEN System – positionsunabhängig; ≈ 60 min mit Kleinem Frachter (Tempo 12.500) ohne Antriebsforschung
       ZEIT_FAKTOR: 3500,          // Sekunden = 3500 · √(10 · Entfernung / Tempo) + 10
       UNIVERSUM_TEMPO: 1,
       VERBRAUCH_FAKTOR: 4         // Rohöl = 1 + Σ Verbrauch · Entfernung / 35000 · 4 (je Strecke; Hin + Rück beim Start bezahlt)
@@ -112,16 +113,17 @@
     EXPEDITION: {                 // 0.15.0 – Regeln FEST (Sandro), Zahlen ANNAHME
       POSITION: 13,               // Expeditionsraum = Position 13 jedes Systems (Planeten 1–12; OGame: Pos. 16)
       MAX_HALTEN_STUNDEN: 24,     // Haltezeit 1 … min(Astrophysik-Stufe, 24) Stunden
-      FUND_BASIS: 0.45, FUND_JE_STUNDE: 0.04, FUND_MAX: 0.85, // Fundchance nach Haltezeit (nicht Fundgröße)
+      FUND_BASIS: 0.45, FUND_JE_STUNDE: 0.02, FUND_MAX: 0.75, // Fundchance nach Haltezeit (0.18.0: gedrosselt 0,04→0,02, max 0,85→0,75)
+      GROESSE_JE_STUNDE: 0.05, GROESSE_MAX: 2, // 0.18.0 (t49u): Haltezeit erhöht auch die Fundgröße: ×(1 + 0,05·(h−1)), max ×2
       ANTEIL_ROHSTOFFE: 3, ANTEIL_SCHIFFE: 1,                 // Fund → Rohstoffe : Schiffe
-      GEWICHT_PIRATEN: 3, GEWICHT_VERZOEGERUNG: 2, GEWICHT_NICHTS: 5, // Kein Fund → Piraten / Verzögerung / nichts
+      GEWICHT_PIRATEN: 4, GEWICHT_VERZOEGERUNG: 2, GEWICHT_NICHTS: 5, // Kein Fund → Piraten / Verzögerung / nichts
       VERZOEGERUNG_FAKTOR: 2,     // Rückflug ×2
-      CAP_MIN: 10000, CAP_JE_PUNKT: 100, // Fund-Obergrenze = max(10.000, Punkte × 100) Rohstoff-Einheiten
+      CAP_MIN: 10000, CAP_JE_PUNKT: 25, // 0.18.0 (t49u): Fund-Obergrenze = max(10.000, Punkte × 25) (vorher ×100 – zu hoch)
       GROESSE_MIN: 0.1,           // Fund = Cap × Zufall(0,1…1), zusätzlich Laderaum
       SCHIFF_CAP_ANTEIL: 0.5,     // Schiffsfund: Kostenwert ≤ 50 % des Caps
       ROHSTOFFE: [{ id: "metall", gewicht: 50, faktor: 1 }, { id: "silizium", gewicht: 30, faktor: 0.5 }, { id: "rohoel", gewicht: 12, faktor: 0.33 },
         { id: "kunststoff_t1", gewicht: 6, faktor: 0.05 }, { id: "kunststoff_t2", gewicht: 2, faktor: 0.02 }], // kein T3, kein Strom/Antimaterie
-      PIRATEN_MIN: 0.2, PIRATEN_MAX: 0.6, // Piratenstärke = Anteil der Expeditions-Feuerkraft
+      PIRATEN_MIN: 0.35, PIRATEN_MAX: 0.9, // 0.18.0: härter (vorher 0,2–0,6) // Piratenstärke = Anteil der Expeditions-Feuerkraft
       AUSSCHLUSS: ["kolonieschiff"] // Default; Sandros Ausschlussliste folgt (OFFENE-PUNKTE)
     },
     KAMPF: {

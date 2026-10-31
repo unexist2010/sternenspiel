@@ -1,7 +1,7 @@
 /*
  * Sternenspiel – Expeditionen (0.15.0, Sandro pt36u „Bau es mal“). DOM-frei, in Node testbar.
  * FEST (Sandro): Freischaltung Astrophysik; parallel = floor(√Stufe); Haltezeit an Astrophysik gekoppelt;
- *   längere Haltezeit = höhere Fundchance (nicht Fundgröße); Schiffs-Pool = baubar + 1 darüber;
+ *   längere Haltezeit = höhere Fundchance UND (0.18.0, t49u) größere Funde; Schiffs-Pool = baubar + 1 darüber;
  *   Kunststoff nur T1/T2; Fundmenge an eigene Punkte gedeckelt; Gegner nur Piraten; KEIN Totalverlust-Event.
  * ANNAHME (alle Zahlen in SS.BALANCE.EXPEDITION): Ziel = Position 13 eines Systems (Planeten 1–12, „Expeditionsraum“, OGame Pos. 16),
  *   Haltezeit 1…Stufe Stunden, Event-Gewichte, Cap-Faktoren, Piratenstärke, Antimaterie weggelassen.
@@ -21,6 +21,8 @@
   function maxHalten(z) { return Math.max(1, Math.min(EB().MAX_HALTEN_STUNDEN, stufe(z))); }
   /** Fundchance (0..1) nach Haltezeit in Stunden – länger halten = höhere Chance. */
   function fundChance(h) { var e = EB(); return Math.min(e.FUND_MAX, e.FUND_BASIS + e.FUND_JE_STUNDE * (Math.max(1, h) - 1)); }
+  /** 0.18.0: Fundgröße-Faktor nach Haltezeit (länger = größer, gedeckelt). */
+  function groesseFaktor(h) { var e = EB(); return Math.min(e.GROESSE_MAX, 1 + e.GROESSE_JE_STUNDE * (Math.max(1, h) - 1)); }
   function istZiel(k) { return !!k && k.planet === EB().POSITION; }
   /** „S:SYS:13“ → Ziel-Koordinate oder null */
   function leseZiel(text) {
@@ -53,7 +55,7 @@
   function wurf(gewichte, r) { var s = 0, ges = gewichte.reduce(function (a, x) { return a + x[1]; }, 0), t = r() * ges; for (var i = 0; i < gewichte.length; i++) { s += gewichte[i][1]; if (t < s) return gewichte[i][0]; } return gewichte[gewichte.length - 1][0]; }
 
   function rohstoffFund(z, f, r) {
-    var kap = SS.kern.flotte.ladekapazitaet(f.schiffe) - wert(f.ladung), menge = Math.floor(cap(z) * (EB().GROESSE_MIN + r() * (1 - EB().GROESSE_MIN)));
+    var kap = SS.kern.flotte.ladekapazitaet(f.schiffe) - wert(f.ladung), menge = Math.floor(cap(z) * groesseFaktor(f.halten || 1) * (EB().GROESSE_MIN + r() * (1 - EB().GROESSE_MIN)));
     var art = wurf(EB().ROHSTOFFE.map(function (x) { return [x.id, x.gewicht]; }), r);
     var faktor = EB().ROHSTOFFE.filter(function (x) { return x.id === art; })[0].faktor;
     var gefunden = Math.max(0, Math.floor(menge * faktor)), n = Math.max(0, Math.min(gefunden, kap)), rn = D().rohstoffNachId(art).name, F = SS.format && SS.format.zahl ? SS.format.zahl : String;
@@ -65,7 +67,7 @@
   }
   function schiffFund(z, f, r) {
     var pool = schiffPool(z); if (!pool.length) return { art: "nichts", text: "Wracks gesichtet, nichts Brauchbares." };
-    var budget = Math.floor(cap(z) * EB().SCHIFF_CAP_ANTEIL * (EB().GROESSE_MIN + r() * (1 - EB().GROESSE_MIN))), neu = {};
+    var budget = Math.floor(cap(z) * groesseFaktor(f.halten || 1) * EB().SCHIFF_CAP_ANTEIL * (EB().GROESSE_MIN + r() * (1 - EB().GROESSE_MIN))), neu = {};
     for (var v = 0; v < 200; v++) {
       var bez = pool.filter(function (s) { return wert(s.kosten) <= budget; }); if (!bez.length) break;
       var s = bez[Math.floor(r() * bez.length)]; neu[s.id] = (neu[s.id] || 0) + 1; budget -= wert(s.kosten);
@@ -117,6 +119,6 @@
     return { art: "nichts", text: "Die Expedition fand nichts außer leerem Raum." };
   }
 
-  SS.kern.expedition = { stufe: stufe, freigeschaltet: freigeschaltet, maxParallel: maxParallel, aktive: aktive, maxHalten: maxHalten, fundChance: fundChance,
+  SS.kern.expedition = { stufe: stufe, freigeschaltet: freigeschaltet, maxParallel: maxParallel, aktive: aktive, maxHalten: maxHalten, fundChance: fundChance, groesseFaktor: groesseFaktor,
     istZiel: istZiel, leseZiel: leseZiel, pruefe: pruefe, schiffPool: schiffPool, cap: cap, ereignis: ereignis, merkeKampfbericht: merkeKampfbericht };
 })(typeof globalThis !== "undefined" ? globalThis : this);

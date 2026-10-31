@@ -96,6 +96,13 @@
       return h.box("Letzte Expeditionen", "<ul class=\"flug-liste\" id=\"liste-expeditionen\">" + l.map(function (e) { return "<li data-art=\"" + e.art + "\">[" + kt(e.ziel) + "] " + e.halten + " h · " + esc(e.text) + "</li>"; }).join("") + "</ul>", "", " id=\"box-expeditionen\"");
     }
 
+    // 0.18.0 (Sandro t49u): Schnellwahl eigene Planeten (OGame-Shortcuts)
+    function schnellwahl(zz, pp) {
+      var andere = FL.eigenePlaneten(zz).filter(function (e) { return e.id !== pp.id; });
+      if (!andere.length) return "";
+      return "<div class=\"send-planeten\" id=\"send-planeten\"><span class=\"hinweis\">Eigene Planeten:</span>" + andere.map(function (e) {
+        return "<button type=\"button\" class=\"knopf klein\" data-aktion=\"send-planet\" data-koord=\"" + kt(e) + "\">🪐 " + esc(e.name) + " [" + kt(e) + "]</button>"; }).join("") + "</div>";
+    }
     // ---------- Sendefenster ----------
     function sendefenster() {
       var zz = z(), pp = p(), frei = FL.frei(zz, pp);
@@ -106,7 +113,7 @@
           "<td><input type=\"number\" min=\"0\" max=\"" + n + "\" value=\"0\" inputmode=\"numeric\" data-send-menge=\"" + id + "\" aria-label=\"Anzahl " + esc(s.name) + "\"> " +
           "<button type=\"button\" class=\"knopf klein\" data-aktion=\"send-max\" data-id=\"" + id + "\">max</button></td></tr>";
       }).join("");
-      var ladung = "<details class=\"send-ladung\" id=\"send-ladung\"><summary>Ladung (nur Transport)</summary><div class=\"send-ziel\">" + D.rohstoffe.filter(function (r) { return r.id !== "strom" && (zz.rohstoffe[r.id] || 0) > 0; }).map(function (r) {
+      var ladung = "<details class=\"send-ladung\" id=\"send-ladung\"><summary>Ladung (Transport / Stationieren / Kolonisieren)</summary><div class=\"send-ziel\">" + D.rohstoffe.filter(function (r) { return r.id !== "strom" && (zz.rohstoffe[r.id] || 0) > 0; }).map(function (r) {
         return "<label>" + esc(r.name) + " <input type=\"number\" min=\"0\" value=\"0\" inputmode=\"numeric\" size=\"8\" data-send-ladung=\"" + r.id + "\"></label>"; }).join("") + "</div></details>";
       var opts = "<option value=\"\">Koordinaten eingeben …</option><optgroup label=\"Eigene Planeten\">" + FL.eigenePlaneten(zz).map(function (e) {
         return "<option value=\"" + kt(e) + "\">" + esc(e.name) + " [" + kt(e) + "]</option>"; }).join("") + "</optgroup>" +
@@ -117,7 +124,7 @@
         "<p><button type=\"button\" class=\"knopf\" data-aktion=\"send-alle\">Alle (bis Kapazität)</button> <button type=\"button\" class=\"knopf\" data-aktion=\"send-keine\">Keine</button> " +
         "<span id=\"send-summe\" class=\"send-summe\">0 / " + F.zahl(frei) + " Startplätze</span></p>" :
         "<p class=\"forschung-fehlt\">Keine flugfähigen Schiffe am Planeten.</p>") +
-        "<div class=\"send-ziel\"><label>Ziel <select id=\"send-ziel\">" + opts + "</select></label>" +
+        schnellwahl(zz, pp) + "<div class=\"send-ziel\"><label>Ziel <select id=\"send-ziel\">" + opts + "</select></label>" +
         "<label>Koordinaten <input id=\"send-koord\" type=\"text\" placeholder=\"S:SYS:P\" autocomplete=\"off\" size=\"10\"></label>" +
         "<button type=\"button\" class=\"knopf\" data-aktion=\"send-favorit\">☆ Als Favorit</button></div>" +
         "<div class=\"send-ziel\"><label>Mission <select id=\"send-mission\">" + mis + "</select></label>" + halteFeld(zz) + "</div>" + ladung +

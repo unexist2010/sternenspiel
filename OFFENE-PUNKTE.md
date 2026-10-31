@@ -1,7 +1,7 @@
 
 ## 0.14.1 – Testphase (t32u)
 - **Erledigt:** Testphase mit 2 Minimal-Gegnern, echte Spionage/Angriffe.
-- **Später:** vollständiges Weltraum-Kapitel, KI-Gegner/Wellen, Beute, Schnellfeuer, Zufall, Kolonisierung.
+- **Später:** vollständiges Weltraum-Kapitel, KI-Gegner/Wellen, Beute, Schnellfeuer, Zufall (Kolonisierung erledigt 0.18.0).
 - **Offen:** Orbitalverteidigungsplattform für schwache Gegner zu stark (bei Alpha deshalb weggelassen, sonst Unentschieden).
 - **Offen:** Spionagesonden-Verluste/Sichtbarkeit ohne Master; Reparaturquote rundet bei 1 Anlage auf „repariert“ (ANNAHME).
 
@@ -26,7 +26,8 @@
 - **Klärung nötig (Sandro):** „4–5 Sonnensysteme pro Sektor“ vs. bestehendes FEST-Datenmodell (5 Sektoren, 300 Sonnensysteme gesamt = 60 je Sektor). ANNAHME: Datenmodell bleibt (keine Spielstand-Migration nötig), die Ansicht zeigt je Sektor ein Fenster von **5 Sonnensystemen** um das gewählte; „ca. 300 Sonnensysteme“ = Universum gesamt. Falls gemeint ist: 300 Systeme *je Sektor* oder wirklich nur 4–5 Systeme je Sektor → Konstanten `SS.BALANCE.WELTRAUM` anpassen (betrifft Koordinaten bestehender Spielstände).
 - **ANNAHME:** Spionage schickt genau 1 Sonde (OGame-Standard) und öffnet danach das Flottenfenster; Anzahl später einstellbar?
 - **ANNAHME:** Spionage/Angriff nur bei fremden Planeten (Testgegner); eigene Planeten haben Transport + Stationieren. Transport auch zu Gegnern möglich.
-- **Offen:** Kolonisieren-Wirkung am Ziel (neue Kolonie) folgt eigenem Kapitel; Trümmerfeld-Anzeige je Position; Spieler-/Allianz-Infos.
+- **Erledigt (0.18.0):** Kolonisieren wie OGame (neuer Planet, Planetenliste, Astrophysik-Limit, Schnellwahl).
+- **Offen:** Trümmerfeld-Anzeige je Position; Spieler-/Allianz-Infos.
 
 ## 0.16.2 – Tempo-Leitlinie (Sandro t44u, FEST)
 - **Kleiner Frachter** bewusst early-schnell (ähnlich kleinen Kampfschiffen) – bestätigt, keine Änderung.

@@ -449,3 +449,15 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .wr-aktionen { display: flex; flex-wrap: wrap; gap: 4px; }
 .wr-knopf { min-height: 30px; padding: .25rem .55rem; }
 .wr-spionieren { border-color: #4aa3ff; } .wr-angriff { border-color: #ff5a5a; } .wr-kolonisieren { border-color: #5ad17a; } .wr-expedition { border-color: #b08cff; }
+
+/* 0.18.0: Planetenliste links (OGame-Style) */
+.planeten-liste { margin: 10px 0; border: 1px solid var(--rand); background: var(--kasten2); border-radius: 3px; }
+.planeten-kopf { padding: 6px 8px; font-size: .8rem; color: var(--leise); text-transform: uppercase; display: flex; justify-content: space-between; border-bottom: 1px solid var(--rand); }
+.planeten-liste ul { list-style: none; margin: 0; padding: 0; }
+.planeten-liste a { display: flex; align-items: center; gap: 8px; padding: 6px 8px; color: inherit; text-decoration: none; border-left: 3px solid transparent; }
+.planeten-liste a:hover { background: rgba(255,255,255,.05); }
+.planeten-liste a.aktiv { border-left-color: var(--tuerkis); background: rgba(0,200,220,.08); }
+.planeten-liste img { width: 28px; height: 28px; }
+.planeten-liste b { display: block; color: #fff; font-size: .85rem; }
+.planeten-liste small { color: var(--tuerkis); font-size: .72rem; font-variant-numeric: tabular-nums; }
+.send-planeten { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; align-items: center; }
