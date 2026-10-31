@@ -166,6 +166,11 @@
       });
       var fa = z.forschungsauftrag; // Forschung: ein Auftrag je Spieler, genau zum Endzeitpunkt (Master: sofort)
       if (fa && fo && (fa.ende <= t || master)) { if (fa.ende > t) fa.ende = t; fertig.push(fo.fertigstellen(z)); }
+      // 0.22.0 Warteschlangen: nächsten Eintrag starten, sobald frei und Rohstoffe reichen (Master: sofort fertig)
+      if (bau && bau.schlangeVoranbringen) z.planeten.forEach(function (p) {
+        bau.schlangeVoranbringen(z, p, t).forEach(function (a) { if (a && a.master) fertig.push(a); });
+      });
+      if (fo && fo.schlangeVoranbringen) fo.schlangeVoranbringen(z, t).forEach(function (a) { if (a && a.master) fertig.push(a); });
     };
     faellige();
     while (t < bis && sicherung++ < 1e6) {

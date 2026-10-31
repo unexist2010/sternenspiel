@@ -179,6 +179,9 @@
   }
 
   // ---------- Spiel: Rahmen ----------
+  function schlangenSignatur() {
+    return (zustand.forschungsschlange || []).length + "|" + !!zustand.forschungsauftrag + "|" + zustand.planeten.map(function (p) { return (p.bauschlange || []).length + ":" + !!p.bauauftrag; }).join(",");
+  }
   function betreteSpiel() {
     zeige("spiel");
     baueRessourcenLeiste();
@@ -188,8 +191,10 @@
     aktualisiereLive();
     stoppeSchleifen();
     tickTimer = setInterval(function () {
+      var vorher = schlangenSignatur();
       var r = P.tick(zustand, jetzt());
       var neu = meldeFertig(r.fertig); if (meldeFunde(r.funde)) neu = true;
+      if (schlangenSignatur() !== vorher) neu = true; // 0.22.0: Warteschlange hat einen Auftrag gestartet
       if (neu) { speichern(true); baueMenue(); if (seite && seite.id === "flotte" && sendeFormularBenutzt()) { baueFlottenLeiste(); aktualisiereLive(); } else route(true); } else aktualisiereLive();
     }, B.TICK_MS);
     autoTimer = setInterval(function () { speichern(true); }, B.AUTOSPEICHERN_MS);
@@ -393,9 +398,25 @@
       "<div class=\"balken\"><div class=\"balken-fuellung\" data-live=\"bau-balken\"></div></div>" +
       "<div class=\"knopf-reihe\"><span class=\"hinweis\">Fertig: " + F.uhrzeit(a.ende) + "</span><button class=\"knopf klein gefahr\" type=\"button\" data-aktion=\"abbrechen\">Abbrechen</button></div></div>";
   }
+  /** 0.22.0: Warteschlangen-Liste (Gebäude/Forschung) mit Entfernen-Knöpfen. */
+  function schlangeHtml(liste, max, aktion, grund, kennung) {
+    if (!liste.length) return "<p class=\"hinweis schlange-leer\" id=\"" + kennung + "\">Warteschlange leer (0/" + max + "). Aufträge kannst du auch ohne genug Rohstoffe einreihen.</p>";
+    return "<div class=\"warteschlange\" id=\"" + kennung + "\"><div class=\"bau-zeile\"><b>Warteschlange</b><span class=\"hinweis\">" + liste.length + "/" + max + "</span></div>" +
+      (grund ? "<p class=\"hinweis schlange-wartet\">⏳ " + esc(grund) + "</p>" : "") +
+      "<ol class=\"schlange-liste\">" + liste.map(function (q, i) {
+        return "<li data-schlange-index=\"" + i + "\"><span>" + esc(q.name) + " → Stufe " + q.stufe + "</span> " + kostenHtml(q.kosten) +
+          " <button class=\"knopf klein gefahr\" type=\"button\" data-aktion=\"" + aktion + "\" data-index=\"" + i + "\" title=\"Aus der Warteschlange entfernen\">✕</button></li>";
+      }).join("") + "</ol></div>";
+  }
   function bauBox() {
-    var a = hp().bauauftrag;
-    return box("Bauauftrag", a ? bauFortschritt(a) : "<p class=\"hinweis\">Kein Bauauftrag. Pro Planet läuft immer ein Auftrag gleichzeitig.</p>" + (seite && seite.id === "anlagen" ? "" : "<a class=\"knopf klein\" href=\"#anlagen\">Zu den Anlagen</a>"), "", " id=\"bauauftrag-box\"");
+    var p = hp(), a = p.bauauftrag, Bau = SS.kern.bau;
+    return box("Bauauftrag", (a ? bauFortschritt(a) : "<p class=\"hinweis\">Kein laufender Bauauftrag. Pro Planet läuft immer ein Auftrag gleichzeitig.</p>" + (seite && seite.id === "anlagen" ? "" : "<a class=\"knopf klein\" href=\"#anlagen\">Zu den Anlagen</a>")) +
+      schlangeHtml(Bau.schlangeAnsicht(zustand, p), Bau.schlangeMax(), "schlange-entfernen", Bau.schlangeWartegrund(zustand, p), "bauschlange"), "", " id=\"bauauftrag-box\"");
+  }
+  function bauKnopfText(p, auftrag, n, standard) {
+    var Bau = SS.kern.bau;
+    if (!p.bauauftrag && !(p.bauschlange || []).length) return standard;
+    return "Einreihen → Stufe " + Bau.geplanteStufe(p, auftrag);
   }
 
   // ---------- Seiten ----------
@@ -521,7 +542,7 @@
       "<dt>Bauzeit</dt><dd>" + (master ? "sofort <span class=\"master-marke\">Master</span>" : F.dauer(zl.bauzeit)) + "</dd>" +
       "<dt>Aktuell</dt><dd>" + wirkungText(d, n) + "</dd>" +
       "<dt>Stufe " + zl.stufe + "</dt><dd>" + wirkungText(d, zl.stufe) + "</dd></dl>" +
-      (laeuft ? bauFortschritt(a) : bauKnopf({ art: "gebaeude", id: d.id }, master ? "Sofort " + (n === 0 ? "bauen" : "auf " + zl.stufe) : (n === 0 ? "Bauen" : "Ausbauen auf " + zl.stufe)));
+      (laeuft ? bauFortschritt(a) : "") + (Bau.geplanteStufe(p, { art: "gebaeude", id: d.id }) > max ? "" : bauKnopf({ art: "gebaeude", id: d.id }, bauKnopfText(p, { art: "gebaeude", id: d.id }, n, master ? "Sofort " + (n === 0 ? "bauen" : "auf " + zl.stufe) : (n === 0 ? "Bauen" : "Ausbauen auf " + zl.stufe))));
     return "<article class=\"anlage" + (laeuft ? " im-bau" : "") + (n === 0 ? " stufe-0" : "") + (sperre ? " gesperrt" : "") + "\" data-gebaeude=\"" + d.id + "\">" +
       "<div class=\"anlage-kopf\"><img class=\"anlage-bild\" src=\"" + d.bild + "\" alt=\"\" width=\"72\" height=\"72\"><div class=\"anlage-titel\"><h3>" + d.name + " " + infoKnopf("gebaeude", d.id, d.name) + "</h3><span class=\"stufe\">Stufe <b>" + n + "</b>" + maxText(max) + "</span>" +
       (sperre ? "<span class=\"sperr-marke\">🔒 Gesperrt</span>" : "") + "</div></div>" +
@@ -570,7 +591,7 @@
       else if (sp.stufe >= K.STUFE_MAX) inhalt = "<p class=\"hinweis max\">Höchststufe · " + F.zahl(kap) + " Schiffe</p>";
       else inhalt = "<dl class=\"anlage-werte\"><dt>Kosten</dt><dd>" + kostenHtml(zl.kosten) + "</dd><dt>Bauzeit</dt><dd>" + (master ? "sofort" : F.dauer(zl.bauzeit)) + "</dd>" +
         "<dt>Kapazität</dt><dd>" + F.zahl(kap) + " → " + F.zahl(Bau.kapazitaetBuchstabe(sp.buchstabe, zl.stufe)) + "</dd></dl>" +
-        (laeuft ? bauFortschritt(a) : bauKnopf({ art: "startplatz", buchstabe: sp.buchstabe }, (master ? "Sofort auf " : sp.stufe === 0 ? "Bauen → " : "Ausbauen → ") + zl.stufe));
+        (laeuft ? bauFortschritt(a) : "") + (Bau.geplanteStufe(p, { art: "startplatz", buchstabe: sp.buchstabe }) > K.STUFE_MAX ? "" : bauKnopf({ art: "startplatz", buchstabe: sp.buchstabe }, bauKnopfText(p, { art: "startplatz", buchstabe: sp.buchstabe }, sp.stufe, (master ? "Sofort auf " : sp.stufe === 0 ? "Bauen → " : "Ausbauen → ") + zl.stufe)));
       return "<article class=\"startplatz-karte" + (st.frei ? " frei" : " gesperrt") + (sp.stufe > 0 ? " gebaut" : "") + "\" data-buchstabe=\"" + sp.buchstabe + "\">" +
         "<div class=\"startplatz-kopf\"><b class=\"buchstabe\">" + sp.buchstabe + "</b><span>Stufe <b>" + sp.stufe + "</b>/" + K.STUFE_MAX + "</span>" + infoKnopf("startplatz", sp.buchstabe, "Startplatz " + sp.buchstabe) + "</div>" + inhalt + "</article>";
     }).join("");
@@ -586,9 +607,10 @@
   }
   function forschungBox() {
     var a = zustand.forschungsauftrag, ohne = !(hp().gebaeude.forschungseinrichtung > 0);
-    return box("Forschung", a ? forschungFortschritt(a) :
+    return box("Forschung", (a ? forschungFortschritt(a) :
       "<p class=\"hinweis\">" + (ohne ? "Noch keine Forschungseinrichtung – zuerst unter Anlagen bauen." : "Keine laufende Forschung. Es läuft immer nur eine Forschung gleichzeitig – unabhängig vom Bauauftrag.") + "</p>" +
-      (seite && seite.id === "forschung" ? "" : "<a class=\"knopf klein\" href=\"" + (ohne ? "#anlagen" : "#forschung") + "\">" + (ohne ? "Forschungseinrichtung bauen" : "Zur Forschung") + "</a>"), "", " id=\"forschung-box\"");
+      (seite && seite.id === "forschung" ? "" : "<a class=\"knopf klein\" href=\"" + (ohne ? "#anlagen" : "#forschung") + "\">" + (ohne ? "Forschungseinrichtung bauen" : "Zur Forschung") + "</a>")) +
+      schlangeHtml(FO.schlangeAnsicht(zustand), FO.schlangeMax(), "fschlange-entfernen", FO.schlangeWartegrund(zustand), "forschungsschlange"), "", " id=\"forschung-box\"");
   }
   function vorListe(f) {
     var vs = FO.voraussetzungen(zustand, f);
@@ -614,7 +636,8 @@
       "<dt>Dauer</dt><dd>" + (master ? "sofort <span class=\"master-marke\">Master</span>" : F.dauer(zl.dauer)) + "</dd>" +
       "<dt>Aktuell</dt><dd>" + wirkungZeile(f, n) + "</dd>" +
       "<dt>Stufe " + zl.stufe + "</dt><dd>" + esc(FO.wirkung(f.id, zl.stufe).text) + "</dd></dl>" +
-      (laeuft ? forschungFortschritt(a) : "<div class=\"bau-aktion\"><button class=\"knopf primaer\" type=\"button\" data-aktion=\"forschen\" data-id=\"" + f.id + "\">" + (master ? "Sofort erforschen → " : "Forschen → Stufe ") + zl.stufe + "</button><span class=\"grund hinweis\"></span></div>") +
+      (laeuft ? forschungFortschritt(a) : "") + "<div class=\"bau-aktion\"><button class=\"knopf primaer\" type=\"button\" data-aktion=\"forschen\" data-id=\"" + f.id + "\">" +
+      (a || (zustand.forschungsschlange || []).length ? "Einreihen → Stufe " + FO.geplanteStufe(zustand, f.id) : (master ? "Sofort erforschen → " : "Forschen → Stufe ") + zl.stufe) + "</button><span class=\"grund hinweis\"></span></div>" +
       "</article>";
   }
   function seiteForschung() {
@@ -817,7 +840,8 @@
       el.classList.toggle("fehlt", !Bau.istMaster(zustand) && (zustand.rohstoffe[k[0]] || 0) + 1e-9 < Number(k[1]));
     });
     Array.prototype.forEach.call(document.querySelectorAll("#inhalt button[data-aktion=\"bauen\"]"), function (b) {
-      var pr = Bau.pruefe(zustand, p, auftragAus(b));
+      var au = auftragAus(b), pr = Bau.pruefe(zustand, p, au);
+      if (!pr.ok) { var e = Bau.pruefeEinreihen(zustand, p, au); pr = e.ok ? { ok: true, grund: (p.bauauftrag || (p.bauschlange || []).length ? "" : (pr.fehlend ? "Wird eingereiht – startet, sobald die Rohstoffe reichen. " : "Wird eingereiht – startet, sobald möglich. ") + pr.grund) } : e; }
       if (b.disabled !== !pr.ok) b.disabled = !pr.ok;
       var g = b.parentNode.querySelector(".grund");
       if (g && g.textContent !== pr.grund) g.textContent = pr.grund;
@@ -920,7 +944,8 @@
   }
   function forschKnoepfe() {
     Array.prototype.forEach.call(document.querySelectorAll("#inhalt button[data-aktion=\"forschen\"]"), function (b) {
-      var pr = FO.pruefe(zustand, b.getAttribute("data-id"));
+      var id = b.getAttribute("data-id"), pr = FO.pruefe(zustand, id);
+      if (!pr.ok) { var e = FO.pruefeEinreihen(zustand, id); pr = e.ok ? { ok: true, grund: (zustand.forschungsauftrag || (zustand.forschungsschlange || []).length ? "" : (pr.fehlend ? "Wird eingereiht – startet, sobald die Rohstoffe reichen. " : "Wird eingereiht – startet, sobald möglich. ") + pr.grund) } : e; }
       if (b.disabled !== !pr.ok) b.disabled = !pr.ok;
       var g = b.parentNode.querySelector(".grund");
       if (g && g.textContent !== pr.grund) g.textContent = pr.grund;
@@ -933,12 +958,13 @@
   function bauen(b) {
     var p = hp();
     meldeFertig(P.tick(zustand, jetzt()).fertig);
-    var r = SS.kern.bau.starte(zustand, p, auftragAus(b), jetzt());
+    var r = SS.kern.bau.beauftragen(zustand, p, auftragAus(b), jetzt());
     if (!r.ok) { meldung(r.grund, "schlecht"); aktualisiereLive(); return; }
     speichern(true);
     baueMenue();
     route(true);
-    if (r.sofort) meldung("Sofort fertig (Master): " + r.auftrag.name + " Stufe " + r.auftrag.stufe, "gut");
+    if (r.eingereiht) meldung("In Warteschlange (Platz " + r.platz + "/" + SS.kern.bau.schlangeMax() + "): Stufe " + r.stufe + (r.gestartet && r.gestartet.length ? " – nächster Auftrag gestartet" : ""), "gut");
+    else if (r.sofort) meldung("Sofort fertig (Master): " + r.auftrag.name + " Stufe " + r.auftrag.stufe, "gut");
     else meldung("Bau gestartet: " + r.auftrag.name + " → Stufe " + r.auftrag.stufe + " (" + F.dauer(r.auftrag.ende - r.auftrag.start) + ")", "gut");
   }
   function bauAbbrechen() {
@@ -954,11 +980,12 @@
   }
   function forschen(b) {
     meldeFertig(P.tick(zustand, jetzt()).fertig);
-    var r = FO.starte(zustand, b.getAttribute("data-id"), jetzt());
+    var r = FO.beauftragen(zustand, b.getAttribute("data-id"), jetzt());
     if (!r.ok) { meldung(r.grund, "schlecht"); aktualisiereLive(); return; }
     speichern(true);
     route(true);
-    if (r.sofort) meldung("Sofort erforscht (Master): " + r.auftrag.name + " Stufe " + r.auftrag.stufe, "gut");
+    if (r.eingereiht) meldung("Forschung eingereiht (Platz " + r.platz + "/" + FO.schlangeMax() + "): Stufe " + r.stufe, "gut");
+    else if (r.sofort) meldung("Sofort erforscht (Master): " + r.auftrag.name + " Stufe " + r.auftrag.stufe, "gut");
     else meldung("Forschung gestartet: " + r.auftrag.name + " → Stufe " + r.auftrag.stufe + " (" + F.dauer(r.auftrag.ende - r.auftrag.start) + ")", "gut");
   }
   function forschungAbbrechen() {
@@ -1121,6 +1148,8 @@
     else if (a === "zuruecksetzen") zuruecksetzen();
     else if (a === "bauen") bauen(b);
     else if (a === "abbrechen") bauAbbrechen();
+    else if (a === "schlange-entfernen") { P.tick(zustand, jetzt()); SS.kern.bau.ausSchlangeEntfernen(zustand, hp(), Number(b.getAttribute("data-index"))); speichern(true); route(true); meldung("Aus der Bau-Warteschlange entfernt."); }
+    else if (a === "fschlange-entfernen") { P.tick(zustand, jetzt()); FO.ausSchlangeEntfernen(zustand, Number(b.getAttribute("data-index"))); speichern(true); route(true); meldung("Aus der Forschungs-Warteschlange entfernt."); }
     else if (a === "fund-test") fundTest();
     else if (a === "forschen") forschen(b);
     else if (a === "forschung-abbrechen") forschungAbbrechen();

@@ -16,7 +16,7 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.21.2";
+  SS.VERSION = "0.22.0";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
@@ -56,6 +56,7 @@
     },
     // ---------- Kapitel 3: Forschung (Werte je Forschung in js/data/forschung.js) ----------
     // OGame-artig: Forschungszeit = (Metall + Silizium) / (1000 · (1 + Stufe Forschungseinrichtung)) Std. · FAKTOR (ANNAHME)
+    WARTESCHLANGE: { GEBAEUDE: 10, FORSCHUNG: 5 }, // 0.22.0 (Sandro pt65u): Warteplätze zusätzlich zum laufenden Auftrag
     FORSCHUNG: {
       ZEIT_TEILER: 1000,
       FAKTOR: 1,
@@ -183,12 +184,13 @@
       // Schiffe je Ausbaustufe (je Buchstabe gleich für alle 10 Stufen) → Kapazität Buchstabe = Stufe · Wert
       KAPAZITAET_JE_STUFE: [10, 20, 41, 84, 170, 350, 710, 1400, 2900, 5900, 12000, 25000, 50000, 100000, 210000, 420000,
         850000, 1700000, 3500000, 7200000, 15000000, 30000000, 60000000, 120000000, 250000000, 510000000],
-      KOSTEN: { metall: 400, silizium: 200, rohoel: 100 }, // Stufe 1 von Startplatz A
+      KOSTEN: { metall: 800, silizium: 400, rohoel: 200 }, // Stufe 1 von Startplatz A (0.22.0, Sandro pt65u: Kosten ×2, vorher 400/200/100)
       KOSTEN_FAKTOR_STUFE: 1.35,              // je Stufe innerhalb eines Buchstabens
       KOSTEN_FAKTOR_BUCHSTABE: 1.5,           // je weiterem Buchstaben
       // FEST (0.8.0): Startplatz-Bauzeiten deutlich verkürzt, Z Stufe 10 höchstens ~1 Jahr. Faktor 10 ergäbe 376 Tage → 11 gewählt
       // (Z10 ≈ 342 Tage ohne Roboterforschung). Bauzeit = OGame-Bauzeit / 11 (× Roboter-Faktor).
-      BAUZEIT_TEILER: 11,
+      // 0.22.0: Kosten ×2 → Teiler 11 → 22, damit die Bauzeiten (FEST 0.8.0) unverändert bleiben.
+      BAUZEIT_TEILER: 22,
       FREISCHALT_PUNKTE: [0, 75, 200, 400, 600, 1000, 1500, 2500, 4000, 6000, 10000, 15000, 20000, 30000, 40000, 60000,
         100000, 150000, 250000, 300000, 500000, 750000, 1000000, 1500000, 2500000, 4000000],
       // Regel für das Flotten-Kapitel (FEST, noch NICHT umgesetzt): Schiffe, die nicht auf die Startplätze passen, stehen

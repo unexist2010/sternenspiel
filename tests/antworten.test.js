@@ -34,20 +34,20 @@ test("Keine Gebäude-Obergrenze: Stufe 33+ baubar, Raumflughafen bleibt 1, Start
 
 test("Startplatz-Bauzeit: OGame-Bauzeit / 11, Z Stufe 10 ≤ 365 Tage; andere Gebäude unverändert", () => {
   const { SS, Bau, z } = setup();
-  assert.equal(SS.BALANCE.STARTPLAETZE.BAUZEIT_TEILER, 11);
+  assert.equal(SS.BALANCE.STARTPLAETZE.BAUZEIT_TEILER, 22); // 0.22.0: Kosten ×2, Zeit gleich
   const kZ = Bau.startplatzKosten("Z", 10);
   const dauer = Bau.startplatzBauzeitMs(kZ, z);
   assert.ok(dauer <= 365 * TAG, "Z10 " + (dauer / TAG).toFixed(1) + " Tage");
   assert.ok(dauer > 300 * TAG, "nicht zu stark verkürzt");
-  assert.ok(Math.abs(dauer - Bau.bauzeitMs(kZ, z) / 11) < 1000);
+  assert.ok(Math.abs(dauer - Bau.bauzeitMs(kZ, z) / 22) < 1000);
   // Faktor 10 hätte nicht gereicht (Begründung für 11)
-  assert.ok(Bau.bauzeitMs(kZ, z) / 10 > 365 * TAG);
+  assert.ok(Bau.bauzeitMs(kZ, z) / 20 > 365 * TAG);
   // Gebäude unverändert (Metallmine Stufe 1: 1 Min. 48 Sek.)
   assert.equal(Bau.bauzeitMs(Bau.gebaeudeKosten(SS.DATEN.gebaeudeNachId("metallmine"), 1), z), 108000);
   // Ziel nutzt die verkürzte Zeit
   const p = z.planeten[0]; p.gebaeude.raumflughafen = 1;
   const zl = Bau.ziel(z, p, { art: "startplatz", buchstabe: "A" });
-  assert.equal(zl.bauzeit, Math.max(5000, Math.round(Bau.bauzeitMs(Bau.startplatzKosten("A", 1), z) / 11)));
+  assert.equal(zl.bauzeit, Math.max(5000, Math.round(Bau.bauzeitMs(Bau.startplatzKosten("A", 1), z) / 22)));
 });
 
 test("Zahlen-/Zeitformat kommt mit großen Werten klar", () => {

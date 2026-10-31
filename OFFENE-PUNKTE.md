@@ -52,3 +52,9 @@
 ## 0.20.0 KI – offen
 - Balance KI (Nachwuchsraten, Überfall-Chance, Faktor-Verteilung) nach Spieltest feinjustieren.
 - KI-Angriffe auf den Spieler (aktuell AUS), Rivalen-Verhalten „aktiv“ ausbauen.
+
+## 0.22.0 Warteschlangen (ANNAHMEN)
+- Strikt FIFO: wartet Eintrag 1 auf Rohstoffe, warten auch alle dahinter (kein Überspringen, wie OGame).
+- Eintrag, der unmöglich geworden ist (Höchststufe), wird beim Start still verworfen; gesperrte Einträge warten (manuell ✕ entfernen).
+- Kein Umsortieren per Drag & Drop; nur Entfernen.
+- Forschungseinrichtung in der Bau-Schlange wartet, solange eine Forschung läuft (und umgekehrt).

@@ -1,5 +1,14 @@
 # Changelog – Sternenspiel
 
+## [0.22.0] – 2026-10-31 – Warteschlangen für Gebäude & Forschung, Startplätze ×2 (Sandro pt65u)
+
+- **Bau-Warteschlange:** pro Planet **10 Warteplätze** zusätzlich zum laufenden Auftrag (`p.bauschlange`). Einreihen geht auch **ohne genug Rohstoffe**; der erste Eintrag startet automatisch (FIFO), sobald nichts läuft und die Rohstoffe reichen (Rohstoffe werden erst beim Start abgezogen). Beim Einreihen geprüft: Höchststufe (inkl. bereits eingereihter Stufen), Sperren, Raumflughafen, Startplatz-Freischaltung (Vorgänger auch über die Schlange), Schlange voll.
+- **Forschungs-Warteschlange:** **5 Warteplätze** (`z.forschungsschlange`), gleiche Regeln; Voraussetzungen zählen bereits eingereihte Forschungen mit.
+- UI: Box „Bauauftrag“/„Forschung“ zeigt die Warteschlange (Name → Stufe, Kosten, ✕ zum Entfernen – noch nichts bezahlt, also keine Erstattung nötig) und dezent „⏳ Wartet auf Rohstoffe – …“. Knöpfe heißen „Einreihen → Stufe n“, sobald etwas läuft/wartet.
+- **Startplätze ×2 teurer:** Grundkosten 800 Metall / 400 Silizium / 200 Rohöl (vorher 400/200/100), alle Stufen/Buchstaben entsprechend. `BAUZEIT_TEILER` 11 → 22, damit die **Bauzeiten unverändert** bleiben (FEST 0.8.0: Z10 ≤ 1 Jahr).
+- Migration: alte Spielstände bekommen leere Warteschlangen. Version nur noch in `SS.VERSION` (+ Cache-`?v=` in index.html) – Footer wird daraus gesetzt.
+- Tests: `tests/warteschlange.test.js`; Playtests an das neue Einreihen-Verhalten angepasst.
+
 ## [0.21.2] – 2026-10-31 – Dezente Missions-Symbole (Sandro pt63u)
 
 - Weltraum-Ansicht: Text-Knöpfe → gedämpfte Linien-Symbole (SVG, `js/ui/symbole.js`), Tooltip mit Text beim Überfahren (`data-tip`, auch `aria-label`).

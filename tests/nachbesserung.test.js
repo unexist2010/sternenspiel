@@ -188,9 +188,9 @@ test("Startplätze: Kapazität A10 ≈ 100, alles bis Z10 ≈ 10 Mrd., wachsend;
   for (let i = 1; i < 26; i++) assert.ok(K.KAPAZITAET_JE_STUFE[i] > K.KAPAZITAET_JE_STUFE[i - 1]);
   p.startplaetze.forEach((sp) => { sp.stufe = 0; }); p.startplaetze[0].stufe = 3; p.startplaetze[1].stufe = 2;
   assert.equal(Bau.kapazitaet(p), 3 * 10 + 2 * 20);
-  gleich(Bau.startplatzKosten("A", 1), { metall: 400, silizium: 200, rohoel: 100 });
-  gleich(Bau.startplatzKosten("A", 2), { metall: 540, silizium: 270, rohoel: 135 });
-  gleich(Bau.startplatzKosten("B", 1), { metall: 600, silizium: 300, rohoel: 150 });
+  gleich(Bau.startplatzKosten("A", 1), { metall: 800, silizium: 400, rohoel: 200 }); // 0.22.0 ×2
+  gleich(Bau.startplatzKosten("A", 2), { metall: 1080, silizium: 540, rohoel: 270 });
+  gleich(Bau.startplatzKosten("B", 1), { metall: 1200, silizium: 600, rohoel: 300 });
   assert.ok(Bau.startplatzKosten("Z", 10).metall > Bau.startplatzKosten("Y", 10).metall);
 });
 

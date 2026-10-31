@@ -209,7 +209,90 @@
     return a;
   }
 
+  // ---------- Warteschlange (0.22.0, Sandro pt65u) ----------
+  // p.bauschlange = [{ art, id|buchstabe }] – max. WARTESCHLANGE.GEBAEUDE Plätze zusätzlich zum laufenden Auftrag.
+  // Einreihen ohne Rohstoff-Check; Start (FIFO) erst, wenn der erste Eintrag die Rohstoffe hat.
+  function schlangeMax() { return (B().WARTESCHLANGE || {}).GEBAEUDE || 10; }
+  function gleichesZiel(a, b) { return a.art === b.art && (a.art === "startplatz" ? a.buchstabe === b.buchstabe : a.id === b.id); }
+  function aktuelleStufe(p, auftrag) { return auftrag.art === "startplatz" ? startplatzStufe(p, auftrag.buchstabe) : (p.gebaeude[auftrag.id] || 0); }
+  /** Stufe, die der Eintrag an Position „bis“ (exklusiv) der Schlange erreichen würde. */
+  function geplanteStufe(p, auftrag, bis) {
+    var s = aktuelleStufe(p, auftrag);
+    if (p.bauauftrag && gleichesZiel(p.bauauftrag, auftrag)) s = Math.max(s, p.bauauftrag.stufe);
+    (p.bauschlange || []).slice(0, bis == null ? undefined : bis).forEach(function (q) { if (gleichesZiel(q, auftrag)) s++; });
+    return s + 1;
+  }
+  /** Ansicht der Schlange: [{ art, id, buchstabe, name, stufe, kosten, wartet }] */
+  function schlangeAnsicht(z, p) {
+    return (p.bauschlange || []).map(function (q, i) {
+      var st = geplanteStufe(p, q, i), name, k;
+      if (q.art === "startplatz") { name = "Startplatz " + q.buchstabe; k = startplatzKosten(q.buchstabe, Math.min(st, B().STARTPLAETZE.STUFE_MAX)); }
+      else { var d = D().gebaeudeNachId(q.id); name = d ? d.name : q.id; k = d ? gebaeudeKosten(d, Math.min(st, D().maxStufe(d))) : {}; }
+      return { art: q.art, id: q.id || null, buchstabe: q.buchstabe || null, name: name, stufe: st, kosten: k, index: i };
+    });
+  }
+  /** Prüft, ob ein Auftrag eingereiht werden kann (ohne Rohstoff-Check). → { ok, grund } */
+  function pruefeEinreihen(z, p, auftrag) {
+    var zl = ziel(z, p, auftrag);
+    if (!zl) return { ok: false, grund: "Unbekanntes Bauziel." };
+    if (auftrag.art === "startplatz") {
+      if (!(p.gebaeude.raumflughafen > 0) && !(p.bauauftrag && p.bauauftrag.id === "raumflughafen") && !(p.bauschlange || []).some(function (q) { return q.id === "raumflughafen"; }))
+        return { ok: false, grund: "Zuerst den Raumflughafen errichten." };
+      var st = startplatzStatus(z, p, auftrag.buchstabe);
+      if (!st.frei && !(startplatzStufe(p, auftrag.buchstabe) > 0)) {
+        var i = startplatzIndex(auftrag.buchstabe), vor = i > 0 ? D().startplatzBuchstaben[i - 1] : null;
+        var vorGeplant = !vor || geplanteStufe(p, { art: "startplatz", buchstabe: vor }) - 1 >= B().STARTPLAETZE.VORGAENGER_STUFE;
+        if (!st.punkteOk || !vorGeplant) return { ok: false, grund: "Gesperrt: " + st.grund + ".", gesperrt: true };
+      }
+    } else {
+      var sperre = gebaeudeSperre(z, D().gebaeudeNachId(auftrag.id));
+      if (sperre) return { ok: false, grund: sperre, gesperrt: true };
+    }
+    var stufe = geplanteStufe(p, auftrag);
+    if (stufe > zl.max) return { ok: false, grund: "Höchststufe " + zl.max + " erreicht (inkl. Warteschlange)." };
+    if ((p.bauschlange || []).length >= schlangeMax()) return { ok: false, grund: "Warteschlange voll (" + schlangeMax() + " Plätze)." };
+    return { ok: true, grund: "", stufe: stufe };
+  }
+  /** Bauen-Knopf: sofort starten, wenn nichts läuft/wartet und alles passt – sonst in die Warteschlange. */
+  function beauftragen(z, p, auftrag, jetzt) {
+    p.bauschlange = p.bauschlange || [];
+    if (!p.bauauftrag && !p.bauschlange.length) {
+      var pr = pruefe(z, p, auftrag);
+      if (pr.ok) return starte(z, p, auftrag, jetzt);
+    }
+    var e = pruefeEinreihen(z, p, auftrag);
+    if (!e.ok) return e;
+    p.bauschlange.push({ art: auftrag.art, id: auftrag.art === "startplatz" ? null : auftrag.id, buchstabe: auftrag.art === "startplatz" ? auftrag.buchstabe : null });
+    var gestartet = schlangeVoranbringen(z, p, jetzt);
+    return { ok: true, eingereiht: true, stufe: e.stufe, gestartet: gestartet, platz: p.bauschlange.length };
+  }
+  function ausSchlangeEntfernen(z, p, index) {
+    if (!p.bauschlange || !p.bauschlange[index]) return null;
+    return p.bauschlange.splice(index, 1)[0];
+  }
+  /** Startet wartende Einträge (FIFO), solange nichts läuft und die Rohstoffe reichen. → Liste gestarteter/fertiger Aufträge */
+  function schlangeVoranbringen(z, p, jetzt) {
+    var erg = [], sicherung = 0;
+    while (!p.bauauftrag && p.bauschlange && p.bauschlange.length && sicherung++ < 100) {
+      var q = p.bauschlange[0], zl = ziel(z, p, q);
+      if (!zl || zl.stufe > zl.max) { p.bauschlange.shift(); continue; } // nicht mehr möglich → verwerfen
+      var r = starte(z, p, q, jetzt);
+      if (!r.ok) break; // wartet (Rohstoffe, Werft beschäftigt, Sperre …)
+      p.bauschlange.shift();
+      erg.push(r.auftrag);
+    }
+    return erg;
+  }
+  /** Grund, warum der erste Eintrag wartet ("" = startet gleich). */
+  function schlangeWartegrund(z, p) {
+    if (!p.bauschlange || !p.bauschlange.length || p.bauauftrag) return "";
+    var pr = pruefe(z, p, p.bauschlange[0]);
+    return pr.ok ? "" : (pr.fehlend ? "Wartet auf Rohstoffe – " : "Wartet – ") + pr.grund;
+  }
+
   SS.kern.bau = {
+    schlangeMax: schlangeMax, geplanteStufe: geplanteStufe, schlangeAnsicht: schlangeAnsicht, pruefeEinreihen: pruefeEinreihen, beauftragen: beauftragen,
+    ausSchlangeEntfernen: ausSchlangeEntfernen, schlangeVoranbringen: schlangeVoranbringen, schlangeWartegrund: schlangeWartegrund,
     gebaeudeKosten: gebaeudeKosten, startplatzKosten: startplatzKosten, bauzeitMs: bauzeitMs, startplatzBauzeitMs: startplatzBauzeitMs,
     bauzeitFaktorForschung: bauzeitFaktorForschung, freischaltungenPruefen: freischaltungenPruefen, sperrPunkte: sperrPunkte, kostenAus: kostenAus, fehlend: fehlend, punkteFuer: punkteFuer,
     forschungszeitFaktor: forschungszeitFaktor, startplatzSchwelle: startplatzSchwelle, startplatzFrei: startplatzFrei,

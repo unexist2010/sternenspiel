@@ -64,6 +64,7 @@
       verteidigungsauftraege: [], // Kapitel 5: Warteschlange der Verteidigungswerft
       truemmer: { orbit: { metall: 0, silizium: 0 }, boden: { metall: 0, silizium: 0 } }, // Kapitel 5: Trümmerfeld (Wracksammler) / Schrott (Bodensammler)
       bauauftrag: null,           // ein Auftrag gleichzeitig (OGame)
+      bauschlange: [],            // 0.22.0: Warteschlange (max. 10), Start erst mit Rohstoffen
       startplaetze: SS.DATEN.startplaetzeAnfang()
     };
   }
@@ -129,6 +130,9 @@
     if (p.schild && isFinite(p.schild.bis) && isFinite(p.schild.abklingBis)) neu.schild = { seit: Number(p.schild.seit) || 0, bis: Number(p.schild.bis), abklingBis: Number(p.schild.abklingBis) }; // 0.20.0
     var a = p.bauauftrag;
     if (a && isFinite(a.start) && isFinite(a.ende) && a.kosten && (a.art === "gebaeude" ? SS.DATEN.gebaeudeNachId(a.id) : SS.DATEN.startplatzBuchstaben.indexOf(a.buchstabe) >= 0)) neu.bauauftrag = a;
+    neu.bauschlange = (Array.isArray(p.bauschlange) ? p.bauschlange : []).filter(function (q) { // 0.22.0 (alte Stände: leer)
+      return q && (q.art === "gebaeude" ? SS.DATEN.gebaeudeNachId(q.id) : q.art === "startplatz" && SS.DATEN.startplatzBuchstaben.indexOf(q.buchstabe) >= 0);
+    }).slice(0, (SS.BALANCE.WARTESCHLANGE || {}).GEBAEUDE || 10).map(function (q) { return { art: q.art, id: q.art === "gebaeude" ? q.id : null, buchstabe: q.art === "startplatz" ? q.buchstabe : null }; });
     return neu;
   }
 
@@ -158,6 +162,7 @@
 
       // --- Andockpunkte für spätere Kapitel (ohne Logik) ---
       forschung: neueForschung(),   // Kapitel 3: Stufe je Forschung
+      forschungsschlange: [],       // 0.22.0: Forschungs-Warteschlange (max. 5)
       forschungsauftrag: null,      // Kapitel 3: ein Forschungsauftrag gleichzeitig (OGame) – unabhängig vom Bauauftrag
       schiffe: {},           // v7: leer – Bestand liegt je Planet (planet.schiffe)
       flotten: [], letzteExpeditionen: [], // 0.15.0           // Kapitel 6: Flotten im Flug
@@ -257,6 +262,8 @@
     SS.kern.bau.freischaltungenPruefen(z); // v6: Kunststoffwerk T2/T3 ab Punkteschwelle frei
     z.forschung = neueForschung(z.forschung);             // v6: alle Forschungen mit Stufe (unbekannte Einträge entfallen)
     z.forschungsauftrag = forschungsauftragBereinigen(z.forschungsauftrag);
+    z.forschungsschlange = (Array.isArray(z.forschungsschlange) ? z.forschungsschlange : []).filter(function (q) { return q && SS.DATEN.forschungNachId(q.id); })
+      .slice(0, (SS.BALANCE.WARTESCHLANGE || {}).FORSCHUNG || 5).map(function (q) { return { id: q.id }; }); // 0.22.0
     // v7: früherer Andockpunkt z.schiffe (Spielerebene) → Bestand des Hauptplaneten
     if (z.schiffe && typeof z.schiffe === "object") Object.keys(z.schiffe).forEach(function (id) {
       var n = Math.floor(Number(z.schiffe[id]) || 0), hp = z.planeten[0];

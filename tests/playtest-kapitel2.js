@@ -113,7 +113,7 @@ async function lauf(browser, g) {
   ok(await page.$$eval("article.anlage[data-gebaeude]:not([data-gebaeude=solarsatellit])", (a) => a.every((x) => x.querySelector(".stufe") && x.querySelector(".beschreibung") && /Bauzeit/.test(x.textContent) && /Aktuell/.test(x.textContent))), "Jede Kachel: Stufe, Beschreibung, Kosten, Bauzeit, aktuell/nächste Stufe");
   ok(await page.isEnabled('article[data-gebaeude="metallmine"] button[data-aktion="bauen"]'), "Metallmine sofort baubar (Startbestand)");
   const grundOel = (await page.textContent('article[data-gebaeude="oelverbrennung"] .grund')).trim();
-  ok(!(await page.isEnabled('article[data-gebaeude="oelverbrennung"] button[data-aktion="bauen"]')) && /Es fehlen/.test(grundOel), `Ölverbrennung deaktiviert mit Grund („${grundOel}“)`);
+  ok((await page.isEnabled('article[data-gebaeude="oelverbrennung"] button[data-aktion="bauen"]')) && /eingereiht/.test(grundOel) && /Es fehlen/.test(grundOel), `0.22.0: Ölverbrennung ohne Rohstoffe einreihbar mit Hinweis („${grundOel}“)`);
   ok(/Forschungszeit/.test(await page.textContent('article[data-gebaeude="forschungseinrichtung"]')), "Forschungseinrichtung zeigt Forschungszeit-Wert");
   ok(await ueberlauf() <= 0, "Anlagen: kein Überlauf");
 
@@ -124,7 +124,7 @@ async function lauf(browser, g) {
   ok(await Z((m) => window.SS.app.zustand.rohstoffe.metall < m - 70, m0), "Kosten abgezogen");
   ok(await page.isVisible('article[data-gebaeude="solarfarm"].im-bau .balken'), "Fortschrittsbalken in der Kachel");
   const grundBelegt = (await page.textContent('article[data-gebaeude="metallmine"] .grund')).trim();
-  ok(!(await page.isEnabled('article[data-gebaeude="metallmine"] button[data-aktion="bauen"]')) && /läuft bereits/.test(grundBelegt), `Ein Bauplatz: andere Knöpfe gesperrt („${grundBelegt}“)`);
+  ok((await page.isEnabled('article[data-gebaeude="metallmine"] button[data-aktion="bauen"]')) && /Einreihen/.test(await page.textContent('article[data-gebaeude="metallmine"] button[data-aktion="bauen"]')), `0.22.0: Ein Bauplatz läuft, andere Knöpfe reihen ein („${grundBelegt}“)`);
   await vorspulen();
   ok((await stufe("solarfarm")) === 1, "Solarfarm nach Vorspulen auf Stufe 1");
   const rate0 = await Z(() => window.SS.kern.produktion.uebersicht(window.SS.app.zustand).netto.metall);

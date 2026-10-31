@@ -107,9 +107,9 @@ async function lauf(browser, g) {
   await page.click('article[data-forschung="energie"] button[data-aktion="forschen"]'); await sleep(250);
   ok(await Z(() => window.SS.app.zustand.forschungsauftrag && window.SS.app.zustand.forschungsauftrag.id === "energie"), "Forschung gestartet (Energie-Technologie → 1)");
   ok(await page.isVisible('#forschung-box [data-live="forschung-rest"]') && /Energie-Technologie → Stufe 1/.test(await page.textContent("#forschung-box")), "Laufende Forschung mit Restzeit und Balken");
-  ok(!(await page.isEnabled('article[data-forschung="computer"] button[data-aktion="forschen"]')) && (await grund("computer")) === "Es läuft bereits eine Forschung.", "Nur eine Forschung gleichzeitig");
+  ok((await page.isEnabled('article[data-forschung="computer"] button[data-aktion="forschen"]')) && /Einreihen/.test(await page.textContent('article[data-forschung="computer"] button[data-aktion="forschen"]')), "0.22.0: Nur eine Forschung gleichzeitig – weitere werden eingereiht");
   await geheZu("#anlagen", "anlagen");
-  ok(/Während einer Forschung/.test(await page.textContent('article[data-gebaeude="forschungseinrichtung"] .grund')) && !(await page.isEnabled('article[data-gebaeude="forschungseinrichtung"] button[data-aktion="bauen"]')), "Anlagen: Forschungseinrichtung während der Forschung gesperrt");
+  ok(/Während einer Forschung/.test(await page.textContent('article[data-gebaeude="forschungseinrichtung"] .grund')) && /eingereiht/.test(await page.textContent('article[data-gebaeude="forschungseinrichtung"] .grund')), "0.22.0: Forschungseinrichtung während der Forschung nur einreihbar (wartet)");
   ok(await page.isEnabled('article[data-gebaeude="metallmine"] button[data-aktion="bauen"]'), "Gebäudebau läuft unabhängig (Metallmine baubar)");
   await geheZu("#uebersicht", "uebersicht");
   ok(/Energie-Technologie → Stufe 1/.test(await page.textContent("#forschung-box")), "Übersicht zeigt die laufende Forschung");

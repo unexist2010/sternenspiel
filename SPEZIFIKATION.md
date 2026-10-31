@@ -38,3 +38,7 @@
 - Neue Spieler: Heimat 1:50:(zufällig 1–12).
 - KI füllt sich rund um das Heimatsystem auf (auf- und abwärts), nahe zuerst; nahe KI wächst mit dem Spieler, ferne eher schwächer, aber durchmischt.
 - Rangliste (Gesamt/Gebäude/Forschung/Flotte/Verteidigung) mit Spieler, KI, Alpha/Beta; Klick → #weltraum/system/N.
+
+## Warteschlangen (0.22.0, Sandro pt65u – FEST)
+- Gebäude/Startplätze: 10 Warteplätze je Planet, Forschung: 5 Warteplätze. Einreihen ohne Rohstoffe erlaubt; Start (FIFO) erst, wenn die Rohstoffe reichen.
+- Startplatz-Kosten ×2 (Grund A1: 800 M / 400 Si / 200 Öl), Bauzeit unverändert (Teiler 22).

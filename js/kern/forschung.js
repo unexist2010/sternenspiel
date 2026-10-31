@@ -139,7 +139,67 @@
   /** Faktor auf Gebäude-/Startplatz-Bauzeit (wirkt jetzt; nicht auf Forschung). */
   function roboterFaktor(z) { return z && z.forschung ? bonus(z, "roboter") : 1; }
 
+  // ---------- Warteschlange (0.22.0, Sandro pt65u) ----------
+  // z.forschungsschlange = [{ id }] – max. WARTESCHLANGE.FORSCHUNG Plätze; Einreihen ohne Rohstoff-Check, Start FIFO.
+  function schlangeMax() { return (B().WARTESCHLANGE || {}).FORSCHUNG || 5; }
+  function geplanteStufe(z, id, bis) {
+    var s = stufe(z, id);
+    if (z.forschungsauftrag && z.forschungsauftrag.id === id) s = Math.max(s, z.forschungsauftrag.stufe);
+    (z.forschungsschlange || []).slice(0, bis == null ? undefined : bis).forEach(function (q) { if (q.id === id) s++; });
+    return s + 1;
+  }
+  function schlangeAnsicht(z) {
+    return (z.forschungsschlange || []).map(function (q, i) {
+      var f = D().forschungNachId(q.id), st = geplanteStufe(z, q.id, i);
+      return { id: q.id, name: f ? f.name : q.id, stufe: st, kosten: f ? kosten(f, st) : {}, index: i };
+    });
+  }
+  function pruefeEinreihen(z, id) {
+    var f = D().forschungNachId(id);
+    if (!f) return { ok: false, grund: "Unbekannte Forschung." };
+    var ba = hp(z).bauauftrag, einrichtungKommt = (ba && ba.id === "forschungseinrichtung") || (hp(z).bauschlange || []).some(function (q) { return q.id === "forschungseinrichtung"; });
+    if ((hp(z).gebaeude.forschungseinrichtung || 0) < B().FORSCHUNG.EINRICHTUNG_MIN_STUFE && !einrichtungKommt) return { ok: false, grund: "Zuerst die Forschungseinrichtung bauen.", einrichtung: true };
+    if (!istMaster(z)) { // Voraussetzungen inkl. bereits eingereihter Forschungen
+      var fehlt = f.vor.filter(function (gr) { return !gr.some(function (x) { return geplanteStufe(z, x.id) - 1 >= x.stufe; }); });
+      if (fehlt.length) return { ok: false, grund: "Voraussetzung fehlt: " + voraussetzungen(z, f).filter(function (g2) { return !g2.ok; }).map(vorText).join(", ") + ".", gesperrt: true };
+    }
+    if ((z.forschungsschlange || []).length >= schlangeMax()) return { ok: false, grund: "Warteschlange voll (" + schlangeMax() + " Plätze)." };
+    return { ok: true, grund: "", stufe: geplanteStufe(z, id) };
+  }
+  function beauftragen(z, id, jetzt) {
+    z.forschungsschlange = z.forschungsschlange || [];
+    if (!z.forschungsauftrag && !z.forschungsschlange.length && pruefe(z, id).ok) return starte(z, id, jetzt);
+    var e = pruefeEinreihen(z, id);
+    if (!e.ok) return e;
+    z.forschungsschlange.push({ id: id });
+    var gestartet = schlangeVoranbringen(z, jetzt);
+    return { ok: true, eingereiht: true, stufe: e.stufe, gestartet: gestartet, platz: z.forschungsschlange.length };
+  }
+  function ausSchlangeEntfernen(z, index) {
+    if (!z.forschungsschlange || !z.forschungsschlange[index]) return null;
+    return z.forschungsschlange.splice(index, 1)[0];
+  }
+  function schlangeVoranbringen(z, jetzt) {
+    var erg = [], sicherung = 0;
+    while (!z.forschungsauftrag && z.forschungsschlange && z.forschungsschlange.length && sicherung++ < 100) {
+      var q = z.forschungsschlange[0];
+      if (!D().forschungNachId(q.id)) { z.forschungsschlange.shift(); continue; }
+      var r = starte(z, q.id, jetzt);
+      if (!r.ok) break;
+      z.forschungsschlange.shift();
+      erg.push(r.auftrag);
+    }
+    return erg;
+  }
+  function schlangeWartegrund(z) {
+    if (!z.forschungsschlange || !z.forschungsschlange.length || z.forschungsauftrag) return "";
+    var pr = pruefe(z, z.forschungsschlange[0].id);
+    return pr.ok ? "" : (pr.fehlend ? "Wartet auf Rohstoffe – " : "Wartet – ") + pr.grund;
+  }
+
   SS.kern.forschung = {
+    schlangeMax: schlangeMax, geplanteStufe: geplanteStufe, schlangeAnsicht: schlangeAnsicht, pruefeEinreihen: pruefeEinreihen, beauftragen: beauftragen,
+    ausSchlangeEntfernen: ausSchlangeEntfernen, schlangeVoranbringen: schlangeVoranbringen, schlangeWartegrund: schlangeWartegrund,
     stufe: stufe, kosten: kosten, dauerMs: dauerMs, einrichtungStufe: einrichtungStufe, voraussetzungen: voraussetzungen,
     voraussetzungenOk: voraussetzungenOk, sichtbar: sichtbar, ziel: ziel, pruefe: pruefe, starte: starte, abbrechen: abbrechen,
     fertigstellen: fertigstellen, wirkung: wirkung, bonus: bonus, energieFaktor: energieFaktor, roboterFaktor: roboterFaktor, istMaster: istMaster
