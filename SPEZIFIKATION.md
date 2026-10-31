@@ -49,3 +49,10 @@
 - Detail öffnen = gelesen. Löschen einzeln / markiert / gelesene / alle (je Tab). Koordinaten → `#weltraum/system/<sys>/planet/<pos>`, Zeile markiert.
 - Erzeugt von: Kampf (`expedition.merkeKampfbericht`), Spionage (`testphase`), Expeditions-Ereignis + sonstige Flottenmeldungen (`flotte.faellige`).
 - Limits je Kategorie (ANNAHME): Kampf/Spionage 50, Flotte 150, Expedition/Spieler 100, gesamt 300.
+
+## Punkte (0.23.1, Sandro t68u – FEST)
+- **1 Punkt = 1.000 verbrauchte Rohstoffe**, ungewichtet: Metall + Silizium + Rohöl + Kunststoff T1/T2/T3 + Antimaterie zählen je 1:1 (vorher gewichtet: Kunststoff ×2/×4/×8, Antimaterie ×10). Strom zählt nicht.
+- Gezählt wird alles, was Rohstoffe kostet: Gebäudestufen (inkl. Startplätze A–Z), Forschungsstufen, Schiffe (inkl. Solarsatelliten), Verteidigung. Formel: `SS.kern.bau.punkteFuer(kosten)` = Σ Kosten / `BALANCE.PUNKTE.JE_ROHSTOFFE` (1000).
+- **Spielerpunkte (`z.punkte`)**: steigen je Fertigstellung (Bau/Forschung/Werft/Verteidigung, auch Master). Basis für Startplatz- und Kunststoffwerk-Freischaltung, KI-Stärke, Expeditions-Fundgrenze, Anzeigen (Übersicht, Planet, Raumflughafen, Forschung).
+- **Rangliste**: Gebäude/Forschung/Flotte/Verteidigung aus aktuellem Bestand mit derselben Formel (verlorene Schiffe zählen nicht); Gesamt = Summe. KI: Gesamt = max(KI-Punkte, Flotte+Verteidigung), KI-Punkte = Spielerpunkte × KI-Faktor.
+- **Migration Spielstand v12**: `z.punkte` wird einmalig aus dem Bestand neu berechnet (= Rangliste gesamt, ungerundet). Bereits erreichte Freischaltungen bleiben erhalten.

@@ -263,6 +263,8 @@
     delete z.startplaetze; delete z.gebaeude; delete z.lagerstaetten;
     z.punkte = Math.max(0, Number(z.punkte) || 0);
     SS.kern.bau.freischaltungenPruefen(z); // v6: Kunststoffwerk T2/T3 ab Punkteschwelle frei
+    // v12 / 0.23.1 (Sandro t68u): einmalig (nach Freischaltprüfung mit altem Wert – erreichte Freischaltungen bleiben) Punkte aus dem Bestand neu berechnen (Gebäude-/Startplatzstufen, Forschung, Schiffe, Verteidigung je Kosten / 1000).
+    if (vorher < 12 && SS.kern.rangliste && SS.kern.forschung) { try { z.forschung = neueForschung(z.forschung); z.punkte = SS.kern.rangliste.punkteSpieler(z, true).gesamt; } catch (e) { /* alter Wert bleibt */ } }
     z.forschung = neueForschung(z.forschung);             // v6: alle Forschungen mit Stufe (unbekannte Einträge entfallen)
     z.forschungsauftrag = forschungsauftragBereinigen(z.forschungsauftrag);
     z.forschungsschlange = (Array.isArray(z.forschungsschlange) ? z.forschungsschlange : []).filter(function (q) { return q && SS.DATEN.forschungNachId(q.id); })

@@ -5,7 +5,8 @@
  * Spieler: Punkte werden aus dem aktuellen Bestand berechnet (wie OGame: verlorene Schiffe zählen nicht mehr):
  *   Gebäude = alle gebauten Stufen inkl. Startplätze, Forschung = alle Stufen, Flotte = Schiffe auf Planeten/Hangar/unterwegs + Solarsatelliten,
  *   Verteidigung = Verteidigungsanlagen; je Kosten über SS.kern.bau.punkteFuer. Gesamt = Summe.
- *   (z.punkte – Freischalt-Punkte für Startplätze/Kunststoffwerk – bleibt unverändert.)
+ *   0.23.1 (t68u): 1 Punkt = 1000 verbrauchte Rohstoffe, ungewichtet. z.punkte (Freischaltungen, KI) wird beim Laden aus
+ *   demselben Bestand neu berechnet (punkteSpieler(z, true).gesamt) und danach je Fertigstellung hochgezählt.
  * ANNAHME KI: Flotte/Verteidigung aus Bestand; Gesamt = max(KI-Punkte, Flotte+Verteidigung); Rest 65 % Gebäude / 35 % Forschung.
  * Alpha/Beta: nur Flotte + Verteidigung.
  */
@@ -21,7 +22,7 @@
   function bestandPunkte(liste, nach) {
     var s = 0; Object.keys(liste || {}).forEach(function (id) { var d = nach(id), n = Number(liste[id]) || 0; if (d && n > 0) s += pk(d.kosten) * n; }); return s;
   }
-  function punkteSpieler(z) {
+  function punkteSpieler(z, roh) {
     var D = SS.DATEN, BAU = SS.kern.bau, r = { gebaeude: 0, forschung: 0, flotte: 0, verteidigung: 0 };
     (z.planeten || []).forEach(function (p) {
       D.gebaeude.forEach(function (d) { for (var st = 1; st <= ((p.gebaeude && p.gebaeude[d.id]) || 0); st++) r.gebaeude += pk(BAU.gebaeudeKosten(d, st)); });
@@ -32,6 +33,7 @@
     });
     (z.flotten || []).forEach(function (f) { r.flotte += bestandPunkte(f.schiffe, D.schiffNachId); });
     D.forschung.forEach(function (f) { var n = SS.kern.forschung.stufe(z, f.id); for (var st = 1; st <= n; st++) r.forschung += pk(SS.kern.forschung.kosten(f, st)); });
+    if (roh) { r.gesamt = r.gebaeude + r.forschung + r.flotte + r.verteidigung; return r; }
     return runde(r);
   }
   function punkteGegner(z, x, jetzt) {

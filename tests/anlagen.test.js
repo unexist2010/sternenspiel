@@ -45,7 +45,8 @@ test("Kostenformel: Basis · Faktor^(n−1), Bauzeit (Metall+Silizium)/2500 h, M
   assert.equal(Bau.bauzeitMs({ metall: 60, silizium: 15 }), 108000); // 75 / 2500 h = 108 s
   assert.equal(Bau.bauzeitMs({ metall: 2500, silizium: 2500, rohoel: 99999 }), 2 * STD, "Rohöl zählt nicht (OGame: Deuterium zählt nicht)");
   assert.equal(Bau.bauzeitMs({ metall: 1 }), 5000, "Mindestbauzeit 5 s");
-  assert.equal(Bau.punkteFuer({ metall: 1000, silizium: 500, rohoel: 500, kunststoff_t1: 500 }), 3);
+  assert.equal(Bau.punkteFuer({ metall: 1000, silizium: 500, rohoel: 500, kunststoff_t1: 500 }), 2.5); // 0.23.1: ungewichtet
+  assert.equal(Bau.punkteFuer({ antimaterie: 1000, kunststoff_t3: 1000 }), 2);
 });
 
 test("Produktion je Stufe: Minen basis·n·1,1^n bei ausreichend Strom", () => {

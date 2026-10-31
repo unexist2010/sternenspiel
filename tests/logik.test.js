@@ -277,7 +277,7 @@ test("Migration v1/v3 → v5 und Bereinigung von v5-Ständen", () => {
   // v3: alte kostenlose Startplätze (A Stufe 1) werden verworfen
   const z3 = Z.migriere({ version: 3, heimat: z.heimat, rohstoffe: {}, zeit: { letzterTick: T0 }, punkte: 12,
     startplaetze: [{ buchstabe: "A", stufe: 99, freigeschaltet: true }] });
-  assert.ok(z3.planeten[0].startplaetze.every((sp) => sp.stufe === 0)); assert.equal(z3.punkte, 12);
+  assert.ok(z3.planeten[0].startplaetze.every((sp) => sp.stufe === 0)); assert.equal(z3.punkte, 0); // v12: aus Bestand neu berechnet
   // v5: Werte begrenzen, ungültigen Bauauftrag verwerfen, unbekannte Gebäude entfernen
   const v4 = JSON.parse(JSON.stringify(neu(SS)));
   Object.assign(v4.planeten[0].gebaeude, { metallmine: 99, raumflughafen: 5, roboterfabrik: 3, solarfarm: -2 });

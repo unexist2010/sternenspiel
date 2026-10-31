@@ -1,5 +1,12 @@
 # Changelog – Sternenspiel
 
+## [0.23.1] – 2026-11-01 – Punkte: 1 Punkt = 1.000 Rohstoffe (Sandro t68u)
+
+- **Punkteformel vereinheitlicht:** 1 Punkt je 1.000 verbrauchte Rohstoffe, **ungewichtet** – Metall, Silizium, Rohöl, Kunststoff T1–T3 und Antimaterie zählen 1:1 (vorher Kunststoff ×2/×4/×8, Antimaterie ×10). Strom zählt nicht.
+- Gilt überall: Spielerpunkte (Freischaltungen, KI-Stärke, Expeditions-Cap, Anzeigen) und Rangliste (Gebäude/Forschung/Flotte/Verteidigung).
+- **Spielstand v12:** bestehende Saves – Punkte einmalig aus dem Bestand neu berechnet (Gebäude-/Startplatzstufen × Kosten, Forschung × Kosten, Schiffe/Satelliten/Verteidigung × Kosten); erreichte Freischaltungen bleiben.
+- Tests: `tests/punkte.test.js` (2), angepasste Migrations-/Versionstests – 158/158.
+
 ## [0.23.0] – 2026-11-01 – Nachrichten (Sandro pt67u)
 
 - **Neuer Menüpunkt „Nachrichten“** (10. Punkt) mit rotem **Ungelesen-Badge** in der Navigation.

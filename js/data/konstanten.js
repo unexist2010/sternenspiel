@@ -16,11 +16,11 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.23.0";
+  SS.VERSION = "0.23.1";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
-    SPIELSTAND_VERSION: 11,  // v2: Heimatplanet · v3: automatischer Start · v4: Kapitel 2 – Planeten mit Gebäuden, Bauauftrag, Startplätzen · v5: Rohölvorkommen/Geologie, Startplätze A–Z, Master-Modus · v6: Forschung (Stufen + Forschungsauftrag), T2/T3-Freischaltung über Punkte · v7: Werft – Schiffsbestand je Planet + Werft-Warteschlange · v8: Schiffsliste nach Sandro (24 Schiffe, Umbenennung; 0.11.4: 25), Warteschlange unbegrenzt · v9: Verteidigung (planet.verteidigung + verteidigungsauftraege, Orbitalplattform Schiff→Verteidigung, planet.truemmer) · v10: Flotte (planet.flotte.preset, z.flotten im Flug, z.favoriten) · v11: z.gegner (Testphase), Kampf-/Spionageberichte
+    SPIELSTAND_VERSION: 12,  // v2: Heimatplanet · v3: automatischer Start · v4: Kapitel 2 – Planeten mit Gebäuden, Bauauftrag, Startplätzen · v5: Rohölvorkommen/Geologie, Startplätze A–Z, Master-Modus · v6: Forschung (Stufen + Forschungsauftrag), T2/T3-Freischaltung über Punkte · v7: Werft – Schiffsbestand je Planet + Werft-Warteschlange · v8: Schiffsliste nach Sandro (24 Schiffe, Umbenennung; 0.11.4: 25), Warteschlange unbegrenzt · v9: Verteidigung (planet.verteidigung + verteidigungsauftraege, Orbitalplattform Schiff→Verteidigung, planet.truemmer) · v10: Flotte (planet.flotte.preset, z.flotten im Flug, z.favoriten) · v11: z.gegner (Testphase), Kampf-/Spionageberichte · v12: Punkte ungewichtet (1 P = 1000 Rohstoffe), einmalig aus Bestand neu berechnet
     SPEICHER_SCHLUESSEL: "sternenspiel_spielstand_v1",          // alter Einzel-Spielstand (bis 0.3) – wird als erstes Profil übernommen
     PROFIL_INDEX_SCHLUESSEL: "sternenspiel_profile_v1",         // Liste der Spielerprofile
     PROFIL_SPIELSTAND_PRAEFIX: "sternenspiel_spielstand_p_",    // + Profil-ID = eigener Spielstand je Spieler
@@ -81,10 +81,11 @@
     },
     // Lagergrenzen: KEINE Speichergebäude (FEST) → Lager unbegrenzt (ANNAHME)
 
-    // ANNAHME: 1 Punkt je 1000 verbaute Rohstoffe (OGame), gewichtet; Strom zählt nicht (ist keine Baukosten-Ressource)
+    // FEST (Sandro t68u, 0.23.1): 1 Punkt je 1000 verbrauchte Rohstoffe, UNGEWICHTET – jede Kosten-Ressource zählt 1:1
+    // (Metall, Silizium, Rohöl, Kunststoff T1–T3, Antimaterie). Strom zählt nicht (keine Baukosten-Ressource).
     PUNKTE: {
       JE_ROHSTOFFE: 1000,
-      GEWICHT: { metall: 1, silizium: 1, rohoel: 1, kunststoff_t1: 2, kunststoff_t2: 4, kunststoff_t3: 8, antimaterie: 10 }
+      GEWICHT: { metall: 1, silizium: 1, rohoel: 1, kunststoff_t1: 1, kunststoff_t2: 1, kunststoff_t3: 1, antimaterie: 1 }
     },
 
     // Solarsatelliten (Bau später in der Werft) – hier nur Energie je Satellit (ANNAHME, OGame ≈ 20–50 je nach Temperatur)

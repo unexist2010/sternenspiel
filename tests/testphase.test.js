@@ -21,7 +21,7 @@ test("Seed: Master, 3 Planeten-Ziele, Gegner je ≤5 Einheiten, Favoriten, Migra
   assert.equal(z.favoriten.length, 3);
   assert.ok(TP.gegnerAn(z, z.gegner[0]));
   const m = SS.kern.zustand.migriere(JSON.parse(JSON.stringify(z)));
-  assert.equal(m.version, 11); assert.equal(m.gegner.length, 2); assert.deepEqual(m.planeten[1].koordinaten, z.planeten[1].koordinaten);
+  assert.equal(m.version, SS.BALANCE.SPIELSTAND_VERSION); assert.equal(m.gegner.length, 2); assert.deepEqual(m.planeten[1].koordinaten, z.planeten[1].koordinaten);
   assert.equal(m.planeten[1].name, "Testkolonie");
   const alt = JSON.parse(JSON.stringify(SS.kern.zustand.neuerSpielstand({ jetzt: T0 }))); alt.version = 10; delete alt.gegner;
   assert.deepEqual(JSON.parse(JSON.stringify(SS.kern.zustand.migriere(alt).gegner)), []);
