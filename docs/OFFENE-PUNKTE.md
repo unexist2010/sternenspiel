@@ -95,3 +95,11 @@ Stand: 2026-10-31 (0.11.0, Kapitel 4 Schiffsliste nach Sandro) · Alles hier ist
 - Orbitalverteidigungsplattform (Mischung aus A und B)
 
 **Reserve für andere Schiffe:** Korvette B, Zerstörer B, Schlachtkreuzer B (Fronttriebwerk stört Sandro), Schlachtschiff B (für etwas Großes).
+
+
+## Schiffsbilder (Sandro, 0.11.2)
+**Eingebaut (PNG):** Titan C, Kleiner Frachter D, Bodensammler C, Solarsatellit C (jetzt 21 PNGs).
+**Offen:**
+- Massengutfrachter: Basis C, Fronttriebwerke entfernt → Vorschläge `massengutfrachter-e.png`, `-f.png` (Sandro will nochmal sehen)
+- Bomber: C/D abgelehnt → Reserve `bomber-reserve-*.png` (Bomber A/B, Korvette B, Zerstörer B, Schlachtschiff B, Schlachtkreuzer B + Umbau ohne Fronttriebwerk) und neue `bomber-e/f/g.png`
+- Orbitalverteidigungsplattform: neue Vorschläge `-e` bis `-h`
