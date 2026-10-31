@@ -1,5 +1,10 @@
 # Changelog – Sternenspiel
 
+## [0.16.2] – 2026-10-31 – Spionagesonde OGame-schnell (Sandro t44u)
+
+- **Spionagesonde:** Grundtempo 125.000 → **100.000.000** (OGame-Niveau) – Spionageflüge dauern nur noch Sekunden.
+- Bewusst unverändert: Kleiner Frachter bleibt früh schnell (bestätigt), Titan/große Schiffe langsam, aber nicht RIP-extrem.
+
 ## [0.16.1] – 2026-10-31 – Weltraum: nur Nummern, Testgegner im Heimatsystem (Sandro t41u)
 
 - **Keine Eigennamen** mehr: Sektoren heißen „Sektor 1“ … „Sektor 5“, Sonnensysteme „System N“, Planeten „Planet P“; Navigation nur per Nummer (Auswahl, Fenster, Übersicht, Systemkopf). Universum heißt schlicht „Universum“.

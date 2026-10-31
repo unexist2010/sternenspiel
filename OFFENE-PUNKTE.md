@@ -27,3 +27,8 @@
 - **ANNAHME:** Spionage schickt genau 1 Sonde (OGame-Standard) und öffnet danach das Flottenfenster; Anzahl später einstellbar?
 - **ANNAHME:** Spionage/Angriff nur bei fremden Planeten (Testgegner); eigene Planeten haben Transport + Stationieren. Transport auch zu Gegnern möglich.
 - **Offen:** Kolonisieren-Wirkung am Ziel (neue Kolonie) folgt eigenem Kapitel; Trümmerfeld-Anzeige je Position; Spieler-/Allianz-Infos.
+
+## 0.16.2 – Tempo-Leitlinie (Sandro t44u, FEST)
+- **Kleiner Frachter** bewusst early-schnell (ähnlich kleinen Kampfschiffen) – bestätigt, keine Änderung.
+- **Spionagesonde** OGame-schnell (Tempo 100.000.000, Flüge in Sekunden).
+- **Große Schiffe** (Koloss, Titan) langsam, aber nicht RIP-extrem – Titan ohne Auftrag nicht ändern.

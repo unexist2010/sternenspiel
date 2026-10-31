@@ -171,7 +171,7 @@
       beschreibung: "Liefert Strom aus dem Orbit.",
       info: "Jeder Satellit erhöht den Strom des Planeten (× Energie-Technologie). Fliegt nicht; wird im Kampf leicht zerstört." },
     { id: "spionagesonde", name: "Spionagesonde", gruppe: "spezial", kosten: { silizium: 1000 },
-      antrieb: "verbrennung", huelle: "leichtmetall", waffen: {  }, angriff: 0, schild: 0, tempo: 125000, verbrauch: 1, ladung: 5,
+      antrieb: "verbrennung", huelle: "leichtmetall", waffen: {  }, angriff: 0, schild: 0, tempo: 100000000, verbrauch: 1, ladung: 5, // 0.16.2 (Sandro t44u): OGame-Tempo, Flüge in Sekunden
       vor: { werft: 3, forschung: [V("verbrennung", 3), V("spionage", 2)] }, schnellfeuer: {  },
       beschreibung: "Extrem schnelle Sonde für Spionageberichte.",
       info: "Kein Schild, kaum Hülle – wird im Kampf meist zerstört. Kontert die Orbitalverteidigungsplattform nur mit hoher Spionage." },

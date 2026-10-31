@@ -186,3 +186,8 @@ Stufe 1: 0–1 · Stufe 2: 2–3 · Stufe 3: 4–6 · Stufe 4: 7–10 · Stufe 5
 - Antimaterie/Strom als Fund? (derzeit weggelassen)
 - Expeditionsraum Position 13 bestätigen (Galerie zeigt Pos. 13 noch nicht an).
 - Piraten: „1 Schiff entkommt“ als Schutz gegen Totalverlust ok?
+
+## 0.16.2 – Tempo-Leitlinie (Sandro t44u, FEST)
+- **Kleiner Frachter** bewusst early-schnell (ähnlich kleinen Kampfschiffen) – bestätigt, keine Änderung.
+- **Spionagesonde** OGame-schnell (Tempo 100.000.000, Flüge in Sekunden).
+- **Große Schiffe** (Koloss, Titan) langsam, aber nicht RIP-extrem – Titan ohne Auftrag nicht ändern.
