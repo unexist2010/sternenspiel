@@ -124,7 +124,7 @@
       neu.koordinaten = { sektor: p.koordinaten.sektor, system: p.koordinaten.system, planet: p.koordinaten.planet };
     if (!istHaupt && p.name) neu.name = String(p.name).slice(0, 24);
     if (!istHaupt && p.kolonie) neu.kolonie = true; // 0.18.0
-    if (p.schild && isFinite(p.schild.bis) && isFinite(p.schild.abklingBis)) neu.schild = { seit: Number(p.schild.seit) || 0, bis: Number(p.schild.bis), abklingBis: Number(p.schild.abklingBis) }; // 0.19.0
+    if (p.schild && isFinite(p.schild.bis) && isFinite(p.schild.abklingBis)) neu.schild = { seit: Number(p.schild.seit) || 0, bis: Number(p.schild.bis), abklingBis: Number(p.schild.abklingBis) }; // 0.20.0
     var a = p.bauauftrag;
     if (a && isFinite(a.start) && isFinite(a.ende) && a.kosten && (a.art === "gebaeude" ? SS.DATEN.gebaeudeNachId(a.id) : SS.DATEN.startplatzBuchstaben.indexOf(a.buchstabe) >= 0)) neu.bauauftrag = a;
     return neu;
@@ -271,6 +271,7 @@
     z.letzteExpeditionen = Array.isArray(z.letzteExpeditionen) ? z.letzteExpeditionen.slice(0, 10) : []; // 0.15.0
     z.flottenZaehler = Math.max(0, Math.floor(Number(z.flottenZaehler) || 0));
     z.gegner = SS.kern.testphase ? SS.kern.testphase.bereinige(z.gegner) : (Array.isArray(z.gegner) ? z.gegner : []); // v11
+    if (z.ki && typeof z.ki === "object" && SS.kern.testphase) z.ki.npc = SS.kern.testphase.bereinige(z.ki.npc); else delete z.ki; // 0.20.0 KI-Welt
     if (!z.letzterKampfbericht || typeof z.letzterKampfbericht !== "object") z.letzterKampfbericht = null;
     z.kampfberichte = (Array.isArray(z.kampfberichte) ? z.kampfberichte : []).filter(function (b) { return b && typeof b === "object"; }).slice(0, 10); // 0.15.1
     if (!z.kampfberichte.length && z.letzterKampfbericht) z.kampfberichte = [z.letzterKampfbericht];

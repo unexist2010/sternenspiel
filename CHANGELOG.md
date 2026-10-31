@@ -1,5 +1,18 @@
 # Changelog – Sternenspiel
 
+## [0.20.0] – 2026-10-31 – KI-Grundlage: Siedler, Piraten, Rivalen (Sandro t53–t55u)
+- Neues Modul `js/kern/ki.js`; KI-Planeten in `z.ki.npc` (Alpha/Beta bleiben in `z.gegner`). Spionage, Angriff, Beute, Bergung funktionieren gegen KI-Planeten wie gegen Testgegner.
+- **Siedler:** viel Verteidigung, Schiffe überwiegend zivil (Frachter), viele Rohstoffe (lukrativ), wachsen langsam nach (15 % des Defizits/Tag).
+- **Piraten:** wenige Planeten (~10 % der Siedler), Kampfschiffe; „überfallen“ Siedler (35 %/Tag) → nur wachsendes Orbit-Trümmerfeld am Siedler sichtbar, kein Kampfbericht, kein Flug.
+- **Rivalen:** 5 im Universum (je Sektor einer), 14 Tage inaktiv (halbe Stärke, kein Wachstum), dann aktiv. Keine Angriffe auf den Spieler.
+- **Stärke folgt Spielerpunkten:** max. +10 %; ≈10 % stärker, ≈15 % gleich/leicht schwächer, Rest 35–90 %. Neue Planeten starten bei 40 % ihres Solls (leichtes Early Game).
+- **Wachstum:** 2–5 neue Planeten/Tag (≤5), ≤50 % KI-Belegung je System, keine direkten Nachbarpositionen; 70 % im Heimatsektor; nie in Systemen mit eigenen Planeten/Testgegnern (ANNAHME). Tage werden beim Laden nachgezogen (max. 120).
+- **TF-Alter:** Trümmerfelder an KI-Planeten verschwinden nach 7 Tagen (Tooltip „Tag x/7“ im Weltraum).
+- **Spionage-Drift:** Berichte über KI-Planeten weichen täglich deterministisch um bis zu ±5 % ab; Bericht zeigt Art + Punkte.
+- **Weltraum:** Spalte Spieler zeigt Art (Siedler/Pirat/Rivale, ggf. „inaktiv“) + Punkte.
+- Kein Diplo/Allianzen, keine KI-Expedition, kein KI-Koloniekrieg. Spielstand-Version unverändert (11), `z.ki` wird bei Bedarf angelegt.
+- Tests: `tests/ki.test.js`; 135/135 grün, alle Playtests grün.
+
 ## [0.19.0] – 2026-10-31 – Beute, Rückruf, Angriffsschild, Bergung (Sandro t52u)
 - **Beute** nach gewonnenem Angriff, begrenzt durch den Laderaum der Angreiferflotte (Sammler zählen nicht, mitgeführte Ladung wird abgezogen). Verteilung Metall:Silizium:Rohöl 3:2:1; Kunststoff nur, wenn das Ziel welchen hat: Budget 5 % des Laderaums, T1:T2:T3 = 6:3:1. Max. 50 % des Zielbestands. Kein Strom, keine Antimaterie. Neues Modul `js/kern/bergung.js`, Konstanten `BEUTE`. Beute-Zeile im Kampfbericht. Testgegner haben jetzt Rohstoffe.
 - **Rückruf** fliegender Flotten (Hinflug/Halten) ohne Zusatzkosten: sofortige Umkehr, Rückflug = bereits geflogene Zeit, Rohöl-Erstattung = Anteil der ungeflogenen Hinstrecke (beim Halten 0). Knopf „↩ Rückruf“ in der Flottenliste.

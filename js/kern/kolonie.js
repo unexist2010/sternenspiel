@@ -17,7 +17,7 @@
   function belegtVon(z, k) {
     var gl = function (a) { return a && a.sektor === k.sektor && a.system === k.system && a.planet === k.planet; };
     if (SS.kern.flotte.eigenePlaneten(z).some(gl)) return "eigen";
-    if ((z.gegner || []).some(gl)) return "gegner";
+    if ((SS.kern.testphase ? SS.kern.testphase.alleGegner(z) : (z.gegner || [])).some(gl)) return "gegner";
     return "";
   }
   /** Prüfung (Senden + Ankunft) → Fehlertext oder "" */

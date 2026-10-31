@@ -1,4 +1,4 @@
-// 0.19.0 (Sandro t52u): Beute, Rückruf, Angriffsschild, Wrack-/Bodensammlung.
+// 0.20.0 (Sandro t52u): Beute, Rückruf, Angriffsschild, Wrack-/Bodensammlung.
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const { ladeSpiel } = require("./lade-spiel");

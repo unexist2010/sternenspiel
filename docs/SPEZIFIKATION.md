@@ -617,3 +617,6 @@ Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zäh
 - Planetenliste links (aktiver Planet), Schnellwahl eigener Planeten im Sendefenster.
 - Expedition :13 im eigenen System: feste Distanz 1315 (≈60 min, Kleiner Frachter, ohne Antriebsforschung). Cap = Punkte×25 (mind. 10 000). Fundgröße ×(1+0,05·h) max ×2; Fundchance +2 %/h max 75 %; Piraten 35–90 % der Flottenstärke, Gewicht 4.
 - Bomber: Kunststoff T2 3000. Startbestand Rohöl 600.
+
+## KI (0.20.0)
+Siehe CHANGELOG 0.20.0 und `js/kern/ki.js` (Konstanten `SS.kern.ki.K`).

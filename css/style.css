@@ -474,3 +474,4 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .schild-liste li small { display: block; opacity: .75; }
 .schild-liste li.aktiv { background: rgba(58,134,217,.12); }
 .schild-liste .planet-bild, .schild-liste img:first-child { width: 28px; height: 28px; }
+.wr-ki{font-size:.8em;opacity:.85;margin-left:.3em}.wr-ki-siedler{color:#9fd59f}.wr-ki-pirat{color:#ff8a6b}.wr-ki-rivale{color:#c9a6ff}

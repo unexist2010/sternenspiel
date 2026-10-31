@@ -30,11 +30,13 @@
       if (x.truemmer) ["orbit", "boden"].forEach(function (o) { ["metall", "silizium"].forEach(function (r) { t[o][r] = Math.max(0, Number(x.truemmer[o] && x.truemmer[o][r]) || 0); }); });
       return { id: String(x.id), name: String(x.name || x.id).slice(0, 40), sektor: x.sektor, system: x.system, planet: x.planet,
         schiffe: sch, verteidigung: def, rohstoffe: rs(x.rohstoffe), solarsatelliten: Math.max(0, Math.floor(Number(x.solarsatelliten) || 0)), truemmer: t,
+        ki: SS.kern.ki ? SS.kern.ki.bereinigeKi(x.ki) : undefined,
         startplaetze: Array.isArray(x.startplaetze) ? x.startplaetze.filter(function (sp) { return sp && sp.buchstabe; }).map(function (sp) { return { buchstabe: String(sp.buchstabe), stufe: Math.max(0, Math.floor(Number(sp.stufe) || 0)) }; }) : undefined };
     });
   }
 
-  function gegnerAn(z, k) { return (z.gegner || []).filter(function (x) { return gleich(x, k); })[0] || null; }
+  function alleGegner(z) { return (z.gegner || []).concat((z.ki && z.ki.npc) || []); } // 0.20.0: + KI-Planeten
+  function gegnerAn(z, k) { return alleGegner(z).filter(function (x) { return gleich(x, k); })[0] || null; }
 
   /** Synthetischer Planet + Zustand für SS.kern.kampf.simuliere (Gegner ohne Flotte unterwegs → alle Schiffe verteidigen). */
   function kampfPlanet(gg) {
@@ -57,6 +59,9 @@
       schiffe: sicht, verteidigung: JSON.parse(JSON.stringify(gg.verteidigung)), solarsatelliten: gg.solarsatelliten || 0,
       truemmer: JSON.parse(JSON.stringify(gg.truemmer || leerT())), sichtbarkeit: "startplaetze",
       bodenbewegungen: bew, hinweis: HINWEIS[bew ? "ja" : "nein"] };
+    if (gg.ki && SS.kern.ki) { // 0.20.0: KI-Planet – Punkte + täglicher Drift ±5 % (Bericht nie ganz exakt)
+      var KI = SS.kern.ki; b.schiffe = KI.drift(z, gg, b.schiffe, jetzt); b.verteidigung = KI.drift(z, gg, b.verteidigung, jetzt);
+      b.art = gg.ki.art; b.punkte = Math.round(KI.punkte(z, gg, jetzt) * KI.driftFaktor(z, gg, jetzt)); b.tfAlterTage = KI.tfAlterTage(gg, jetzt); }
     z.letzterSpionagebericht = b;
     return b;
   }
@@ -77,7 +82,7 @@
     // t33u: Auto-Bergung – Sieg + überlebende Wracksammler in der Angriffsflotte → Orbit-Trümmer nach Phase 2 einsammeln.
     // Boden-Schrott gehört immer dem Planetenbesitzer (Angreifer kann ihn nie sammeln).
     b.geborgen = (b.sieger === "angreifer" && f.schiffe.wracksammler > 0) ? berge(f, gg) : null;
-    // 0.19.0 (Sandro t52u): Beute nach Sieg – Laderaum der Angreiferflotte, M:Si:Öl 3:2:1, wenig Kunststoff (T1:T2:T3 6:3:1)
+    // 0.20.0 (Sandro t52u): Beute nach Sieg – Laderaum der Angreiferflotte, M:Si:Öl 3:2:1, wenig Kunststoff (T1:T2:T3 6:3:1)
     if (b.sieger === "angreifer" && f.anzahl && SS.kern.bergung) { gg.rohstoffe = gg.rohstoffe || {}; var bt = SS.kern.bergung.pluendere(f, gg.rohstoffe); b.beute = bt.summe ? bt.beute : null; b.beuteKapazitaet = bt.kapazitaet; }
     f.kampfbericht = b; SS.kern.expedition.merkeKampfbericht(z, b);
     return b;
@@ -175,5 +180,5 @@
     return z;
   }
 
-  SS.kern.testphase = { bereinige: bereinige, gegnerAn: gegnerAn, kampfPlanet: kampfPlanet, spionage: spionage, angriff: angriff, ankunft: ankunft, berge: berge, legeTestphaseAn: legeTestphaseAn, TEST_POSITIONEN: TEST_POSITIONEN };
+  SS.kern.testphase = { alleGegner: alleGegner, bereinige: bereinige, gegnerAn: gegnerAn, kampfPlanet: kampfPlanet, spionage: spionage, angriff: angriff, ankunft: ankunft, berge: berge, legeTestphaseAn: legeTestphaseAn, TEST_POSITIONEN: TEST_POSITIONEN };
 })(typeof globalThis !== "undefined" ? globalThis : this);

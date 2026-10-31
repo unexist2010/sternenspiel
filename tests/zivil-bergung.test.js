@@ -52,7 +52,7 @@ test("Testablauf t33u: Spionage, Alpha ohne Sammler + Nachsammlung, Beta mit Aut
   assert.equal(b.angreifer.find((x) => x.id === "wracksammler").verloren, 0);
   assert.deepEqual({ ...beta.truemmer.orbit }, { metall: 0, silizium: 0 });
   assert.equal(beta.truemmer.boden.metall, b.schrottBoden.metall, "Boden nicht geborgen");
-  const bt = b.beute || {}; // 0.19.0: Beute kommt zusätzlich ins Lager
+  const bt = b.beute || {}; // 0.20.0: Beute kommt zusätzlich ins Lager
   assert.equal(z.rohstoffe.metall - m1, b.geborgen.metall + (bt.metall || 0)); assert.equal(z.rohstoffe.silizium - s1, b.geborgen.silizium + (bt.silizium || 0));
   assert.match(SS.ui.kampfbericht.html(b), /Orbit geborgen/);
   LOG("Beta:", b.sieger, "Runden O/B", b.phasen[0].runden.length, b.phasen[1].runden.length, "Orbit-Trümmer", JSON.stringify(b.truemmerOrbit), "geborgen", JSON.stringify({ m: b.geborgen.metall, s: b.geborgen.silizium }), "Boden bleibt", JSON.stringify(beta.truemmer.boden));

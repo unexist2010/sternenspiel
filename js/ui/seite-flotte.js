@@ -61,7 +61,7 @@
       return testphaseBox() + "<div class=\"flotte-tabs\">" + tab("startplatz", "Startplatz", sb.aufStartbahn, startb) + tab("hangar", "Hangar", FL.summe(sb.hangar), hangar) + "</div>" + bergungBox() + sendefenster() + unterwegs + expeditionBox() + berichteBox();
     }
 
-    // ---------- Bergung (0.19.0, Sandro t52u): zwei Symbole wie OGame → Sendefenster mit Mission + eigenen Koordinaten ----------
+    // ---------- Bergung (0.20.0, Sandro t52u): zwei Symbole wie OGame → Sendefenster mit Mission + eigenen Koordinaten ----------
     function bergungBox() {
       var zz = z(), pp = p(), k = kt(FL.herkunftKoord(zz, pp)), tr = pp.truemmer || { orbit: {}, boden: {} };
       var o = (tr.orbit.metall || 0) + (tr.orbit.silizium || 0), b = (tr.boden.metall || 0) + (tr.boden.silizium || 0);

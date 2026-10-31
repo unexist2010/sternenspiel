@@ -167,7 +167,7 @@
     var f = { id: "f" + z.flottenZaehler, herkunft: p.id, start: herkunftKoord(z, p), ziel: r.ziel, zielName: auftrag.zielName || (r.zielEigen ? r.zielEigen.name : ""),
       mission: r.mission.id, schiffe: r.schiffe, anzahl: r.anzahl, abflug: jetzt, ankunft: jetzt + r.dauer, rueckkehr: null, phase: "hin",
       ladung: Object.keys(r.ladung).length ? r.ladung : undefined, rohoel: r.rohoel };
-    if (r.mission.id === "angriff" && SS.kern.bergung) SS.kern.bergung.schildAus(p, jetzt); // 0.19.0: kein Angriff aus der Schild-Deckung
+    if (r.mission.id === "angriff" && SS.kern.bergung) SS.kern.bergung.schildAus(p, jetzt); // 0.20.0: kein Angriff aus der Schild-Deckung
     if (r.halten) { f.halten = r.halten; f.halteMs = SS.kern.werft.istMaster(z) ? 0 : r.halten * 3600000; }
     z.flotten.push(f);
     r.flotte = f;
@@ -211,7 +211,7 @@
           meld.push({ art: "flotte", name: m.name, text: "Flotte stationiert auf " + ziel });
           return;
         }
-        else if ((f.mission === "sammeln" || f.mission === "bodensammlung") && eigen && SS.kern.bergung) { // 0.19.0 Bergung eigener Planet
+        else if ((f.mission === "sammeln" || f.mission === "bodensammlung") && eigen && SS.kern.bergung) { // 0.20.0 Bergung eigener Planet
           var gb = SS.kern.bergung.bergeEigen(z, f, planetVonId(z, eigen.id));
           f.phase = "rueck"; f.rueckkehr = f.ankunft + (f.ankunft - f.abflug);
           f.bericht = m.name + " bei " + ziel + ": geborgen " + gb.metall + " M / " + gb.silizium + " Si (Rest " + gb.rest.metall + " M / " + gb.rest.silizium + " Si)";

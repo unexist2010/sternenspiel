@@ -16,7 +16,7 @@
   function belegung(z, sys) {
     var D = SS.DATEN, W = D.weltraum, FL = SS.kern.flotte, s = W.system(sys);
     if (!s) return [];
-    var eigene = FL.eigenePlaneten(z), gg = z.gegner || [];
+    var eigene = FL.eigenePlaneten(z), gg = SS.kern.testphase ? SS.kern.testphase.alleGegner(z) : (z.gegner || []);
     return s.planeten.map(function (pl) {
       var k = { sektor: pl.sektor, system: pl.system, planet: pl.position };
       var gl = function (x) { return x.sektor === k.sektor && x.system === k.system && x.planet === k.planet; };
@@ -27,7 +27,8 @@
         var ep = (z.planeten || []).filter(function (q) { return q.id === e.id; })[0];
         r.truemmerOrbit = pt(ep && ep.truemmer, "orbit"); r.schrottBoden = pt(ep && ep.truemmer, "boden");
         r.schild = !!(SS.kern.bergung && SS.kern.bergung.schildStatus(ep, Date.now()).aktiv); }
-      else if (x) { r.truemmerOrbit = pt(x.truemmer, "orbit"); r.art = "gegner"; r.name = x.name; r.spieler = x.name; r.vernichtet = !(FL.summe(x.schiffe) + FL.summe(x.verteidigung)); }
+      else if (x) { r.truemmerOrbit = pt(x.truemmer, "orbit"); r.art = "gegner"; r.name = x.name; r.spieler = x.name;
+        if (x.ki && SS.kern.ki) { var jt = (z.zeit && z.zeit.letzterTick) || Date.now(); r.kiArt = x.ki.art; r.punkte = SS.kern.ki.punkte(z, x, jt); r.kiAktiv = SS.kern.ki.aktiv(x, jt); r.tfAlter = SS.kern.ki.tfAlterTage(x, jt); } r.vernichtet = !(FL.summe(x.schiffe) + FL.summe(x.verteidigung)); }
       return r;
     });
   }
@@ -67,9 +68,9 @@
           knopf("transportieren", r.koord, "Transport") + (r.art === "eigen" ? knopf("stationieren", r.koord, "Stationieren") : "");
         return "<tr class=\"wr-" + r.art + "\" data-position=\"" + r.position + "\" data-koord=\"" + r.koord + "\"><td class=\"z\">" + r.position + "</td>" +
           "<td>" + (r.art === "leer" ? "<span class=\"hinweis\">– frei –</span>" : "<b>" + esc(r.name) + "</b>" + (r.schild ? " <img class=\"schild-symbol\" src=\"assets/icons/schild.svg\" alt=\"Schild aktiv\" title=\"Angriffsschild aktiv\" width=\"16\" height=\"16\">" : "") + (r.vernichtet ? " <i>vernichtet</i>" : "")) + "</td>" +
-          "<td class=\"wr-truemmer\">" + (r.truemmerOrbit > 0 ? "<a class=\"wr-tf\" href=\"" + link("sammeln", r.koord) + "\" data-mission=\"sammeln\" title=\"Trümmerfeld (Orbit): " + r.truemmerOrbit + " – Wracksammler senden\"><img src=\"assets/icons/wracksammlung.svg\" alt=\"Trümmerfeld\" width=\"20\" height=\"20\"></a>" : "") +
+          "<td class=\"wr-truemmer\">" + (r.truemmerOrbit > 0 ? "<a class=\"wr-tf\" href=\"" + link("sammeln", r.koord) + "\" data-mission=\"sammeln\" title=\"Trümmerfeld (Orbit): " + r.truemmerOrbit + (r.tfAlter !== null && r.tfAlter !== undefined ? " · Tag " + (r.tfAlter + 1) + "/" + SS.kern.ki.K.TF_MAX_TAGE : "") + " – Wracksammler senden\"><img src=\"assets/icons/wracksammlung.svg\" alt=\"Trümmerfeld\" width=\"20\" height=\"20\"></a>" : "") +
             (r.schrottBoden > 0 ? "<a class=\"wr-bs\" href=\"" + link("bodensammlung", r.koord) + "\" data-mission=\"bodensammlung\" title=\"Boden-Schrott: " + r.schrottBoden + " – Bodensammler senden\"><img src=\"assets/icons/bodensammlung.svg\" alt=\"Boden-Schrott\" width=\"20\" height=\"20\"></a>" : "") + "</td>" +
-          "<td>[" + r.koord + "]</td><td>" + (r.art === "eigen" ? "<span class=\"gut\">" + esc(r.spieler) + " (du)</span>" : r.art === "gegner" ? "<span class=\"schlecht\">⚔ " + esc(r.spieler) + "</span>" : "") + "</td>" +
+          "<td>[" + r.koord + "]</td><td>" + (r.art === "eigen" ? "<span class=\"gut\">" + esc(r.spieler) + " (du)</span>" : r.art === "gegner" ? "<span class=\"schlecht\">⚔ " + esc(r.spieler) + "</span>" + (r.kiArt ? " <span class=\"wr-ki wr-ki-" + r.kiArt + "\">" + ({ siedler: "Siedler", pirat: "Pirat", rivale: "Rivale" })[r.kiArt] + (r.kiArt === "rivale" && !r.kiAktiv ? " (inaktiv)" : "") + " · " + (SS.format ? SS.format.zahl(r.punkte) : r.punkte) + " P</span>" : "") : "") + "</td>" +
           "<td class=\"wr-aktionen\">" + aktion + "</td></tr>";
       }).join("");
       var exKoord = s.sektor + ":" + sys + ":" + SS.BALANCE.EXPEDITION.POSITION;

@@ -1,5 +1,5 @@
 /*
- * Sternenspiel – 0.19.0 (Sandro t52u): Beute, Flotten-Rückruf, Angriffsschild, Bergung (Boden-/Wracksammlung). DOM-frei, in Node testbar.
+ * Sternenspiel – 0.20.0 (Sandro t52u): Beute, Flotten-Rückruf, Angriffsschild, Bergung (Boden-/Wracksammlung). DOM-frei, in Node testbar.
  *
  * BEUTE (nach Sieg): nur Laderaum der normalen Frachter/Kampfschiffe (Wrack-/Bodensammler haben eigenen Spezial-Laderaum → zählen nicht).
  *   - Metall : Silizium : Rohöl = 3 : 2 : 1 (FEST Sandro).

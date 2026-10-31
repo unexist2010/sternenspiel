@@ -233,7 +233,7 @@
     }).join("") + "</ul>";
   }
   function schildSymbol(p) { return SS.kern.bergung.schildStatus(p, jetzt()).aktiv ? " <img class=\"schild-symbol\" src=\"assets/icons/schild.svg\" alt=\"Schild\" title=\"Angriffsschild aktiv\" width=\"14\" height=\"14\">" : ""; }
-  /** 0.19.0 (Sandro t52u): Angriffsschild je eigenem Planeten in der Übersicht. */
+  /** 0.20.0 (Sandro t52u): Angriffsschild je eigenem Planeten in der Übersicht. */
   function schildBox() {
     var t = jetzt(), BG = SS.kern.bergung, S = B.SCHILD;
     return box("Angriffsschild", "<p class=\"hinweis\">Bonusgegenstand (vorerst frei): wehrt " + S.DAUER_H + " Std. lang jeden Angriff auf den Planeten ohne Kampf ab (keine Verluste, keine Beute). Kosten " + F.zahl(S.KOSTEN_ROHOEL) + " Rohöl, danach " + S.ABKLING_H + " Std. Abklingzeit. Ein eigener Angriff von diesem Planeten beendet den Schild. <span class=\"annahme-marke\">Annahme</span></p>" +
@@ -340,7 +340,7 @@
     var m = $("send-mission"), k = $("send-koord"), sel = $("send-ziel");
     if (m) m.value = t[1];
     if (k && t[2]) { k.value = decodeURIComponent(t[2]); if (sel) { sel.value = k.value; if (sel.value !== k.value) sel.value = ""; } }
-    // 0.19.0: Bergung – nur passende Sammler vorauswählen (max)
+    // 0.20.0: Bergung – nur passende Sammler vorauswählen (max)
     var typ = t[1] === "sammeln" ? "wracksammler" : t[1] === "bodensammlung" ? "bodensammler" : null;
     if (typ) { Array.prototype.forEach.call(document.querySelectorAll("#inhalt input[data-send-menge]"), function (i) { i.value = i.getAttribute("data-send-menge") === typ ? (hp().schiffe[typ] || 0) : 0; }); FU().aktualisiereSenden(document); }
     if (t[3] === "keine-sonde" && $("send-grund")) meldung("Keine Spionagesonde verfügbar – Mission + Ziel sind vorausgefüllt.", "schlecht");

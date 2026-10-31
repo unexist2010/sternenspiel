@@ -191,3 +191,7 @@ Stufe 1: 0–1 · Stufe 2: 2–3 · Stufe 3: 4–6 · Stufe 4: 7–10 · Stufe 5
 - **Kleiner Frachter** bewusst early-schnell (ähnlich kleinen Kampfschiffen) – bestätigt, keine Änderung.
 - **Spionagesonde** OGame-schnell (Tempo 100.000.000, Flüge in Sekunden).
 - **Große Schiffe** (Koloss, Titan) langsam, aber nicht RIP-extrem – Titan ohne Auftrag nicht ändern.
+
+## 0.20.0 KI – offen
+- Balance KI (Nachwuchsraten, Überfall-Chance, Faktor-Verteilung) nach Spieltest feinjustieren.
+- KI-Angriffe auf den Spieler (aktuell AUS), Rivalen-Verhalten „aktiv“ ausbauen.

@@ -48,3 +48,7 @@
 - [ ] Schild wird erst wirksam, wenn es KI-Angreifer gibt (Hook `SS.kern.bergung.angriffBlockiert`).
 - [ ] Gegner-Rohstoffe sind statisch (Seed); keine Produktion bis zur KI.
 - [ ] Antimaterie bewusst ausgelassen.
+
+## 0.20.0 KI – offen
+- Balance KI (Nachwuchsraten, Überfall-Chance, Faktor-Verteilung) nach Spieltest feinjustieren.
+- KI-Angriffe auf den Spieler (aktuell AUS), Rivalen-Verhalten „aktiv“ ausbauen.
