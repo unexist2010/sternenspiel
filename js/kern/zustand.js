@@ -155,7 +155,7 @@
       forschung: neueForschung(),   // Kapitel 3: Stufe je Forschung
       forschungsauftrag: null,      // Kapitel 3: ein Forschungsauftrag gleichzeitig (OGame) – unabhängig vom Bauauftrag
       schiffe: {},           // v7: leer – Bestand liegt je Planet (planet.schiffe)
-      flotten: [],           // Kapitel 6: Flotten im Flug
+      flotten: [], letzteExpeditionen: [], // 0.15.0           // Kapitel 6: Flotten im Flug
       favoriten: [],         // Kapitel 6: gespeicherte Ziel-Koordinaten
       flottenZaehler: 0,
       gegner: [],            // v11 (0.14.1): minimale Test-Gegner (Testphase), volles Weltraum-Kapitel später
@@ -262,9 +262,10 @@
     z.statistik = z.statistik || {};
     z.statistik.schiffeGebaut = Math.max(0, Math.floor(Number(z.statistik.schiffeGebaut) || 0));
     z.flotten = (Array.isArray(z.flotten) ? z.flotten : []).filter(function (f) {  // v10: nur gültige Flüge behalten
-      return f && f.id && f.schiffe && typeof f.schiffe === "object" && f.ziel && isFinite(f.ankunft) && (f.phase === "hin" || (f.phase === "rueck" && isFinite(f.rueckkehr)));
+      return f && f.id && f.schiffe && typeof f.schiffe === "object" && f.ziel && isFinite(f.ankunft) && (f.phase === "hin" || (f.phase === "halten" && isFinite(f.haltEnde)) || (f.phase === "rueck" && isFinite(f.rueckkehr)));
     });
     z.favoriten = (Array.isArray(z.favoriten) ? z.favoriten : []).filter(function (k) { return k && SS.DATEN.weltraum.leseKoordinaten(k.sektor + ":" + k.system + ":" + k.planet); });
+    z.letzteExpeditionen = Array.isArray(z.letzteExpeditionen) ? z.letzteExpeditionen.slice(0, 10) : []; // 0.15.0
     z.flottenZaehler = Math.max(0, Math.floor(Number(z.flottenZaehler) || 0));
     z.gegner = SS.kern.testphase ? SS.kern.testphase.bereinige(z.gegner) : (Array.isArray(z.gegner) ? z.gegner : []); // v11
     if (!z.letzterKampfbericht || typeof z.letzterKampfbericht !== "object") z.letzterKampfbericht = null;

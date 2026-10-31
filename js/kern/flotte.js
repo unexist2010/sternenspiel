@@ -20,6 +20,7 @@
     { id: "spionieren", name: "Spionieren", text: "Braucht mindestens eine Spionagesonde. Gegen Testgegner: Spionagebericht (Schiffe + Verteidigung), danach Rückflug." },
     { id: "angriff", name: "Angriff", text: "Greift das Ziel an: gegen Testgegner echter Kampf (Phase 1 Orbit + Phase 2 Boden) mit Kampfbericht und Trümmern; Überlebende fliegen zurück." },
     { id: "sammeln", name: "Trümmer bergen", text: "Braucht Wracksammler. Sammelt Orbit-Trümmer (Schiffswracks) am Ziel bis zur Ladekapazität der Wracksammler und bringt sie heim. Boden-Schrott gehört immer dem Planetenbesitzer." },
+    { id: "expedition", name: "Expedition", text: "Braucht Astrophysik. Ziel: Expeditionsraum (Position 13 eines Systems). Hält dort 1…Stufe Stunden – länger = höhere Fundchance (Rohstoffe inkl. Kunststoff T1/T2, Schiffe), Risiko: Piraten, Verzögerung." },
     { id: "unterstuetzen", name: "Unterstützen", text: "Hilft am Ziel bei der Verteidigung (folgt mit Gegnern)." }
   ];
   var presetNachId = function (id) { return PRESETS.filter(function (x) { return x.id === id; })[0] || null; };
@@ -119,7 +120,9 @@
     if (fehler) { r.grund = fehler; return r; }
     if (!anzahl) { r.grund = "Keine Schiffe ausgewählt."; return r; }
     if (anzahl > r.frei) { r.grund = "Nur " + r.frei + " Startplätze frei (" + anzahl + " gewählt)."; return r; }
-    if (!ziel || !D().weltraum.leseKoordinaten(D().weltraum.koordinatenText(ziel))) { r.grund = "Ungültiges Ziel."; return r; }
+    var EX = SS.kern.expedition, halten = Math.floor(Number(auftrag && auftrag.halten) || 1);
+    if (mission && mission.id === "expedition") { var eg = !ziel ? "Ziel: Expeditionsraum S:SYS:" + SS.BALANCE.EXPEDITION.POSITION + " eingeben." : EX.pruefe(z, ziel, halten); if (eg) { r.grund = eg; return r; } r.halten = halten; }
+    else if (!ziel || !D().weltraum.leseKoordinaten(D().weltraum.koordinatenText(ziel))) { r.grund = "Ungültiges Ziel."; return r; }
     if (!mission) { r.grund = "Mission wählen."; return r; }
     var zielEigen = eigenePlaneten(z).filter(function (e) { return gleicheKoord(e, ziel); })[0];
     if (gleicheKoord(start, ziel)) { r.grund = "Ziel ist der Startplanet."; return r; }
@@ -156,6 +159,7 @@
     var f = { id: "f" + z.flottenZaehler, herkunft: p.id, start: herkunftKoord(z, p), ziel: r.ziel, zielName: auftrag.zielName || (r.zielEigen ? r.zielEigen.name : ""),
       mission: r.mission.id, schiffe: r.schiffe, anzahl: r.anzahl, abflug: jetzt, ankunft: jetzt + r.dauer, rueckkehr: null, phase: "hin",
       ladung: Object.keys(r.ladung).length ? r.ladung : undefined };
+    if (r.halten) { f.halten = r.halten; f.halteMs = SS.kern.werft.istMaster(z) ? 0 : r.halten * 3600000; }
     z.flotten.push(f);
     r.flotte = f;
     if (r.dauer === 0) r.meldungen = faellige(z, jetzt); // Master: Ankunft (und ggf. Rückkehr) sofort
@@ -164,7 +168,7 @@
 
   /** Fortschritt eines Fluges (aktuelle Phase). */
   function status(f, jetzt) {
-    var von = f.phase === "hin" ? f.abflug : f.ankunft, bis = f.phase === "hin" ? f.ankunft : f.rueckkehr;
+    var von = f.phase === "hin" ? f.abflug : f.phase === "halten" ? f.ankunft : (f.haltEnde || f.ankunft), bis = f.phase === "hin" ? f.ankunft : f.phase === "halten" ? f.haltEnde : f.rueckkehr;
     var dauer = Math.max(1, bis - von);
     return { phase: f.phase, rest: Math.max(0, bis - jetzt), prozent: Math.max(0, Math.min(100, (jetzt - von) / dauer * 100)), ende: bis };
   }
@@ -178,13 +182,15 @@
       var m = missionNachId(f.mission), ziel = D().weltraum.koordinatenText(f.ziel);
       if (f.phase === "hin" && jetzt >= f.ankunft) {
         var eigen = eigenePlaneten(z).filter(function (e) { return gleicheKoord(e, f.ziel); })[0];
-        if (f.mission === "stationieren" && eigen) {
+        if (f.mission === "expedition") { f.phase = "halten"; f.haltEnde = f.ankunft + (f.halteMs || 0); meld.push({ art: "flotte", name: m.name, text: "Expedition erreicht " + ziel + " – hält " + (f.halten || 1) + " h" }); }
+        else if (f.mission === "stationieren" && eigen) {
           var zp = planetVonId(z, eigen.id);
           Object.keys(f.schiffe).forEach(function (id) { zp.schiffe[id] = (zp.schiffe[id] || 0) + f.schiffe[id]; });
           z.flotten.splice(z.flotten.indexOf(f), 1);
           meld.push({ art: "flotte", name: m.name, text: "Flotte stationiert auf " + ziel });
           return;
         }
+        if (f.mission !== "expedition") {
         // ANNAHME: Ohne Gegner/Kolonien (Weltraum-Kapitel) haben Missionen am Ziel noch keine Wirkung → Rückflug.
         // Transport (Sandro t30u, FEST): Ladung sofort entladen, Flotte kehrt sofort und automatisch zurück.
         // ANNAHME: Rohstoffe sind global (ein Lager je Spieler) → bei eigenem Ziel wieder gutgeschrieben; fremdes Ziel = abgeliefert.
@@ -204,6 +210,14 @@
         if (!tp) { f.phase = "rueck"; f.rueckkehr = f.ankunft + (f.ankunft - f.abflug);
         f.bericht = m.name + " bei " + ziel + ": " + (f.mission === "transportieren" || f.mission === "unterstuetzen" ? "Ziel erreicht" + entl + (!eigen && SS.kern.testphase && SS.kern.testphase.gegnerAn(z, f.ziel) ? " (abgeliefert)" : "") : "kein Gegner/keine Wirkung (folgt im Weltraum-Kapitel)");
         meld.push({ art: "flotte", name: m.name, text: "Flotte erreicht " + ziel + " (" + m.name + ")" }); }
+        }
+      }
+      if (f.phase === "halten" && jetzt >= f.haltEnde) {
+        var ev = SS.kern.expedition.ereignis(z, f, f.haltEnde, z._expeditionZufall);
+        f.ergebnis = ev; f.bericht = "Expedition " + ziel + ": " + ev.text;
+        z.letzteExpeditionen = [{ zeit: f.haltEnde, ziel: f.ziel, halten: f.halten, art: ev.art, text: ev.text }].concat(z.letzteExpeditionen || []).slice(0, 10);
+        f.phase = "rueck"; f.rueckkehr = f.haltEnde + Math.round((f.ankunft - f.abflug) * (f.verzoegerung || 1));
+        meld.push({ art: "flotte", name: m.name, text: f.bericht });
       }
       if (f.phase === "rueck" && jetzt >= f.rueckkehr) {
         var hp = planetVonId(z, f.herkunft) || z.planeten[0];

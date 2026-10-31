@@ -179,3 +179,10 @@ Stufe 1: 0–1 · Stufe 2: 2–3 · Stufe 3: 4–6 · Stufe 4: 7–10 · Stufe 5
 - **Erledigt (FEST):** Verteidiger-Zivil nur auf Startplätzen vernichtet, Hangar bleibt; Spionage ohne Hangar-Inhalt, nur Hinweis auf Bodenbewegungen.
 - **ANNAHME (unverändert):** Bergung nimmt das ganze Orbit-Feld bis Kapazität, Metall zuerst, Silizium danach; Gutschrift bei Rückkehr.
 - **Offen:** Hinweis später abhängig von Spionage-Forschung/Sondenanzahl abstufen?
+
+## Expeditionen (0.15.0) – offen
+- **Ausschlussliste Schiffsfunde** (Sandro liefert): aktuell nur Default `kolonieschiff` (+ stationäre Schiffe) in `SS.BALANCE.EXPEDITION.AUSSCHLUSS`.
+- Zahlen prüfen: Haltezeit-Formel, Fundchancen, Event-Gewichte, Cap (Punkte × 100), Piratenstärke, Verzögerung ×2.
+- Antimaterie/Strom als Fund? (derzeit weggelassen)
+- Expeditionsraum Position 13 bestätigen (Galerie zeigt Pos. 13 noch nicht an).
+- Piraten: „1 Schiff entkommt“ als Schutz gegen Totalverlust ok?

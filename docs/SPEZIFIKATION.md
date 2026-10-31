@@ -593,3 +593,18 @@ Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zäh
 
 - Verteidiger-Zivilschiffe werden bei verlorenem Orbit nur vernichtet, wenn sie zur Kampf-Flotte gehören (auf den Startplätzen, `verteilung.startplatz`). Zivilschiffe im Hangar werden nie vernichtet. Solarsatelliten stehen im Orbit und fallen mit ihm.
 - Spionagebericht: sichtbar sind Schiffe auf den Startplätzen (Preset-/Kapazitätslogik wie im Kampf), Verteidigung, Solarsatelliten, Trümmer. Welche/wie viele Schiffe im Hangar stehen, ist nie sichtbar. Nur Hinweis: „Bodenbewegungen erkennbar – möglicherweise weitere Schiffe im Hangar.“ (Hangar nicht leer) bzw. „Keine Bodenbewegungen erkennbar.“ (Hangar leer). Feld `bodenbewegungen` (bool) + `hinweis`.
+
+## Expeditionen (0.15.0, Sandro pt36u – Regeln FEST, Zahlen ANNAHME)
+
+- **FEST:** Freischaltung über Forschung Astrophysik (≥ 1). Parallele Expeditionen = ⌊√Astrophysik⌋.
+- **FEST:** Maximale Haltezeit an Astrophysik gekoppelt – ANNAHME: 1 … min(Stufe, 24) Stunden.
+- **FEST:** Längere Haltezeit erhöht nur die **Fundchance**, nicht die Fundgröße. ANNAHME: Chance = min(85 %, 45 % + 4 % × (h − 1)).
+- **Ziel (ANNAHME):** Expeditionsraum = Position **13** jedes Systems (`S:SYS:13`; Planeten sind 1–12, OGame-Äquivalent Pos. 16). Flugzeit/Rohöl nach den normalen OGame-Formeln (Hin + Rück).
+- Ablauf: Hinflug → Halten (`phase: "halten"`) → Ereignis am Ende der Haltezeit → Rückflug. Master-Modus: alles sofort.
+- **Ereignisse:** Fund (Rohstoffe : Schiffe = 3 : 1) mit Fundchance; sonst Piraten : Verzögerung (Rückflug ×2) : nichts = 3 : 2 : 5.
+- **Rohstoffe:** Metall, Silizium, Rohöl, Kunststoff **T1/T2** (FEST: kein T3). Strom/Antimaterie werden nicht gefunden (ANNAHME – OGame-Dunkle-Materie hier weggelassen).
+- **Cap (FEST an eigene Punkte):** Obergrenze = max(10.000, Punkte × 100) Rohstoff-Einheiten; Fund = Cap × Zufall(10–100 %) × Rohstofffaktor (Si 0,5 · Öl 0,33 · K1 0,05 · K2 0,02), zusätzlich durch freien Laderaum begrenzt.
+- **Schiffsfund (FEST):** Pool = alle fliegenden Schiffe mit erfüllten Bauvoraussetzungen (Werft des Planeten mit höchster Werft + Forschung) **plus** das günstigste noch nicht baubare („eins darüber“). Kostenwert der Funde ≤ 50 % des Caps, mindestens 1 Schiff. Default-Ausschluss: Kolonieschiff; stationäre Schiffe (Solarsatellit) nie. Sandros Ausschlussliste: offen.
+- **Gegner (FEST): nur Piraten.** Kampf über den bestehenden Kampfkern (Expedition = Angreifer, Piraten = Korvetten/Fregatten/Zerstörer mit 20–60 % der Expeditions-Feuerkraft, ANNAHME). Kampfbericht wie gewohnt.
+- **FEST: Kein Totalverlust-Event.** Selbst wenn die Piraten alles vernichten würden, entkommt 1 Schiff (stärkster Typ nach Anzahl).
+- Code: `js/kern/expedition.js`, Konstanten `SS.BALANCE.EXPEDITION`, Tests `tests/expedition.test.js`.

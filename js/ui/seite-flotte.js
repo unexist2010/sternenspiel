@@ -26,9 +26,9 @@
     }
     function flugZeile(f, t, kurz) {
       var st = FL.status(f, t);
-      return "<li class=\"flug\" data-flotte=\"" + f.id + "\"><div class=\"flug-kopf\"><b>" + esc(mName(f.mission)) + "</b> <span class=\"flug-phase\">" + (f.phase === "hin" ? "→ " : "← ") + "</span>" +
+      return "<li class=\"flug\" data-flotte=\"" + f.id + "\"><div class=\"flug-kopf\"><b>" + esc(mName(f.mission)) + "</b> <span class=\"flug-phase\">" + (f.phase === "hin" ? "→ " : f.phase === "halten" ? "◎ " : "← ") + "</span>" +
         "<span class=\"flug-ziel\">" + kt(f.ziel) + (f.zielName ? " " + esc(f.zielName) : "") + "</span></div>" +
-        "<div class=\"flug-info\">" + F.zahl(f.anzahl) + " Schiffe · " + (f.phase === "hin" ? "Hinflug" : "Rückflug") + " · <span data-live=\"flug-rest:" + f.id + "\">" + uhr(st.rest) + "</span> (" + Math.floor(st.prozent) + "&nbsp;%)</div>" +
+        "<div class=\"flug-info\">" + F.zahl(f.anzahl) + " Schiffe · " + (f.phase === "hin" ? "Hinflug" : f.phase === "halten" ? "hält (" + (f.halten || 1) + " h)" : "Rückflug") + " · <span data-live=\"flug-rest:" + f.id + "\">" + uhr(st.rest) + "</span> (" + Math.floor(st.prozent) + "&nbsp;%)</div>" +
         "<div class=\"flug-balken\"><span data-live=\"flug-proz:" + f.id + "\" style=\"width:" + st.prozent.toFixed(1) + "%\"></span></div>" +
         (kurz ? "" : (f.bericht ? "<div class=\"hinweis\">" + esc(f.bericht) + "</div>" : "")) + "</li>";
     }
@@ -57,7 +57,7 @@
         "<p class=\"hinweis\" id=\"liste-unterwegs\">Keine Flotte unterwegs – alle " + F.zahl(sb.kapazitaet) + " Startplätze stehen zur Verfügung.</p>", "", " id=\"box-unterwegs\"");
       // 0.13.1 (Sandro t30u): OGame-artig – Tabs „Startplatz“ und „Hangar“ als große, zuklappbare Dropdowns; Senden im Flottenfenster.
       var tab = function (id, titel, zahl, inhalt) { return "<details class=\"flotte-tab\" id=\"tab-" + id + "\" open><summary>" + titel + " <span class=\"tab-zahl\">" + F.zahl(zahl) + "</span></summary>" + inhalt + "</details>"; };
-      return testphaseBox() + "<div class=\"flotte-tabs\">" + tab("startplatz", "Startplatz", sb.aufStartbahn, startb) + tab("hangar", "Hangar", FL.summe(sb.hangar), hangar) + "</div>" + sendefenster() + unterwegs + berichteBox();
+      return testphaseBox() + "<div class=\"flotte-tabs\">" + tab("startplatz", "Startplatz", sb.aufStartbahn, startb) + tab("hangar", "Hangar", FL.summe(sb.hangar), hangar) + "</div>" + sendefenster() + unterwegs + expeditionBox() + berichteBox();
     }
 
     // ---------- Testphase (0.14.1, Sandro t32u) ----------
@@ -78,6 +78,18 @@
         (s.hinweis ? "<br><span id=\"spionage-hinweis\" class=\"spionage-hinweis\">» " + esc(s.hinweis) + "</span>" : "") + "</p>", "", " id=\"box-spionage\"");
       if (b) out += h.box("Letzter Kampfbericht – " + esc(b.ziel ? b.ziel.name + " [" + kt(b.ziel) + "]" : ""), SS.ui.kampfbericht.html(b), "", " id=\"box-kampfbericht\"");
       return out;
+    }
+
+    // ---------- Expedition (0.15.0) ----------
+    function halteFeld(zz) {
+      var EX = SS.kern.expedition;
+      if (!EX.freigeschaltet(zz)) return "<span class=\"hinweis\" id=\"send-halten-info\">Expedition: Astrophysik nötig</span>";
+      var o = ""; for (var i = 1; i <= EX.maxHalten(zz); i++) o += "<option value=\"" + i + "\">" + i + " h (Fund " + Math.round(EX.fundChance(i) * 100) + " %)</option>";
+      return "<label>Haltezeit <select id=\"send-halten\">" + o + "</select></label> <span class=\"hinweis\" id=\"send-halten-info\">Expeditionen " + EX.aktive(zz) + " / " + EX.maxParallel(zz) + " · Ziel S:SYS:" + SS.BALANCE.EXPEDITION.POSITION + "</span>";
+    }
+    function expeditionBox() {
+      var l = z().letzteExpeditionen || []; if (!l.length) return "";
+      return h.box("Letzte Expeditionen", "<ul class=\"flug-liste\" id=\"liste-expeditionen\">" + l.map(function (e) { return "<li data-art=\"" + e.art + "\">[" + kt(e.ziel) + "] " + e.halten + " h · " + esc(e.text) + "</li>"; }).join("") + "</ul>", "", " id=\"box-expeditionen\"");
     }
 
     // ---------- Sendefenster ----------
@@ -104,7 +116,7 @@
         "<div class=\"send-ziel\"><label>Ziel <select id=\"send-ziel\">" + opts + "</select></label>" +
         "<label>Koordinaten <input id=\"send-koord\" type=\"text\" placeholder=\"S:SYS:P\" autocomplete=\"off\" size=\"10\"></label>" +
         "<button type=\"button\" class=\"knopf\" data-aktion=\"send-favorit\">☆ Als Favorit</button></div>" +
-        "<div class=\"send-ziel\"><label>Mission <select id=\"send-mission\">" + mis + "</select></label></div>" + ladung +
+        "<div class=\"send-ziel\"><label>Mission <select id=\"send-mission\">" + mis + "</select></label>" + halteFeld(zz) + "</div>" + ladung +
         "<dl class=\"werte\" id=\"send-vorschau\"></dl><p id=\"send-grund\" class=\"grund\"></p>" +
         "<p><button type=\"button\" class=\"knopf primaer\" data-aktion=\"send-los\" id=\"knopf-lossenden\" disabled>Lossenden</button> <button type=\"button\" class=\"knopf\" data-aktion=\"send-keine\" id=\"knopf-send-zu\">Zurücksetzen</button></p>";
       return "<div class=\"send-fenster\" id=\"senden\">" + h.box("Flotte senden", inhalt, "", " id=\"send-box\"") + "</div>";
@@ -115,8 +127,8 @@
       Array.prototype.forEach.call(doc.querySelectorAll("input[data-send-menge]"), function (i) { var n = Math.floor(Number(i.value) || 0); if (n > 0) schiffe[i.getAttribute("data-send-menge")] = n; });
       var ladung = {};
       Array.prototype.forEach.call(doc.querySelectorAll("input[data-send-ladung]"), function (i) { var n = Math.floor(Number(i.value) || 0); if (n > 0) ladung[i.getAttribute("data-send-ladung")] = n; });
-      var k = doc.getElementById("send-koord"), m = doc.getElementById("send-mission");
-      return { schiffe: schiffe, ladung: ladung, ziel: W().leseKoordinaten(k ? k.value : ""), mission: m ? m.value : "", koordText: k ? k.value : "" };
+      var k = doc.getElementById("send-koord"), m = doc.getElementById("send-mission"), hz = doc.getElementById("send-halten"), kv = k ? k.value : "";
+      return { schiffe: schiffe, ladung: ladung, ziel: W().leseKoordinaten(kv) || SS.kern.expedition.leseZiel(kv), mission: m ? m.value : "", koordText: kv, halten: hz ? Number(hz.value) : 1 };
     }
     /** Vorschau + Knopfzustand aktualisieren. */
     function aktualisiereSenden(doc) {

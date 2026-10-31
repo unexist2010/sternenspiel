@@ -1069,7 +1069,7 @@
   an("inhalt", "change", function (e) {
     if (zustand && e.target.id === "flotte-preset") { SS.kern.flotte.setzePreset(hp(), e.target.value); speichern(true); route(true); return; }
     if (zustand && e.target.id === "send-ziel") { if (e.target.value) $("send-koord").value = e.target.value; FU().aktualisiereSenden(document); return; }
-    if (zustand && e.target.id === "send-mission") { FU().aktualisiereSenden(document); return; }
+    if (zustand && (e.target.id === "send-mission" || e.target.id === "send-halten")) { FU().aktualisiereSenden(document); return; }
     var sel = e.target.closest("select[data-regler]");
     if (!sel || !zustand) return;
     P.tick(zustand, jetzt());

@@ -17,10 +17,10 @@ function setup() {
 const ziel = (z, d = 3) => ({ sektor: 0, system: z.heimat.system > 200 ? z.heimat.system - d : z.heimat.system + d, planet: 4 });
 function zielK(SS, z, d) { const k = ziel(z, d); k.sektor = SS.DATEN.weltraum.sektorVonSystem(k.system); return k; }
 
-test("Daten: 4 Presets, 7 Missionen, Standard-Preset, Spielstand v10", () => {
+test("Daten: 4 Presets, 8 Missionen, Standard-Preset, Spielstand v10", () => {
   const { SS, z, p, FL } = setup();
   assert.deepEqual(J(FL.PRESETS.map((x) => x.name)), ["Gesunder Mix", "Starke Energiehülle", "Starke Metallhülle", "Maximale Feuerkraft"]);
-  assert.deepEqual(J(FL.MISSIONEN.map((x) => x.name)), ["Kolonisieren", "Transportieren", "Stationieren", "Spionieren", "Angriff", "Trümmer bergen", "Unterstützen"]);
+  assert.deepEqual(J(FL.MISSIONEN.map((x) => x.name)), ["Kolonisieren", "Transportieren", "Stationieren", "Spionieren", "Angriff", "Trümmer bergen", "Expedition", "Unterstützen"]);
   assert.equal(FL.preset(p), "gesunder_mix"); assert.equal(z.version, 11);
   assert.deepEqual(J(z.favoriten), []);
   assert.equal(SS.DATEN.menue.find((m) => m.id === "flotte").platzhalter, false);

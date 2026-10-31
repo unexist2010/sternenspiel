@@ -1,5 +1,13 @@
 # Changelog – Sternenspiel
 
+## [0.15.0] – 2026-10-31 – Expeditionen (Sandro pt36u)
+
+- Neue Mission „Expedition“: Ziel Expeditionsraum `S:SYS:13`, Haltezeit 1…Astrophysik-Stufe h (Auswahl im Sendefenster mit Fundchance), parallel ⌊√Astrophysik⌋.
+- Ereignisse am Ende der Haltezeit: Rohstoffe (Metall/Si/Öl/Kunststoff T1+T2, Cap an Punkte + Laderaum), Schiffe (Pool baubar + 1, ohne Kolonieschiff), Piraten (echter Kampf, nie Totalverlust), Verzögerung, nichts.
+- Flottenliste: Phase „hält“; Box „Letzte Expeditionen“; Kampfbericht bei Piraten.
+- Spielstand: `z.letzteExpeditionen`, Flug-Phase `halten` (abwärtskompatibel, Version bleibt v11).
+- Tests: `expedition.test.js`. Offene Punkte: Ausschlussliste Schiffsfunde u. a. (docs/OFFENE-PUNKTE.md).
+
 ## [0.14.3] – 2026-10-31 – Hangar-Schutz + Spionage-Bodenbewegungen (Sandro t34u)
 
 - FEST: Verteidiger-Zivilschiffe werden bei verlorenem Orbit nur vernichtet, wenn sie zur Kampf-Flotte gehören (Startplätze); Zivil im Hangar bleibt immer erhalten. Solarsatelliten (Orbit) fallen mit dem Orbit.
