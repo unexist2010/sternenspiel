@@ -24,7 +24,7 @@
 
   var SS = window.SS;
   var benoetigt = ["BALANCE", "DATEN", "kern", "format"];
-  var fehltModul = !SS || benoetigt.some(function (k) { return !SS[k]; }) || !SS.kern.profile || !SS.kern.zustand || !SS.kern.bau || !SS.kern.geologie || !SS.kern.forschung || !SS.kern.werft || !SS.DATEN.schiffe || !(SS.ui && SS.ui.werft) || !SS.DATEN.forschung || !SS.DATEN.gebaeudeGruppen || !SS.DATEN.weltraum || !SS.DATEN.menue;
+  var fehltModul = !SS || benoetigt.some(function (k) { return !SS[k]; }) || !SS.kern.profile || !SS.kern.zustand || !SS.kern.bau || !SS.kern.geologie || !SS.kern.forschung || !SS.kern.werft || !SS.kern.verteidigung || !SS.kern.kampf || !SS.DATEN.verteidigung || !SS.DATEN.schiffe || !(SS.ui && SS.ui.werft && SS.ui.verteidigung) || !SS.DATEN.forschung || !SS.DATEN.gebaeudeGruppen || !SS.DATEN.weltraum || !SS.DATEN.menue;
 
   // ---------- Versionsprüfung (Schutz gegen gemischten Browser-Cache: neues HTML + alte Skripte oder umgekehrt) ----------
   var htmlVersion = document.documentElement.getAttribute("data-version");
@@ -240,7 +240,7 @@
     var m = D.menuePunkt(id);
     var html = id === "uebersicht" ? seiteUebersicht() : id === "ressourcen" ? seiteRessourcen() :
       id === "anlagen" ? (seite.teile[0] === "raumflughafen" ? seiteRaumflughafen() : seiteAnlagen()) :
-      id === "forschung" ? seiteForschung() : id === "werft" ? WU().seite() : seitePlatzhalter(m);
+      id === "forschung" ? seiteForschung() : id === "werft" ? WU().seite() : id === "verteidigung" ? VU().seite() : seitePlatzhalter(m);
     var y = window.scrollY;
     schliesseInfo();
     $("inhalt").innerHTML = "<h1 class=\"seiten-titel\">" + m.name + "</h1>" + html;
@@ -256,6 +256,11 @@
   var werftUi = null;
   function WU() {
     return werftUi || (werftUi = SS.ui.werft({ esc: esc, box: box, kostenHtml: kostenHtml, infoKnopf: infoKnopf,
+      zustand: function () { return zustand; }, hp: hp }));
+  }
+  var vertUi = null;
+  function VU() {
+    return vertUi || (vertUi = SS.ui.verteidigung({ esc: esc, box: box, kostenHtml: kostenHtml, infoKnopf: infoKnopf,
       zustand: function () { return zustand; }, hp: hp }));
   }
   function box(titel, inhalt, rechts, extra) {
@@ -319,7 +324,7 @@
       "<dt>Reicht noch</dt><dd data-live=\"reichweite\"></dd>" +
       "<dt>Nächster Fund in</dt><dd data-live=\"geo-countdown\"></dd></dl>" +
       "<p class=\"hinweis\">Die Bohrstation fördert aus dem Vorkommen; die Geologiestation findet alle 24 Std. ein neues Feld.</p>", "", " id=\"rohoel-box\"");
-    return planetBox + "<div class=\"zwei-spalten\">" + kommandant + bauBox() + "</div><div class=\"zwei-spalten\">" + forschungBox() + WU().auftragBox(false) + "</div><div class=\"zwei-spalten\">" + rohoel + "</div>" + spielstand;
+    return planetBox + "<div class=\"zwei-spalten\">" + kommandant + bauBox() + "</div><div class=\"zwei-spalten\">" + forschungBox() + WU().auftragBox(false) + "</div><div class=\"zwei-spalten\">" + VU().auftragBox(false) + rohoel + "</div>" + spielstand;
   }
 
   function leistungText(obj, vorzeichen) {
@@ -377,7 +382,7 @@
     if (d.fund) { if (n > 0) { var fb = SS.kern.geologie.fundBereich(n); T.push("Fund " + F.zahl(fb[0]) + "–" + F.zahl(fb[1]) + " Rohöl / 24 Std."); } else T.push("keine Funde"); }
     if (d.forschungszeit) T.push("Forschungszeit ×" + F.rate(Math.round(100 / (1 + n)) / 100));
     if (d.id === "raumflughafen") T.push(n > 0 ? "Startplätze verfügbar" : "keine Startplätze");
-    if (d.id === "werft" || d.id === "verteidigungswerft") T.push("Funktion folgt später");
+    if (d.id === "werft" || d.id === "verteidigungswerft") T.push("Bauzeit ÷ (1 + Stufe)");
     return T.join(" · ") || "–";
   }
 
@@ -608,7 +613,7 @@
   function zeigeInfo(knopf, angeheftet) {
     var teile = (knopf.getAttribute("data-info") || "").split(":"), art = teile[0], id = teile[1], d;
     var inh = art === "startplatz" ? infoStartplatz(id) : art === "forschung" ? (D.forschungNachId(id) ? infoForschung(D.forschungNachId(id)) : null) :
-      art === "schiff" ? (D.schiffNachId(id) ? WU().info(D.schiffNachId(id)) : null) : (d = D.gebaeudeNachId(id)) ? infoGebaeude(d) : null;
+      art === "schiff" ? (D.schiffNachId(id) ? WU().info(D.schiffNachId(id)) : null) : art === "verteidigung" ? (D.verteidigungNachId(id) ? VU().info(D.verteidigungNachId(id)) : null) : (d = D.gebaeudeNachId(id)) ? infoGebaeude(d) : null;
     if (!inh || !zustand) return;
     var f = $("infofenster");
     f.innerHTML = "<div class=\"info-kopf\"><img src=\"" + inh.bild + "\" alt=\"\" width=\"40\" height=\"40\"><h3>" + esc(inh.titel) + "</h3>" +
@@ -656,6 +661,7 @@
       var k = el.getAttribute("data-live").split(":"), art = k[0], id = k[1];
       var wert = id ? zustand.rohstoffe[id] : 0, gi = id && u.gebaeude[id];
       var text;
+      if (art.indexOf("vert-") === 0) { var vl = VU().live(el, art, id, t); if (vl === null || vl === undefined) return; if (el.textContent !== vl) el.textContent = vl; return; }
       if (art.indexOf("werft-") === 0) { var wl = WU().live(el, art, id, t); if (wl === null || wl === undefined) return; if (el.textContent !== wl) el.textContent = wl; return; }
       switch (art) {
         case "bestand-kurz": text = F.kurz(wert); break;
@@ -709,6 +715,7 @@
     });
     forschKnoepfe();
     werftKnoepfe();
+    defKnoepfe();
   }
   function mengeFuer(id) {
     var inp = document.querySelector("#inhalt input[data-menge=\"" + id + "\"]");
@@ -725,6 +732,53 @@
       var k = document.querySelector("article[data-schiff=\"" + id + "\"] img.schiff-bild"), sd = SS.DATEN.schiffNachId(id);
       if (k && sd) { var src = SS.DATEN.schiffBild(sd, SS.kern.werft.anzahl(hp(), id)); if (k.getAttribute("src") !== src) k.setAttribute("src", src); }
     });
+  }
+  function defMenge(id) {
+    var inp = document.querySelector("#inhalt input[data-def-menge=\"" + id + "\"]");
+    return inp ? Math.floor(Number(inp.value)) : 1;
+  }
+  function defKnoepfe() {
+    var VT = SS.kern.verteidigung;
+    Array.prototype.forEach.call(document.querySelectorAll("#inhalt button[data-aktion=\"def-bauen\"]"), function (b) {
+      var id = b.getAttribute("data-id"), pr = VT.pruefe(zustand, hp(), id, defMenge(id));
+      if (b.disabled !== !pr.ok) b.disabled = !pr.ok;
+      var g = b.parentNode.querySelector(".grund");
+      if (g && g.textContent !== pr.grund) g.textContent = pr.grund;
+      var n = document.querySelector("[data-def-anzahl=\"" + id + "\"]"), an = F.zahl(VT.anzahl(hp(), id));
+      if (n && n.textContent !== an) n.textContent = an;
+    });
+  }
+  function defBauen(b) {
+    var id = b.getAttribute("data-id"), menge = defMenge(id);
+    P.tick(zustand, jetzt());
+    var r = SS.kern.verteidigung.starte(zustand, hp(), id, menge, jetzt());
+    if (!r.ok) { meldung(r.grund, "schlecht"); aktualisiereLive(); return; }
+    meldung(r.sofort ? "Master: " + F.zahl(menge) + "× " + r.auftrag.name + " sofort gebaut." : F.zahl(menge) + "× " + r.auftrag.name + " in Auftrag gegeben.", "gut");
+    speichern(true); route(true);
+  }
+  function defMax(b) {
+    var id = b.getAttribute("data-id"), d = D.verteidigungNachId(id), inp = document.querySelector("#inhalt input[data-def-menge=\"" + id + "\"]"), VT = SS.kern.verteidigung;
+    if (!d || !inp) return;
+    var n = VT.istMaster(zustand) ? (d.max ? VT.frei(hp(), d) : 1000) : VT.maxBezahlbar(zustand, hp(), d);
+    inp.value = Math.max(1, Math.min(n, isFinite(VT.frei(hp(), d)) ? VT.frei(hp(), d) : n));
+    defKnoepfe();
+  }
+  function defAbbrechen(b) {
+    var i = Number(b.getAttribute("data-index")), a = (hp().verteidigungsauftraege || [])[i];
+    if (!a) return;
+    dialog("Verteidigungs-Auftrag abbrechen?", "<p><b>" + F.zahl(a.menge) + "× " + esc(a.name) + "</b>: fertige Anlagen bleiben, für die übrigen bekommst du die Rohstoffe voll zurück.</p>", true).then(function (ok) {
+      if (!ok) return;
+      P.tick(zustand, jetzt());
+      var r = SS.kern.verteidigung.abbrechen(zustand, hp(), i, jetzt());
+      if (r) meldung("Abgebrochen: " + r.name + " (" + F.zahl(r.erstattet) + " Anlagen erstattet).", "gut");
+      speichern(true); route(true);
+    });
+  }
+  function simStart() {
+    var aus = $("sim-ausgabe");
+    if (!aus) return;
+    P.tick(zustand, jetzt());
+    aus.innerHTML = VU().simuliere($("sim-schiff").value, $("sim-anzahl").value, $("sim-bergung").checked);
   }
   function schiffBauen(b) {
     var id = b.getAttribute("data-id"), menge = mengeFuer(id);
@@ -752,7 +806,7 @@
     });
   }
   function fertigText(a) {
-    return a.art === "schiff" ? F.zahl(a.menge) + "× " + a.name : a.name + " Stufe " + a.stufe;
+    return a.art === "schiff" || a.art === "verteidigung" ? F.zahl(a.menge) + "× " + a.name : a.name + " Stufe " + a.stufe;
   }
   function forschKnoepfe() {
     Array.prototype.forEach.call(document.querySelectorAll("#inhalt button[data-aktion=\"forschen\"]"), function (b) {
@@ -940,6 +994,10 @@
     else if (a === "schiff-bauen") schiffBauen(b);
     else if (a === "schiff-max") schiffMax(b);
     else if (a === "werft-abbrechen") werftAbbrechen(b);
+    else if (a === "def-bauen") defBauen(b);
+    else if (a === "def-max") defMax(b);
+    else if (a === "def-abbrechen") defAbbrechen(b);
+    else if (a === "sim-start") simStart();
     else if (a === "laden") {
       dialog("Letzten Spielstand laden?", "<p>Nicht gespeicherter Fortschritt seit dem letzten Speichern geht verloren (Offline-Produktion wird dabei angerechnet).</p>", true)
         .then(function (ok) { if (ok) { var id = aktivId; stoppeSchleifen(); ladeUndBetrete(id); } });
@@ -947,6 +1005,7 @@
   });
   an("inhalt", "input", function (e) {
     if (e.target.matches && e.target.matches("input[data-menge]") && zustand) werftKnoepfe();
+    if (e.target.matches && e.target.matches("input[data-def-menge]") && zustand) defKnoepfe();
   });
   an("inhalt", "change", function (e) {
     var sel = e.target.closest("select[data-regler]");

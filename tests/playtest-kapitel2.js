@@ -96,7 +96,7 @@ async function lauf(browser, g) {
   ok(["Speichern", "Laden", "Spieler wechseln", "Zurücksetzen"].every((k) => knoepfe.includes(k)), "Übersicht: Spielstand-Knöpfe (" + knoepfe.join(", ") + ")");
 
   // Platzhalter-Seiten
-  for (const [id, name] of [["verteidigung", "Verteidigung"], ["flotte", "Flotte"], ["weltraum", "Weltraum"]]) {
+  for (const [id, name] of [["flotte", "Flotte"], ["weltraum", "Weltraum"]]) { // Verteidigung seit Kapitel 5 (0.12.0) echt
     await geheZu("#" + id, id);
     const t = (await page.textContent("#inhalt")).replace(/\s/g, "");
     ok(t === (name + name + "Wird in einem eigenen Kapitel ausgearbeitet.").replace(/\s/g, ""), `„${name}“: nur Platzhalter`);

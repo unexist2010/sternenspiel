@@ -16,10 +16,10 @@ function setup(geb = {}, roh = {}, fo = {}) {
   return { SS, z, p: z.planeten[0], P: SS.kern.produktion, Bau: SS.kern.bau, WF: SS.kern.werft, D: SS.DATEN };
 }
 
-test("Daten: genau 25 Schiffe, 5 Waffentypen, 2 Hüllentypen, je mit Bild, Gruppe und gültigen Bezügen", () => {
+test("Daten: genau 24 Schiffe, 7 Waffentypen, 2 Hüllentypen, je mit Bild, Gruppe und gültigen Bezügen", () => {
   const { D } = setup();
-  assert.equal(D.schiffe.length, 25);
-  gleich(D.waffentypen.map((w) => w.id), ["laser", "ionen", "plasma", "raketen", "graviton"]);
+  assert.equal(D.schiffe.length, 24);
+  gleich(D.waffentypen.map((w) => w.id), ["raketen", "gatling", "railgun", "laser", "ionen", "plasma", "graviton"]);
   gleich(D.huellentypen.map((h) => h.id), ["leichtmetall", "verbund"]);
   gleich(D.schiffGruppen.map((g) => g.id), ["kampf", "hilf", "spezial"]);
   const fs = require("fs"), path = require("path");
@@ -30,7 +30,7 @@ test("Daten: genau 25 Schiffe, 5 Waffentypen, 2 Hüllentypen, je mit Bild, Grupp
     assert.ok(D.huellentypNachId(s.huelle), s.id);
     for (const w of Object.keys(s.waffen)) assert.ok(D.waffentypNachId(w), s.id + " " + w);
     for (const v of s.vor.forschung) assert.ok(D.forschungNachId(v.id), s.id + " " + v.id);
-    for (const g of Object.keys(s.schnellfeuer)) assert.ok(D.schiffNachId(g), s.id + " SF " + g);
+    for (const g of Object.keys(s.schnellfeuer)) assert.ok(D.schiffNachId(g) || D.verteidigungNachId(g), s.id + " SF " + g);
     assert.ok(s.vor.werft >= 1 && s.beschreibung && s.info, s.id);
     if (s.huelle === "verbund") assert.ok(Object.keys(s.kosten).some((k) => /kunststoff/.test(k)), s.id + ": Verbund kostet Kunststoff");
   }
@@ -122,10 +122,11 @@ test("Master: sofort und kostenlos, Voraussetzungen egal, Werft nötig; Einschal
   assert.equal(WF.pruefe(z, p, "kleine_drohne", 1).grund, "Zuerst die Werft bauen.");
 });
 
-test("Orbitalverteidigungsplattform: fliegt nicht, Waffenslots + Sondenabwehr als Daten; Bodensammler/Wracksammler getrennt", () => {
+test("0.12.0: Orbitalverteidigungsplattform ist Verteidigung (kein Schiff); Waffenslots + Sondenabwehr; Bodensammler/Wracksammler getrennt", () => {
   const { D } = setup();
-  const o = D.schiffNachId("orbitalverteidigungsplattform");
-  assert.equal(o.antrieb, null); assert.equal(o.stationaer, true); assert.equal(o.waffenslots.anzahl, 2);
+  assert.equal(D.schiffNachId("orbitalverteidigungsplattform"), null);
+  const o = D.verteidigungNachId("orbitalverteidigungsplattform");
+  assert.equal(o.phase, "orbit"); assert.equal(o.waffenslots.anzahl, 2);
   assert.ok(!o.waffenslots.erlaubt.includes("graviton"));
   gleich(o.sondenabwehr.forschung, [{ id: "spionage", stufe: 12 }, { id: "computer", stufe: 12 }]);
   assert.equal(D.schiffNachId("wracksammler").ladungArt, "orbit"); assert.equal(D.schiffNachId("bodensammler").ladungArt, "boden");
@@ -144,10 +145,10 @@ test("Migration v7 → v8: alte IDs 1:1 umbenannt, übrige verworfen, offene Auf
     { art: "schiff", id: "minenleger", name: "Minenleger", menge: 3, fertig: 1, stueckMs: 1000, stueckKosten: { metall: 100 }, start: T0, ende: T0 + 3000 }];
   sp.setItem(key, JSON.stringify(v7));
   const z = PR.ladeProfil(sp, a.profil.id).zustand;
-  assert.equal(z.version, 8);
+  assert.equal(z.version, 9);
   gleich(z.planeten[0].schiffe, { wracksammler: 2, kleiner_frachter: 5, kreuzer: 1 });
-  gleich(z.planeten[0].werftauftraege.map((w) => w.id), ["orbitalverteidigungsplattform"]);
-  assert.equal(z.rohstoffe.metall, 200, "2 offene Minenleger erstattet");
+  gleich(z.planeten[0].werftauftraege.map((w) => w.id), [], "0.12.0: Orbitalplattform-Auftrag erstattet (jetzt Verteidigung)");
+  assert.equal(z.rohstoffe.metall, 201, "2 offene Minenleger + 1 Orbitalplattform erstattet");
 });
 
 test("Werte mit Forschungsbonus (bonus()): Waffen, Waffentyp, Schild, Panzerung, Antrieb, Ladung", () => {
@@ -157,7 +158,9 @@ test("Werte mit Forschungsbonus (bonus()): Waffen, Waffentyp, Schild, Panzerung,
   assert.equal(g.angriff, lj.angriff); assert.equal(g.huelle, (2500 + 500) / 10);
   z.forschung.waffen = 2; z.forschung.laser = 1; z.forschung.panzerung = 1; z.forschung.verbrennung = 3; z.forschung.hyperspace = 1; z.forschung.komprimierung = 1;
   const FO = SS.kern.forschung, w = WF.werte(z, lj), k = WF.werte(z, kt);
-  assert.ok(Math.abs(w.angriff - lj.angriff * (1 + FO.bonus(z, "waffen") / 100) * (1 + FO.bonus(z, "laser") / 100)) < 1e-9);
+  assert.ok(Math.abs(w.angriff - lj.angriff * (1 + FO.bonus(z, "waffen") / 100)) < 1e-9, "Gatling/Raketen: nur Waffentechnik");
+  const ko = D.schiffNachId("korvette");
+  assert.ok(Math.abs(WF.werte(z, ko).angriff - ko.angriff * (1 + FO.bonus(z, "waffen") / 100) * (1 + 0.6 * FO.bonus(z, "laser") / 100)) < 1e-9, "Korvette 60 % Laser");
   assert.ok(Math.abs(w.huelle - 300 * (1 + FO.bonus(z, "panzerung") / 100)) < 1e-9);
   assert.ok(Math.abs(w.tempo - lj.tempo * (1 + FO.bonus(z, "verbrennung") / 100)) < 1e-9);
   assert.ok(Math.abs(k.ladung - kt.ladung * (1 + (FO.bonus(z, "hyperspace") + FO.bonus(z, "komprimierung")) / 100)) < 1e-9, "Transporter: beide Ladungsboni");
@@ -173,7 +176,7 @@ test("Migration v6 → v7 (Profil): Schiffsbestand je Planet, Werft-Aufträge be
   v6.version = 6; delete v6.planeten[0].schiffe; delete v6.planeten[0].werftauftraege; v6.schiffe = { kreuzer: 3, quatsch: 2 };
   sp.setItem(key, JSON.stringify(v6));
   const z = PR.ladeProfil(sp, a.profil.id).zustand;
-  assert.equal(z.version, 8);
+  assert.equal(z.version, 9);
   gleich(z.planeten[0].schiffe, { kreuzer: 3 }); gleich(z.planeten[0].werftauftraege, []); gleich(z.schiffe, {});
   z.planeten[0].werftauftraege.push({ art: "schiff", id: "kreuzer", name: "Kreuzer", menge: 2, fertig: 0, stueckMs: 1000, stueckKosten: { metall: 1 }, start: T0, ende: T0 + 2000 }, { id: "gibtsnicht" });
   PR.speichereProfil(sp, a.profil.id, z, T0);
@@ -185,7 +188,7 @@ test("Migration v6 → v7 (Profil): Schiffsbestand je Planet, Werft-Aufträge be
 test("0.11.3: Orbitalverteidigungsplattform – 6 Stufenbilder nach Anzahl, Bomber PNG", () => {
   const { D } = setup();
   const fs = require("fs"), path = require("path");
-  const o = D.schiffNachId("orbitalverteidigungsplattform");
+  const o = D.verteidigungNachId("orbitalverteidigungsplattform");
   assert.equal(o.bild, "assets/schiffe/orbitalverteidigungsplattform.svg");
   assert.equal(D.schiffBild(o), o.bild);
   const erwartet = [[0, 1], [1, 1], [2, 2], [3, 2], [4, 3], [6, 3], [7, 4], [10, 4], [11, 5], [20, 5], [21, 6], [500, 6]];

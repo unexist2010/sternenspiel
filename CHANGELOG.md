@@ -1,5 +1,13 @@
 # Changelog – Sternenspiel
 
+## [0.12.0] – 2026-10-31 – Kapitel 5: Verteidigung
+- **Menüpunkt Verteidigung** jetzt echt (Retro-Layout wie Werft): Verteidigungswerft-Info, Aufträge, Anlagen in Gruppen Geschütze/Schilde/Orbit, Waffen-&-Hüllen-Tabelle, Kampf-Simulator.
+- **10 Anlagen:** Maschinen-Nest, Raketenbatterie, Laser-Turm, Puls-Laser, Magnetkanone, Ionen-Geschütz, Plasma-Turm, Schildkuppel, Festungsschild, Orbitalverteidigungsplattform (aus der Werft umgezogen, 6 Stufenbilder bleiben) → **24 Schiffe**.
+- **Zwei-Hüllen-System** (Metall + Energie gleichzeitig) und **7 Waffentypen** (neu: Maschinenkanone/Gatling, Magnetkanone/Railgun) mit Profilen; Schiffe neu bewaffnet (Drohnen nur Metall + Gatling/Raketen, späte Schiffe starke Energiehüllen).
+- **Kampfkern** `SS.kern.kampf`: Phase Orbit → Phase Boden, Hangar geschützt, Nachrücken nach dem Kampf, Planetenschild, Reparatur/Schrott/Trümmer (Zahlen ANNAHME). Echte Angriffe folgen mit Kapitel 6.
+- Spielstand **v9** mit Migration (Orbitalplattform-Bestand → Verteidigung, offene Werft-Aufträge erstattet).
+- Tests: `tests/verteidigung.test.js`, Playtest `tests/playtest-kapitel5.js` (Screenshots `playtest/kapitel5-*.png`).
+
 ## [0.11.4] – 2026-10-31 – Frachter-Leiter (25 Schiffe)
 - **Neu: Großer Frachter** (`grosser_frachter`, Hilfsschiff, Transporter) – 250.000 Ladung, Bild = Vorschlag H (PNG 400×400).
 - **Massengutfrachter** (`massengutfrachter`, ID unverändert): Ladung 250.000 → **1.000.000**, Kosten/Werft/Forschung angehoben (Endgame), Bild = Vorschlag G (PNG).

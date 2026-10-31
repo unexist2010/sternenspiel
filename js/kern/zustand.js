@@ -55,6 +55,9 @@
       solarsatelliten: 0,         // Bau in der Werft (Kapitel 4)
       schiffe: {},                // Kapitel 4: Bestand je Schiffstyp (ohne Solarsatelliten)
       werftauftraege: [],         // Kapitel 4: Werft-Warteschlange (nacheinander)
+      verteidigung: {},           // Kapitel 5: Bestand je Verteidigungsanlage (inkl. Orbitalverteidigungsplattform)
+      verteidigungsauftraege: [], // Kapitel 5: Warteschlange der Verteidigungswerft
+      truemmer: { orbit: { metall: 0, silizium: 0 }, boden: { metall: 0, silizium: 0 } }, // Kapitel 5: Trümmerfeld (Wracksammler) / Schrott (Bodensammler)
       bauauftrag: null,           // ein Auftrag gleichzeitig (OGame)
       startplaetze: SS.DATEN.startplaetzeAnfang()
     };
@@ -93,6 +96,20 @@
       return { art: "schiff", id: w.id, name: SS.DATEN.schiffNachId(w.id).name, menge: Math.floor(w.menge), fertig: Math.max(0, Math.min(Math.floor(w.menge), Math.floor(Number(w.fertig) || 0))),
         stueckMs: Number(w.stueckMs), stueckKosten: w.stueckKosten, start: Number(w.start), ende: Number(w.ende) };
     });
+    // v9: Verteidigung
+    SS.DATEN.verteidigungIds.forEach(function (id) {
+      var n = Math.floor(Number(p.verteidigung && p.verteidigung[id]) || 0);
+      if (n > 0) neu.verteidigung[id] = n;
+    });
+    neu.verteidigungsauftraege = (Array.isArray(p.verteidigungsauftraege) ? p.verteidigungsauftraege : []).filter(function (w) {
+      return w && SS.DATEN.verteidigungNachId(w.id) && isFinite(w.start) && isFinite(w.ende) && w.stueckMs > 0 && w.menge >= 1 && w.stueckKosten;
+    }).map(function (w) {
+      return { art: "verteidigung", id: w.id, name: SS.DATEN.verteidigungNachId(w.id).name, menge: Math.floor(w.menge), fertig: Math.max(0, Math.min(Math.floor(w.menge), Math.floor(Number(w.fertig) || 0))),
+        stueckMs: Number(w.stueckMs), stueckKosten: w.stueckKosten, start: Number(w.start), ende: Number(w.ende) };
+    });
+    if (p.truemmer && typeof p.truemmer === "object") ["orbit", "boden"].forEach(function (o) {
+      ["metall", "silizium"].forEach(function (r) { neu.truemmer[o][r] = Math.max(0, Number(p.truemmer[o] && p.truemmer[o][r]) || 0); });
+    });
     var K = SS.BALANCE.STARTPLAETZE;
     neu.startplaetze = neu.startplaetze.map(function (sp) {
       var alt = (Array.isArray(p.startplaetze) ? p.startplaetze : []).filter(function (x) { return x && x.buchstabe === sp.buchstabe; })[0];
@@ -122,7 +139,7 @@
       freigeschaltet: { kunststoff_t1: true, kunststoff_t2: true, kunststoff_t3: true, antimaterie: false, kunststoffwerk_t2: false, kunststoffwerk_t3: false },
       rohstoffe: rohstoffMap(SS.BALANCE.STARTBESTAND),
       zeit: { letzterTick: jetzt, zuletztGespeichert: null },
-      statistik: { produziertGesamt: rohstoffMap(null), offlineMsGesamt: 0, schiffeGebaut: 0 },
+      statistik: { produziertGesamt: rohstoffMap(null), offlineMsGesamt: 0, schiffeGebaut: 0, verteidigungGebaut: 0 },
 
       punkte: 0,             // 1 Punkt je 1000 verbaute Rohstoffe (gewichtet, ANNAHME) – schaltet Startplätze frei
       planeten: [neuerPlanet(true)], // Kapitel 2: [0] = Hauptplanet (Koordinaten/Name in „heimat“)
@@ -178,6 +195,22 @@
       z.planeten = [neuerPlanet(true)];
       z.rohstoffe.strom = 0;
     }
+    // v9 (0.12.0): Orbitalverteidigungsplattform ist kein Schiff mehr → Bestand in planet.verteidigung; offene Werft-Aufträge erstattet
+    var ORBITAL = ["orbitalverteidigungsplattform", "orbitalplattform"];
+    if (vorher < 9 && Array.isArray(z.planeten)) z.planeten.forEach(function (p) {
+      if (!p) return;
+      ORBITAL.forEach(function (id) {
+        var n = Math.floor(Number(p.schiffe && p.schiffe[id]) || 0);
+        if (p.schiffe) delete p.schiffe[id];
+        if (n > 0) { p.verteidigung = p.verteidigung || {}; p.verteidigung.orbitalverteidigungsplattform = (Number(p.verteidigung.orbitalverteidigungsplattform) || 0) + n; }
+      });
+      if (Array.isArray(p.werftauftraege)) p.werftauftraege = p.werftauftraege.filter(function (w) {
+        if (!w || ORBITAL.indexOf(w.id) < 0) return true;
+        var fertig = Math.floor(Number(w.fertig) || 0), rest = Math.max(0, Math.floor(Number(w.menge) || 0) - fertig);
+        if (w.stueckKosten && typeof w.stueckKosten === "object") Object.keys(w.stueckKosten).forEach(function (r) { if (r in z.rohstoffe) z.rohstoffe[r] += (Number(w.stueckKosten[r]) || 0) * rest; });
+        return false;
+      });
+    });
     // v8 (0.10.0): Schiffsliste nach Sandro – alte IDs 1:1 umbenennen, sonst verwerfen; offene Aufträge alter Schiffe erstatten
     var UM = SS.DATEN.schiffUmbenennung || {};
     var neueId = function (id) { return SS.DATEN.schiffNachId(id) ? id : (UM[id] && SS.DATEN.schiffNachId(UM[id]) ? UM[id] : null); };

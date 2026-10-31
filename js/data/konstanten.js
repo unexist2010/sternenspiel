@@ -16,11 +16,11 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.11.4";
+  SS.VERSION = "0.12.0";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
-    SPIELSTAND_VERSION: 8,   // v2: Heimatplanet · v3: automatischer Start · v4: Kapitel 2 – Planeten mit Gebäuden, Bauauftrag, Startplätzen · v5: Rohölvorkommen/Geologie, Startplätze A–Z, Master-Modus · v6: Forschung (Stufen + Forschungsauftrag), T2/T3-Freischaltung über Punkte · v7: Werft – Schiffsbestand je Planet + Werft-Warteschlange · v8: Schiffsliste nach Sandro (24 Schiffe, Umbenennung; 0.11.4: 25), Warteschlange unbegrenzt
+    SPIELSTAND_VERSION: 9,   // v2: Heimatplanet · v3: automatischer Start · v4: Kapitel 2 – Planeten mit Gebäuden, Bauauftrag, Startplätzen · v5: Rohölvorkommen/Geologie, Startplätze A–Z, Master-Modus · v6: Forschung (Stufen + Forschungsauftrag), T2/T3-Freischaltung über Punkte · v7: Werft – Schiffsbestand je Planet + Werft-Warteschlange · v8: Schiffsliste nach Sandro (24 Schiffe, Umbenennung; 0.11.4: 25), Warteschlange unbegrenzt · v9: Verteidigung (planet.verteidigung + verteidigungsauftraege, Orbitalplattform Schiff→Verteidigung, planet.truemmer)
     SPEICHER_SCHLUESSEL: "sternenspiel_spielstand_v1",          // alter Einzel-Spielstand (bis 0.3) – wird als erstes Profil übernommen
     PROFIL_INDEX_SCHLUESSEL: "sternenspiel_profile_v1",         // Liste der Spielerprofile
     PROFIL_SPIELSTAND_PRAEFIX: "sternenspiel_spielstand_p_",    // + Profil-ID = eigener Spielstand je Spieler
@@ -93,6 +93,29 @@
     WERFT: {
       MIN_SEKUNDEN: 1,       // Mindestbauzeit je Einheit (OGame: 1 s)
       MAX_MENGE: 100000      // Einheiten je Auftrag
+    },
+
+    // ---------- Verteidigung (Kapitel 5, ANNAHME) – Bauzeit wie Werft, nur mit Verteidigungswerft-Stufe ----------
+    VERTEIDIGUNG: { MIN_SEKUNDEN: 1, MAX_MENGE: 100000 },
+
+    // ---------- Kampf (Kapitel 5): Zwei Hüllen + zwei Phasen (Regeln FEST Sandro, Zahlen ANNAHME) ----------
+    KAMPF: {
+      RUNDEN_JE_PHASE: 6,          // ANNAHME (OGame: 6 Runden)
+      BONUS_SCHWELLE: 0.5,         // Waffe gilt als „metallwirksam“, wenn profil.metall ≥ 0,5
+      BONUS_NACH_ENERGIE: 1.5,     // ×1,5 auf die Metallhülle, sobald die Energiehülle des Ziels zusammengebrochen ist
+      MALUS_NACH_ENERGIE: 0.5,     // reine Energiewaffen (metall < Schwelle) danach nur noch ×0,5 (≈ wirkungslos)
+      BONUS_OHNE_ENERGIEHUELLE: false, // Ziele, die nie eine Energiehülle hatten, bekommen KEINEN Bonus (reine Metallschiffe bleiben nützlich)
+      ENERGIE_REGENERATION: false, // Energiehülle lädt sich innerhalb eines Kampfes nicht wieder auf
+      TRUEMMER_ORBIT: 0.3,         // Anteil Metall+Silizium zerstörter Schiffe/Orbitalplattformen als Trümmerfeld (OGame 30 %)
+      TRUEMMER_ORBIT_BERGUNG: 0.8, // Spezialisierung „Bergung“ (Spec Salvage, Sandro): 80 % Orbit
+      REPARATUR_GRUND: 0.5,        // Anteil zerstörter Verteidigung, der repariert wird …
+      REPARATUR_JE_STUFE: 0.02,    // … + 2 % je Stufe Panzerungstechnik
+      REPARATUR_MAX: 0.8,
+      SCHROTT_GRUND: 0.25,         // Rest = Schrott am Boden: Wert-Anteil der Kosten …
+      SCHROTT_JE_STUFE: 0.025,     // … + 2,5 % je Stufe Robotertechnik
+      SCHROTT_MAX: 0.5,            // FEST (Sandro): max. 50 %
+      SCHROTT_BERGUNG_GRUND: 0.5,  // Bergung: 50–75 % Boden (Sandro)
+      SCHROTT_BERGUNG_MAX: 0.75
     },
 
     // ---------- Geologie & Rohölvorkommen (FEST, Nachbesserung 0.7.0) ----------

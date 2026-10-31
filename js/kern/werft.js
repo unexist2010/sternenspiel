@@ -138,21 +138,28 @@
     return fertig;
   }
 
-  /** Anzeigewerte mit Forschungsbonus (bonus() liefert Prozent). */
-  function werte(z, s) {
+  /** Schadensfaktor aus Waffen-Technologie × gewichteter Typ-Forschung (für Schiffe und Verteidigung). */
+  function waffenFaktor(z, waffen) {
     var b = function (id) { return id ? FO().bonus(z, id) : 0; };
     var typ = 0, summe = 0;
-    Object.keys(s.waffen).forEach(function (w) {
+    Object.keys(waffen).forEach(function (w) {
       var wt = D().waffentypNachId(w), f = wt && wt.forschung ? D().forschungNachId(wt.forschung) : null;
       var pz = f && f.wirkung.typ === "prozent" ? b(wt.forschung) : 0;
-      typ += s.waffen[w] * (1 + pz / 100); summe += s.waffen[w];
+      typ += waffen[w] * (1 + pz / 100); summe += waffen[w];
     });
-    var waffenF = (1 + b("waffen") / 100) * (summe > 0 ? typ / summe : 1);
+    return (1 + b("waffen") / 100) * (summe > 0 ? typ / summe : 1);
+  }
+
+  /** Anzeigewerte mit Forschungsbonus (bonus() liefert Prozent). schild = Energiehülle, huelle = Metallhülle (0.12.0). */
+  function werte(z, s) {
+    var b = function (id) { return id ? FO().bonus(z, id) : 0; };
+    var waffenF = waffenFaktor(z, s.waffen);
     var h = D().huellentypNachId(s.huelle), struktur = ((s.kosten.metall || 0) + (s.kosten.silizium || 0)) * h.faktor;
     var ladeP = b("hyperspace") + (s.transporter ? b("komprimierung") : 0);
+    var energie = s.schild * (1 + b("schild") / 100), metall = struktur / 10 * (1 + b("panzerung") / 100);
     return {
-      angriff: s.angriff * waffenF, schild: s.schild * (1 + b("schild") / 100),
-      huelle: struktur / 10 * (1 + b("panzerung") / 100), struktur: struktur,
+      angriff: s.angriff * waffenF, schild: energie, energie: energie,
+      huelle: metall, metall: metall, struktur: struktur,
       tempo: s.antrieb ? s.tempo * (1 + b(s.antrieb) / 100) : 0,
       ladung: s.ladung * (1 + ladeP / 100), verbrauch: s.verbrauch,
       grund: { angriff: s.angriff, schild: s.schild, huelle: struktur / 10, tempo: s.tempo, ladung: s.ladung },
@@ -170,6 +177,6 @@
   SS.kern.werft = {
     werftStufe: werftStufe, anzahl: anzahl, sichtbar: sichtbar, stueckMs: stueckMs, voraussetzungen: voraussetzungen, voraussetzungenOk: voraussetzungenOk,
     pruefe: pruefe, maxBezahlbar: maxBezahlbar, starte: starte, faellige: faellige, naechstesEnde: naechstesEnde, abbrechen: abbrechen,
-    alleSofort: alleSofort, werte: werte, schnellfeuer: schnellfeuer, istMaster: istMaster
+    alleSofort: alleSofort, werte: werte, waffenFaktor: waffenFaktor, schnellfeuer: schnellfeuer, istMaster: istMaster
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

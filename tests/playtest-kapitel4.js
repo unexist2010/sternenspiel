@@ -86,11 +86,11 @@ async function lauf(browser, g) {
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   ok((await page.getAttribute("html", "data-version")) === VERSION && (await Z(() => window.SS.VERSION)) === VERSION, `Version ${VERSION}`);
-  ok(/Kapitel 4 · Werft/.test(await page.textContent(".fusszeile")), "Fußzeile: Kapitel 4 · Werft");
+  ok(/Kapitel [4-9] · /.test(await page.textContent(".fusszeile")), "Fußzeile: Kapitel ≥ 4");
   await page.fill("#eingabe-name", "Sandro");
   await page.click("#knopf-neues-spiel");
   await page.waitForSelector('#inhalt[data-seite="uebersicht"]');
-  ok(await Z(() => { const z = window.SS.app.zustand; return z.version === 8 && Array.isArray(z.planeten[0].werftauftraege) && JSON.stringify(z.planeten[0].schiffe) === "{}"; }), "Spielstand v8: leerer Schiffsbestand, leere Werft-Warteschlange");
+  ok(await Z(() => { const z = window.SS.app.zustand; return z.version >= 8 && Array.isArray(z.planeten[0].werftauftraege) && JSON.stringify(z.planeten[0].schiffe) === "{}"; }), "Spielstand v8: leerer Schiffsbestand, leere Werft-Warteschlange");
   ok(/Werft bauen/.test(await page.textContent("#werft-box")), "Übersicht: Werft-Kasten mit Link „Werft bauen“");
 
   // ---- ohne Werft ----
@@ -105,10 +105,9 @@ async function lauf(browser, g) {
   await aendern(() => { const z = window.SS.app.zustand; z.planeten[0].gebaeude.werft = 1; z.forschung.energie = 1; Object.assign(z.rohstoffe, { metall: 5e6, silizium: 5e6, rohoel: 5e6 }); });
   await geheZu("#werft", "werft");
   let ids = await kachelIds();
-  ok(ids.length === 25 && ids.includes("bodensammler") && ids.includes("orbitalverteidigungsplattform") && !ids.includes("antimaterie_frachter"), `25 Schiffe sichtbar inkl. Bodensammler + Orbitalverteidigungsplattform (${ids.length})`);
-  ok(/Orbitalverteidigungsplattform/.test(await page.textContent('article[data-schiff="orbitalverteidigungsplattform"]')) && /stationär/.test(await page.textContent('article[data-schiff="orbitalverteidigungsplattform"]')), "Orbitalverteidigungsplattform: umbenannt, stationär");
+  ok(ids.length === 24 && ids.includes("bodensammler") && !ids.includes("orbitalverteidigungsplattform") && !ids.includes("antimaterie_frachter"), `24 Schiffe sichtbar inkl. Bodensammler; Orbitalplattform jetzt unter Verteidigung (${ids.length})`);
   ok((await page.$$eval("section[data-gruppe]", (s) => s.map((x) => x.getAttribute("data-gruppe")))).join() === "kampf,hilf,spezial", "Gruppen Kampfschiffe, Hilfsschiffe, Spezial");
-  ok((await page.$$eval("article.schiff-kachel img.anlage-bild", (im) => im.filter((i) => i.complete && i.naturalWidth > 0).length)) === 25, "Bilder der 25 Schiffe geladen");
+  ok((await page.$$eval("article.schiff-kachel img.anlage-bild", (im) => im.filter((i) => i.complete && i.naturalWidth > 0).length)) === 24, "Bilder der 24 Schiffe geladen");
   ok(/Voraussetzung fehlt: Verbrennungstriebwerk 1, Computer-Technologie 1/.test(await grund("kleine_drohne")) && !(await page.isEnabled('article[data-schiff="kleine_drohne"] button[data-aktion="schiff-bauen"]')), "Kleine Drohne gesperrt mit Grund (Verbrennung 1, Computer 1)");
   ok(/Verbund/.test(await page.textContent('article[data-schiff="bomber"] .schiff-marken')) && /Plasma/.test(await page.textContent('article[data-schiff="bomber"] .schiff-marken')), "Kachel zeigt Hülle + Waffen (Bomber: Verbund, Plasma)");
   ok(await page.isEnabled('article[data-schiff="solarsatellit"] button[data-aktion="schiff-bauen"]'), "Solarsatellit baubar mit Werft 1 + Energie 1");
@@ -147,7 +146,7 @@ async function lauf(browser, g) {
   // ---- Info ----
   let inf = await oeffneInfo('article[data-schiff="kleine_drohne"] .info-knopf');
   ok(inf.sichtbar && inf.imBild, `Info Kleine Drohne ${handy ? "per Antippen" : "per Hover"} sichtbar und im Bild ${JSON.stringify(inf.r)}`);
-  ok(/Schnellfeuer gegen/.test(inf.text) && /Angriff/.test(inf.text) && /Leichtmetall/.test(inf.text) && /Laser/.test(inf.text), "Info: Werte, Hülle, Waffen, Schnellfeuer");
+  ok(/Schnellfeuer gegen/.test(inf.text) && /Angriff/.test(inf.text) && /Leichtmetall/.test(inf.text) && /Maschinenkanone/.test(inf.text), "Info: Werte, Hülle, Waffen, Schnellfeuer");
   if (!handy) await shot("desktop-infofenster");
   await schliesseInfo();
 
@@ -180,7 +179,7 @@ async function lauf(browser, g) {
   // ---- Master ----
   await page.click("#knopf-master"); await sleep(200);
   await geheZu("#werft", "werft");
-  ok((await kachelIds()).length === 25, "Master: alle 25 Schiffe sichtbar");
+  ok((await kachelIds()).length === 24, "Master: alle 24 Schiffe sichtbar");
   const mm = await Z(() => window.SS.app.zustand.rohstoffe.metall);
   await page.fill('input[data-menge="titan"]', "2");
   await page.click('article[data-schiff="titan"] button[data-aktion="schiff-bauen"]'); await sleep(300);

@@ -143,6 +143,7 @@
       // OGame (ANNAHME): während einer laufenden Forschung kann die Forschungseinrichtung nicht ausgebaut werden
       // OGame (ANNAHME): während Schiffe gebaut werden, kann die Werft nicht ausgebaut werden
       if (zl.id === "werft" && p.werftauftraege && p.werftauftraege.length) return { ok: false, grund: "Während die Werft Schiffe baut, kann sie nicht ausgebaut werden.", ziel: zl };
+      if (zl.id === "verteidigungswerft" && p.verteidigungsauftraege && p.verteidigungsauftraege.length) return { ok: false, grund: "Während die Verteidigungswerft Anlagen baut, kann sie nicht ausgebaut werden.", ziel: zl };
       if (zl.id === "forschungseinrichtung" && z.forschungsauftrag) return { ok: false, grund: "Während einer Forschung kann die Forschungseinrichtung nicht ausgebaut werden.", ziel: zl };
     }
     if (p.bauauftrag) return { ok: false, grund: "Es läuft bereits ein Bauauftrag.", ziel: zl };
@@ -175,6 +176,7 @@
     if (an) z.planeten.forEach(function (p) {
       if (p.bauauftrag) { p.bauauftrag.ende = Math.min(p.bauauftrag.ende, jetzt); fertig.push(fertigstellen(z, p)); }
       if (SS.kern.werft) fertig = fertig.concat(SS.kern.werft.alleSofort(z, p, jetzt));
+      if (SS.kern.verteidigung) fertig = fertig.concat(SS.kern.verteidigung.alleSofort(z, p, jetzt));
     });
     if (an && z.forschungsauftrag && SS.kern.forschung) { z.forschungsauftrag.ende = Math.min(z.forschungsauftrag.ende, jetzt); fertig.push(SS.kern.forschung.fertigstellen(z)); }
     return fertig;

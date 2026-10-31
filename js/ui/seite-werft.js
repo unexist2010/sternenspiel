@@ -42,8 +42,8 @@
         marken(s) + "<p class=\"beschreibung\">" + esc(s.beschreibung) + "</p>" + vorListe(s) +
         "<dl class=\"anlage-werte\"><dt>Kosten je Stück</dt><dd>" + h.kostenHtml(s.kosten) + (master ? " <span class=\"master-marke\">kostenlos</span>" : "") + "</dd>" +
         "<dt>Bauzeit je Stück</dt><dd>" + (master ? "sofort <span class=\"master-marke\">Master</span>" : WF.werftStufe(pp) > 0 ? F.dauer(WF.stueckMs(zz, pp, s)) : "–") + "</dd>" +
-        "<dt>Angriff / Schild</dt><dd>" + wertMitBonus(w.angriff, w.grund.angriff) + " / " + wertMitBonus(w.schild, w.grund.schild) + "</dd>" +
-        "<dt>Hülle</dt><dd>" + wertMitBonus(w.huelle, w.grund.huelle) + "</dd>" +
+        "<dt>Angriff / Energiehülle</dt><dd>" + wertMitBonus(w.angriff, w.grund.angriff) + " / " + wertMitBonus(w.schild, w.grund.schild) + "</dd>" +
+        "<dt>Metallhülle</dt><dd>" + wertMitBonus(w.huelle, w.grund.huelle) + "</dd>" +
         (s.antrieb ? "<dt>Tempo</dt><dd>" + wertMitBonus(w.tempo, w.grund.tempo) + "</dd><dt>Ladung · Rohöl</dt><dd>" + wertMitBonus(w.ladung, w.grund.ladung) + " · " + zahl(w.verbrauch) + "</dd>" : "") +
         "</dl>" +
         "<div class=\"bau-aktion schiff-bestellung\"><label class=\"menge\"><span>Menge</span><input type=\"number\" min=\"1\" step=\"1\" value=\"1\" inputmode=\"numeric\" data-menge=\"" + s.id + "\" aria-label=\"Menge " + esc(s.name) + "\"></label>" +
@@ -92,9 +92,9 @@
     function info(s) {
       var zz = z(), pp = p(), w = WF.werte(zz, s), sf = WF.schnellfeuer(s), hu = D.huellentypNachId(s.huelle);
       var zeile = function (t, grund, v, b) { return "<tr><td>" + t + "</td><td class=\"z\">" + zahl(grund) + "</td><td class=\"z\">" + zahl(v) + "</td><td class=\"z\">" + (b > 1e-9 ? "<span class=\"plus\">+" + F.rate(Math.round(b * 10) / 10) + " %</span>" : "–") + "</td></tr>"; };
-      var zeilen = zeile("Angriff", w.grund.angriff, w.angriff, w.bonus.waffen) + zeile("Schild", w.grund.schild, w.schild, w.bonus.schild) + zeile("Hülle", w.grund.huelle, w.huelle, w.bonus.panzerung) +
+      var zeilen = zeile("Angriff", w.grund.angriff, w.angriff, w.bonus.waffen) + zeile("Energiehülle", w.grund.schild, w.schild, w.bonus.schild) + zeile("Metallhülle", w.grund.huelle, w.huelle, w.bonus.panzerung) +
         (s.antrieb ? zeile("Tempo", w.grund.tempo, w.tempo, w.bonus.antrieb) + zeile("Ladung", w.grund.ladung, w.ladung, w.bonus.ladung) + "<tr><td>Rohöl je Flug</td><td class=\"z\">" + zahl(w.verbrauch) + "</td><td class=\"z\">" + zahl(w.verbrauch) + "</td><td class=\"z\">–</td></tr>" : "");
-      var name = function (id) { var x = D.schiffNachId(id); return x ? x.name : id; };
+      var name = function (id) { var x = D.schiffNachId(id) || (D.verteidigungNachId && D.verteidigungNachId(id)); return x ? x.name : id; };
       var sfText = function (l) { return l.length ? l.sort(function (a, b) { return b.n - a.n; }).slice(0, 6).map(function (x) { return esc(name(x.id)) + " ×" + x.n; }).join(", ") + (l.length > 6 ? " …" : "") : "–"; };
       var waffen = Object.keys(s.waffen).map(function (id) { return D.waffentypNachId(id).name + " " + Math.round(s.waffen[id] * 100) + " %"; }).join(", ") || "keine";
       var vor = WF.voraussetzungen(zz, pp, s).map(function (x) { return (x.ok ? "✔ " : "✘ ") + esc(x.name) + " " + x.stufe; }).join(", ");

@@ -1,7 +1,7 @@
 /*
  * Sternenspiel – Schiffe, Hüllentypen, Waffentypen (Kapitel 4 „Werft“). ALLE Schiffswerte zentral hier.
  *
- * FEST (Sandro): 25 Schiffe (23 + Bodensammler + Großer Frachter 0.11.4), Namen 1–18, 5 Waffentypen, 2 Hüllentypen; Solarsatelliten werden in der Werft gebaut.
+ * FEST (Sandro): 24 Schiffe (23 + Bodensammler + Großer Frachter − Orbitalplattform→Verteidigung 0.12.0), 7 Waffentypen, 2 Hüllentypen; Solarsatelliten werden in der Werft gebaut.
  * ANNAHME (Vorschlag, Sandro prüft – OFFENE-PUNKTE Frage 16): ALLE Namen, Kosten, Kampfwerte, Tempo, Verbrauch,
  *   Ladung, Voraussetzungen, Waffenanteile, Hüllenzuordnung und die Schnellfeuer-Matrix. Orientierung OGame-Retro
  *   (Metall/Kristall/Deuterium → Metall/Silizium/Rohöl), Kunststoff nur bei schweren Schiffen / Verbundpanzer.
@@ -12,7 +12,9 @@
  *  antrieb      verbrennung | impuls | hyperraumantrieb | null (kein Antrieb: Solarsatellit, Orbitalplattform)
  *  huelle       leichtmetall | verbund
  *  waffen       { waffentyp: Anteil } – Summe 1 (oder leer = unbewaffnet)
- *  angriff, schild   Grundwerte je Einheit (ohne Forschung)
+ *  angriff     Grundwert je Einheit (ohne Forschung)
+ *  schild      = ENERGIEHÜLLE je Einheit (0.12.0: Feldname bleibt für alte Saves/Tests; 0 = reine Metallhülle)
+ *  Metallhülle = Hüllenpunkte (unten)
  *  Hüllenpunkte  = (Metall + Silizium) / 10 × Hüllenfaktor (berechnet, OGame: Strukturpunkte / 10)
  *  tempo        Grundgeschwindigkeit · verbrauch = Rohöl je Flug (Grundwert) · ladung = Ladekapazität
  *  transporter  true → Komprimierungsforschung erhöht die Ladung zusätzlich
@@ -26,18 +28,23 @@
   var SS = (g.SS = g.SS || {});
   SS.DATEN = SS.DATEN || {};
 
-  SS.DATEN.SCHIFFE_ANZAHL_SOLL = 25;      // FEST: 23 (Sandro) + Bodensammler + Großer Frachter (0.11.4, Sandro)
-  SS.DATEN.WAFFENTYPEN_ANZAHL_SOLL = 5;   // FEST
+  SS.DATEN.SCHIFFE_ANZAHL_SOLL = 24;      // FEST: 23 (Sandro) + Bodensammler + Großer Frachter (0.11.4) − Orbitalverteidigungsplattform (0.12.0 → Verteidigung)
+  SS.DATEN.WAFFENTYPEN_ANZAHL_SOLL = 7;   // FEST 0.12.0 (Sandro): + Maschinenkanone, Magnetkanone
   SS.DATEN.HUELLENTYPEN_ANZAHL_SOLL = 2;  // FEST
 
-  // 5 Waffentypen (Anzahl FEST, Zuordnung ANNAHME). forschung = Typ-Forschung (+% Schaden); Waffen-Technologie wirkt auf alle.
+  // 7 Waffentypen (0.12.0, Sandro: Rollen FEST; Zahlen ANNAHME). profil = Schadensfaktor gegen { energie: Energiehülle, metall: Metallhülle }.
+  // Beide Hüllen werden gleichzeitig getroffen. Nach Zusammenbruch der Energiehülle: Waffen mit metall ≥ KAMPF.BONUS_SCHWELLE
+  // bekommen ×KAMPF.BONUS_NACH_ENERGIE auf die Metallhülle, reine Energiewaffen ×KAMPF.MALUS_NACH_ENERGIE (siehe js/kern/kampf.js).
+  // forschung = Typ-Forschung (+% Schaden); Waffen-Technologie wirkt auf alle. Maschinenkanone/Magnetkanone/Raketen: nur Waffen-Technologie (ANNAHME).
   SS.DATEN.waffentypen = Object.freeze([
-    { id: "laser", name: "Laser", forschung: "laser", farbe: "#ff5b5b" },
-    { id: "ionen", name: "Ionen", forschung: "ionen", farbe: "#3fb8ff" },
-    { id: "plasma", name: "Plasma", forschung: "plasma", farbe: "#c58cf0" },
-    { id: "raketen", name: "Raketen", forschung: null, farbe: "#ffb347" },
-    { id: "graviton", name: "Graviton", forschung: "graviton", farbe: "#e9b8ff" }
-  ].map(Object.freeze));
+    { id: "raketen", name: "Raketen", forschung: null, farbe: "#ffb347", profil: { energie: 0.1, metall: 1.0 }, rolle: "Ballistisch – hoch gegen Metall, kaum gegen Energie" },
+    { id: "gatling", name: "Maschinenkanone", forschung: null, farbe: "#d9c27a", profil: { energie: 0.3, metall: 0.7 }, rolle: "Gatling – Metall mittel, Energie schwach (frühe Einheiten)" },
+    { id: "railgun", name: "Magnetkanone", forschung: null, farbe: "#8fd3c9", profil: { energie: 0.6, metall: 1.0 }, rolle: "Railgun/Hybrid – Energie mittel, Metall stark" },
+    { id: "laser", name: "Laser", forschung: "laser", farbe: "#ff5b5b", profil: { energie: 1.0, metall: 0.25 }, rolle: "Stark gegen Energie, schwach gegen Metall" },
+    { id: "ionen", name: "Ionen", forschung: "ionen", farbe: "#3fb8ff", profil: { energie: 1.3, metall: 0.3 }, rolle: "Impuls/Ionen – sehr stark gegen Energie, gering gegen Metall" },
+    { id: "plasma", name: "Plasma", forschung: "plasma", farbe: "#c58cf0", profil: { energie: 1.0, metall: 0.8 }, rolle: "Spät, ausgewogen – stark gegen Energie, mittel-stark gegen Metall" },
+    { id: "graviton", name: "Graviton", forschung: "graviton", farbe: "#e9b8ff", profil: { energie: 1.2, metall: 1.2 }, rolle: "Endgame – stark gegen beide" }
+  ].map(function (w) { Object.freeze(w.profil); return Object.freeze(w); }));
 
   // 2 Hüllentypen (Anzahl FEST, Werte ANNAHME)
   SS.DATEN.huellentypen = Object.freeze([
@@ -55,78 +62,78 @@
   var L = [
     // ---------- Kampfschiffe 1–14 (Namen + Reihenfolge schwach → stark: FEST, Sandro) ----------
     { id: "aufklaerer", name: "Aufklärer", gruppe: "kampf", kosten: { metall: 1500, silizium: 1500, rohoel: 500 },
-      antrieb: "verbrennung", huelle: "leichtmetall", waffen: { laser: 1 }, angriff: 10, schild: 10, tempo: 22500, verbrauch: 10, ladung: 100,
+      antrieb: "verbrennung", huelle: "leichtmetall", waffen: { gatling: 1 }, angriff: 10, schild: 0, tempo: 22500, verbrauch: 10, ladung: 100,
       vor: { werft: 1, forschung: [V("verbrennung", 2), V("spionage", 1)] }, schnellfeuer: { spionagesonde: 5, solarsatellit: 5 },
       beschreibung: "Schneller, leicht bewaffneter Späher.",
       info: "Schwächstes Kampfschiff. Anders als die Spionagesonde kann er kämpfen; Flottensicht im Nachbarsystem folgt im Flotten-Kapitel." },
     { id: "kleine_drohne", name: "Kleine Drohne", gruppe: "kampf", kosten: { metall: 2500, silizium: 500 },
-      antrieb: "verbrennung", huelle: "leichtmetall", waffen: { laser: 1 }, angriff: 40, schild: 5, tempo: 17500, verbrauch: 15, ladung: 50,
+      antrieb: "verbrennung", huelle: "leichtmetall", waffen: { gatling: 0.7, raketen: 0.3 }, angriff: 40, schild: 0, tempo: 17500, verbrauch: 15, ladung: 50,
       vor: { werft: 1, forschung: [V("verbrennung", 1), V("computer", 1)] }, schnellfeuer: { spionagesonde: 5, solarsatellit: 5 },
       beschreibung: "Billiges Massenschiff – metalllastig.",
       info: "Einzeln schwach, in Masse stark. Kann im Träger mitfliegen." },
     { id: "mittlere_drohne", name: "Mittlere Drohne", gruppe: "kampf", kosten: { metall: 5000, silizium: 1000, rohoel: 200 },
-      antrieb: "verbrennung", huelle: "leichtmetall", waffen: { laser: 0.7, raketen: 0.3 }, angriff: 80, schild: 15, tempo: 16250, verbrauch: 25, ladung: 80,
+      antrieb: "verbrennung", huelle: "leichtmetall", waffen: { gatling: 0.5, raketen: 0.5 }, angriff: 80, schild: 5, tempo: 16250, verbrauch: 25, ladung: 80,
       vor: { werft: 2, forschung: [V("verbrennung", 3), V("computer", 2), V("laser", 2)] }, schnellfeuer: { spionagesonde: 5, solarsatellit: 5 },
       beschreibung: "Kern des Drohnenschwarms.",
       info: "Metalllastig, Laser mit Raketen. Kann im Träger mitfliegen." },
     { id: "schwere_drohne", name: "Schwere Drohne", gruppe: "kampf", kosten: { metall: 9000, silizium: 2000, rohoel: 500 },
-      antrieb: "impuls", huelle: "leichtmetall", waffen: { laser: 0.5, raketen: 0.5 }, angriff: 150, schild: 30, tempo: 13750, verbrauch: 40, ladung: 120,
+      antrieb: "impuls", huelle: "leichtmetall", waffen: { raketen: 0.6, gatling: 0.4 }, angriff: 150, schild: 10, tempo: 13750, verbrauch: 40, ladung: 120,
       vor: { werft: 3, forschung: [V("impuls", 2), V("computer", 3), V("panzerung", 2)] }, schnellfeuer: { spionagesonde: 5, solarsatellit: 5 },
       beschreibung: "Gepanzerte Drohne mit Impulstriebwerk.",
       info: "Metalllastig; erstes Drohnen-Modell mit Impulstriebwerk. Kann im Träger mitfliegen." },
     { id: "korvette", name: "Korvette", gruppe: "kampf", kosten: { metall: 10000, silizium: 5000, rohoel: 1000 },
-      antrieb: "impuls", huelle: "leichtmetall", waffen: { ionen: 0.6, laser: 0.4 }, angriff: 180, schild: 50, tempo: 15000, verbrauch: 60, ladung: 300,
+      antrieb: "impuls", huelle: "leichtmetall", waffen: { laser: 0.6, gatling: 0.4 }, angriff: 180, schild: 40, tempo: 15000, verbrauch: 60, ladung: 300,
       vor: { werft: 3, forschung: [V("impuls", 2), V("ionen", 1)] }, schnellfeuer: { kleine_drohne: 3, spionagesonde: 5, solarsatellit: 5 },
       beschreibung: "Leichte Eskorte gegen Jäger und Drohnen.",
       info: "Erstes ausgewogenes Kriegsschiff." },
     { id: "fregatte", name: "Fregatte", gruppe: "kampf", kosten: { metall: 16000, silizium: 8000, rohoel: 2000 },
-      antrieb: "impuls", huelle: "leichtmetall", waffen: { ionen: 0.7, raketen: 0.3 }, angriff: 280, schild: 80, tempo: 13125, verbrauch: 90, ladung: 500,
+      antrieb: "impuls", huelle: "leichtmetall", waffen: { railgun: 0.5, laser: 0.5 }, angriff: 280, schild: 80, tempo: 13125, verbrauch: 90, ladung: 500,
       vor: { werft: 4, forschung: [V("impuls", 3), V("ionen", 2), V("schild", 2)] }, schnellfeuer: { aufklaerer: 3, spionagesonde: 5, solarsatellit: 5 },
       beschreibung: "Allrounder der Mittelklasse.",
       info: "Solide Werte in allen Bereichen." },
     { id: "zerstoerer", name: "Zerstörer", gruppe: "kampf", kosten: { metall: 22000, silizium: 10000, rohoel: 3000 },
-      antrieb: "impuls", huelle: "leichtmetall", waffen: { ionen: 0.5, raketen: 0.5 }, angriff: 400, schild: 120, tempo: 12500, verbrauch: 120, ladung: 800,
+      antrieb: "impuls", huelle: "leichtmetall", waffen: { railgun: 0.6, ionen: 0.4 }, angriff: 400, schild: 120, tempo: 12500, verbrauch: 120, ladung: 800,
       vor: { werft: 5, forschung: [V("impuls", 4), V("ionen", 3), V("waffen", 3)] }, schnellfeuer: { kleine_drohne: 4, mittlere_drohne: 3, schwere_drohne: 2, spionagesonde: 5, solarsatellit: 5 },
       beschreibung: "Jäger- und Drohnen-Killer.",
       info: "Schnellfeuer gegen alle Drohnen – Konter gegen Schwärme." },
     { id: "kreuzer", name: "Kreuzer", gruppe: "kampf", kosten: { metall: 30000, silizium: 15000, rohoel: 5000 },
-      antrieb: "hyperraumantrieb", huelle: "leichtmetall", waffen: { ionen: 0.6, plasma: 0.4 }, angriff: 600, schild: 200, tempo: 11875, verbrauch: 200, ladung: 1500,
+      antrieb: "hyperraumantrieb", huelle: "leichtmetall", waffen: { ionen: 0.5, railgun: 0.5 }, angriff: 600, schild: 250, tempo: 11875, verbrauch: 200, ladung: 1500,
       vor: { werft: 6, forschung: [V("hyperraumantrieb", 2), V("ionen", 4), V("plasma", 1)] }, schnellfeuer: { korvette: 3, spionagesonde: 5, solarsatellit: 5 },
       beschreibung: "Linienschiff mit erstem Hyperraumantrieb.",
       info: "Ionen mit Plasma-Unterstützung." },
     { id: "bomber", name: "Bomber", gruppe: "kampf", kosten: { metall: 40000, silizium: 25000, rohoel: 10000, kunststoff_t3: 2000 },
-      antrieb: "impuls", huelle: "verbund", waffen: { plasma: 0.8, raketen: 0.2 }, angriff: 1200, schild: 300, tempo: 7500, verbrauch: 300, ladung: 500,
+      antrieb: "impuls", huelle: "verbund", waffen: { plasma: 0.6, raketen: 0.4 }, angriff: 1200, schild: 300, tempo: 7500, verbrauch: 300, ladung: 500,
       vor: { werft: 7, forschung: [V("impuls", 6), V("plasma", 5)] }, schnellfeuer: { orbitalverteidigungsplattform: 3, spionagesonde: 5, solarsatellit: 5 },
       beschreibung: "Langsamer Plasmabomber – hoher Kunststoff-T3-Anteil.",
       info: "Stark gegen Planeten- und Orbitalverteidigung (Wirkung im Verteidigungs-/Kampf-Kapitel)." },
     { id: "schlachtkreuzer", name: "Schlachtkreuzer", gruppe: "kampf", kosten: { metall: 45000, silizium: 40000, rohoel: 12000, kunststoff_t1: 300 },
-      antrieb: "hyperraumantrieb", huelle: "verbund", waffen: { plasma: 0.6, laser: 0.4 }, angriff: 900, schild: 400, tempo: 12500, verbrauch: 250, ladung: 750,
+      antrieb: "hyperraumantrieb", huelle: "verbund", waffen: { laser: 0.6, railgun: 0.4 }, angriff: 900, schild: 500, tempo: 12500, verbrauch: 250, ladung: 750,
       vor: { werft: 8, forschung: [V("hyperraumantrieb", 5), V("hyperspace", 5), V("laser", 10)] }, schnellfeuer: { kreuzer: 3, fregatte: 3, spionagesonde: 5, solarsatellit: 5 },
       beschreibung: "Schneller Schwergewichtler.",
       info: "Schnell und stark, aber teuer." },
     { id: "schlachtschiff", name: "Schlachtschiff", gruppe: "kampf", kosten: { metall: 60000, silizium: 30000, rohoel: 15000, kunststoff_t1: 500 },
-      antrieb: "hyperraumantrieb", huelle: "verbund", waffen: { plasma: 0.5, ionen: 0.5 }, angriff: 1300, schild: 600, tempo: 10625, verbrauch: 400, ladung: 1500,
+      antrieb: "hyperraumantrieb", huelle: "verbund", waffen: { plasma: 0.5, railgun: 0.5 }, angriff: 1300, schild: 800, tempo: 10625, verbrauch: 400, ladung: 1500,
       vor: { werft: 9, forschung: [V("hyperraumantrieb", 6), V("plasma", 6), V("panzerung", 6)] }, schnellfeuer: { spionagesonde: 5, solarsatellit: 5 },
       beschreibung: "Rückgrat der Flotte.",
       info: "Höchste Linien-Kampfkraft." },
     { id: "traeger", name: "Träger", gruppe: "kampf", kosten: { metall: 40000, silizium: 80000, rohoel: 20000, kunststoff_t2: 1000 },
-      antrieb: "hyperraumantrieb", huelle: "verbund", waffen: { raketen: 0.7, laser: 0.3 }, angriff: 500, schild: 1000, tempo: 8750, verbrauch: 600, ladung: 20000, hangar: { plaetze: 50, schiffe: ["kleine_drohne", "mittlere_drohne", "schwere_drohne"] },
+      antrieb: "hyperraumantrieb", huelle: "verbund", waffen: { raketen: 0.6, laser: 0.4 }, angriff: 500, schild: 1200, tempo: 8750, verbrauch: 600, ladung: 20000, hangar: { plaetze: 50, schiffe: ["kleine_drohne", "mittlere_drohne", "schwere_drohne"] },
       vor: { werft: 10, forschung: [V("hyperraumantrieb", 7), V("computer", 8), V("astrophysik", 4)] }, schnellfeuer: { spionagesonde: 5, solarsatellit: 5 },
       beschreibung: "Siliziumlastiger Drohnenträger.",
       info: "Hangar für bis zu 50 Drohnen (Kleine/Mittlere/Schwere Drohne, Wirkung im Flotten-Kapitel). Schwache Eigenbewaffnung." },
     { id: "koloss", name: "Koloss", gruppe: "kampf", kosten: { metall: 400000, silizium: 250000, rohoel: 100000, kunststoff_t2: 5000 },
-      antrieb: "hyperraumantrieb", huelle: "verbund", waffen: { plasma: 0.6, ionen: 0.4 }, angriff: 12000, schild: 5000, tempo: 5000, verbrauch: 1500, ladung: 10000,
+      antrieb: "hyperraumantrieb", huelle: "verbund", waffen: { plasma: 0.6, ionen: 0.4 }, angriff: 12000, schild: 6000, tempo: 5000, verbrauch: 1500, ladung: 10000,
       vor: { werft: 11, forschung: [V("hyperraumantrieb", 8), V("plasma", 9), V("panzerung", 10)] }, schnellfeuer: { fregatte: 5, korvette: 8, kreuzer: 3, spionagesonde: 5, solarsatellit: 5 },
       beschreibung: "Belagerungsschiff – metallbetont.",
       info: "Vorstufe zum Titan." },
     { id: "titan", name: "Titan", gruppe: "kampf", kosten: { metall: 2000000, silizium: 4000000, rohoel: 1000000, kunststoff_t3: 20000 },
-      antrieb: "hyperraumantrieb", huelle: "verbund", waffen: { graviton: 0.6, plasma: 0.4 }, angriff: 200000, schild: 50000, tempo: 1250, verbrauch: 5000, ladung: 1000000,
+      antrieb: "hyperraumantrieb", huelle: "verbund", waffen: { graviton: 0.6, plasma: 0.4 }, angriff: 200000, schild: 60000, tempo: 1250, verbrauch: 5000, ladung: 1000000,
       vor: { werft: 12, forschung: [V("hyperraumantrieb", 10), V("graviton", 1), V("netzwerk", 1)] }, schnellfeuer: { spionagesonde: 250, solarsatellit: 250, aufklaerer: 200, kleine_drohne: 200, mittlere_drohne: 150, schwere_drohne: 100, korvette: 50, fregatte: 40, zerstoerer: 30, kreuzer: 25, bomber: 20, schlachtkreuzer: 10, schlachtschiff: 8, traeger: 10, koloss: 3 },
       beschreibung: "Endgame-Flaggschiff – siliziumlastig, einziges Schiff mit Graviton.",
       info: "Riesiges Schnellfeuer gegen fast alles." },
     // ---------- Hilfsschiffe (Namen + Ladung 15–18: FEST, Sandro; Bodensammler: von Sandro ergänzt) ----------
     { id: "kleiner_frachter", name: "Kleiner Frachter", gruppe: "hilf", kosten: { metall: 2000, silizium: 2000 },
-      antrieb: "verbrennung", huelle: "leichtmetall", waffen: {  }, angriff: 5, schild: 10, tempo: 12500, verbrauch: 10, ladung: 5000, transporter: true,
+      antrieb: "verbrennung", huelle: "leichtmetall", waffen: {  }, angriff: 5, schild: 0, tempo: 12500, verbrauch: 10, ladung: 5000, transporter: true,
       vor: { werft: 2, forschung: [V("verbrennung", 2)] }, schnellfeuer: {  },
       beschreibung: "Früher Transport – 5.000 Ladung.",
       info: "Wechselt ab Impulstriebwerk 5 auf Impuls (Flotten-Kapitel)." },
@@ -159,7 +166,7 @@
       info: "Erkennt die Rohstoffzusammensetzung erst beim Sammeln; Sammeldauer in Stunden je Schrottfeldgröße (Kampf-Kapitel). Ladung 75.000 (ANNAHME)." },
     // ---------- Spezial 21–25 (Ergänzungen, ANNAHME) ----------
     { id: "solarsatellit", name: "Solarsatellit", gruppe: "spezial", kosten: { silizium: 2000, rohoel: 500 },
-      antrieb: null, huelle: "leichtmetall", waffen: {  }, angriff: 1, schild: 1, tempo: 0, verbrauch: 0, ladung: 0, stationaer: true,
+      antrieb: null, huelle: "leichtmetall", waffen: {  }, angriff: 1, schild: 0, tempo: 0, verbrauch: 0, ladung: 0, stationaer: true,
       vor: { werft: 1, forschung: [V("energie", 1)] }, schnellfeuer: {  },
       beschreibung: "Liefert Strom aus dem Orbit.",
       info: "Jeder Satellit erhöht den Strom des Planeten (× Energie-Technologie). Fliegt nicht; wird im Kampf leicht zerstört." },
@@ -177,14 +184,7 @@
       antrieb: "impuls", huelle: "leichtmetall", waffen: {  }, angriff: 1, schild: 20, tempo: 10000, verbrauch: 20, ladung: 30000, ladungArt: "rohoel",
       vor: { werft: 4, forschung: [V("impuls", 2), V("komprimierung", 1)] }, schnellfeuer: {  },
       beschreibung: "Versorgt Flotten unterwegs mit Rohöl.",
-      info: "Nur Rohöl als Ladung; mehr Reichweite (Flotten-Kapitel)." },
-    { id: "orbitalverteidigungsplattform", name: "Orbitalverteidigungsplattform", gruppe: "spezial", kosten: { metall: 100000, silizium: 60000, rohoel: 20000, kunststoff_t2: 1000, kunststoff_t3: 500 },
-      antrieb: null, huelle: "verbund", waffen: { ionen: 0.5, raketen: 0.5 }, angriff: 2000, schild: 2000, tempo: 0, verbrauch: 0, ladung: 0, stationaer: true,
-      waffenslots: { anzahl: 2, mehrAb: { forschung: "computer", stufe: 10, anzahl: 3 }, erlaubt: ["ionen", "plasma", "raketen", "laser"] },
-      sondenabwehr: { forschung: [V("spionage", 12), V("computer", 12)], chanceJeStufe: 0.05, max: 0.9 },
-      vor: { werft: 8, forschung: [V("schild", 6), V("ionen", 5), V("computer", 6)] }, schnellfeuer: { aufklaerer: 3, kleine_drohne: 3, spionagesonde: 5, solarsatellit: 5 },
-      beschreibung: "Fliegt nicht – zerstört Flotten schon im Orbit.",
-      info: "Begrenzte Waffenslots: 2, ab Computer 10 drei (Ionen, Plasma, Raketen oder Laser; Graviton nicht). Spionagesonden-Abschuss erst ab Spionage 12 + Computer 12. Bestückung folgt im Verteidigungs-/Kampf-Kapitel." }
+      info: "Nur Rohöl als Ladung; mehr Reichweite (Flotten-Kapitel)." }
   ];
   // 0.11.2/0.11.3: von Sandro freigegebene Bilder (PNG, 400×400); alle übrigen bleiben SVG-Platzhalter
   var PNG_FREIGEGEBEN = { aufklaerer: 1, kleine_drohne: 1, mittlere_drohne: 1, schwere_drohne: 1, korvette: 1, fregatte: 1, zerstoerer: 1,

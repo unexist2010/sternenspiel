@@ -81,7 +81,7 @@ test("Menü: genau 8 Punkte in festgelegter Reihenfolge", () => {
   const SS = ladeSpiel();
   gleich(SS.DATEN.menue.map((m) => m.name), ["Übersicht", "Ressourcen", "Anlagen", "Forschung", "Werft", "Verteidigung", "Flotte", "Weltraum"]);
   const platzhalter = SS.DATEN.menue.filter((m) => m.platzhalter);
-  gleich(platzhalter.map((m) => m.id), ["verteidigung", "flotte", "weltraum"]);
+  gleich(platzhalter.map((m) => m.id), ["flotte", "weltraum"]);
   assert.ok(SS.DATEN.menue.every((m) => !("kapitel" in m)), "keine Kapitelnummern an den Menüpunkten");
   assert.ok(!/Kapitel \d/.test(SS.DATEN.PLATZHALTER_TEXT), "neutraler Platzhaltertext");
 });
@@ -117,8 +117,8 @@ test("Daten: Andockpunkte für spätere Kapitel", () => {
   const SS = ladeSpiel();
   assert.ok(SS.DATEN.gebaeude.some((g) => g.id === "geologiestation"));
   for (const verboten of ["lager", "speicher", "allianzdepot", "roboterfabrik", "nanitenfabrik"]) assert.ok(!SS.DATEN.gebaeude.some((g) => g.id.includes(verboten)), "kein " + verboten);
-  assert.equal(SS.DATEN.SCHIFFE_ANZAHL_SOLL, 25);
-  assert.equal(SS.DATEN.WAFFENTYPEN_ANZAHL_SOLL, 5);
+  assert.equal(SS.DATEN.SCHIFFE_ANZAHL_SOLL, 24);
+  assert.equal(SS.DATEN.WAFFENTYPEN_ANZAHL_SOLL, 7);
   assert.equal(SS.DATEN.HUELLENTYPEN_ANZAHL_SOLL, 2);
   assert.ok(Object.isFrozen(SS.BALANCE) && Object.isFrozen(SS.BALANCE.STARTPLAETZE), "Balance zentral & unveränderlich");
 });

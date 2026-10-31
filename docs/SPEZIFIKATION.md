@@ -463,3 +463,75 @@ Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zäh
 | Spezial | Kolonieschiff | impuls | – | Leichtmetall | 10.000 / 20.000 / 10.000 | 50 / 100 | 3.125 | 7.500 | Werft 4, impuls 3, astrophysik 1 |
 | Spezial | Treibstofftanker | impuls | – | Leichtmetall | 6.000 / 4.000 / 2.000 | 1 / 20 | 10.000 | 30.000 (rohoel) | Werft 4, impuls 2, komprimierung 1 |
 | Spezial | Orbitalverteidigungsplattform (stationär) | – | ionen 50 % / raketen 50 % | Verbund | 100.000 / 60.000 / 20.000 + K2 1.000 + K3 500 | 2.000 / 2.000 | – | 0 | Werft 8, schild 6, ionen 5, computer 6 |
+
+
+## C9. Kapitel 5 „Verteidigung“ – Regeln und Werte (0.12.0; Regeln FEST nach Sandro t26s2/t26u, Zahlen ANNAHME)
+
+### C9.1 Kampfablauf (FEST)
+1. **Phase Orbit:** Angreiferflotte gegen die Schiffe auf den **Startplätzen** (starten automatisch) + Solarsatelliten + **Orbitalverteidigungsplattformen**.
+2. **Phase Boden:** verbleibende Angreifer gegen die Bodenverteidigung (Geschütze + Planetenschild).
+- **Hangar** (Schiffe über der Startplatz-Kapazität) ist geschützt. Verteilung: stärkste Kampfschiffe zuerst auf Startplätze, dann übrige Schiffe.
+- **Nachrücken:** Wurden eigene Startplatz-Schiffe zerstört, rücken Hangar-Schiffe erst **nach** dem Kampf auf freie Startplätze (gilt für die nächste Welle – anderer Spieler oder anderer Planet desselben Spielers).
+- Je Phase höchstens `KAMPF.RUNDEN_JE_PHASE` = 6 Runden (ANNAHME). Rechnung deterministisch mit Erwartungswerten (Feuer verteilt sich anteilig nach Stückzahl; ANNAHME).
+
+### C9.2 Zwei-Hüllen-System (FEST)
+- Jede Einheit hat **Metallhülle** und **Energiehülle** (Datenfeld `schild` = Energiehülle); beide werden **gleichzeitig** getroffen: Schaden je Waffe = Angriff × Anteil × Profil (vs Energie / vs Metall).
+- Nach Zusammenbruch der Energiehülle: metallwirksame Waffen (Profil Metall ≥ 0,5) ×1,5 auf Metall, reine Energiewaffen ×0,5 (ANNAHME-Zahlen).
+- Ziele **ohne** Energiehülle (frühe Schiffe 1–3, Drohnen) bekommen keinen Bonus (ANNAHME) → Laser/Ionen gegen sie fast wirkungslos. Energiehülle regeneriert nicht zwischen Runden (ANNAHME).
+- Gemischte Bewaffnung in festen Anteilen (z. B. Fregatte 50 % Magnetkanone / 50 % Laser). Forschungsbonus: Waffentechnik + anteilig Waffentyp-Forschung (Raketen/Gatling/Railgun nur Waffentechnik, ANNAHME).
+
+| Anlage | Phase | Waffen | Hülle | Kosten | Angriff / Energiehülle | Max | Voraussetzungen |
+|---|---|---|---|---|---|---|---|
+| Maschinen-Nest | boden | gatling 100 % | leichtmetall | metall 1.500, silizium 500 | 60 / 0 | – | VW 1 |
+| Raketenbatterie | boden | raketen 100 % | leichtmetall | metall 2.000 | 80 / 0 | – | VW 1 |
+| Laser-Turm | boden | laser 100 % | leichtmetall | metall 1.500, silizium 500 | 100 / 25 | – | VW 2, energie 1, laser 3 |
+| Puls-Laser | boden | laser 70 % / ionen 30 % | leichtmetall | metall 6.000, silizium 2.000 | 250 / 100 | – | VW 4, energie 3, laser 6 |
+| Magnetkanone | boden | railgun 100 % | leichtmetall | metall 20.000, silizium 15.000, rohoel 2.000 | 1100 / 200 | – | VW 6, energie 6, waffen 3, schild 1 |
+| Ionen-Geschütz | boden | ionen 100 % | leichtmetall | metall 5.000, silizium 3.000 | 150 / 500 | – | VW 4, ionen 4 |
+| Plasma-Turm | boden | plasma 100 % | leichtmetall | metall 50.000, silizium 50.000, rohoel 30.000 | 3000 / 300 | – | VW 8, plasma 7 |
+| Schildkuppel | boden | – | leichtmetall | metall 10.000, silizium 10.000 | 0 / 2000 | 1 | VW 1, schild 2 |
+| Festungsschild | boden | – | leichtmetall | metall 50.000, silizium 50.000 | 0 / 10000 | 1 | VW 6, schild 6 |
+| Orbitalverteidigungsplattform | orbit | ionen 50 % / railgun 50 % | verbund | metall 100.000, silizium 60.000, rohoel 20.000, kunststoff_t2 1.000, kunststoff_t3 500 | 2000 / 2000 | – | VW 8, schild 6, ionen 5, computer 6 |
+
+| Waffe | vs Energie | vs Metall | Rolle |
+|---|---|---|---|
+| Raketen (raketen) | ×0.1 | ×1 | Ballistisch – hoch gegen Metall, kaum gegen Energie |
+| Maschinenkanone (gatling) | ×0.3 | ×0.7 | Gatling – Metall mittel, Energie schwach (frühe Einheiten) |
+| Magnetkanone (railgun) | ×0.6 | ×1 | Railgun/Hybrid – Energie mittel, Metall stark |
+| Laser (laser) | ×1 | ×0.25 | Stark gegen Energie, schwach gegen Metall |
+| Ionen (ionen) | ×1.3 | ×0.3 | Impuls/Ionen – sehr stark gegen Energie, gering gegen Metall |
+| Plasma (plasma) | ×1 | ×0.8 | Spät, ausgewogen – stark gegen Energie, mittel-stark gegen Metall |
+| Graviton (graviton) | ×1.2 | ×1.2 | Endgame – stark gegen beide |
+
+| Schiff | Waffen | Energiehülle |
+|---|---|---|
+| Aufklärer | gatling 100 % | 0 |
+| Kleine Drohne | gatling 70 % / raketen 30 % | 0 |
+| Mittlere Drohne | gatling 50 % / raketen 50 % | 5 |
+| Schwere Drohne | raketen 60 % / gatling 40 % | 10 |
+| Korvette | laser 60 % / gatling 40 % | 40 |
+| Fregatte | railgun 50 % / laser 50 % | 80 |
+| Zerstörer | railgun 60 % / ionen 40 % | 120 |
+| Kreuzer | ionen 50 % / railgun 50 % | 250 |
+| Bomber | plasma 60 % / raketen 40 % | 300 |
+| Schlachtkreuzer | laser 60 % / railgun 40 % | 500 |
+| Schlachtschiff | plasma 50 % / railgun 50 % | 800 |
+| Träger | raketen 60 % / laser 40 % | 1200 |
+| Koloss | plasma 60 % / ionen 40 % | 6000 |
+| Titan | graviton 60 % / plasma 40 % | 60000 |
+
+
+### C9.3 Verteidigungsanlagen
+- Gebaut in der **Verteidigungswerft** (Stufe ≥ 1, auch im Master-Modus), Warteschlange je Planet wie Werft, Bauzeit je Stück = (Metall + Silizium) / (2.500 · (1 + VW-Stufe)) Std. × Roboterfaktor, min. 1 Sek.; Ausbau der VW während Bau gesperrt.
+- Orbitalverteidigungsplattform ist seit 0.12.0 **Verteidigung** (Phase Orbit, 6 Stufenbilder bleiben). Schiffsanzahl damit **24**.
+- Schildkuppel / Festungsschild: je höchstens 1, bilden einen gemeinsamen **Planetenschild**, der Bodenschaden zuerst abfängt; Aktivierung automatisch bei Angriff (**Solo-Regel, ANNAHME**: immer aktiv, keine Kosten/Abklingzeit).
+
+### C9.4 Trümmer, Reparatur, Schrott
+- **Orbit:** zerstörte Schiffe beider Seiten (+ nicht reparierte Orbitalplattformen) → Trümmerfeld 30 % von Metall+Silizium (ANNAHME); mit **Bergung** (Spec Salvage) 80 % → Wracksammler.
+- **Boden:** zerstörte Verteidigung wird teils repariert: 50 % + 2 %/Stufe Panzerung, max. 80 % (ANNAHME). Rest → Schrott: 25 % + 2,5 %/Stufe Roboter, **max. 50 %**; mit Bergung 50 % … 75 % → Bodensammler.
+- Bestand: `planet.truemmer.orbit/boden` (Metall/Silizium). Sammeln selbst folgt mit der Flotte (Kapitel 6).
+
+### C9.5 Was live ist / Platzhalter
+- Live: Bau, Warteschlange, Offline, Master, Kampfkern `SS.kern.kampf.simuliere/anwenden` (Unit-getestet), **Kampf-Simulator** auf der Seite (ändert den Spielstand nicht).
+- Platzhalter: echte Angriffe (Flotten, KI – Kapitel 6+), Schnellfeuer im Kampf (Daten vorhanden, nicht angewendet), Zufall, Beute, Trümmer einsammeln, Sondenabwehr/Waffenslots der Plattform.
+- Spielstand **v9**: `planet.verteidigung`, `planet.verteidigungsauftraege`, `planet.truemmer`; Migration v8→v9 verschiebt Orbitalplattform-Schiffe in die Verteidigung, offene Werft-Aufträge dafür werden erstattet.
