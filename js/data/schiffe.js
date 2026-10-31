@@ -179,8 +179,13 @@
       beschreibung: "Fliegt nicht – zerstört Flotten schon im Orbit.",
       info: "Begrenzte Waffenslots: 2, ab Computer 10 drei (Ionen, Plasma, Raketen oder Laser; Graviton nicht). Spionagesonden-Abschuss erst ab Spionage 12 + Computer 12. Bestückung folgt im Verteidigungs-/Kampf-Kapitel." }
   ];
+  // 0.11.1: von Sandro freigegebene Bilder (PNG, 400×400); alle übrigen bleiben SVG-Platzhalter
+  var PNG_FREIGEGEBEN = { aufklaerer: 1, kleine_drohne: 1, mittlere_drohne: 1, schwere_drohne: 1, korvette: 1, fregatte: 1, zerstoerer: 1,
+    kreuzer: 1, schlachtkreuzer: 1, schlachtschiff: 1, traeger: 1, koloss: 1, mittlerer_frachter: 1, wracksammler: 1,
+    spionagesonde: 1, kolonieschiff: 1, treibstofftanker: 1 };
+  SS.DATEN.schiffPngFreigegeben = Object.freeze(Object.keys(PNG_FREIGEGEBEN));
   L.forEach(function (s) {
-    s.bild = "assets/schiffe/" + s.id + ".svg";
+    s.bild = "assets/schiffe/" + s.id + (PNG_FREIGEGEBEN[s.id] ? ".png" : ".svg");
     Object.freeze(s.kosten); Object.freeze(s.waffen); Object.freeze(s.schnellfeuer); Object.freeze(s.vor.forschung); Object.freeze(s.vor); if (s.waffenslots) Object.freeze(s.waffenslots); if (s.hangar) Object.freeze(s.hangar); Object.freeze(s);
   });
   SS.DATEN.schiffe = Object.freeze(L);

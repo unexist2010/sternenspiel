@@ -131,3 +131,18 @@
 - Chromium Desktop 1366×768 + Handy 412×915: `node tests/playtest-kapitel4.js` → 68/68 grün; Screenshots `kapitel4c-*.png`.
 - Firefox lokal nicht gelaufen (Playwright-Firefox-Binary auf der Box fehlt/nicht installierbar).
 - Bildvorschläge je Schiff (A/B, 48 Dateien) unter `/workspace/sternenspiel-bildvorschlaege/` – noch nicht im Spiel, Auswahl durch Sandro offen.
+
+## Schiffsbilder (Sandro, 0.11.1)
+
+**Freigegeben und eingebaut** (`assets/schiffe/<id>.png`, 400×400): Aufklärer B, Kleine Drohne B, Mittlere Drohne B, Schwere Drohne A, Korvette A, Fregatte B, Zerstörer A, Kreuzer A, Schlachtkreuzer A, Schlachtschiff A, Träger A, Koloss A, Mittlerer Frachter A, Wracksammler A, Spionagesonde B, Kolonieschiff A, Treibstofftanker A.
+
+**Noch offen – neue Vorschläge C/D zur Bewertung** (`/workspace/sternenspiel-bildvorschlaege/<id>-c.png`/`-d.png`, bis dahin SVG-Platzhalter):
+- Bomber (neu, an A angelehnt, sichtbare Bomben)
+- Titan (komplett neues Design, siliziumlastig)
+- Kleiner Frachter (Basis Bodensammler B, ohne Sammler und ohne seitliche Triebwerke)
+- Massengutfrachter (neu, an A angelehnt)
+- Bodensammler (neu, am Boden auf einem Schlachtfeld)
+- Solarsatellit (komplett neu)
+- Orbitalverteidigungsplattform (Mischung aus A und B)
+
+**Reserve für andere Schiffe:** Korvette B, Zerstörer B, Schlachtkreuzer B (Fronttriebwerk stört Sandro), Schlachtschiff B (für etwas Großes).

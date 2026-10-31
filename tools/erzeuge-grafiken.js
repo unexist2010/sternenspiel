@@ -283,6 +283,8 @@ Object.entries(FORSCHUNG_BILDER).forEach(([id, inhalt]) => schreibe(`forschung/$
     k += `<rect x="${f(x1 - len * 0.32)}" y="${f(cy - 2)}" width="${f(len * 0.12)}" height="4" rx="2" fill="#bfefff" opacity="0.9"/>`;
     waffen.forEach((fa, i) => { k += `<circle cx="${f(48 + (i - (waffen.length - 1) / 2) * 12)}" cy="${f(cy - br / 2 - 2)}" r="2.6" fill="${fa}"/><circle cx="${f(48 + (i - (waffen.length - 1) / 2) * 12)}" cy="${f(cy + br / 2 + 2)}" r="2.6" fill="${fa}"/>`; });
     if (s.flag === "antimaterie") k += `<circle cx="48" cy="48" r="6" fill="#ff4fd8" opacity="0.9"/>`;
+    // freigegebene PNG-Bilder (Sandro) nicht durch Platzhalter ersetzen
+    if (fs.existsSync(path.join(ASSETS, `schiffe/${s.id}.png`))) { console.log("  schiffe/" + s.id + ".png freigegeben – SVG übersprungen"); return; }
     schreibe(`schiffe/${s.id}.svg`, svg(96, 96, k));
   });
 }

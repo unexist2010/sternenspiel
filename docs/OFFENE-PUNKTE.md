@@ -80,3 +80,18 @@ Stand: 2026-10-31 (0.11.0, Kapitel 4 Schiffsliste nach Sandro) · Alles hier ist
 - ~~Startplatz-Wahl A–Z beim Spielstart / Startplatz-Boni / Stufe als Planeten-Eigenschaft~~ → war ein Missverständnis; Sandro hat klargestellt: automatischer Start, Startplätze = Flotten-Startplattformen (2026-10-19).
 
 - ~~Fragen 34, 35, 36, 38 (Roboter, Energie-/Waffenwerte, Kosten/Graviton, Master braucht Einrichtung)~~ → von Sandro bestätigt (2026-10-30, 0.9.0).
+
+## Schiffsbilder (Sandro, 0.11.1)
+
+**Freigegeben und eingebaut** (`assets/schiffe/<id>.png`, 400×400): Aufklärer B, Kleine Drohne B, Mittlere Drohne B, Schwere Drohne A, Korvette A, Fregatte B, Zerstörer A, Kreuzer A, Schlachtkreuzer A, Schlachtschiff A, Träger A, Koloss A, Mittlerer Frachter A, Wracksammler A, Spionagesonde B, Kolonieschiff A, Treibstofftanker A.
+
+**Noch offen – neue Vorschläge C/D zur Bewertung** (`/workspace/sternenspiel-bildvorschlaege/<id>-c.png`/`-d.png`, bis dahin SVG-Platzhalter):
+- Bomber (neu, an A angelehnt, sichtbare Bomben)
+- Titan (komplett neues Design, siliziumlastig)
+- Kleiner Frachter (Basis Bodensammler B, ohne Sammler und ohne seitliche Triebwerke)
+- Massengutfrachter (neu, an A angelehnt)
+- Bodensammler (neu, am Boden auf einem Schlachtfeld)
+- Solarsatellit (komplett neu)
+- Orbitalverteidigungsplattform (Mischung aus A und B)
+
+**Reserve für andere Schiffe:** Korvette B, Zerstörer B, Schlachtkreuzer B (Fronttriebwerk stört Sandro), Schlachtschiff B (für etwas Großes).

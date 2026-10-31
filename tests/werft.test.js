@@ -24,7 +24,8 @@ test("Daten: genau 24 Schiffe, 5 Waffentypen, 2 Hüllentypen, je mit Bild, Grupp
   gleich(D.schiffGruppen.map((g) => g.id), ["kampf", "hilf", "spezial"]);
   const fs = require("fs"), path = require("path");
   for (const s of D.schiffe) {
-    assert.equal(s.bild, "assets/schiffe/" + s.id + ".svg");
+    const png = D.schiffPngFreigegeben.indexOf(s.id) >= 0;
+    assert.equal(s.bild, "assets/schiffe/" + s.id + (png ? ".png" : ".svg"));
     assert.ok(fs.existsSync(path.join(__dirname, "..", s.bild)), s.id + " Bild");
     assert.ok(D.huellentypNachId(s.huelle), s.id);
     for (const w of Object.keys(s.waffen)) assert.ok(D.waffentypNachId(w), s.id + " " + w);

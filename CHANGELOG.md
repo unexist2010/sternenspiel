@@ -1,5 +1,11 @@
 # Changelog – Sternenspiel
 
+## [0.11.1] – 2026-10-31 – Erste echte Schiffsbilder
+- 17 von Sandro freigegebene Schiffsbilder als PNG (400×400) eingebaut; übrige Schiffe weiter SVG-Platzhalter (`SS.DATEN.schiffPngFreigegeben`).
+- `tools/erzeuge-grafiken.js` überschreibt freigegebene PNG-Schiffe nicht.
+- Neue Bildvorschläge C/D für Bomber, Titan, Kleiner Frachter, Massengutfrachter, Bodensammler, Solarsatellit, Orbitalverteidigungsplattform (noch nicht eingebaut).
+- Playtest Kapitel 4: Screenshots `playtest/kapitel4d-*.png`.
+
 ## [0.11.0] – 2026-10-31 – Werft im OGame-Retro-Layout
 
 - Werft-Seite neu im Stil des klassischen OGame: **ein Schiff je Zeile** über die volle Breite, **großes Schiffsbild links** (200 px Desktop, 120 px Handy), rechts Name/Info, Anzahl, Beschreibung, Voraussetzungen, Werte und Bau-Steuerung; Gruppen-Boxen innen als Liste (Zebra-Zeilen) statt Kachel-Raster
