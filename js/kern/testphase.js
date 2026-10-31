@@ -117,11 +117,16 @@
     return null;
   }
 
-  /** Freie Planet-Nummern im Heimatsystem (ohne Heimat). */
+  /**
+   * 0.16.1 (Sandro t41u): feste, beliebig gewählte Positionen im Heimatsystem – Testkolonie 3, Alpha 5, Beta 9.
+   * Kollidiert eine davon mit der Heimatposition (oder einer schon vergebenen), wird die nächste freie Position 1–12 genommen.
+   */
+  var TEST_POSITIONEN = [3, 5, 9];
   function nachbarn(z, anzahl) {
-    var h = z.heimat, W = SS.BALANCE.WELTRAUM || {}, max = W.PLANETEN_PRO_SYSTEM || 15, out = [];
-    for (var d = 1; out.length < anzahl && d < max; d++) [h.planet + d, h.planet - d].forEach(function (pl) {
-      if (out.length < anzahl && pl >= 1 && pl <= max) out.push({ sektor: h.sektor, system: h.system, planet: pl });
+    var h = z.heimat, W = SS.BALANCE.WELTRAUM || {}, max = W.PLANETEN_PRO_SYSTEM || 12, belegt = [h.planet], out = [];
+    TEST_POSITIONEN.slice(0, anzahl).forEach(function (pos) {
+      for (var i = 0; i < max && belegt.indexOf(pos) >= 0; i++) pos = pos % max + 1;
+      belegt.push(pos); out.push({ sektor: h.sektor, system: h.system, planet: pos });
     });
     return out;
   }
@@ -166,5 +171,5 @@
     return z;
   }
 
-  SS.kern.testphase = { bereinige: bereinige, gegnerAn: gegnerAn, kampfPlanet: kampfPlanet, spionage: spionage, angriff: angriff, ankunft: ankunft, berge: berge, legeTestphaseAn: legeTestphaseAn };
+  SS.kern.testphase = { bereinige: bereinige, gegnerAn: gegnerAn, kampfPlanet: kampfPlanet, spionage: spionage, angriff: angriff, ankunft: ankunft, berge: berge, legeTestphaseAn: legeTestphaseAn, TEST_POSITIONEN: TEST_POSITIONEN };
 })(typeof globalThis !== "undefined" ? globalThis : this);

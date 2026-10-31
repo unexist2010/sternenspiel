@@ -47,7 +47,7 @@
       var sys = teile[0] === "system" ? parseInt(teile[1], 10) : teile[0] === "sektor" ? W.sektor(parseInt(teile[1], 10)) && W.sektor(parseInt(teile[1], 10)).systemVon : heim.system;
       if (!W.system(sys)) sys = heim.system;
       var s = W.system(sys), sk = W.sektor(s.sektor), U = W.universum();
-      var sekSel = "<label>Sektor <select id=\"wr-sektor\">" + U.sektoren.map(function (x) { return "<option value=\"" + x.nummer + "\"" + (x.nummer === sk.nummer ? " selected" : "") + ">" + x.nummer + " · " + esc(x.name) + "</option>"; }).join("") + "</select></label>";
+      var sekSel = "<label>Sektor <select id=\"wr-sektor\">" + U.sektoren.map(function (x) { return "<option value=\"" + x.nummer + "\"" + (x.nummer === sk.nummer ? " selected" : "") + ">" + esc(x.name) + "</option>"; }).join("") + "</select></label>";
       var nav = "<div class=\"wr-nav\">" + sekSel +
         "<a class=\"knopf klein\" href=\"#weltraum/system/" + Math.max(sk.systemVon, sys - 1) + "\" id=\"wr-zurueck\" aria-label=\"Vorheriges Sonnensystem\">◀</a>" +
         "<label>Sonnensystem <input id=\"wr-system\" type=\"number\" min=\"" + sk.systemVon + "\" max=\"" + sk.systemBis + "\" value=\"" + sys + "\" inputmode=\"numeric\"></label>" +
@@ -55,8 +55,8 @@
         "<a class=\"knopf klein\" href=\"#weltraum/system/" + heim.system + "\" id=\"wr-heimat\">⌂ Heimat</a></div>" +
         "<ul class=\"wr-fenster\" id=\"wr-fenster\">" + fenster(sys).map(function (n) {
           var x = W.system(n), b = belegung(zz, n).filter(function (r) { return r.art !== "leer"; }).length;
-          return "<li" + (n === sys ? " class=\"aktiv\"" : "") + "><a href=\"#weltraum/system/" + n + "\" data-system=\"" + n + "\"><b>" + x.sektor + ":" + n + "</b> " + esc(x.name) + (b ? " <span class=\"tab-zahl\">" + b + "</span>" : "") + "</a></li>"; }).join("") + "</ul>" +
-        "<p class=\"hinweis\">" + esc(U.name) + " · " + D.weltraum.universum().sektoren.length + " Sektoren · " + SS.BALANCE.WELTRAUM.SYSTEME_GESAMT + " Sonnensysteme (" + sk.systemVon + "–" + sk.systemBis + " in " + esc(sk.name) + ") · " + SS.BALANCE.WELTRAUM.PLANETEN_PRO_SYSTEM + " Planeten je Sonnensystem</p>";
+          return "<li" + (n === sys ? " class=\"aktiv\"" : "") + "><a href=\"#weltraum/system/" + n + "\" data-system=\"" + n + "\"><b>" + x.sektor + ":" + n + "</b>" + (b ? " <span class=\"tab-zahl\">" + b + "</span>" : "") + "</a></li>"; }).join("") + "</ul>" +
+        "<p class=\"hinweis\">" + D.weltraum.universum().sektoren.length + " Sektoren · " + SS.BALANCE.WELTRAUM.SYSTEME_GESAMT + " Sonnensysteme (" + sk.systemVon + "–" + sk.systemBis + " in " + esc(sk.name) + ") · " + SS.BALANCE.WELTRAUM.PLANETEN_PRO_SYSTEM + " Planeten je Sonnensystem</p>";
       var zeilen = belegung(zz, sys).map(function (r) {
         var aktion = r.art === "leer" ? knopf("kolonisieren", r.koord, "Kolonisieren") :
           (r.art === "gegner" ? knopf("spionieren", r.koord, "Spionage", " data-aktion=\"wr-spionage\"") + knopf("angriff", r.koord, "Angriff") : "") +
@@ -70,7 +70,7 @@
       var tab = "<div class=\"tabelle-huelle\"><table class=\"tabelle wr-tabelle\" id=\"wr-tabelle\"><thead><tr><th class=\"z\">Pos.</th><th>Planet</th><th>Koordinaten</th><th>Spieler</th><th>Aktionen</th></tr></thead><tbody>" + zeilen +
         "<tr class=\"wr-expedition\" data-position=\"" + SS.BALANCE.EXPEDITION.POSITION + "\"><td class=\"z\">" + SS.BALANCE.EXPEDITION.POSITION + "</td><td><i>Expeditionsraum</i></td><td>[" + exKoord + "]</td><td></td><td class=\"wr-aktionen\">" + knopf("expedition", exKoord, "Expedition") + "</td></tr></tbody></table></div>";
       return h.box("Navigation", nav, "", " id=\"wr-navigation\"") +
-        h.box("Sonnensystem " + esc(s.name) + " [" + s.sektor + ":" + sys + "] · " + esc(s.stern.name), tab, "", " id=\"wr-system-box\"");
+        h.box("Sonnensystem " + sys + " [" + s.sektor + ":" + sys + "] · " + esc(s.stern.name), tab, "", " id=\"wr-system-box\"");
     }
     return { seite: seite };
   };

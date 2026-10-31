@@ -42,3 +42,19 @@ test("Spionage-Sonde und Angriff auf Alpha über die Deeplink-Aufträge funktion
   const r = FL.senden(z, p, { schiffe: { spionagesonde: 1 }, ziel: W.leseKoordinaten(koord), mission: "spionieren", ladung: {} }, T0);
   assert.equal(r.ok, true, r.grund);
 });
+
+test("0.16.1: keine Eigennamen – Sektor N / System N; Alpha 5 + Beta 9 im Heimatsystem (Ausweichen bei Kollision)", () => {
+  const SS = ladeSpiel(), W = SS.DATEN.weltraum;
+  assert.deepEqual([...W.universum().sektoren.map((s) => s.name)], ["Sektor 1", "Sektor 2", "Sektor 3", "Sektor 4", "Sektor 5"]);
+  assert.equal(W.system(142).name, "System 142");
+  assert.equal(W.planet(142, 7).name, "Planet 7");
+  for (let hp = 1; hp <= 12; hp++) {
+    const z = SS.kern.zustand.neuerSpielstand({ jetzt: T0, name: "T" });
+    z.heimat.planet = hp; z.planeten[0].koordinaten && (z.planeten[0].koordinaten.planet = hp);
+    SS.kern.testphase.legeTestphaseAn(z, T0);
+    const [a, b] = z.gegner;
+    for (const g of [a, b]) { assert.equal(g.system, z.heimat.system); assert.equal(g.sektor, z.heimat.sektor); assert.notEqual(g.planet, hp); }
+    assert.notEqual(a.planet, b.planet);
+    if (hp !== 5 && hp !== 9 && hp !== 3) { assert.equal(a.planet, 5); assert.equal(b.planet, 9); }
+  }
+});

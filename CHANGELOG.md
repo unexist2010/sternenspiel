@@ -1,5 +1,12 @@
 # Changelog – Sternenspiel
 
+## [0.16.1] – 2026-10-31 – Weltraum: nur Nummern, Testgegner im Heimatsystem (Sandro t41u)
+
+- **Keine Eigennamen** mehr: Sektoren heißen „Sektor 1“ … „Sektor 5“, Sonnensysteme „System N“, Planeten „Planet P“; Navigation nur per Nummer (Auswahl, Fenster, Übersicht, Systemkopf). Universum heißt schlicht „Universum“.
+- Datenmodell unverändert: 5 Sektoren à 60 Sonnensysteme (300), 12 Positionen.
+- **Testphase laden:** Testgegner **Alpha → Position 5**, **Beta → Position 9**, Testkolonie → Position 3, alle im **Heimatsystem**. Kollidiert eine Position mit der Heimat, wird die nächste freie Position (1–12) genommen (`SS.kern.testphase.TEST_POSITIONEN`).
+- Tests: neuer Test (Namen + Alpha/Beta für alle 12 Heimatpositionen), 120 grün; Playtests angepasst (Weltraum nicht mehr Platzhalter, Fußzeile).
+
 ## [0.16.0] – 2026-10-31 – Weltraum-Ansicht: Sektor → Sonnensystem → Planet (Sandro pt40u)
 
 - Menü „Weltraum“ aktiv (kein Platzhalter mehr). Begriffe in der UI: **Sektor**, **Sonnensystem**, **Planet** (kein „Galaxie“).

@@ -86,7 +86,7 @@ async function lauf(browser, g) {
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   ok((await page.getAttribute("html", "data-version")) === VERSION && (await Z(() => window.SS.VERSION)) === VERSION, `Version ${VERSION}`);
-  ok(/Kapitel \d+ · /.test(await page.textContent(".fusszeile")), "Fußzeile: Kapitel n");
+  ok(/Kapitel \d+ · |Weltraum · Version/.test(await page.textContent(".fusszeile")), "Fußzeile: Kapitel n");
   await page.fill("#eingabe-name", "Sandro");
   await page.click("#knopf-neues-spiel");
   await page.waitForSelector('#inhalt[data-seite="uebersicht"]');

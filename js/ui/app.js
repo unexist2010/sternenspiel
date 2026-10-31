@@ -369,8 +369,8 @@
       "<div class=\"planet-karte\">" + planetBild(pl, "planet-bild") + "<dl class=\"werte\">" +
       "<dt>Planet</dt><dd id=\"uebersicht-planet\">" + esc(h.name) + "</dd>" +
       "<dt>Koordinaten</dt><dd><span class=\"koord\" id=\"uebersicht-koordinaten\" title=\"Sektor:System:Planet\">[" + W.koordinatenText(h) + "]</span></dd>" +
-      "<dt>Sektor</dt><dd>" + h.sektor + " – " + W.sektor(h.sektor).name + "</dd>" +
-      "<dt>System</dt><dd>" + h.system + " – " + esc(sys.name) + "</dd>" +
+      "<dt>Sektor</dt><dd>" + W.sektor(h.sektor).name + "</dd>" +
+      "<dt>System</dt><dd>" + h.system + "</dd>" +
       "<dt>Position</dt><dd>" + h.planet + " von " + B.WELTRAUM.PLANETEN_PRO_SYSTEM + "</dd>" +
       "</dl></div>");
     var kommandant = box("Kommandant",

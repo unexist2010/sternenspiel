@@ -6,8 +6,8 @@
  * ANNAHMEN:
  *  - 60 Systeme je Sektor; Systemnummern laufen global 1–300 (Sektor 1 = 1–60, Sektor 2 = 61–120 …).
  *  - Koordinaten „Sektor:System:Planet“, z. B. 2:75:6.
- *  - Namen (Universum, Sektoren, Systeme, Planeten), Sterntyp und Planetentyp sind rein optisch und
- *    werden deterministisch aus der Nummer erzeugt (jeder Spieler sieht dasselbe Universum).
+ *  - 0.16.1 (Sandro t41u): KEINE Eigennamen – Sektoren heißen „Sektor N“, Systeme „System N“, Planeten „Planet P“;
+ *    Navigation nur per Nummer. Sterntyp/Planetentyp bleiben rein optisch und deterministisch.
  *  - Nichts davon wird im Spielstand gespeichert – nur die Koordinaten des Hauptplaneten.
  *  - Der Hauptplanet liegt auf einer zufälligen Koordinate (siehe zufaelligeKoordinate).
  */
@@ -19,11 +19,7 @@
   var W = SS.BALANCE.WELTRAUM;
   var PRO_SEKTOR = W.SYSTEME_GESAMT / W.SEKTOREN; // 60
 
-  var UNIVERSUM_NAME = "Sternenreich";                                     // ANNAHME
-  var SEKTOR_NAMEN = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"];       // ANNAHME
-  var SILBEN_A = ["Ka", "Ve", "Or", "Ty", "Ma", "Se", "Lu", "Dra", "Ix", "No", "Ze", "Pha", "Qua", "Ri", "Bel", "Cor", "Hel", "Sy"];
-  var SILBEN_B = ["ri", "lon", "ra", "the", "nis", "dor", "vex", "ta", "mir", "sar", "leo", "dan", "rux", "phi", "len", "go"];
-  var SILBEN_C = ["", "", "a", "on", "is", "us", "ar", "ia", " Prime", " Minor"];
+  var UNIVERSUM_NAME = "Universum";
   var STERNTYPEN = [
     { id: "gelb", name: "Gelber Stern" }, { id: "rot", name: "Roter Zwerg" }, { id: "blau", name: "Blauer Riese" },
     { id: "weiss", name: "Weißer Zwerg" }, { id: "orange", name: "Oranger Stern" }
@@ -33,7 +29,6 @@
     { id: "lava", name: "Lavawelt" }, { id: "wueste", name: "Wüstenwelt" }, { id: "gestein", name: "Gesteinswelt" },
     { id: "ozean", name: "Ozeanwelt" }, { id: "gas", name: "Gasriese" }, { id: "eis", name: "Eiswelt" }
   ];
-  var ROEMISCH = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 
   // Kleiner deterministischer Zufallsgenerator (mulberry32)
   function zufall(saat) {
@@ -59,7 +54,7 @@
     if (!sektorGueltig(s)) return null;
     return {
       nummer: s,
-      name: "Sektor " + SEKTOR_NAMEN[s - 1],
+      name: "Sektor " + s,
       systemVon: (s - 1) * PRO_SEKTOR + 1,
       systemBis: s * PRO_SEKTOR
     };
@@ -70,7 +65,7 @@
     if (!systemGueltig(n)) return null;
     if (systemCache[n]) return systemCache[n];
     var r = zufall(n * 7919 + 13);
-    var name = wahl(r, SILBEN_A) + wahl(r, SILBEN_B) + wahl(r, SILBEN_C);
+    var name = "System " + n;
     var stern = wahl(r, STERNTYPEN);
     var sys = { nummer: n, sektor: sektorVonSystem(n), name: name, stern: stern, planeten: [] };
     for (var p = 1; p <= W.PLANETEN_PRO_SYSTEM; p++) sys.planeten.push(erzeugePlanet(sys, p));
@@ -86,7 +81,7 @@
     var typ = PLANETENTYPEN[wahl(r, zone)];
     return Object.freeze({
       sektor: sys.sektor, system: sys.nummer, position: pos,
-      name: sys.name + " " + ROEMISCH[pos - 1],
+      name: "Planet " + pos,
       typ: typ,
       koordinaten: sys.sektor + ":" + sys.nummer + ":" + pos
     });

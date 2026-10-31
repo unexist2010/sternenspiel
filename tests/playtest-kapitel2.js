@@ -95,11 +95,11 @@ async function lauf(browser, g) {
   const knoepfe = await page.$$eval('#inhalt button[data-aktion]', (b) => b.map((x) => x.textContent.trim()));
   ok(["Speichern", "Laden", "Spieler wechseln", "Zurücksetzen"].every((k) => knoepfe.includes(k)), "Übersicht: Spielstand-Knöpfe (" + knoepfe.join(", ") + ")");
 
-  // Platzhalter-Seiten
+  // Weltraum (seit 0.16.0 echt)
   for (const [id, name] of [["weltraum", "Weltraum"]]) { // Verteidigung (0.12.0) und Flotte (0.13.0) echt
     await geheZu("#" + id, id);
     const t = (await page.textContent("#inhalt")).replace(/\s/g, "");
-    ok(t === (name + name + "Wird in einem eigenen Kapitel ausgearbeitet.").replace(/\s/g, ""), `„${name}“: nur Platzhalter`);
+    ok(t.includes("Sektor1") && !/Sternenreich/.test(t), `„${name}“: echte Seite (0.16.x), Sektoren nur nummeriert`);
     ok(await ueberlauf() <= 0, `„${name}“: kein Überlauf`);
   }
 
