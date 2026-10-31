@@ -436,3 +436,16 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .kb-huellen .kb-seite td { font-weight: bold; opacity: .8; }
 .kb-gebrochen { color: #ffb347; }
 .kb-truemmer { border-top: 1px solid #2c3854; padding-top: .4rem; }
+
+/* 0.16.0 Weltraum (Sektor → Sonnensystem → Planet) */
+.wr-nav { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.wr-nav input { width: 5.5em; }
+.wr-fenster { list-style: none; padding: 0; margin: 10px 0 4px; display: flex; flex-wrap: wrap; gap: 6px; }
+.wr-fenster a { display: block; padding: 5px 9px; border: 1px solid var(--rand); border-radius: 3px; text-decoration: none; background: rgba(10,30,60,.45); }
+.wr-fenster li.aktiv a { border-color: #6fb7ff; background: rgba(40,90,160,.45); }
+.wr-tabelle tr.wr-eigen td { background: rgba(30,90,50,.25) !important; }
+.wr-tabelle tr.wr-gegner td { background: rgba(110,30,30,.25) !important; }
+.wr-tabelle tr.wr-expedition td { background: rgba(60,40,110,.25) !important; }
+.wr-aktionen { display: flex; flex-wrap: wrap; gap: 4px; }
+.wr-knopf { min-height: 30px; padding: .25rem .55rem; }
+.wr-spionieren { border-color: #4aa3ff; } .wr-angriff { border-color: #ff5a5a; } .wr-kolonisieren { border-color: #5ad17a; } .wr-expedition { border-color: #b08cff; }

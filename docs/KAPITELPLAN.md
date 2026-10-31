@@ -70,7 +70,7 @@ Reihenfolge und Nummern der späteren Kapitel sind **noch offen** (legt Sandro f
 | Verteidigung & Kampf | Verteidigung | **Schutzschild-Autoaktivierung (Solo-Regel)**, **Trümmer-Salvage 50–75 % Boden / 80 % Orbit** |
 | Flotte | Flotte | **Treibstoffregeln** (Inhalt offen) |
 | Startplätze im Flottenbetrieb | Flotte | Bau steht (Kapitel 2, Raumflughafen); Nutzung der Kapazität bei Starts + Hangar-Regel (SPEZIFIKATION A7/80) folgt mit der Flotte |
-| **Weltraum-Ansicht** (Navigation Sektoren/Systeme/Planeten) | Weltraum | Hierarchie 1/5/300/12 (Datenmodell steht schon) |
+| ~~Weltraum-Ansicht~~ **erledigt 0.16.0** (Sektor/Sonnensystem/Planet, Missions-Knöpfe) | Weltraum | Hierarchie 1/5/300/12; Kolonisieren-Wirkung folgt |
 | KI-Gegner | – | **5–10 Angriffe/Ereignisse täglich** |
 | Balancing, Feinschliff | alle | – |
 
@@ -113,3 +113,8 @@ und kann beim jeweiligen Kapitel wiederverwendet werden.
 - Kampfbericht (`js/ui/kampfbericht.js`) im Simulator: Sieger + Gesamtverluste oben, Phase 1/2 mit Rundentabellen (Verluste grün = eigene/Verteidiger, rot = Angreifer), Details-Dropdown je Phase, Trümmerfelder am Ende.
 - Echte KI-Angriffe, Schnellfeuer, Zufall, Beute, Trümmer einsammeln: später (OFFENE-PUNKTE 67–73).
 
+
+## 0.16.0 – Weltraum-Ansicht (Sandro pt40u)
+- Menü Weltraum mit Sektor-/Sonnensystem-Navigation, Systemansicht 1–12 + Expeditionsraum 13.
+- Missions-Knöpfe mit Flotten-Deeplink, Spionage mit Auto-Sonde, Testgegner Alpha/Beta angreifbar.
+- Pausiert bis Freigabe durch Sandro.

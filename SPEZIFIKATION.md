@@ -19,3 +19,12 @@
 
 - Verteidiger-Zivilschiffe werden bei verlorenem Orbit nur vernichtet, wenn sie zur Kampf-Flotte gehören (auf den Startplätzen, `verteilung.startplatz`). Zivilschiffe im Hangar werden nie vernichtet. Solarsatelliten stehen im Orbit und fallen mit ihm.
 - Spionagebericht: sichtbar sind Schiffe auf den Startplätzen (Preset-/Kapazitätslogik wie im Kampf), Verteidigung, Solarsatelliten, Trümmer. Welche/wie viele Schiffe im Hangar stehen, ist nie sichtbar. Nur Hinweis: „Bodenbewegungen erkennbar – möglicherweise weitere Schiffe im Hangar.“ (Hangar nicht leer) bzw. „Keine Bodenbewegungen erkennbar.“ (Hangar leer). Feld `bodenbewegungen` (bool) + `hinweis`.
+
+## Weltraum-Ansicht (0.16.0, Sandro pt40u)
+
+- Begriffe (FEST): Universum → **Sektor** → **Sonnensystem** → **Planet**. „Galaxie“ wird in der UI nicht verwendet.
+- Je Sonnensystem 12 Planeten (Positionen 1–12) + Position 13 = Expeditionsraum.
+- Datenmodell (unverändert): 5 Sektoren, 300 Sonnensysteme gesamt (60 je Sektor), deterministisch erzeugt, nicht gespeichert. Ansicht: Fenster mit 5 Sonnensystemen (`SS.ui.weltraum.SICHTBAR`) + Navigation per Nummer (wie OGame Galaxie:System).
+- Zeile je Position: Planetname bzw. „– frei –“, Koordinaten, Spieler. Knöpfe: fremder Planet → Spionage, Angriff, Transport; eigener Planet → Transport, Stationieren; frei → Kolonisieren; Position 13 → Expedition.
+- Alle Knöpfe öffnen das Flottenfenster per `#flotte/senden/<mission>/<S:SYS:P>` mit Mission + Koordinaten vorausgefüllt; Schiffe wählt der Nutzer.
+- Ausnahme Spionage (wie OGame): 1 Spionagesonde wird sofort gesendet; ohne Sonde → Flottenfenster mit Hinweis (`/keine-sonde`).

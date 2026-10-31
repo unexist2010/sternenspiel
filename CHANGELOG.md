@@ -1,5 +1,15 @@
 # Changelog – Sternenspiel
 
+## [0.16.0] – 2026-10-31 – Weltraum-Ansicht: Sektor → Sonnensystem → Planet (Sandro pt40u)
+
+- Menü „Weltraum“ aktiv (kein Platzhalter mehr). Begriffe in der UI: **Sektor**, **Sonnensystem**, **Planet** (kein „Galaxie“).
+- Navigation: Sektor-Auswahl, Sonnensystem-Nummer mit ◀/▶, „⌂ Heimat“, Fenster mit **5 Sonnensystemen** des Sektors (Anzahl besetzter Planeten als Zähler). Deeplinks `#weltraum/system/N`, `#weltraum/sektor/S`.
+- Systemansicht OGame-artig: Positionen 1–12 (Planet/frei, Koordinaten, Spieler) + Zeile 13 „Expeditionsraum“.
+- Knöpfe: Gegner → **Spionage**, **Angriff**, **Transport**; eigene Planeten → **Transport**, **Stationieren**; leere Position → **Kolonisieren**; Zeile 13 → **Expedition**.
+- Flotten-Deeplink `#flotte/senden/<mission>/<S:SYS:P>`: Mission + Koordinaten vorausgefüllt, Sendefenster wird angesprungen.
+- **Spionage** schickt wie OGame sofort **1 Spionagesonde** (danach Flottenfenster mit vorausgefüllter Mission); ohne Sonde: Flottenfenster + Hinweis.
+- Neu: `js/ui/seite-weltraum.js`, `tests/weltraum-ansicht.test.js` (119 Tests grün), Browser-Playtest `tests/playtest-weltraum.js` (Desktop + Handy, 38/38 OK, Alpha/Beta Spionage + Angriff).
+
 ## [0.15.1] – 2026-10-31 – Expeditionen: Playtest-Fixes (Sandro pt38u)
 
 - Piraten „1 Schiff entkommt“: jetzt klar **Niederlage – Flotte vernichtet, 1 X entkommen (N von M Schiffen verloren)**; Kampfbericht-Kopf passend („Niederlage – Expeditionsflotte vernichtet, 1 X entkommt“ + Hinweis), Expeditions-Sieger-Texte aus Spielersicht.

@@ -24,7 +24,7 @@
 
   var SS = window.SS;
   var benoetigt = ["BALANCE", "DATEN", "kern", "format"];
-  var fehltModul = !SS || benoetigt.some(function (k) { return !SS[k]; }) || !SS.kern.profile || !SS.kern.zustand || !SS.kern.bau || !SS.kern.geologie || !SS.kern.forschung || !SS.kern.werft || !SS.kern.verteidigung || !SS.kern.kampf || !SS.DATEN.verteidigung || !SS.DATEN.schiffe || !(SS.ui && SS.ui.werft && SS.ui.verteidigung && SS.ui.flotte) || !SS.kern.flotte || !SS.DATEN.forschung || !SS.DATEN.gebaeudeGruppen || !SS.DATEN.weltraum || !SS.DATEN.menue;
+  var fehltModul = !SS || benoetigt.some(function (k) { return !SS[k]; }) || !SS.kern.profile || !SS.kern.zustand || !SS.kern.bau || !SS.kern.geologie || !SS.kern.forschung || !SS.kern.werft || !SS.kern.verteidigung || !SS.kern.kampf || !SS.DATEN.verteidigung || !SS.DATEN.schiffe || !(SS.ui && SS.ui.werft && SS.ui.verteidigung && SS.ui.flotte && SS.ui.weltraum) || !SS.kern.flotte || !SS.DATEN.forschung || !SS.DATEN.gebaeudeGruppen || !SS.DATEN.weltraum || !SS.DATEN.menue;
 
   // ---------- Versionsprüfung (Schutz gegen gemischten Browser-Cache: neues HTML + alte Skripte oder umgekehrt) ----------
   var htmlVersion = document.documentElement.getAttribute("data-version");
@@ -240,7 +240,7 @@
     var m = D.menuePunkt(id);
     var html = id === "uebersicht" ? seiteUebersicht() : id === "ressourcen" ? seiteRessourcen() :
       id === "anlagen" ? (seite.teile[0] === "raumflughafen" ? seiteRaumflughafen() : seiteAnlagen()) :
-      id === "forschung" ? seiteForschung() : id === "werft" ? WU().seite() : id === "verteidigung" ? VU().seite() : id === "flotte" ? FU().seite() : seitePlatzhalter(m);
+      id === "forschung" ? seiteForschung() : id === "werft" ? WU().seite() : id === "verteidigung" ? VU().seite() : id === "flotte" ? FU().seite() : id === "weltraum" ? WRU().seite() : seitePlatzhalter(m);
     var y = window.scrollY, zu = {};
     Array.prototype.forEach.call(document.querySelectorAll("#inhalt details[id]"), function (d) { zu[d.id] = !d.open; });
     schliesseInfo();
@@ -251,7 +251,7 @@
     if (!scrollBehalten) schliesseMenue();
     baueFlottenLeiste();
     Object.keys(zu).forEach(function (k) { var d = $(k); if (d && zu[k]) d.open = false; });
-    if (id === "flotte") FU().aktualisiereSenden(document);
+    if (id === "flotte") { flottenDeeplink(seite.teile); FU().aktualisiereSenden(document); }
     aktualisiereLive();
     window.scrollTo(0, scrollBehalten ? y : 0);
     if (id === "flotte" && seite.teile[0] === "senden" && !scrollBehalten && $("senden") && $("senden").scrollIntoView) $("senden").scrollIntoView();
@@ -301,6 +301,30 @@
     meldung(F.zahl(r.anzahl) + " Schiffe unterwegs: " + r.mission.name + " → " + D.weltraum.koordinatenText(r.ziel) + (r.dauer ? " (Ankunft in " + F.dauer(r.dauer) + ")." : " (Master: Ankunft sofort)."), "gut");
     if (r.meldungen && r.meldungen.length) meldeFertig(r.meldungen);
     speichern(true); if (location.hash === "#flotte") route(false); else location.hash = "#flotte";
+  }
+  // 0.16.0 Weltraum (Sandro pt40u)
+  var weltraumUi = null;
+  function WRU() { return weltraumUi || (weltraumUi = SS.ui.weltraum({ esc: esc, box: box, zustand: function () { return zustand; }, hp: hp, teile: function () { return seite ? seite.teile : []; } })); }
+  /** #flotte/senden/<mission>/<S:SYS:P>[/hinweis]: Mission + Koordinaten vorausfüllen. */
+  function flottenDeeplink(t) {
+    if (t[0] !== "senden" || !t[1] || !SS.kern.flotte.missionNachId(t[1])) return;
+    var m = $("send-mission"), k = $("send-koord"), sel = $("send-ziel");
+    if (m) m.value = t[1];
+    if (k && t[2]) { k.value = decodeURIComponent(t[2]); if (sel) { sel.value = k.value; if (sel.value !== k.value) sel.value = ""; } }
+    if (t[3] === "keine-sonde" && $("send-grund")) meldung("Keine Spionagesonde verfügbar – Mission + Ziel sind vorausgefüllt.", "schlecht");
+  }
+  /** Spionage aus dem Weltraum: wie OGame sofort 1 Spionagesonde losschicken; sonst Flottenfenster mit Hinweis. */
+  function spionageSchnell(koord) {
+    P.tick(zustand, jetzt());
+    var ziel = D.weltraum.leseKoordinaten(koord), a = { schiffe: { spionagesonde: 1 }, ziel: ziel, mission: "spionieren", ladung: {} };
+    var r = (hp().schiffe.spionagesonde || 0) > 0 ? SS.kern.flotte.senden(zustand, hp(), a, jetzt()) : { ok: false, grund: "keine-sonde" };
+    if (!r.ok) {
+      if (r.grund !== "keine-sonde") meldung(r.grund, "schlecht");
+      location.hash = SS.ui.weltraum.link("spionieren", koord) + (r.grund === "keine-sonde" ? "/keine-sonde" : ""); return;
+    }
+    meldung("Spionagesonde unterwegs → " + koord + (r.dauer ? " (Ankunft in " + F.dauer(r.dauer) + ")." : " (Master: Ankunft sofort)."), "gut");
+    if (r.meldungen && r.meldungen.length) meldeFertig(r.meldungen);
+    speichern(true); location.hash = SS.ui.weltraum.link("spionieren", koord);
   }
   var vertUi = null;
   function VU() {
@@ -1032,6 +1056,7 @@
     var b = e.target.closest("[data-aktion]");
     if (!b) return;
     var a = b.getAttribute("data-aktion");
+    if (a === "wr-spionage") { e.preventDefault(); spionageSchnell(b.getAttribute("data-koord")); return; }
     if (a === "speichern") speichern(false);
     else if (a === "wechseln") spielerWechseln();
     else if (a === "zuruecksetzen") zuruecksetzen();
@@ -1076,6 +1101,8 @@
   }
   an("inhalt", "change", function (e) {
     if (zustand && e.target.id === "flotte-preset") { SS.kern.flotte.setzePreset(hp(), e.target.value); speichern(true); route(true); return; }
+    if (zustand && e.target.id === "wr-sektor") { var sk = D.weltraum.sektor(parseInt(e.target.value, 10)); if (sk) location.hash = "#weltraum/system/" + sk.systemVon; return; }
+    if (zustand && e.target.id === "wr-system") { var n = parseInt(e.target.value, 10); if (D.weltraum.system(n)) location.hash = "#weltraum/system/" + n; return; }
     if (zustand && e.target.id === "send-ziel") { if (e.target.value) $("send-koord").value = e.target.value; FU().aktualisiereSenden(document); return; }
     if (zustand && e.target.id === "send-mission" && e.target.value === "expedition") setzeExpeditionsraum(false); // 0.15.1: Ziel vorausfüllen
     if (zustand && (e.target.id === "send-mission" || e.target.id === "send-halten")) { FU().aktualisiereSenden(document); return; }

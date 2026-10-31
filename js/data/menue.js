@@ -21,7 +21,7 @@
     Object.freeze({ id: "werft",        name: "Werft",        platzhalter: false }),
     Object.freeze({ id: "verteidigung", name: "Verteidigung", platzhalter: false }),
     Object.freeze({ id: "flotte",       name: "Flotte",       platzhalter: false }),
-    Object.freeze({ id: "weltraum",     name: "Weltraum",     platzhalter: true })
+    Object.freeze({ id: "weltraum",     name: "Weltraum",     platzhalter: false })
   ]);
 
   SS.DATEN.menuePunkt = function (id) {
