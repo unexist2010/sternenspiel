@@ -16,7 +16,7 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.20.2";
+  SS.VERSION = "0.21.0";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
@@ -37,6 +37,7 @@
     WELTRAUM: {
       SEKTOREN: 5,
       SYSTEME_GESAMT: 300,
+      START_SYSTEM: 50, // 0.21.0 (Sandro pt61u FEST): neue Spieler starten auf 1:50:(1–12)
       PLANETEN_PRO_SYSTEM: 12
     },
 

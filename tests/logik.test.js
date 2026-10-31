@@ -79,7 +79,7 @@ test("Weltraum: zufällige Start-Koordinate ist immer gültig, deckt Universum a
 
 test("Menü: genau 8 Punkte in festgelegter Reihenfolge", () => {
   const SS = ladeSpiel();
-  gleich(SS.DATEN.menue.map((m) => m.name), ["Übersicht", "Ressourcen", "Anlagen", "Forschung", "Werft", "Verteidigung", "Flotte", "Weltraum"]);
+  gleich(SS.DATEN.menue.map((m) => m.name), ["Übersicht", "Ressourcen", "Anlagen", "Forschung", "Werft", "Verteidigung", "Flotte", "Weltraum", "Rangliste"]);
   const platzhalter = SS.DATEN.menue.filter((m) => m.platzhalter);
   gleich(platzhalter.map((m) => m.id), []);
   assert.ok(SS.DATEN.menue.every((m) => !("kapitel" in m)), "keine Kapitelnummern an den Menüpunkten");

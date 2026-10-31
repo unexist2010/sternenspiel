@@ -37,7 +37,9 @@
   /** Hauptplanet auf zufälliger Koordinate (ANNAHME). */
   function hauptplanet(wunschname, zufallFn) {
     var W = SS.DATEN.weltraum;
-    var k = W.zufaelligeKoordinate(zufallFn);
+    // 0.21.0 (Sandro pt61u FEST): neue Spieler starten immer in Sektor 1, System START_SYSTEM (50), Planet zufällig 1–12.
+    var r = typeof zufallFn === "function" ? zufallFn : Math.random, sys = SS.BALANCE.WELTRAUM.START_SYSTEM || 50;
+    var k = { sektor: W.sektorVonSystem(sys), system: sys, planet: 1 + Math.floor(r() * SS.BALANCE.WELTRAUM.PLANETEN_PRO_SYSTEM) };
     var name = String(wunschname || "").trim().slice(0, 24) || W.planet(k.system, k.planet).name;
     return { sektor: k.sektor, system: k.system, planet: k.planet, name: name };
   }

@@ -1,6 +1,6 @@
 /*
  * Sternenspiel – Hauptmenü (linke Leiste).
- * FEST (Sandro): genau diese 8 Punkte in genau dieser Reihenfolge:
+ * FEST (Sandro): diese Punkte (0.21.0: + Rangliste als 9.) in genau dieser Reihenfolge:
  *   Übersicht, Ressourcen, Anlagen, Forschung, Werft, Verteidigung, Flotte, Weltraum.
  * Inhalt haben: Übersicht, Ressourcen (Kapitel 1/2), Anlagen (Kapitel 2) und Forschung (Kapitel 3). Alle anderen Seiten zeigen nur
  * Titel + neutralen Platzhalter.
@@ -21,7 +21,8 @@
     Object.freeze({ id: "werft",        name: "Werft",        platzhalter: false }),
     Object.freeze({ id: "verteidigung", name: "Verteidigung", platzhalter: false }),
     Object.freeze({ id: "flotte",       name: "Flotte",       platzhalter: false }),
-    Object.freeze({ id: "weltraum",     name: "Weltraum",     platzhalter: false })
+    Object.freeze({ id: "weltraum",     name: "Weltraum",     platzhalter: false }),
+    Object.freeze({ id: "rangliste",    name: "Rangliste",    platzhalter: false }) // 0.21.0 (Sandro pt61u)
   ]);
 
   SS.DATEN.menuePunkt = function (id) {

@@ -272,7 +272,7 @@
     var m = D.menuePunkt(id);
     var html = id === "uebersicht" ? seiteUebersicht() : id === "ressourcen" ? seiteRessourcen() :
       id === "anlagen" ? (seite.teile[0] === "raumflughafen" ? seiteRaumflughafen() : seiteAnlagen()) :
-      id === "forschung" ? seiteForschung() : id === "werft" ? WU().seite() : id === "verteidigung" ? VU().seite() : id === "flotte" ? FU().seite() : id === "weltraum" ? WRU().seite() : seitePlatzhalter(m);
+      id === "forschung" ? seiteForschung() : id === "werft" ? WU().seite() : id === "verteidigung" ? VU().seite() : id === "flotte" ? FU().seite() : id === "weltraum" ? WRU().seite() : id === "rangliste" ? RLU().seite() : seitePlatzhalter(m);
     var y = window.scrollY, zu = {};
     Array.prototype.forEach.call(document.querySelectorAll("#inhalt details[id]"), function (d) { zu[d.id] = !d.open; });
     schliesseInfo();
@@ -336,6 +336,7 @@
   }
   // 0.16.0 Weltraum (Sandro pt40u)
   var weltraumUi = null;
+  var ranglisteUi; function RLU() { return ranglisteUi || (ranglisteUi = SS.ui.rangliste({ esc: esc, box: box, zustand: function () { return zustand; }, teile: function () { return seite ? seite.teile : []; } })); }
   function WRU() { return weltraumUi || (weltraumUi = SS.ui.weltraum({ esc: esc, box: box, zustand: function () { return zustand; }, hp: hp, teile: function () { return seite ? seite.teile : []; } })); }
   /** #flotte/senden/<mission>/<S:SYS:P>[/hinweis]: Mission + Koordinaten vorausfüllen. */
   function flottenDeeplink(t) {

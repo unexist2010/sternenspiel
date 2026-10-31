@@ -13,6 +13,7 @@
  *    Rivalen-Countdown). Offline-Tage werden NICHT nachgezogen – die Welt steht still. Alle KI-Tagesangaben (seit, tfSeit)
  *    zählen in Spieltagen (z.ki.spieltag). Minen-Offline-Produktion ist davon unberührt.
  *  - Kein Diplo/Allianz, keine KI-Expedition, kein KI-Koloniekrieg, keine Angriffe auf den Spieler.
+ *  - 0.21.0 (Sandro pt61u FEST): KI siedelt rund um das Heimatsystem (auf+ab), nahe zuerst, fern eher schwächer (durchmischt).
  * ANNAHME: KI siedelt nicht in Systemen mit eigenen Planeten oder Testgegnern (leichtes Early Game, Testphase unverändert).
  */
 (function (g) {
@@ -23,7 +24,8 @@
   var K = {
     NEU_PRO_TAG_MAX: 5, NEU_PRO_TAG_MIN: 2, BELEGUNG_MAX: 0.5, RIVALEN: 5, RIVALEN_AKTIV_TAGE: 14, RIVALE_INAKTIV_FAKTOR: 0.5,
     PIRATEN_ANTEIL: 0.1, PIRAT_UEBERFALL_CHANCE: 0.35, TF_MAX_TAGE: 7, NPC_MAX: 400,
-    MAX_UEBER_SPIELER: 1.10, DRIFT: 0.05, MIN_PUNKTE: 20, HEIMSEKTOR_ANTEIL: 0.7,
+    MAX_UEBER_SPIELER: 1.10, DRIFT: 0.05, MIN_PUNKTE: 20,
+    STREU_START: 2, STREU_JE_NPC: 1 / 6, NAH_ABSTAND: 5, FERN_ABZUG_JE_SYSTEM: 0.02, FERN_MIN: 0.45, FERN_MIX: 0.3, RIVALEN_STREU: 12,
     NACHWUCHS: { siedler: 0.15, pirat: 0.35, rivale: 0.25 } // Anteil des Defizits, der pro Tag nachwächst
   };
   var MIX = { // Aufteilung des Werts (Rohstoff-Äquivalent)
@@ -83,26 +85,40 @@
     var s = {}; SS.kern.flotte.eigenePlaneten(z).forEach(function (e) { s[e.system] = 1; });
     (z.gegner || []).forEach(function (x) { if (!x.ki) s[x.system] = 1; }); return s;
   }
-  /** Freie Position nach FEST-Regeln (≤50 % KI-Belegung, keine Nachbarposition belegt). null wenn nichts frei. */
-  function suchePosition(z, r, nurSektor) {
-    var B = SS.BALANCE.WELTRAUM, PRO = B.SYSTEME_GESAMT / B.SEKTOREN, sperre = gesperrteSysteme(z), alle = besetzt(z);
-    for (var v = 0; v < 40; v++) {
-      var sys = nurSektor ? (nurSektor - 1) * PRO + 1 + Math.floor(r() * PRO) : 1 + Math.floor(r() * B.SYSTEME_GESAMT);
-      if (sperre[sys]) continue;
+  /**
+   * Freie Position nach FEST-Regeln (≤50 % KI-Belegung, keine Nachbarposition belegt). null wenn nichts frei.
+   * 0.21.0 (Sandro pt61u): KI füllt sich RUND UM das Heimatsystem des Spielers auf (aufwärts UND abwärts, auch über Sektorgrenzen).
+   * Abstand d = 1 + ⌊r² · Streu⌋, Streu = STREU_START + Anzahl KI · STREU_JE_NPC (wächst mit der Welt) → nahe Systeme zuerst.
+   * opt.streu überschreibt die Streuung (Rivalen). Rückgabe enthält abstand (Systeme zum Heimatsystem).
+   */
+  function suchePosition(z, r, opt) {
+    opt = opt && typeof opt === "object" ? opt : {};
+    var B = SS.BALANCE.WELTRAUM, sperre = gesperrteSysteme(z), alle = besetzt(z), heim = heimSystem(z);
+    var anzahl = ((z.ki && z.ki.npc) || []).length, streu = opt.streu || (K.STREU_START + anzahl * K.STREU_JE_NPC);
+    for (var v = 0; v < 60; v++) {
+      var x = r(), d = 1 + Math.floor(x * x * streu + v / 6), sys = heim + (r() < 0.5 ? -d : d); // bei Fehlversuchen langsam weiter raus
+      if (sys < 1 || sys > B.SYSTEME_GESAMT) sys = heim * 2 - sys; // am Rand spiegeln
+      if (sys < 1 || sys > B.SYSTEME_GESAMT || sperre[sys]) continue;
       var hier = alle.filter(function (x) { return x.system === sys; });
       var kiZahl = hier.filter(function (x) { return x.ki && x.ki.art !== "rivale"; }).length;
       if (kiZahl + 1 > Math.floor(B.PLANETEN_PRO_SYSTEM * K.BELEGUNG_MAX)) continue;
       var pos = 1 + Math.floor(r() * B.PLANETEN_PRO_SYSTEM);
       if (hier.some(function (x) { return Math.abs(x.planet - pos) <= 1; })) continue;
-      return { sektor: W().sektorVonSystem(sys), system: sys, planet: pos };
+      return { sektor: W().sektorVonSystem(sys), system: sys, planet: pos, abstand: Math.abs(sys - heim) };
     }
     return null;
+  }
+  function heimSystem(z) { return z.planeten && z.planeten.length ? SS.kern.flotte.herkunftKoord(z, z.planeten[0]).system : (SS.BALANCE.WELTRAUM.START_SYSTEM || 50); }
+  /** 0.21.0: nahe KI wächst mit dem Spieler, weiter weg eher schwächer – aber durchmischt (FERN_MIX bleibt ungedämpft). */
+  function abstandsFaktor(r, d) {
+    if (!(d > K.NAH_ABSTAND) || r() < K.FERN_MIX) return 1;
+    return Math.max(K.FERN_MIN, 1 - (d - K.NAH_ABSTAND) * K.FERN_ABZUG_JE_SYSTEM);
   }
   function neuerNpc(z, r, art, tag, k) {
     z.ki.zaehler = (z.ki.zaehler || 0) + 1;
     var n = { id: "ki-" + z.ki.zaehler, name: NAMEN[art] + " " + z.ki.zaehler, sektor: k.sektor, system: k.system, planet: k.planet,
       schiffe: {}, verteidigung: {}, rohstoffe: {}, solarsatelliten: 0, truemmer: { orbit: { metall: 0, silizium: 0 }, boden: { metall: 0, silizium: 0 } },
-      ki: { art: art, faktor: art === "pirat" ? Math.min(wuerfleFaktor(r), 0.9) : wuerfleFaktor(r), seit: tag, tfSeit: null } };
+      ki: { art: art, faktor: Math.max(0.05, (art === "pirat" ? Math.min(wuerfleFaktor(r), 0.9) : wuerfleFaktor(r)) * (art === "rivale" ? 1 : abstandsFaktor(r, k.abstand))), seit: tag, tfSeit: null } };
     var soll = zielBestand(n, punkte(z, n, tag));
     // Neue Planeten starten bei 40 % ihres Solls (leichtes Early Game)
     n.schiffe = naehere({}, soll.schiffe, 0.4); n.verteidigung = naehere({}, soll.verteidigung, 0.4); n.rohstoffe = soll.rohstoffe;
@@ -114,7 +130,7 @@
     var tag = tagVon(jetzt);
     z.ki = { saat: (Math.floor(jetzt) ^ 0x5eed) >>> 0, letzterTag: tag, spieltag: tag, zaehler: 0, start: tag, npc: [] };
     var r = zufall(z.ki.saat);
-    for (var i = 0; i < K.RIVALEN; i++) { var k = suchePosition(z, r, (i % SS.BALANCE.WELTRAUM.SEKTOREN) + 1); if (k) neuerNpc(z, r, "rivale", tag, k); }
+    for (var i = 0; i < K.RIVALEN; i++) { var k = suchePosition(z, r, { streu: K.RIVALEN_STREU }); if (k) neuerNpc(z, r, "rivale", tag, k); }
   }
 
   function heimSektor(z) { return SS.kern.flotte.herkunftKoord(z, z.planeten[0]).sektor; }
@@ -151,11 +167,11 @@
     });
     // 4) Neue Planeten (≤5/Tag)
     if (npcs(z).length < K.NPC_MAX) {
-      var neu = K.NEU_PRO_TAG_MIN + Math.floor(r() * (K.NEU_PRO_TAG_MAX - K.NEU_PRO_TAG_MIN + 1)), hs = heimSektor(z);
+      var neu = K.NEU_PRO_TAG_MIN + Math.floor(r() * (K.NEU_PRO_TAG_MAX - K.NEU_PRO_TAG_MIN + 1));
       for (var i = 0; i < neu; i++) {
         var pir = npcs(z, "pirat").length, sie = npcs(z, "siedler").length;
         var art = (pir < Math.max(1, Math.floor((sie + 1) * K.PIRATEN_ANTEIL)) && r() < 0.3) ? "pirat" : "siedler";
-        var k = suchePosition(z, r, r() < K.HEIMSEKTOR_ANTEIL ? hs : 0);
+        var k = suchePosition(z, r);
         if (k) neuerNpc(z, r, art, tag, k);
       }
     }
@@ -198,6 +214,6 @@
   }
 
   SS.kern.ki = { K: K, TAG: TAG, tick: tick, initialisiere: initialisiere, simuliereTag: simuliereTag, punkte: function (z, n, jetzt) { return punkte(z, n, spielTag(z, jetzt)); },
-    aktiv: function (n, jetzt, z) { return aktiv(n, spielTag(z, jetzt)); }, spielTag: spielTag, zielBestand: zielBestand, suchePosition: suchePosition, npcs: npcs,
+    aktiv: function (n, jetzt, z) { return aktiv(n, spielTag(z, jetzt)); }, spielTag: spielTag, zielBestand: zielBestand, suchePosition: suchePosition, abstandsFaktor: abstandsFaktor, heimSystem: heimSystem, npcs: npcs,
     driftFaktor: driftFaktor, drift: drift, tfAlterTage: tfAlterTage, bereinigeKi: bereinigeKi, wuerfleFaktor: wuerfleFaktor, zufall: zufall, NAMEN: NAMEN };
 })(typeof globalThis !== "undefined" ? globalThis : this);

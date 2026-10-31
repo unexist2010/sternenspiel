@@ -1,5 +1,13 @@
 # Changelog – Sternenspiel
 
+## [0.21.0] – 2026-10-31 – Start 1:50, KI rund um den Spieler, Rangliste (Sandro pt61u)
+
+- **Neuer Start:** Neue Spieler starten immer auf **Sektor 1, System 50**, Planet zufällig 1–12 (`BALANCE.WELTRAUM.START_SYSTEM`). Bestehende Spielstände behalten ihre Koordinaten – für 1:50 „Neues Spiel“/neuen Spieler anlegen.
+- **KI-Verteilung:** Siedler/Piraten/Rivalen siedeln nicht mehr zufällig im Universum, sondern rund um das Heimatsystem (auf- und abwärts, über Sektorgrenzen). Abstand = 1 + ⌊r²·Streu⌋, Streu = 2 + Anzahl KI/6 → nahe Systeme füllen sich zuerst, die Welt wächst langsam nach außen. Rivalen: Streu 12. Heimatsystem bleibt KI-frei.
+- **Stärke nach Abstand:** bis 5 Systeme normale Verteilung (wächst mit dem Spieler); weiter weg −2 %/System (min. 45 %), 30 % der fernen KI bleiben ungedämpft (durchmischt).
+- **Rangliste** (neuer Menüpunkt): Gesamt, Gebäude, Forschung, Flotte, Verteidigung – Spieler, KI und Alpha/Beta. Klick auf Name/Koordinate → Weltraum-Ansicht des Sonnensystems. Spielerpunkte aus dem aktuellen Bestand (wie OGame); KI: Flotte/Verteidigung aus Bestand, Rest 65/35 Gebäude/Forschung (ANNAHME).
+- Tests: `tests/rangliste-start.test.js`.
+
 ## [0.20.2] – 2026-10-31 – Hotfix Versionsanzeige (Sandro pt59u)
 - Startbildschirm (Spielerauswahl) zeigte fest „0.11.4“. `#version-anzeige` wird jetzt beim Start aus `SS.VERSION` gesetzt; HTML-Default auf aktuelle Version. Test in `tests/profile.test.js` erweitert. Cache-Schutz `?v=0.20.2`.
 

@@ -28,3 +28,8 @@
 - Zeile je Position: Planetname bzw. „– frei –“, Koordinaten, Spieler. Knöpfe: fremder Planet → Spionage, Angriff, Transport; eigener Planet → Transport, Stationieren; frei → Kolonisieren; Position 13 → Expedition.
 - Alle Knöpfe öffnen das Flottenfenster per `#flotte/senden/<mission>/<S:SYS:P>` mit Mission + Koordinaten vorausgefüllt; Schiffe wählt der Nutzer.
 - Ausnahme Spionage (wie OGame): 1 Spionagesonde wird sofort gesendet; ohne Sonde → Flottenfenster mit Hinweis (`/keine-sonde`).
+
+## 0.21.0 – Start, KI-Verteilung, Rangliste (Sandro pt61u, FEST)
+- Neue Spieler: Heimat 1:50:(zufällig 1–12).
+- KI füllt sich rund um das Heimatsystem auf (auf- und abwärts), nahe zuerst; nahe KI wächst mit dem Spieler, ferne eher schwächer, aber durchmischt.
+- Rangliste (Gesamt/Gebäude/Forschung/Flotte/Verteidigung) mit Spieler, KI, Alpha/Beta; Klick → #weltraum/system/N.

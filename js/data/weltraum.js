@@ -9,7 +9,7 @@
  *  - 0.16.1 (Sandro t41u): KEINE Eigennamen – Sektoren heißen „Sektor N“, Systeme „System N“, Planeten „Planet P“;
  *    Navigation nur per Nummer. Sterntyp/Planetentyp bleiben rein optisch und deterministisch.
  *  - Nichts davon wird im Spielstand gespeichert – nur die Koordinaten des Hauptplaneten.
- *  - Der Hauptplanet liegt auf einer zufälligen Koordinate (siehe zufaelligeKoordinate).
+ *  - Der Hauptplanet liegt seit 0.21.0 auf 1:50:(zufällig 1–12) (zustand.js → hauptplanet; START_SYSTEM).
  */
 (function (g) {
   "use strict";
