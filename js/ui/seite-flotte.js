@@ -138,7 +138,7 @@
         schnellwahl(zz, pp) + "<div class=\"send-ziel\"><label>Ziel <select id=\"send-ziel\">" + opts + "</select></label>" +
         "<label>Koordinaten <input id=\"send-koord\" type=\"text\" placeholder=\"S:SYS:P\" autocomplete=\"off\" size=\"10\"></label>" +
         "<button type=\"button\" class=\"knopf\" data-aktion=\"send-favorit\">☆ Als Favorit</button></div>" +
-        "<div class=\"send-ziel\"><label>Mission <select id=\"send-mission\">" + mis + "</select></label>" + halteFeld(zz) + "</div>" + ladung +
+        "<div class=\"send-ziel\"><label>Mission <select id=\"send-mission\">" + mis + "</select></label>" + "<span class=\"mission-symbole\" role=\"group\" aria-label=\"Mission wählen\">" + FL.MISSIONEN.map(function (m) { return "<button type=\"button\" class=\"knopf klein sym-knopf\" data-aktion=\"send-mission-wahl\" data-mission=\"" + m.id + "\" data-tip=\"" + esc(m.name) + "\" aria-label=\"" + esc(m.name) + "\">" + SS.ui.symbole.svg(m.id) + "</button>"; }).join("") + "</span>" + halteFeld(zz) + "</div>" + ladung +
         "<dl class=\"werte\" id=\"send-vorschau\"></dl><p id=\"send-grund\" class=\"grund\"></p>" +
         "<p><button type=\"button\" class=\"knopf primaer\" data-aktion=\"send-los\" id=\"knopf-lossenden\" disabled>Lossenden</button> <button type=\"button\" class=\"knopf\" data-aktion=\"send-keine\" id=\"knopf-send-zu\">Zurücksetzen</button></p>";
       return "<div class=\"send-fenster\" id=\"senden\">" + h.box("Flotte senden", inhalt, "", " id=\"send-box\"") + "</div>";
@@ -156,6 +156,7 @@
     function aktualisiereSenden(doc) {
       if (!doc.getElementById("send-box")) return;
       var zz = z(), pp = p(), a = formular(doc), r = FL.pruefe(zz, pp, a);
+      Array.prototype.forEach.call(doc.querySelectorAll(".sym-knopf"), function (b) { b.classList.toggle("aktiv", b.getAttribute("data-mission") === a.mission); });
       var s = doc.getElementById("send-summe");
       if (s) { s.textContent = F.zahl(r.anzahl) + " / " + F.zahl(r.frei) + " Startplätze"; s.classList.toggle("negativ", r.anzahl > r.frei); }
       var v = doc.getElementById("send-vorschau");

@@ -475,3 +475,17 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .schild-liste li.aktiv { background: rgba(58,134,217,.12); }
 .schild-liste .planet-bild, .schild-liste img:first-child { width: 28px; height: 28px; }
 .wr-ki{font-size:.8em;opacity:.85;margin-left:.3em}.wr-ki-siedler{color:#9fd59f}.wr-ki-pirat{color:#ff8a6b}.wr-ki-rivale{color:#c9a6ff}
+
+/* 0.21.2 (Sandro pt63u): dezente Missions-Symbole + Tooltip */
+.sym { display: block; }
+.wr-knopf, .sym-knopf { min-width: 34px; min-height: 30px; padding: .25rem .45rem; display: inline-flex; align-items: center; justify-content: center;
+  color: #9fb3c8; background: rgba(20,35,55,.55); border-color: rgba(120,150,180,.35); }
+.wr-knopf:hover, .wr-knopf:focus-visible, .sym-knopf:hover, .sym-knopf:focus-visible { color: #d6e2ee; background: rgba(40,60,85,.65); }
+.wr-angriff { color: #c49a9a; } .wr-spionieren { color: #a9b8c9; } .wr-kolonisieren { color: #a7c2a4; } .wr-expedition .wr-knopf, a.wr-expedition { color: #b4a8cc; }
+.mission-symbole { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-left: 6px; }
+.sym-knopf.aktiv { border-color: #6fb7ff; color: #d6e2ee; }
+.sym-inline { display: inline-block; vertical-align: -4px; color: #9fb3c8; }
+[data-tip] { position: relative; }
+[data-tip]:hover::after, [data-tip]:focus-visible::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  white-space: nowrap; background: rgba(8,16,28,.95); color: #dce6f0; border: 1px solid rgba(120,150,180,.45); border-radius: 3px; padding: 3px 7px;
+  font-size: .8rem; pointer-events: none; z-index: 50; }

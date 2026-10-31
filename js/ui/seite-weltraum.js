@@ -45,7 +45,7 @@
   SS.ui.weltraum = function (h) {
     var D = SS.DATEN, W = D.weltraum, esc = h.esc;
     function knopf(mission, koord, text, extra) {
-      return "<a class=\"knopf klein wr-knopf wr-" + mission + "\" href=\"" + link(mission, koord) + "\" data-mission=\"" + mission + "\" data-koord=\"" + koord + "\"" + (extra || "") + ">" + text + "</a>";
+      return "<a class=\"knopf klein wr-knopf wr-" + mission + "\" href=\"" + link(mission, koord) + "\" data-mission=\"" + mission + "\" data-koord=\"" + koord + "\" data-tip=\"" + text + "\" aria-label=\"" + text + "\"" + (extra || "") + ">" + SS.ui.symbole.svg(mission) + "</a>";
     }
     function seite() {
       var zz = h.zustand(), heim = SS.kern.flotte.herkunftKoord(zz, h.hp()), teile = h.teile();

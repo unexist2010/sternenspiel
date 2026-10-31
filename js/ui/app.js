@@ -1135,6 +1135,7 @@
     else if (a === "send-alle") sendAlle();
     else if (a === "send-keine") { Array.prototype.forEach.call(document.querySelectorAll("#inhalt input[data-send-ladung]"), function (i) { i.value = 0; }); sendeFeld(function (i) { i.value = 0; }); }
     else if (a === "send-favorit") sendFavorit();
+    else if (a === "send-mission-wahl") { $("send-mission").value = b.getAttribute("data-mission"); if (b.getAttribute("data-mission") === "expedition") setzeExpeditionsraum(false); FU().aktualisiereSenden(document); }
     else if (a === "send-planet") { $("send-koord").value = b.getAttribute("data-koord"); $("send-ziel").value = b.getAttribute("data-koord"); if ($("send-mission").value !== "transportieren") $("send-mission").value = "stationieren"; FU().aktualisiereSenden(document); }
     else if (a === "send-expeditionsraum") { setzeExpeditionsraum(true); FU().aktualisiereSenden(document); }
     else if (a === "send-los") sendLos();

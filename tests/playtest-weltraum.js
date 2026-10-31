@@ -61,6 +61,7 @@ async function lauf(browser, g) {
   ok((await page.$$("#wr-tabelle tbody tr")).length === 13, "12 Positionen + Expeditionsraum");
   ok((await page.$$("#wr-fenster li")).length === 5, "5 Sonnensysteme im Sektor-Fenster");
   ok((await page.$$("tr.wr-gegner")).length === 2, "Alpha + Beta sichtbar");
+  ok(await page.$eval("tr.wr-leer .wr-kolonisieren", (a) => !!a.querySelector("svg.sym") && a.textContent.trim() === "" && a.getAttribute("data-tip") === "Kolonisieren"), "0.21.2: Kolonisieren als Symbol mit Tooltip-Text");
   ok((await page.$$("tr.wr-leer .wr-spionieren, tr.wr-leer .wr-angriff")).length === 0 && (await page.$$("tr.wr-leer .wr-kolonisieren")).length === 8, "Leer: nur Kolonisieren");
   await shot("system" + (handy ? "-handy" : ""));
   for (const k of gk) {
@@ -74,6 +75,7 @@ async function lauf(browser, g) {
     await geheZu("#weltraum", "weltraum");
     await page.click(`tr[data-koord="${k}"] .wr-angriff`); await page.waitForSelector('#inhalt[data-seite="flotte"]'); await sleep(300);
     ok((await page.inputValue("#send-mission")) === "angriff" && (await page.inputValue("#send-koord")) === k, `Angriff ${k}: vorausgefüllt`);
+    if (k === gk[0]) { await page.click(".sym-knopf[data-mission=transportieren]"); ok((await page.inputValue("#send-mission")) === "transportieren" && (await page.$$(".sym-knopf.aktiv[data-mission=transportieren]")).length === 1, "0.21.2: Missions-Symbol im Flottenmenü wählt Mission"); await page.click(".sym-knopf[data-mission=angriff]"); }
     await page.fill('input[data-send-menge="kreuzer"]', "5").catch(() => {}); await Z(() => window.SS.app.route && 0);
     await page.dispatchEvent('input[data-send-menge]', "input").catch(() => {});
     const los = await page.isEnabled("#knopf-lossenden");

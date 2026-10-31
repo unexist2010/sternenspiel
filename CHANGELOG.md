@@ -1,5 +1,11 @@
 # Changelog – Sternenspiel
 
+## [0.21.2] – 2026-10-31 – Dezente Missions-Symbole (Sandro pt63u)
+
+- Weltraum-Ansicht: Text-Knöpfe → gedämpfte Linien-Symbole (SVG, `js/ui/symbole.js`), Tooltip mit Text beim Überfahren (`data-tip`, auch `aria-label`).
+- Flottenmenü: Symbol-Leiste neben dem Missions-Dropdown (Klick wählt Mission, aktive hervorgehoben); Symbol auch in der Flugliste.
+- Symbole: Fahne=Kolonisieren, Kiste=Transport, Pfeil-ab=Stationieren, Auge=Spionage, Schwert=Angriff, Sechseck+Pfeil=Wracksammlung, Pfeil-hoch=Bodensammlung, Kompass=Expedition, Schild=Unterstützen.
+
 ## [0.21.1] – 2026-10-31 – Start-Siedler/Piraten, Rivalen über Sektor 1 (Sandro pt62u)
 
 - **Start belebt:** Beim ersten KI-Tick entstehen sofort **4 Siedler** und **2 Piraten** rund um das Heimatsystem (`K.START_SIEDLER`, `K.START_PIRATEN`).

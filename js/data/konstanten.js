@@ -16,7 +16,7 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.21.1";
+  SS.VERSION = "0.21.2";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
