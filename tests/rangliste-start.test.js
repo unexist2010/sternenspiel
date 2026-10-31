@@ -24,8 +24,8 @@ test("KI füllt rund um das Heimatsystem (auf- und abwärts), nahe zuerst; fern 
   assert.ok(n.every((x) => x.system !== 50), "Heimatsystem bleibt frei");
   const median = ab.slice().sort((a, b) => a - b)[Math.floor(ab.length / 2)];
   assert.ok(median <= 20, "Median-Abstand " + median);
-  const frueh = n.slice(0, 20).map((x) => Math.abs(x.system - 50));
-  assert.ok(Math.max(...frueh) <= 15, "erste KI nahe: " + frueh);
+  const frueh = n.filter((x) => x.ki.art !== "rivale").slice(0, 20).map((x) => Math.abs(x.system - 50));
+  assert.ok(Math.max(...frueh) <= 15, "erste Siedler/Piraten nahe (Rivalen seit 0.21.1 über Sektor 1): " + frueh);
   const mittel = (l) => l.reduce((s, x) => s + x.ki.faktor, 0) / l.length;
   const nah = n.filter((x) => x.ki.art !== "rivale" && Math.abs(x.system - 50) <= 5), fern = n.filter((x) => x.ki.art !== "rivale" && Math.abs(x.system - 50) > 20);
   if (fern.length >= 5) assert.ok(mittel(fern) < mittel(nah), "fern schwächer");

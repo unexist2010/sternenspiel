@@ -29,6 +29,11 @@
 - Alle Knöpfe öffnen das Flottenfenster per `#flotte/senden/<mission>/<S:SYS:P>` mit Mission + Koordinaten vorausgefüllt; Schiffe wählt der Nutzer.
 - Ausnahme Spionage (wie OGame): 1 Spionagesonde wird sofort gesendet; ohne Sonde → Flottenfenster mit Hinweis (`/keine-sonde`).
 
+## 0.21.1 – Start-Besiedlung, Rivalen-Verteilung (Sandro pt62u, FEST)
+- Spielstart: sofort erste Siedler (4) und ein paar Piraten (2) rund um das Heimatsystem (1:50).
+- Rivalen: genau 5, keine neuen; über den ganzen Sektor 1 verteilt, nur 1–2 im Umkreis ≤ 6 Systeme um den Spieler.
+- Pro Spieltag kommen nur Siedler und Piraten langsam dazu.
+
 ## 0.21.0 – Start, KI-Verteilung, Rangliste (Sandro pt61u, FEST)
 - Neue Spieler: Heimat 1:50:(zufällig 1–12).
 - KI füllt sich rund um das Heimatsystem auf (auf- und abwärts), nahe zuerst; nahe KI wächst mit dem Spieler, ferne eher schwächer, aber durchmischt.

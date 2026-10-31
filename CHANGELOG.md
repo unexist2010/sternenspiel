@@ -1,5 +1,13 @@
 # Changelog – Sternenspiel
 
+## [0.21.1] – 2026-10-31 – Start-Siedler/Piraten, Rivalen über Sektor 1 (Sandro pt62u)
+
+- **Start belebt:** Beim ersten KI-Tick entstehen sofort **4 Siedler** und **2 Piraten** rund um das Heimatsystem (`K.START_SIEDLER`, `K.START_PIRATEN`).
+- **Rivalen:** bleiben bei **5** (keine neuen). Verteilt über den **ganzen Heimatsektor (Sektor 1, Systeme 1–60)**; davon nur **1–2 nah** (≤ 6 Systeme vom Heimatsystem), der Rest weiter weg im Sektor.
+- Pro Spieltag kommen weiterhin nur Siedler/Piraten langsam dazu (2–5/Tag).
+- **Migration:** Bestehende Spielstände – Rivalen werden einmalig umverteilt (gleiche IDs/Stärke), fehlende Start-Siedler/Piraten ergänzt.
+- Tests: `tests/ki-start.test.js`; Cache-Schutz `?v=0.21.1`.
+
 ## [0.21.0] – 2026-10-31 – Start 1:50, KI rund um den Spieler, Rangliste (Sandro pt61u)
 
 - **Neuer Start:** Neue Spieler starten immer auf **Sektor 1, System 50**, Planet zufällig 1–12 (`BALANCE.WELTRAUM.START_SYSTEM`). Bestehende Spielstände behalten ihre Koordinaten – für 1:50 „Neues Spiel“/neuen Spieler anlegen.

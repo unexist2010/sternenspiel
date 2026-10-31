@@ -13,6 +13,9 @@
  *    Rivalen-Countdown). Offline-Tage werden NICHT nachgezogen – die Welt steht still. Alle KI-Tagesangaben (seit, tfSeit)
  *    zählen in Spieltagen (z.ki.spieltag). Minen-Offline-Produktion ist davon unberührt.
  *  - Kein Diplo/Allianz, keine KI-Expedition, kein KI-Koloniekrieg, keine Angriffe auf den Spieler.
+ *  - 0.21.1 (Sandro pt62u FEST): Beim Start sofort START_SIEDLER Siedler + START_PIRATEN Piraten rund ums Heimatsystem.
+ *    Rivalen bleiben bei 5 (keine neuen), verteilt über ganz Sektor 1 – nur 1–2 davon im Umkreis ≤ RIVALEN_NAH_ABSTAND Systeme.
+ *    Pro Spieltag kommen weiter nur Siedler/Piraten langsam dazu. Alte Stände: Rivalen werden einmalig so umverteilt.
  *  - 0.21.0 (Sandro pt61u FEST): KI siedelt rund um das Heimatsystem (auf+ab), nahe zuerst, fern eher schwächer (durchmischt).
  * ANNAHME: KI siedelt nicht in Systemen mit eigenen Planeten oder Testgegnern (leichtes Early Game, Testphase unverändert).
  */
@@ -25,7 +28,7 @@
     NEU_PRO_TAG_MAX: 5, NEU_PRO_TAG_MIN: 2, BELEGUNG_MAX: 0.5, RIVALEN: 5, RIVALEN_AKTIV_TAGE: 14, RIVALE_INAKTIV_FAKTOR: 0.5,
     PIRATEN_ANTEIL: 0.1, PIRAT_UEBERFALL_CHANCE: 0.35, TF_MAX_TAGE: 7, NPC_MAX: 400,
     MAX_UEBER_SPIELER: 1.10, DRIFT: 0.05, MIN_PUNKTE: 20,
-    STREU_START: 2, STREU_JE_NPC: 1 / 6, NAH_ABSTAND: 5, FERN_ABZUG_JE_SYSTEM: 0.02, FERN_MIN: 0.45, FERN_MIX: 0.3, RIVALEN_STREU: 12,
+    STREU_START: 2, STREU_JE_NPC: 1 / 6, NAH_ABSTAND: 5, FERN_ABZUG_JE_SYSTEM: 0.02, FERN_MIN: 0.45, FERN_MIX: 0.3, RIVALEN_STREU: 12, RIVALEN_NAH_MAX: 2, RIVALEN_NAH_ABSTAND: 6, START_SIEDLER: 4, START_PIRATEN: 2,
     NACHWUCHS: { siedler: 0.15, pirat: 0.35, rivale: 0.25 } // Anteil des Defizits, der pro Tag nachwächst
   };
   var MIX = { // Aufteilung des Werts (Rohstoff-Äquivalent)
@@ -96,8 +99,10 @@
     var B = SS.BALANCE.WELTRAUM, sperre = gesperrteSysteme(z), alle = besetzt(z), heim = heimSystem(z);
     var anzahl = ((z.ki && z.ki.npc) || []).length, streu = opt.streu || (K.STREU_START + anzahl * K.STREU_JE_NPC);
     for (var v = 0; v < 60; v++) {
-      var x = r(), d = 1 + Math.floor(x * x * streu + v / 6), sys = heim + (r() < 0.5 ? -d : d); // bei Fehlversuchen langsam weiter raus
-      if (sys < 1 || sys > B.SYSTEME_GESAMT) sys = heim * 2 - sys; // am Rand spiegeln
+      var sys;
+      if (opt.systeme) { if (!opt.systeme.length) return null; sys = opt.systeme[Math.floor(r() * opt.systeme.length)]; }
+      else { var x = r(), d = 1 + Math.floor(x * x * streu + v / 6); sys = heim + (r() < 0.5 ? -d : d); // bei Fehlversuchen langsam weiter raus
+        if (sys < 1 || sys > B.SYSTEME_GESAMT) sys = heim * 2 - sys; } // am Rand spiegeln
       if (sys < 1 || sys > B.SYSTEME_GESAMT || sperre[sys]) continue;
       var hier = alle.filter(function (x) { return x.system === sys; });
       var kiZahl = hier.filter(function (x) { return x.ki && x.ki.art !== "rivale"; }).length;
@@ -130,7 +135,31 @@
     var tag = tagVon(jetzt);
     z.ki = { saat: (Math.floor(jetzt) ^ 0x5eed) >>> 0, letzterTag: tag, spieltag: tag, zaehler: 0, start: tag, npc: [] };
     var r = zufall(z.ki.saat);
-    for (var i = 0; i < K.RIVALEN; i++) { var k = suchePosition(z, r, { streu: K.RIVALEN_STREU }); if (k) neuerNpc(z, r, "rivale", tag, k); }
+    verteileRivalen(z, r, tag);
+    startBesiedlung(z, r, tag);
+    z.ki.v = 2;
+  }
+  /** 0.21.1: Systeme in Sektor 1 (bzw. Heimatsektor) nah (≤ RIVALEN_NAH_ABSTAND) / fern. */
+  function sektorSysteme(z, nah) {
+    var heim = heimSystem(z), P = W().SYSTEME_PRO_SEKTOR || 60, sek = W().sektorVonSystem(heim), out = [];
+    for (var s = (sek - 1) * P + 1; s <= sek * P; s++) { var d = Math.abs(s - heim); if (d && (nah ? d <= K.RIVALEN_NAH_ABSTAND : d > K.RIVALEN_NAH_ABSTAND)) out.push(s); }
+    return out;
+  }
+  /** 0.21.1 (pt62u): 5 Rivalen über ganz Sektor 1, davon 1–2 nah am Spieler. Bestehende Rivalen werden verschoben. */
+  function verteileRivalen(z, r, tag) {
+    var alt = npcs(z, "rivale"), nahZahl = 1 + Math.floor(r() * K.RIVALEN_NAH_MAX), nah = sektorSysteme(z, true), fern = sektorSysteme(z, false);
+    z.ki.npc = z.ki.npc.filter(function (n) { return !(n.ki && n.ki.art === "rivale"); });
+    for (var i = 0; i < K.RIVALEN; i++) {
+      var k = suchePosition(z, r, { systeme: i < nahZahl ? nah : fern }); if (!k) continue;
+      var o = alt[i];
+      if (o) { o.sektor = k.sektor; o.system = k.system; o.planet = k.planet; z.ki.npc.push(o); } else neuerNpc(z, r, "rivale", tag, k);
+    }
+  }
+  /** 0.21.1 (pt62u): erste Siedler + ein paar Piraten direkt zum Start. */
+  function startBesiedlung(z, r, tag) {
+    var i, k;
+    for (i = npcs(z, "siedler").length; i < K.START_SIEDLER; i++) { k = suchePosition(z, r); if (k) neuerNpc(z, r, "siedler", tag, k); }
+    for (i = npcs(z, "pirat").length; i < K.START_PIRATEN; i++) { k = suchePosition(z, r); if (k) neuerNpc(z, r, "pirat", tag, k); }
   }
 
   function heimSektor(z) { return SS.kern.flotte.herkunftKoord(z, z.planeten[0]).sektor; }
@@ -187,6 +216,7 @@
     if (!z || !z.planeten || !z.planeten.length) return [];
     if (!z.ki || typeof z.ki !== "object" || !isFinite(z.ki.letzterTag)) initialisiere(z, jetzt);
     if (!isFinite(z.ki.spieltag)) z.ki.spieltag = z.ki.letzterTag; // Migration 0.20.0 → Spieltage stetig weiterzählen
+    if (!(z.ki.v >= 2)) { var rm = zufall(z.ki.saat ^ 0x2121); verteileRivalen(z, rm, z.ki.spieltag); startBesiedlung(z, rm, z.ki.spieltag); z.ki.v = 2; } // Migration 0.21.1
     var heute = tagVon(jetzt), meld = [];
     if (heute <= z.ki.letzterTag) return meld;
     z.ki.spieltag += 1;
@@ -214,6 +244,6 @@
   }
 
   SS.kern.ki = { K: K, TAG: TAG, tick: tick, initialisiere: initialisiere, simuliereTag: simuliereTag, punkte: function (z, n, jetzt) { return punkte(z, n, spielTag(z, jetzt)); },
-    aktiv: function (n, jetzt, z) { return aktiv(n, spielTag(z, jetzt)); }, spielTag: spielTag, zielBestand: zielBestand, suchePosition: suchePosition, abstandsFaktor: abstandsFaktor, heimSystem: heimSystem, npcs: npcs,
+    aktiv: function (n, jetzt, z) { return aktiv(n, spielTag(z, jetzt)); }, spielTag: spielTag, zielBestand: zielBestand, suchePosition: suchePosition, sektorSysteme: sektorSysteme, abstandsFaktor: abstandsFaktor, heimSystem: heimSystem, npcs: npcs,
     driftFaktor: driftFaktor, drift: drift, tfAlterTage: tfAlterTage, bereinigeKi: bereinigeKi, wuerfleFaktor: wuerfleFaktor, zufall: zufall, NAMEN: NAMEN };
 })(typeof globalThis !== "undefined" ? globalThis : this);
