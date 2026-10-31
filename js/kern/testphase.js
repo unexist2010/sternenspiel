@@ -4,6 +4,9 @@
  * Gegner = { id, name, sektor, system, planet, schiffe:{id:n}, verteidigung:{id:n}, solarsatelliten, truemmer }
  * legeTestphaseAn(z, jetzt) ÜBERSCHREIBT klar (dokumentiert): Master an, Hauptplanet-Bestand/Gebäude/Startplätze,
  * Zweitplanet „Testkolonie“ und genau zwei Gegner werden neu gesetzt; Flotten unterwegs werden verworfen.
+ * 0.14.2 (t33u): Mission „sammeln“ (Trümmer bergen, nur Orbit) + Auto-Bergung nach gewonnenem Angriff mit Wracksammlern.
+ *   ANNAHME: Bergung nimmt das gesamte Orbit-Feld am Ziel (bis zur Kapazität: 100.000 je Wracksammler, Metall zuerst);
+ *   Gutschrift in z.rohstoffe bei Rückkehr der Flotte.
  * Alle Zahlen = ANNAHME (Test-Seed).
  */
 (function (g) {
@@ -60,9 +63,27 @@
     gg.solarsatelliten = kp.p.solarsatelliten;
     gg.truemmer = gg.truemmer || leerT();
     ["metall", "silizium"].forEach(function (r) { gg.truemmer.orbit[r] += b.truemmerOrbit[r]; gg.truemmer.boden[r] += b.schrottBoden[r]; });
+    // t33u: Auto-Bergung – Sieg + überlebende Wracksammler in der Angriffsflotte → Orbit-Trümmer nach Phase 2 einsammeln.
+    // Boden-Schrott gehört immer dem Planetenbesitzer (Angreifer kann ihn nie sammeln).
+    b.geborgen = (b.sieger === "angreifer" && f.schiffe.wracksammler > 0) ? berge(f, gg) : null;
     f.kampfbericht = b; z.letzterKampfbericht = b;
     return b;
   }
+
+  /** Orbit-Trümmer am Gegner mit den Wracksammlern der Flotte bergen (Kapazität = ladung je Wracksammler). → {metall, silizium, kapazitaet, restOrbit} */
+  function berge(f, gg) {
+    var kap = (f.schiffe.wracksammler || 0) * (D().schiffNachId("wracksammler").ladung || 0), frei = kap;
+    gg.truemmer = gg.truemmer || leerT();
+    var g = { metall: 0, silizium: 0, kapazitaet: kap };
+    ["metall", "silizium"].forEach(function (r) { var n = Math.min(frei, gg.truemmer.orbit[r]); g[r] = n; frei -= n; gg.truemmer.orbit[r] -= n; });
+    g.restOrbit = { metall: gg.truemmer.orbit.metall, silizium: gg.truemmer.orbit.silizium };
+    f.ladung = f.ladung || {};
+    ["metall", "silizium"].forEach(function (r) { if (g[r] > 0) f.ladung[r] = (f.ladung[r] || 0) + g[r]; });
+    if (!Object.keys(f.ladung).length) delete f.ladung;
+    f.geborgen = g;
+    return g;
+  }
+  var txtG = function (g) { return g.metall + " M / " + g.silizium + " Si"; };
 
   /** Ankunft einer Flotte bei einem Gegner. → Berichtstext oder null (kein Gegner). */
   function ankunft(z, f, jetzt) {
@@ -76,7 +97,12 @@
     if (f.mission === "angriff") {
       var b = angriff(z, f, gg, jetzt);
       var sieg = { angreifer: "Sieg", verteidiger: "Niederlage", unentschieden: "Unentschieden" }[b.sieger];
-      return "Angriff auf " + gg.name + ": " + sieg + " – Trümmer Orbit " + b.truemmerOrbit.metall + " M / " + b.truemmerOrbit.silizium + " Si, Boden " + b.schrottBoden.metall + " M / " + b.schrottBoden.silizium + " Si";
+      return "Angriff auf " + gg.name + ": " + sieg + " – Trümmer Orbit " + b.truemmerOrbit.metall + " M / " + b.truemmerOrbit.silizium + " Si, Boden " + b.schrottBoden.metall + " M / " + b.schrottBoden.silizium + " Si" +
+        (b.geborgen ? " – Orbit geborgen: " + txtG(b.geborgen) : "") + (b.zivil.angreiferVernichtet ? " – Zivilschiffe der Flotte vernichtet" : "");
+    }
+    if (f.mission === "sammeln") {
+      var g = berge(f, gg);
+      return "Trümmer bergen bei " + gg.name + ": Orbit geborgen " + txtG(g) + " (Rest Orbit " + txtG(g.restOrbit) + "; Boden-Schrott bleibt beim Besitzer)";
     }
     if (f.mission === "transportieren") return null; // Transport: Standard („abgeliefert“)
     return null;
@@ -108,7 +134,7 @@
     // Startplätze: A Stufe 10 + B Stufe 3 = 100 + 60 = 160 Plätze (ANNAHME)
     hp.startplaetze.forEach(function (sp) { if (sp.buchstabe === "A") sp.stufe = 10; if (sp.buchstabe === "B") sp.stufe = Math.max(sp.stufe, 3); });
     // Test-Seed Flotte (ANNAHME): 36 Kampfschiffe + Frachter + Sonden
-    hp.schiffe = { korvette: 12, zerstoerer: 10, kreuzer: 8, kleine_drohne: 6, kleiner_frachter: 6, mittlerer_frachter: 2, spionagesonde: 5 };
+    hp.schiffe = { korvette: 12, zerstoerer: 10, kreuzer: 8, kleine_drohne: 6, kleiner_frachter: 6, mittlerer_frachter: 2, spionagesonde: 5, wracksammler: 4 }; // 0.14.2: Wracksammler für Bergung
     hp.verteidigung = { raketenbatterie: 10, laserturm: 6, pulslaser: 2, orbitalverteidigungsplattform: 1 };
     z.forschung.laser = Math.max(z.forschung.laser || 0, 1);
     // Zweitplanet + Gegner auf Nachbar-Positionen im Heimatsystem
@@ -131,5 +157,5 @@
     return z;
   }
 
-  SS.kern.testphase = { bereinige: bereinige, gegnerAn: gegnerAn, kampfPlanet: kampfPlanet, spionage: spionage, angriff: angriff, ankunft: ankunft, legeTestphaseAn: legeTestphaseAn };
+  SS.kern.testphase = { bereinige: bereinige, gegnerAn: gegnerAn, kampfPlanet: kampfPlanet, spionage: spionage, angriff: angriff, ankunft: ankunft, berge: berge, legeTestphaseAn: legeTestphaseAn };
 })(typeof globalThis !== "undefined" ? globalThis : this);

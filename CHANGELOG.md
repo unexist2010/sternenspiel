@@ -1,5 +1,13 @@
 # Changelog – Sternenspiel
 
+## [0.14.2] – 2026-10-31 – Zivilschiffe + Trümmer bergen (Sandro t33u)
+
+- Kampfkern: Zivilschiffe (`gruppe !== "kampf"`) kämpfen nicht und sind keine Ziele; bei Totalverlust des Angreifers vernichtet; Verteidiger-Zivil fällt mit dem Orbit (ANNAHME). Bericht `zivil`.
+- Auto-Bergung: Angriff mit Wracksammlern + Sieg → Orbit-Trümmer nach Phase 2 eingesammelt (`geborgen`, Kampfbericht „Orbit geborgen“). Boden-Schrott bleibt beim Besitzer.
+- Neue Mission „Trümmer bergen“ (`sammeln`, braucht Wracksammler, Kapazität 100.000 je Schiff). Ladung wird bei Rückkehr gutgeschrieben.
+- Test-Seed: 4 Wracksammler am Heimatplaneten.
+- Tests: `zivil-bergung.test.js` (kompletter Testablauf + Totalverlust + Verteidiger-Zivil); Playtest-Testphase erweitert.
+
 ## [0.14.1] – 2026-10-31 – Testphase: Gegner + echte Spionage/Angriffe (Sandro t32u)
 
 - Minimales Gegnermodell `z.gegner` (Spielstand v11 mit Migration), `letzterKampfbericht`, `letzterSpionagebericht`.

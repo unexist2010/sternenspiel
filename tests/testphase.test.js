@@ -70,5 +70,5 @@ test("Angriff Alpha + Beta: Phase 1 Orbit + Phase 2 Boden, Runden, Trümmer, Ver
     assert.match(html, /Phase 1/); assert.match(html, /Phase 2/); assert.match(html, /Trümmerfelder/); assert.match(html, /Runde 1/);
   }
   assert.equal(z.flotten.length, 0, "Überlebende zurück");
-  assert.equal(sum(p.schiffe) <= 49, true);
+  assert.equal(sum(p.schiffe) <= 53, true);
 });

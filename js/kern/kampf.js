@@ -20,6 +20,11 @@
  *  - Orbitalplattform FEST (t27u): nach dem Angriff immer zu 100 % wieder da (wie OGame-Mond). Nur wenn ein sehr großes Schiff
  *    (BALANCE.KAMPF.PLATTFORM_ZERSTOERER, z. B. Titan) beim Angreifer den Kampf überlebt, gelten Verluste normal (Reparatur-Quote, Rest → Orbit-Trümmer).
  *  - Schnellfeuer wird in dieser ersten Simulation NICHT angewendet (Platzhalter, Kapitel 6).
+ *  - FEST (Sandro t33u, 0.14.2) ZIVILSCHIFFE: alles mit gruppe !== "kampf" (Frachter, Wrack-/Bodensammler, Sonden, Kolonieschiff,
+ *    Tanker, Solarsatelliten) kämpft NIE und ist kein Ziel („fliegt hinten in der Formation“). Keine Zivil-Verluste, solange die
+ *    eigenen Kampfschiffe nicht alle vernichtet sind. Angreifer: 0 Kampfschiffe übrig → alle Zivilschiffe der Flotte vernichtet.
+ *    Verteidiger (ANNAHME, konsistent): Zivil auf Startplätzen + Solarsatelliten werden vernichtet, wenn nach Phase 1 keine
+ *    Verteidiger-Orbit-Kampfeinheit (Schiff/Orbitalverteidigung) mehr steht und der Angreifer noch Kampfschiffe hat. Hangar bleibt geschützt.
  *  - Spezialisierung „Bergung“ (Spec Salvage) = Option {bergung:true}; ein Klassen-System gibt es noch nicht.
  */
 (function (g) {
@@ -55,6 +60,8 @@
     return { startplatz: sp, hangar: hg, kapazitaet: kap, belegt: kap - rest };
   }
 
+  /** Kampfschiff/Verteidigung? Zivilschiffe (gruppe !== "kampf") kämpfen nie (t33u). */
+  function istKampf(x) { if (x.art !== "schiff") return true; var d = D().schiffNachId(x.id); return !!d && d.gruppe === "kampf"; }
   function waffenProfil(waffen) {
     return Object.keys(waffen).map(function (w) { var wt = D().waffentypNachId(w); return { id: w, anteil: waffen[w], e: wt.profil.energie, m: wt.profil.metall }; });
   }
@@ -162,16 +169,23 @@
     opt = opt || {};
     var k = K(), az = opt.angreiferZustand || { forschung: {} };
     var vt = verteilung(p, z);
-    var angreifer = schiffGruppen(az, opt.angreifer);
-    var orbitV = schiffGruppen(z, vt.startplatz).concat(p.solarsatelliten > 0 ? [gruppe("schiff", D().schiffNachId("solarsatellit"), p.solarsatelliten, SS.kern.werft.werte(z, D().schiffNachId("solarsatellit")))] : [])
-      .concat(defGruppen(z, p, "orbit"));
+    var alleA = schiffGruppen(az, opt.angreifer);
+    var angreifer = alleA.filter(istKampf), zivilA = alleA.filter(function (x) { return !istKampf(x); });
+    var alleV = schiffGruppen(z, vt.startplatz).concat(p.solarsatelliten > 0 ? [gruppe("schiff", D().schiffNachId("solarsatellit"), p.solarsatelliten, SS.kern.werft.werte(z, D().schiffNachId("solarsatellit")))] : []);
+    var orbitV = alleV.filter(istKampf).concat(defGruppen(z, p, "orbit")), zivilV = alleV.filter(function (x) { return !istKampf(x); });
     var r1 = phase(angreifer, orbitV, null);
+    var aKampfNach1 = angreifer.some(function (x) { return x.n > 0; });
+    var orbitVerloren = aKampfNach1 && !orbitV.some(function (x) { return x.n > 0 && !x.schutzschild; });
+    if (orbitVerloren) zivilV.forEach(function (x) { x.n = 0; }); // Verteidiger-Zivil im Orbit ungeschützt → vernichtet
     var boden = defGruppen(z, p, "boden");
     var schilde = boden.filter(function (x) { return x.schutzschild; });
     var schild = schilde.length ? { energie: schilde.reduce(function (s, x) { return s + x.energie; }, 0), start: 0 } : null;
     if (schild) schild.start = schild.energie;
-    var restAngreifer = angreifer.some(function (x) { return x.n > 0; });
+    var restAngreifer = aKampfNach1;
     var r2 = restAngreifer ? phase(angreifer, boden, schild) : [];
+    var aKampfRest = angreifer.some(function (x) { return x.n > 0; });
+    if (!aKampfRest) zivilA.forEach(function (x) { x.n = 0; }); // Totalverlust → Zivilschiffe der Angriffsflotte vernichtet
+    angreifer = angreifer.concat(zivilA); orbitV = orbitV.concat(zivilV);
     schilde.forEach(function (x) { x.n = x.vorher; }); // Planetenschild: kein Cooldown, nach dem Angriff automatisch wieder aktiv (t27u)
     var aV = verluste(angreifer), oV = verluste(orbitV), bV = verluste(boden);
     // Trümmer Orbit: alle zerstörten Schiffe beider Seiten + Rest der Orbitalplattformen
@@ -190,8 +204,8 @@
       .concat(oV.filter(function (x) { return x.art === "verteidigung"; }).map(function (x) { return { kosten: kostenVon(x), anzahl: x.zerstoert }; }));
     var truemmerOrbit = wert(orbitTeile, quoteO);
     var schrottBoden = wert(bV.map(function (x) { return { kosten: kostenVon(x), anzahl: x.zerstoert }; }), schrottQ);
-    var angreiferRest = aV.reduce(function (s, x) { return s + x.nachher; }, 0);
-    var verteidigerRest = oV.concat(bV).filter(function (x) { var d = x.art === "schiff" ? D().schiffNachId(x.id) : D().verteidigungNachId(x.id); return !(d.schutzschild); })
+    var angreiferRest = aV.filter(function (x) { return D().schiffNachId(x.id).gruppe === "kampf"; }).reduce(function (s, x) { return s + x.nachher; }, 0);
+    var verteidigerRest = oV.concat(bV).filter(function (x) { var d = x.art === "schiff" ? D().schiffNachId(x.id) : D().verteidigungNachId(x.id); return !(d.schutzschild) && (x.art !== "schiff" || d.gruppe === "kampf"); })
       .reduce(function (s, x) { return s + x.nachher; }, 0);
     // Nachrücken (nach dem Kampf): verlorene Startplatz-Schiffe werden aus dem Hangar ersetzt
     var verlorenSP = oV.filter(function (x) { return x.art === "schiff" && x.id !== "solarsatellit"; }).reduce(function (s, x) { return s + x.verloren; }, 0);
@@ -201,6 +215,7 @@
       angreifer: aV, orbit: oV, boden: bV, schild: schild ? { start: schild.start, rest: schild.energie, gefallen: schild.energie <= 1e-9, wiederAktiv: true } : null, plattformZerstoerer: grossesSchiff,
       sieger: angreiferRest === 0 ? "verteidiger" : verteidigerRest === 0 ? "angreifer" : "unentschieden",
       truemmerOrbit: truemmerOrbit, schrottBoden: schrottBoden, quoten: { orbit: quoteO, reparatur: repQ, schrott: schrottQ },
+      zivil: { angreifer: zivilA.map(snap), verteidiger: zivilV.map(snap), angreiferVernichtet: !aKampfRest && zivilA.length > 0, verteidigerVernichtet: orbitVerloren && zivilV.length > 0 },
       nachruecken: Math.min(verlorenSP, hangarN), live: { schnellfeuer: false, zufall: false, beute: false }
     };
   }
@@ -219,5 +234,5 @@
     return p;
   }
 
-  SS.kern.kampf = { verteilung: verteilung, schaden: schaden, simuliere: simuliere, anwenden: anwenden };
+  SS.kern.kampf = { istKampf: istKampf, verteilung: verteilung, schaden: schaden, simuliere: simuliere, anwenden: anwenden };
 })(typeof globalThis !== "undefined" ? globalThis : this);

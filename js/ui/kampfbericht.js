@@ -85,7 +85,12 @@
       "Orbit – Schiffstrümmer (Wracksammler, " + Math.round(b.quoten.orbit * 100) + " % der Baukosten): <b>" + rs(b.truemmerOrbit) + "</b>" +
       "<br>Boden – Verteidigungstrümmer (später Bodensammler, " + Math.round(b.quoten.schrott * 100) + " %): <b>" + rs(b.schrottBoden) + "</b>" +
       "<br>Reparatur Verteidigung: " + Math.round(b.quoten.reparatur * 100) + " % · Hangar geschützt: " + zahl(hangar) + " Schiffe · rücken nach dem Kampf nach: " + zahl(b.nachruecken) +
-      " <span class=\"annahme-marke\">Annahme: Quoten</span></p></section></div>";
+      " <span class=\"annahme-marke\">Annahme: Quoten</span></p>" +
+      (b.geborgen ? "<p class=\"kb-geborgen\" id=\"kb-geborgen\">Orbit geborgen (Wracksammler der Angriffsflotte): <b>" + rs(b.geborgen) + "</b> · Rest im Orbit: " + rs(b.geborgen.restOrbit) + "</p>" : "") +
+      (b.zivil ? "<p class=\"hinweis kb-zivil\">Zivilschiffe kämpfen nicht (fliegen hinten in der Formation)" +
+        (b.zivil.angreiferVernichtet ? " – <b>Angriff total verloren: Zivilschiffe der Angriffsflotte vernichtet</b>" : "") +
+        (b.zivil.verteidigerVernichtet ? " – Verteidigungs-Orbit gefallen: zivile Schiffe/Satelliten des Verteidigers vernichtet" : "") + ".</p>" : "") +
+      "</section></div>";
   }
 
   SS.ui.kampfbericht = { html: berichtHtml };

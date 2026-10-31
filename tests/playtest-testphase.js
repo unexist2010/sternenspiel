@@ -1,4 +1,4 @@
-// Browser-Playtest Testphase (0.14.1): Test-Seed, Flug, Transport, Spionage, Angriff Orbit+Boden, Kampfbericht.
+// Browser-Playtest Testphase (0.14.2): Test-Seed, Flug, Transport, Spionage, Angriff Orbit+Boden, Kampfbericht.
 // Aufruf:  node tests/playtest-testphase.js                  → file:// (ohne Server)
 //          LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-testphase.js
 //          PLAYTEST_BROWSER=firefox node tests/playtest-testphase.js
@@ -90,16 +90,30 @@ async function lauf(browser, g) {
   const met = await Z(() => window.SS.app.zustand.rohstoffe.metall);
   await senden({ kleiner_frachter: 2 }, kk, "transportieren", { metall: 1000 });
   ok((await Z(() => window.SS.app.zustand.flotten.length)) === 0 && Math.abs((await Z(() => window.SS.app.zustand.rohstoffe.metall)) - met) < 1e6, "Transport: entladen, Frachter zurück");
-  // Spionage
-  await senden({ spionagesonde: 1 }, gk[0], "spionieren");
-  ok(await page.isVisible("#box-spionage") && /Kleine Drohne/.test(await page.textContent("#spionage-bericht")), "Spionagebericht sichtbar");
-  // Angriff Alpha + Beta
+  // Spionage beider Gegner
+  for (const k of gk) await senden({ spionagesonde: 1 }, k, "spionieren");
+  ok(await page.isVisible("#box-spionage") && /Kleine Drohne|Maschinennest/.test(await page.textContent("#spionage-bericht")), "Spionageberichte sichtbar");
+  const tr = (i) => Z((i) => JSON.parse(JSON.stringify(window.SS.app.zustand.gegner[i].truemmer)), i);
+  const roh = () => Z(() => ({ m: window.SS.app.zustand.rohstoffe.metall, s: window.SS.app.zustand.rohstoffe.silizium }));
+  // 0.14.2 (t33u): Alpha OHNE Wracksammler (Frachter zivil dabei), danach Sammelflotte; Beta MIT Wracksammlern
   for (const [i, k] of gk.entries()) {
-    await senden({ korvette: 4, zerstoerer: 3, kreuzer: 2 }, k, "angriff");
-    const b = await Z(() => { const b = window.SS.app.zustand.letzterKampfbericht; return b && { id: b.ziel.id, p1: b.phasen[0].runden.length, p2: b.phasen[1].runden.length, sieger: b.sieger }; });
-    ok(b && b.p1 > 0 && b.p2 > 0, `Angriff ${i + 1}: Phase 1 (${b && b.p1} Runden) + Phase 2 (${b && b.p2} Runden)`);
+    await senden(i === 0 ? { korvette: 4, zerstoerer: 3, kreuzer: 2, kleiner_frachter: 1 } : { korvette: 4, zerstoerer: 3, kreuzer: 2, wracksammler: 2 }, k, "angriff");
+    const b = await Z(() => { const b = window.SS.app.zustand.letzterKampfbericht; return b && { id: b.ziel.id, p1: b.phasen[0].runden.length, p2: b.phasen[1].runden.length, sieger: b.sieger, g: b.geborgen, zl: b.angreifer.filter((x) => x.id === "kleiner_frachter" || x.id === "wracksammler").reduce((s, x) => s + x.verloren, 0) }; });
+    ok(b && b.p1 > 0 && b.p2 > 0 && b.sieger === "angreifer", `Angriff ${i + 1}: Phase 1 (${b && b.p1} Runden) + Phase 2 (${b && b.p2} Runden), Sieg`);
+    ok(b.zl === 0, "Zivilschiffe unversehrt");
     ok(await page.isVisible("#box-kampfbericht") && (await page.$$('#box-kampfbericht .kb-phase')).length === 2 && await page.isVisible("#box-kampfbericht #kb-truemmer"), "Kampfbericht-Box: 2 Phasen + Trümmer");
     ok((await page.$$("#box-kampfbericht .kb-runde-zeile")).length > 0, "Runden-Zeilen mit Verlusten");
+    if (i === 0) {
+      const t = await tr(0);
+      ok(!b.g && t.orbit.metall > 0, `Alpha ohne Sammler: Orbit-Trümmer bleiben (${t.orbit.metall} M / ${t.orbit.silizium} Si)`);
+      const r0 = await roh();
+      await senden({ wracksammler: 2 }, k, "sammeln");
+      const t2 = await tr(0), r1 = await roh();
+      ok(t2.orbit.metall === 0 && Math.abs(r1.m - r0.m - t.orbit.metall) < 50 && t2.boden.metall === t.boden.metall, `Sammelflotte: +${Math.round(r1.m - r0.m)} M / +${Math.round(r1.s - r0.s)} Si, Boden bleibt`);
+    } else {
+      const t = await tr(1);
+      ok(b.g && b.g.metall > 0 && t.orbit.metall === 0 && await page.isVisible("#kb-geborgen"), `Beta mit Sammlern: Auto-Bergung ${b.g && b.g.metall} M / ${b.g && b.g.silizium} Si, Boden bleibt ${t.boden.metall} M`);
+    }
     await page.$eval("#box-kampfbericht", (e) => e.scrollIntoView());
     await sleep(200);
     await page.screenshot({ path: path.join(OUT, praefix + "angriff-" + (i + 1) + (handy ? "-handy" : "") + ".png") });

@@ -19,6 +19,7 @@
     { id: "stationieren", name: "Stationieren", text: "Nur Hinflug: Schiffe bleiben auf einem anderen eigenen Planeten." },
     { id: "spionieren", name: "Spionieren", text: "Braucht mindestens eine Spionagesonde. Gegen Testgegner: Spionagebericht (Schiffe + Verteidigung), danach Rückflug." },
     { id: "angriff", name: "Angriff", text: "Greift das Ziel an: gegen Testgegner echter Kampf (Phase 1 Orbit + Phase 2 Boden) mit Kampfbericht und Trümmern; Überlebende fliegen zurück." },
+    { id: "sammeln", name: "Trümmer bergen", text: "Braucht Wracksammler. Sammelt Orbit-Trümmer (Schiffswracks) am Ziel bis zur Ladekapazität der Wracksammler und bringt sie heim. Boden-Schrott gehört immer dem Planetenbesitzer." },
     { id: "unterstuetzen", name: "Unterstützen", text: "Hilft am Ziel bei der Verteidigung (folgt mit Gegnern)." }
   ];
   var presetNachId = function (id) { return PRESETS.filter(function (x) { return x.id === id; })[0] || null; };
@@ -125,6 +126,7 @@
     if (mission.id === "kolonisieren" && !schiffe.kolonieschiff) { r.grund = "Kolonisieren braucht ein Kolonieschiff."; return r; }
     if (mission.id === "kolonisieren" && zielEigen) { r.grund = "Planet gehört dir schon."; return r; }
     if (mission.id === "spionieren" && !schiffe.spionagesonde) { r.grund = "Spionieren braucht eine Spionagesonde."; return r; }
+    if (mission.id === "sammeln" && !schiffe.wracksammler) { r.grund = "Trümmer bergen braucht Wracksammler."; return r; }
     if (mission.id === "stationieren" && !zielEigen) { r.grund = "Stationieren nur auf einem anderen eigenen Planeten."; return r; }
     if ((mission.id === "angriff") && zielEigen) { r.grund = "Eigene Planeten kann man nicht angreifen."; return r; }
     var dist = entfernung(start, ziel), v = tempo(z, schiffe), master = SS.kern.werft.istMaster(z);
@@ -206,6 +208,7 @@
       if (f.phase === "rueck" && jetzt >= f.rueckkehr) {
         var hp = planetVonId(z, f.herkunft) || z.planeten[0];
         Object.keys(f.schiffe).forEach(function (id) { hp.schiffe[id] = (hp.schiffe[id] || 0) + f.schiffe[id]; });
+        if (f.ladung) Object.keys(f.ladung).forEach(function (rid) { z.rohstoffe[rid] = (z.rohstoffe[rid] || 0) + f.ladung[rid]; }); // 0.14.2: geborgene Trümmer
         z.flotten.splice(z.flotten.indexOf(f), 1);
         meld.push({ art: "flotte", name: m.name, text: "Flotte zurück von " + ziel + " (" + m.name + ")" });
       }
