@@ -86,3 +86,6 @@ und kann beim jeweiligen Kapitel wiederverwendet werden.
   - Startplätze starten bei einem Angriff automatisch; der Hangar ist geschützt.
   - Trümmer: im Orbit sammelt der Wracksammler, am Boden der Bodensammler.
   - Verteidigungsanlagen werden zu Schrott: max. 50 %, abhängig von Forschung.
+
+- **0.11.4 – Frachter-Leiter:** neuer Großer Frachter (250.000), Massengutfrachter 1.000.000 → 25 Schiffe fest.
+- **Vorgemerkt (Sandro, t25u):** Orbitalverteidigungsplattform gehört künftig zur **Verteidigung (Kapitel 5)**, nicht zur Werft – Umzug beim Bau von Kapitel 5 (Schiffsanzahl dann neu prüfen).

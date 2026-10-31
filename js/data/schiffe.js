@@ -1,7 +1,7 @@
 /*
  * Sternenspiel – Schiffe, Hüllentypen, Waffentypen (Kapitel 4 „Werft“). ALLE Schiffswerte zentral hier.
  *
- * FEST (Sandro): 24 Schiffe (23 + Bodensammler), Namen 1–18, 5 Waffentypen, 2 Hüllentypen; Solarsatelliten werden in der Werft gebaut.
+ * FEST (Sandro): 25 Schiffe (23 + Bodensammler + Großer Frachter 0.11.4), Namen 1–18, 5 Waffentypen, 2 Hüllentypen; Solarsatelliten werden in der Werft gebaut.
  * ANNAHME (Vorschlag, Sandro prüft – OFFENE-PUNKTE Frage 16): ALLE Namen, Kosten, Kampfwerte, Tempo, Verbrauch,
  *   Ladung, Voraussetzungen, Waffenanteile, Hüllenzuordnung und die Schnellfeuer-Matrix. Orientierung OGame-Retro
  *   (Metall/Kristall/Deuterium → Metall/Silizium/Rohöl), Kunststoff nur bei schweren Schiffen / Verbundpanzer.
@@ -26,7 +26,7 @@
   var SS = (g.SS = g.SS || {});
   SS.DATEN = SS.DATEN || {};
 
-  SS.DATEN.SCHIFFE_ANZAHL_SOLL = 24;      // FEST: 23 (Sandro) + Bodensammler (von Sandro ergänzt, 2026-10-30)
+  SS.DATEN.SCHIFFE_ANZAHL_SOLL = 25;      // FEST: 23 (Sandro) + Bodensammler + Großer Frachter (0.11.4, Sandro)
   SS.DATEN.WAFFENTYPEN_ANZAHL_SOLL = 5;   // FEST
   SS.DATEN.HUELLENTYPEN_ANZAHL_SOLL = 2;  // FEST
 
@@ -135,11 +135,18 @@
       vor: { werft: 4, forschung: [V("impuls", 3), V("komprimierung", 2)] }, schnellfeuer: {  },
       beschreibung: "Haupt-Transporter – 50.000 Ladung.",
       info: "Zehnfache Ladung des kleinen Frachters." },
-    { id: "massengutfrachter", name: "Massengutfrachter", gruppe: "hilf", kosten: { metall: 40000, silizium: 30000, rohoel: 10000, kunststoff_t1: 500 },
-      antrieb: "hyperraumantrieb", huelle: "verbund", waffen: {  }, angriff: 5, schild: 100, tempo: 5625, verbrauch: 300, ladung: 250000, transporter: true,
-      vor: { werft: 7, forschung: [V("hyperraumantrieb", 3), V("komprimierung", 5)] }, schnellfeuer: {  },
-      beschreibung: "Großtransport – 250.000 Ladung, langsam.",
-      info: "Kunststoff für die Großtanks." },
+    // 0.11.4 (Sandro): neuer Großer Frachter (250.000). Kosten/Tempo/Verbrauch/Werft = ANNAHME, gestaffelt zwischen Mittel und Massengut.
+    { id: "grosser_frachter", name: "Großer Frachter", gruppe: "hilf", kosten: { metall: 25000, silizium: 20000, rohoel: 4000 },
+      antrieb: "impuls", huelle: "leichtmetall", waffen: {  }, angriff: 5, schild: 50, tempo: 7500, verbrauch: 150, ladung: 250000, transporter: true,
+      vor: { werft: 6, forschung: [V("impuls", 5), V("komprimierung", 4)] }, schnellfeuer: {  },
+      beschreibung: "Großtransport – 250.000 Ladung.",
+      info: "Fünffache Ladung des mittleren Frachters; Kosten/Tempo ANNAHME (0.11.4)." },
+    // 0.11.4 (Sandro): Massengutfrachter 1.000.000 Ladung (ID unverändert, alte Saves behalten Bestand). Kosten = ANNAHME (Endgame).
+    { id: "massengutfrachter", name: "Massengutfrachter", gruppe: "hilf", kosten: { metall: 120000, silizium: 90000, rohoel: 30000, kunststoff_t1: 2000 },
+      antrieb: "hyperraumantrieb", huelle: "verbund", waffen: {  }, angriff: 5, schild: 150, tempo: 5000, verbrauch: 500, ladung: 1000000, transporter: true,
+      vor: { werft: 8, forschung: [V("hyperraumantrieb", 4), V("komprimierung", 7)] }, schnellfeuer: {  },
+      beschreibung: "Endgame-Transporter – 1.000.000 Ladung, effizientester Frachter je Rohöl.",
+      info: "Kunststoff für die Großtanks. Reiner Transporter – trägt mehr pro Verbrauch als jedes andere Schiff (Titan nur nebenbei)." },
     { id: "wracksammler", name: "Wracksammler", gruppe: "hilf", kosten: { metall: 10000, silizium: 6000, rohoel: 2000 },
       antrieb: "verbrennung", huelle: "leichtmetall", waffen: {  }, angriff: 1, schild: 10, tempo: 6250, verbrauch: 300, ladung: 100000, ladungArt: "orbit",
       vor: { werft: 4, forschung: [V("verbrennung", 6), V("schild", 2)] }, schnellfeuer: {  },
@@ -150,7 +157,7 @@
       vor: { werft: 5, forschung: [V("impuls", 3), V("schild", 3), V("spionage", 2)] }, schnellfeuer: {  },
       beschreibung: "Sammelt Verteidigungs-Schrott am Boden.",
       info: "Erkennt die Rohstoffzusammensetzung erst beim Sammeln; Sammeldauer in Stunden je Schrottfeldgröße (Kampf-Kapitel). Ladung 75.000 (ANNAHME)." },
-    // ---------- Spezial 20–24 (Ergänzungen, ANNAHME) ----------
+    // ---------- Spezial 21–25 (Ergänzungen, ANNAHME) ----------
     { id: "solarsatellit", name: "Solarsatellit", gruppe: "spezial", kosten: { silizium: 2000, rohoel: 500 },
       antrieb: null, huelle: "leichtmetall", waffen: {  }, angriff: 1, schild: 1, tempo: 0, verbrauch: 0, ladung: 0, stationaer: true,
       vor: { werft: 1, forschung: [V("energie", 1)] }, schnellfeuer: {  },
@@ -184,7 +191,8 @@
     kreuzer: 1, schlachtkreuzer: 1, schlachtschiff: 1, traeger: 1, koloss: 1, mittlerer_frachter: 1, wracksammler: 1,
     spionagesonde: 1, kolonieschiff: 1, treibstofftanker: 1,
     titan: 1, kleiner_frachter: 1, bodensammler: 1, solarsatellit: 1,
-    bomber: 1 }; // 0.11.3: Bomber G
+    bomber: 1, // 0.11.3: Bomber G
+    grosser_frachter: 1, massengutfrachter: 1 }; // 0.11.4: Massengutfrachter H → Großer Frachter, G → Massengutfrachter
   SS.DATEN.schiffPngFreigegeben = Object.freeze(Object.keys(PNG_FREIGEGEBEN));
   L.forEach(function (s) {
     s.bild = "assets/schiffe/" + s.id + (PNG_FREIGEGEBEN[s.id] ? ".png" : ".svg");

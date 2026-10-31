@@ -48,7 +48,7 @@ Stand: 2026-10-31 (0.11.0, Kapitel 4 Schiffsliste nach Sandro) · Alles hier ist
 ## Erledigt
 
 - ~~39 Werft-Warteschlange~~ → **unbegrenzt** (Sandro, 0.10.0).
-- ~~43 23 oder 24 Schiffe~~ → **24 bleibt fest** (Sandro, 0.11.0).
+- ~~43 23 oder 24 Schiffe~~ → **24 bleibt fest** (Sandro, 0.11.0). **0.11.4: bewusst 25** – neuer Großer Frachter (Sandro).
 - ~~44 Bodensammler-Werte~~ → bestätigt (12.000 M / 8.000 Si / 3.000 Öl, Ladung 75.000) (Sandro, 0.11.0).
 - ~~45 Alte Schiffe ohne Entsprechung~~ → dürfen verworfen werden (Sandro, 0.11.0).
 - ~~40 Sperre Werft-Ausbau ↔ Schiffbau~~ → ja, bleibt (Sandro, 0.10.0).
@@ -109,4 +109,10 @@ Stand: 2026-10-31 (0.11.0, Kapitel 4 Schiffsliste nach Sandro) · Alles hier ist
 **Orbitalverteidigungsplattform – 6 Stufenbilder** (`assets/schiffe/orbitalverteidigungsplattform-1.png` … `-6.png`, Serie klein → Festung).
 Bild richtet sich nach der Anzahl am Planeten (`SS.DATEN.schiffBild`, Schwellen in `js/data/schiffe.js`):
 Stufe 1: 0–1 · Stufe 2: 2–3 · Stufe 3: 4–6 · Stufe 4: 7–10 · Stufe 5: 11–20 · Stufe 6: 21+. Ohne Anzahl SVG-Fallback.
-**Offen:** Massengutfrachter – neue Vorschläge `massengutfrachter-g/h/i.png` (alle Triebwerke nur am Heck), wartet auf Sandros Auswahl.
+~~Massengutfrachter g/h/i~~ → **erledigt 0.11.4:** H = Großer Frachter (250.000), G = Massengutfrachter (1.000.000). Jetzt 24 Schiffe mit PNG.
+
+## 0.11.4 – Frachter-Leiter
+- **ANNAHME Großer Frachter:** Kosten 25.000 Metall / 20.000 Silizium / 4.000 Rohöl, Impuls, Leichtmetall, Schild 50, Tempo 7.500, Verbrauch 150, Werft 6, Impuls 5 + Komprimierung 4.
+- **ANNAHME Massengutfrachter (neu):** Kosten 120.000 / 90.000 / 30.000 + K1 2.000, Hyperraum, Verbund, Schild 150, Tempo 5.000, Verbrauch 500, Werft 8, Hyperraum 4 + Komprimierung 7.
+- **Offen:** Titan hat ebenfalls 1.000.000 Ladung – ggf. später senken, damit der Massengutfrachter klar der Transporter ist (nicht ohne Auftrag geändert).
+- **Vorgemerkt:** Orbitalverteidigungsplattform → Verteidigung (Kapitel 5) statt Werft; noch nicht umgebaut.

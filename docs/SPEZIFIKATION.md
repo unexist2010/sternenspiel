@@ -166,7 +166,7 @@ und schreibt Punkte gut; Forschungsauftrag gilt global (wie OGame) und wird am H
 ### A10. Kapitel 4 „Werft“ (Freigabe 2026-10-30, Version 0.9.0 · Schiffsliste nach Sandro 0.10.0)
 - **Layout (Sandro, 0.11.0):** Werft im OGame-Retro-Stil – je Schiff eine volle Zeile, großes Bild links (200 px, Handy 120 px), Infos und Bau-Steuerung rechts; Gruppen als Boxen mit Liste.
 
-- **FEST:** **24 Schiffe** (Sandros Schiffsliste v2 mit 23 Schiffen + der von Sandro ergänzte **Bodensammler**; das ersetzt die frühere
+- **FEST:** **25 Schiffe** (0.11.4: + Großer Frachter; vorher 24) (Sandros Schiffsliste v2 mit 23 Schiffen + der von Sandro ergänzte **Bodensammler**; das ersetzt die frühere
   FEST-Zahl 23, siehe OFFENE-PUNKTE 43), 5 Waffentypen, 2 Hüllentypen; Solarsatelliten werden in der Werft gebaut. Nur der Menüpunkt
   Werft wird gefüllt – Verteidigung, Flotte, Weltraum bleiben Platzhalter.
 - **FEST (Sandro, 0.10.0):** Gruppen Kampfschiffe / Hilfsschiffe / Spezial; beide Sammler (Wracksammler = Orbit, Bodensammler = Boden) sind
@@ -454,7 +454,8 @@ Netzwerk: die Stufen der n besten Forschungseinrichtungen weiterer Planeten zäh
 | Kampf | Titan | hyperraumantrieb | graviton 60 % / plasma 40 % | Verbund | 2.000.000 / 4.000.000 / 1.000.000 + K3 20.000 | 200.000 / 50.000 | 1.250 | 1.000.000 | Werft 12, hyperraumantrieb 10, graviton 1, netzwerk 1 |
 | Hilf | Kleiner Frachter | verbrennung | – | Leichtmetall | 2.000 / 2.000 / 0 | 5 / 10 | 12.500 | 5.000 | Werft 2, verbrennung 2 |
 | Hilf | Mittlerer Frachter | impuls | – | Leichtmetall | 8.000 / 8.000 / 1.000 | 5 / 25 | 9.375 | 50.000 | Werft 4, impuls 3, komprimierung 2 |
-| Hilf | Massengutfrachter | hyperraumantrieb | – | Verbund | 40.000 / 30.000 / 10.000 + K1 500 | 5 / 100 | 5.625 | 250.000 | Werft 7, hyperraumantrieb 3, komprimierung 5 |
+| Hilf | Großer Frachter (0.11.4, ANNAHME) | impuls | – | Leichtmetall | 25.000 / 20.000 / 4.000 | 5 / 50 | 7.500 | 250.000 | Werft 6, impuls 5, komprimierung 4 |
+| Hilf | Massengutfrachter (0.11.4) | hyperraumantrieb | – | Verbund | 120.000 / 90.000 / 30.000 + K1 2.000 | 5 / 150 | 5.000 | 1.000.000 | Werft 8, hyperraumantrieb 4, komprimierung 7 |
 | Hilf | Wracksammler | verbrennung | – | Leichtmetall | 10.000 / 6.000 / 2.000 | 1 / 10 | 6.250 | 100.000 (orbit) | Werft 4, verbrennung 6, schild 2 |
 | Hilf | Bodensammler | impuls | – | Leichtmetall | 12.000 / 8.000 / 3.000 | 1 / 20 | 5.000 | 75.000 (boden) | Werft 5, impuls 3, schild 3, spionage 2 |
 | Spezial | Solarsatellit (stationär) | – | – | Leichtmetall | 0 / 2.000 / 500 | 1 / 1 | – | 0 | Werft 1, energie 1 |

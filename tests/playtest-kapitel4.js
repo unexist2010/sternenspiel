@@ -2,7 +2,7 @@
 // Aufruf:  node tests/playtest-kapitel4.js                  → file:// (ohne Server)
 //          LIVE_URL=https://unexist2010.github.io/sternenspiel/ node tests/playtest-kapitel4.js
 //          PLAYTEST_BROWSER=firefox node tests/playtest-kapitel4.js
-// Desktop 1366×768 und Handy 412×915. Screenshots: playtest/kapitel4f-*.png
+// Desktop 1366×768 und Handy 412×915. Screenshots: playtest/kapitel4g-*.png
 "use strict";
 const fs = require("fs");
 const path = require("path");
@@ -46,7 +46,7 @@ async function lauf(browser, g) {
   page.on("console", (m) => { if (m.type() === "error" || m.type() === "warning") fehler.push("console." + m.type() + ": " + m.text()); });
   page.on("requestfailed", (r) => { if (!/favicon/.test(r.url())) fehler.push("requestfailed: " + r.url()); }); // Firefox bricht das Favicon beim Neuladen ab (wie Kapitel 1)
   page.on("request", (r) => { if (!r.url().startsWith(BASIS) && !r.url().startsWith("data:")) fehler.push("externe Anfrage: " + r.url()); });
-  const praefix = `kapitel4f-${BROWSERNAME === "chromium" ? "" : BROWSERNAME + "-"}${LIVE ? "live-" : ""}`;
+  const praefix = `kapitel4g-${BROWSERNAME === "chromium" ? "" : BROWSERNAME + "-"}${LIVE ? "live-" : ""}`;
   const shot = async (n, ganz) => { await page.evaluate(() => { document.getElementById("meldung").className = "meldung"; }); if (ganz) await page.evaluate(() => window.scrollTo(0, 0)); await sleep(300); await page.screenshot({ path: path.join(OUT, praefix + n + ".png"), fullPage: !!ganz }); };
   const ueberlauf = () => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   const geheZu = async (hash, seite) => { await page.evaluate((h) => { location.hash = h; }, hash); await page.waitForSelector(`#inhalt[data-seite="${seite}"]`); await sleep(250); };
@@ -105,10 +105,10 @@ async function lauf(browser, g) {
   await aendern(() => { const z = window.SS.app.zustand; z.planeten[0].gebaeude.werft = 1; z.forschung.energie = 1; Object.assign(z.rohstoffe, { metall: 5e6, silizium: 5e6, rohoel: 5e6 }); });
   await geheZu("#werft", "werft");
   let ids = await kachelIds();
-  ok(ids.length === 24 && ids.includes("bodensammler") && ids.includes("orbitalverteidigungsplattform") && !ids.includes("antimaterie_frachter"), `24 Schiffe sichtbar inkl. Bodensammler + Orbitalverteidigungsplattform (${ids.length})`);
+  ok(ids.length === 25 && ids.includes("bodensammler") && ids.includes("orbitalverteidigungsplattform") && !ids.includes("antimaterie_frachter"), `25 Schiffe sichtbar inkl. Bodensammler + Orbitalverteidigungsplattform (${ids.length})`);
   ok(/Orbitalverteidigungsplattform/.test(await page.textContent('article[data-schiff="orbitalverteidigungsplattform"]')) && /stationär/.test(await page.textContent('article[data-schiff="orbitalverteidigungsplattform"]')), "Orbitalverteidigungsplattform: umbenannt, stationär");
   ok((await page.$$eval("section[data-gruppe]", (s) => s.map((x) => x.getAttribute("data-gruppe")))).join() === "kampf,hilf,spezial", "Gruppen Kampfschiffe, Hilfsschiffe, Spezial");
-  ok((await page.$$eval("article.schiff-kachel img.anlage-bild", (im) => im.filter((i) => i.complete && i.naturalWidth > 0).length)) === 24, "Platzhalter-SVGs der 24 Schiffe geladen");
+  ok((await page.$$eval("article.schiff-kachel img.anlage-bild", (im) => im.filter((i) => i.complete && i.naturalWidth > 0).length)) === 25, "Bilder der 25 Schiffe geladen");
   ok(/Voraussetzung fehlt: Verbrennungstriebwerk 1, Computer-Technologie 1/.test(await grund("kleine_drohne")) && !(await page.isEnabled('article[data-schiff="kleine_drohne"] button[data-aktion="schiff-bauen"]')), "Kleine Drohne gesperrt mit Grund (Verbrennung 1, Computer 1)");
   ok(/Verbund/.test(await page.textContent('article[data-schiff="bomber"] .schiff-marken')) && /Plasma/.test(await page.textContent('article[data-schiff="bomber"] .schiff-marken')), "Kachel zeigt Hülle + Waffen (Bomber: Verbund, Plasma)");
   ok(await page.isEnabled('article[data-schiff="solarsatellit"] button[data-aktion="schiff-bauen"]'), "Solarsatellit baubar mit Werft 1 + Energie 1");
@@ -180,7 +180,7 @@ async function lauf(browser, g) {
   // ---- Master ----
   await page.click("#knopf-master"); await sleep(200);
   await geheZu("#werft", "werft");
-  ok((await kachelIds()).length === 24, "Master: alle 24 Schiffe sichtbar");
+  ok((await kachelIds()).length === 25, "Master: alle 25 Schiffe sichtbar");
   const mm = await Z(() => window.SS.app.zustand.rohstoffe.metall);
   await page.fill('input[data-menge="titan"]', "2");
   await page.click('article[data-schiff="titan"] button[data-aktion="schiff-bauen"]'); await sleep(300);

@@ -25,7 +25,7 @@ Seite einmal selbst neu oder zeigt „Neu laden“. Spielstände bitte **nicht**
 
 ## Stand nach Kapitel 4 „Werft“
 
-- **Werft** (0.9.0, Schiffsliste nach Sandro 0.10.0): 24 Schiffe (Kampf/Hilf/Spezial), 5 Waffentypen, 2 Hüllen, Werftaufträge unbegrenzt, Solarsatelliten hier gebaut, Platzhalterbilder
+- **Werft** (0.9.0, Schiffsliste nach Sandro 0.10.0): 25 Schiffe (Kampf/Hilf/Spezial; 0.11.4: Frachter-Leiter 5k/50k/250k/1M), 5 Waffentypen, 2 Hüllen, Werftaufträge unbegrenzt, Solarsatelliten hier gebaut, Platzhalterbilder
 
 
 - **Menü** links in fester Reihenfolge: Übersicht, Ressourcen, Anlagen, Forschung, Werft, Verteidigung, Flotte, Weltraum

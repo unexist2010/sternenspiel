@@ -1,5 +1,13 @@
 # Changelog – Sternenspiel
 
+## [0.11.4] – 2026-10-31 – Frachter-Leiter (25 Schiffe)
+- **Neu: Großer Frachter** (`grosser_frachter`, Hilfsschiff, Transporter) – 250.000 Ladung, Bild = Vorschlag H (PNG 400×400).
+- **Massengutfrachter** (`massengutfrachter`, ID unverändert): Ladung 250.000 → **1.000.000**, Kosten/Werft/Forschung angehoben (Endgame), Bild = Vorschlag G (PNG).
+- Frachter-Leiter: Klein 5.000 · Mittel 50.000 · Groß 250.000 · Massengut 1.000.000. Kosten/Tempo/Verbrauch des Großen Frachters = ANNAHME.
+- Feste Schiffsanzahl jetzt **25** (bewusst, Sandro). Alte Saves: keine Migration nötig (neue ID startet mit 0, Massengut-Bestand bleibt).
+- Vorgemerkt: Orbitalverteidigungsplattform wandert künftig in die Verteidigung (Kapitel 5).
+- Playtest Kapitel 4: Screenshots `playtest/kapitel4g-*.png`.
+
 ## [0.11.1] – 2026-10-31 – Erste echte Schiffsbilder
 - 17 von Sandro freigegebene Schiffsbilder als PNG (400×400) eingebaut; übrige Schiffe weiter SVG-Platzhalter (`SS.DATEN.schiffPngFreigegeben`).
 - `tools/erzeuge-grafiken.js` überschreibt freigegebene PNG-Schiffe nicht.

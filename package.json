@@ -1,8 +1,8 @@
 {
   "name": "sternenspiel",
-  "version": "0.11.3",
+  "version": "0.11.4",
   "private": true,
-  "description": "Sternenspiel – Offline-Browser-Aufbauspiel im Weltraum (Kapitel 4: Werft, Schiffsbilder 0.11.3)",
+  "description": "Sternenspiel – Offline-Browser-Aufbauspiel im Weltraum (Kapitel 4: Werft, Frachter-Leiter 0.11.4)",
   "scripts": {
     "test": "node --test tests/",
     "playtest": "node tests/playtest-kapitel2.js && node tests/playtest-kapitel2b.js && node tests/playtest-kapitel1-profile.js && node tests/playtest-kapitel3.js && node tests/playtest-kapitel4.js",

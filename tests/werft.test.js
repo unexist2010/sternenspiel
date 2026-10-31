@@ -16,9 +16,9 @@ function setup(geb = {}, roh = {}, fo = {}) {
   return { SS, z, p: z.planeten[0], P: SS.kern.produktion, Bau: SS.kern.bau, WF: SS.kern.werft, D: SS.DATEN };
 }
 
-test("Daten: genau 24 Schiffe, 5 Waffentypen, 2 Hüllentypen, je mit Bild, Gruppe und gültigen Bezügen", () => {
+test("Daten: genau 25 Schiffe, 5 Waffentypen, 2 Hüllentypen, je mit Bild, Gruppe und gültigen Bezügen", () => {
   const { D } = setup();
-  assert.equal(D.schiffe.length, 24);
+  assert.equal(D.schiffe.length, 25);
   gleich(D.waffentypen.map((w) => w.id), ["laser", "ionen", "plasma", "raketen", "graviton"]);
   gleich(D.huellentypen.map((h) => h.id), ["leichtmetall", "verbund"]);
   gleich(D.schiffGruppen.map((g) => g.id), ["kampf", "hilf", "spezial"]);
@@ -35,7 +35,7 @@ test("Daten: genau 24 Schiffe, 5 Waffentypen, 2 Hüllentypen, je mit Bild, Grupp
     if (s.huelle === "verbund") assert.ok(Object.keys(s.kosten).some((k) => /kunststoff/.test(k)), s.id + ": Verbund kostet Kunststoff");
   }
   gleich(D.schiffNachId("kleiner_frachter").kosten, { metall: 2000, silizium: 2000 });
-  gleich(["kleiner_frachter", "mittlerer_frachter", "massengutfrachter", "wracksammler"].map((id) => D.schiffNachId(id).ladung), [5000, 50000, 250000, 100000]);
+  gleich(["kleiner_frachter", "mittlerer_frachter", "grosser_frachter", "massengutfrachter", "wracksammler"].map((id) => D.schiffNachId(id).ladung), [5000, 50000, 250000, 1000000, 100000]);
   gleich(D.schiffe.filter((s) => s.gruppe === "kampf").map((s) => s.name), ["Aufklärer", "Kleine Drohne", "Mittlere Drohne", "Schwere Drohne", "Korvette", "Fregatte", "Zerstörer", "Kreuzer", "Bomber", "Schlachtkreuzer", "Schlachtschiff", "Träger", "Koloss", "Titan"]);
   const k = (id) => D.schiffNachId(id).kosten;
   for (const d of ["kleine_drohne", "mittlere_drohne", "schwere_drohne"]) assert.ok(k(d).metall > k(d).silizium, d + " metalllastig");
@@ -194,4 +194,20 @@ test("0.11.3: Orbitalverteidigungsplattform – 6 Stufenbilder nach Anzahl, Bomb
   const b = D.schiffNachId("bomber");
   assert.equal(b.bild, "assets/schiffe/bomber.png");
   assert.equal(D.schiffBild(b, 5), b.bild);
+});
+
+test("0.11.4: Frachter-Leiter – Großer Frachter neu, Massengutfrachter 1 Mio., PNG, Staffelung", () => {
+  const { D } = setup();
+  const fs = require("fs"), path = require("path");
+  const ids = ["kleiner_frachter", "mittlerer_frachter", "grosser_frachter", "massengutfrachter"];
+  const s = ids.map((id) => D.schiffNachId(id));
+  assert.deepEqual(s.map((x) => x.ladung), [5000, 50000, 250000, 1000000]);
+  s.forEach((x) => { assert.equal(x.transporter, true); assert.equal(x.bild, "assets/schiffe/" + x.id + ".png"); assert.ok(fs.existsSync(path.join(__dirname, "..", x.bild))); });
+  const g = s[2], m = s[1], mg = s[3];
+  assert.equal(g.name, "Großer Frachter"); assert.equal(g.gruppe, "hilf");
+  assert.ok(m.vor.werft < g.vor.werft && g.vor.werft < mg.vor.werft);
+  assert.ok(m.tempo > g.tempo && g.tempo > mg.tempo);
+  assert.ok(m.kosten.metall < g.kosten.metall && g.kosten.metall < mg.kosten.metall);
+  assert.ok(mg.ladung / mg.verbrauch > g.ladung / g.verbrauch, "Massengut effizienter");
+  assert.equal(D.schiffNachId("titan").ladung, 1000000, "Titan unverändert");
 });
