@@ -145,7 +145,7 @@
     var jetzt = Number(opt.jetzt);
     if (!isFinite(jetzt)) throw new Error("Zeitpunkt fehlt");
     var name = String((opt.name || "").trim() || "Kommandant").slice(0, 24);
-    return {
+    var neu = {
       version: SS.BALANCE.SPIELSTAND_VERSION,
       name: name,
       erstelltAm: jetzt,
@@ -172,9 +172,12 @@
       letzterKampfbericht: null, kampfberichte: [], // 0.15.1
       letzterSpionagebericht: null,
       truemmerfelder: [],    // späteres Kapitel
-      ereignisse: [],        // späteres Kapitel: KI-Angriffe/Ereignisse
+      ereignisse: [],
+      nachrichten: [], nachrichtenZaehler: 0, // 0.23.0 Nachrichten
       einstellungen: { schildAutoaktivierung: true, master: false } // Schild: Solo-Regel (Wirkung später) · master: Testmodus je Profil
     };
+    if (SS.kern.nachrichten) SS.kern.nachrichten.willkommen(neu); // 0.23.0
+    return neu;
   }
 
   /** Prüft grob, ob ein Objekt ein ladbarer Spielstand ist (auch ältere Versionen). */
@@ -287,6 +290,7 @@
     if (!z.letzterSpionagebericht || typeof z.letzterSpionagebericht !== "object") z.letzterSpionagebericht = null;
     z.truemmerfelder = Array.isArray(z.truemmerfelder) ? z.truemmerfelder : [];
     z.ereignisse = Array.isArray(z.ereignisse) ? z.ereignisse : [];
+    if (SS.kern.nachrichten) SS.kern.nachrichten.migriere(z); // 0.23.0 Nachrichten (alte Berichte übernommen)
     z.einstellungen = z.einstellungen || {};
     if (typeof z.einstellungen.schildAutoaktivierung !== "boolean") z.einstellungen.schildAutoaktivierung = true;
     z.einstellungen.master = z.einstellungen.master === true;

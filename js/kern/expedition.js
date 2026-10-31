@@ -102,7 +102,7 @@
   }
 
   /** 0.15.1: Kampfberichte-Liste (neueste zuerst, max. 10) + letzterKampfbericht. */
-  function merkeKampfbericht(z, b) { z.letzterKampfbericht = b; z.kampfberichte = [b].concat((z.kampfberichte || []).filter(function (x) { return x !== b; })).slice(0, 10); }
+  function merkeKampfbericht(z, b) { z.letzterKampfbericht = b; z.kampfberichte = [b].concat((z.kampfberichte || []).filter(function (x) { return x !== b; })).slice(0, 10); if (SS.kern.nachrichten) SS.kern.nachrichten.kampf(z, b); }
 
   /** Ereignis am Ende der Haltezeit. r = Zufall 0..1 (Tests: fest). Liefert {art, text, ...}; Verzögerung setzt f.verzoegerung (Faktor auf Rückflug). */
   function ereignis(z, f, jetzt, r) {

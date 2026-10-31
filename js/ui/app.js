@@ -225,9 +225,17 @@
 
   function baueMenue() {
     $("menue-liste").innerHTML = D.menue.map(function (m) {
-      return "<li><a href=\"#" + m.id + "\" data-seite=\"" + m.id + "\">" + m.name + "</a></li>";
+      return "<li><a href=\"#" + m.id + "\" data-seite=\"" + m.id + "\">" + m.name + (m.id === "nachrichten" ? " <span class=\"menue-badge\" id=\"nachrichten-badge\" hidden></span>" : "") + "</a></li>";
     }).join("");
+    nachrichtenBadge();
     bauePlanetenListe();
+  }
+  /** 0.23.0: Ungelesen-Badge am Menüpunkt Nachrichten. */
+  function nachrichtenBadge() {
+    var b = $("nachrichten-badge"); if (!b || !zustand) return;
+    var u = SS.kern.nachrichten.ungelesen(zustand);
+    if (b.textContent !== String(u)) b.textContent = String(u);
+    b.hidden = !u; b.title = u + " ungelesen";
   }
   /** 0.18.0 (Sandro t49u): Planetenliste links wie OGame – Heimat + Kolonien anklickbar, aktiver Planet markiert. */
   function bauePlanetenListe() {
@@ -268,6 +276,8 @@
     var teile = location.hash.replace(/^#/, "").split("/").filter(Boolean);
     var id = teile[0] && D.menuePunkt(teile[0]) ? teile[0] : "uebersicht";
     seite = { id: id, teile: teile.slice(1) };
+    if (id === "nachrichten" && seite.teile[1] && SS.kern.nachrichten.finde(zustand, seite.teile[1]) && !SS.kern.nachrichten.finde(zustand, seite.teile[1]).gelesen) { SS.kern.nachrichten.lesen(zustand, seite.teile[1]); speichern(true); }
+    nachrichtenBadge();
     bauePlanetenListe(); // 0.18.0: neue Kolonien sofort sichtbar
     Array.prototype.forEach.call(document.querySelectorAll("#menue-liste a"), function (a) {
       var aktiv = a.getAttribute("data-seite") === id;
@@ -277,7 +287,7 @@
     var m = D.menuePunkt(id);
     var html = id === "uebersicht" ? seiteUebersicht() : id === "ressourcen" ? seiteRessourcen() :
       id === "anlagen" ? (seite.teile[0] === "raumflughafen" ? seiteRaumflughafen() : seiteAnlagen()) :
-      id === "forschung" ? seiteForschung() : id === "werft" ? WU().seite() : id === "verteidigung" ? VU().seite() : id === "flotte" ? FU().seite() : id === "weltraum" ? WRU().seite() : id === "rangliste" ? RLU().seite() : seitePlatzhalter(m);
+      id === "forschung" ? seiteForschung() : id === "werft" ? WU().seite() : id === "verteidigung" ? VU().seite() : id === "flotte" ? FU().seite() : id === "weltraum" ? WRU().seite() : id === "rangliste" ? RLU().seite() : id === "nachrichten" ? NU().seite() : seitePlatzhalter(m);
     var y = window.scrollY, zu = {};
     Array.prototype.forEach.call(document.querySelectorAll("#inhalt details[id]"), function (d) { zu[d.id] = !d.open; });
     schliesseInfo();
@@ -340,6 +350,21 @@
     speichern(true); if (location.hash === "#flotte") route(false); else location.hash = "#flotte";
   }
   // 0.16.0 Weltraum (Sandro pt40u)
+  var nachrichtenUi = null;
+  function NU() { return nachrichtenUi || (nachrichtenUi = SS.ui.nachrichten({ esc: esc, box: box, zustand: function () { return zustand; }, teile: function () { return seite ? seite.teile : []; } })); }
+  function nachrichtAktion(a, b) {
+    var N = SS.kern.nachrichten, kat = b.getAttribute("data-kat") || null, n = 0;
+    if (a === "nachricht-loeschen") { n = N.loesche(zustand, [b.getAttribute("data-id")]); if (b.getAttribute("data-zurueck")) { speichern(true); location.hash = "#nachrichten/" + b.getAttribute("data-zurueck"); return; } }
+    else if (a === "nachrichten-gelesen") N.alleGelesen(zustand, kat);
+    else if (a === "nachrichten-auswahl-loeschen") { var ids = Array.prototype.map.call(document.querySelectorAll(".nachricht-wahl:checked"), function (x) { return x.value; }); if (!ids.length) { meldung("Keine Nachricht markiert.", "info"); return; } n = N.loesche(zustand, ids); }
+    else if (a === "nachrichten-gelesene-loeschen") n = N.loescheKat(zustand, kat, true);
+    else if (a === "nachrichten-alle-loeschen") {
+      dialog("Nachrichten löschen?", "<p>Alle Nachrichten " + (kat ? "der Kategorie <b>" + esc(N.katNachId(kat).name) + "</b>" : "") + " werden gelöscht.</p>", true).then(function (ok) {
+        if (!ok) return; var m = N.loescheKat(zustand, kat, false); speichern(true); route(true); meldung(m + " Nachrichten gelöscht.", "gut"); });
+      return;
+    }
+    speichern(true); route(true); if (n) meldung(n + (n === 1 ? " Nachricht" : " Nachrichten") + " gelöscht.", "gut");
+  }
   var weltraumUi = null;
   var ranglisteUi; function RLU() { return ranglisteUi || (ranglisteUi = SS.ui.rangliste({ esc: esc, box: box, zustand: function () { return zustand; }, teile: function () { return seite ? seite.teile : []; } })); }
   function WRU() { return weltraumUi || (weltraumUi = SS.ui.weltraum({ esc: esc, box: box, zustand: function () { return zustand; }, hp: hp, teile: function () { return seite ? seite.teile : []; } })); }
@@ -785,6 +810,7 @@
 
   // ---------- Live-Werte (jeder Tick) ----------
   function aktualisiereLive() {
+    nachrichtenBadge();
     if (!zustand) return;
     var u = P.uebersicht(zustand, hp()), p = hp(), a = p.bauauftrag, fa = zustand.forschungsauftrag, t = jetzt(), Bau = SS.kern.bau;
     var vz = function (n) { return (n > 1e-9 ? "+" : n < -1e-9 ? "−" : "") + zahlFein(Math.abs(n)); };
@@ -1142,6 +1168,7 @@
     if (!b) return;
     var a = b.getAttribute("data-aktion");
     if (a === "wr-spionage") { e.preventDefault(); spionageSchnell(b.getAttribute("data-koord")); return; }
+    if (/^nachricht/.test(a)) { e.preventDefault(); nachrichtAktion(a, b); return; }
     if (a === "speichern") speichern(false);
     else if (a === "wechseln") spielerWechseln();
     else if (a === "neues-spiel-alles") neuesSpielAllesLoeschen();

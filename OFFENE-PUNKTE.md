@@ -58,3 +58,9 @@
 - Eintrag, der unmöglich geworden ist (Höchststufe), wird beim Start still verworfen; gesperrte Einträge warten (manuell ✕ entfernen).
 - Kein Umsortieren per Drag & Drop; nur Entfernen.
 - Forschungseinrichtung in der Bau-Schlange wartet, solange eine Forschung läuft (und umgekehrt).
+
+## 0.23.0 – Nachrichten (pt67u)
+- **Erledigt:** Nachrichten-Seite mit Kategorien, Badge, gelesen/ungelesen, Löschen (einzeln/bulk), Koordinaten-Links → Weltraum, Migration alter Berichte.
+- **Platzhalter:** Spielernachrichten (nur Begrüßung vom Flottenkommando) – kein Schreiben/Antworten, keine echten Mitspieler.
+- **Offen:** KI greift den Spieler nie an → keine „Verteidigungs“-Kampfberichte; Spionage durch Gegner gibt es nicht. Kein Favorisieren/Archivieren von Nachrichten (OGame-Feature). Limits je Kategorie sind ANNAHME.
+- **Offen:** Toast-Meldungen bleiben zusätzlich bestehen (bewusst).

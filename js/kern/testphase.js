@@ -63,6 +63,7 @@
       var KI = SS.kern.ki; b.schiffe = KI.drift(z, gg, b.schiffe, jetzt); b.verteidigung = KI.drift(z, gg, b.verteidigung, jetzt);
       b.art = gg.ki.art; b.punkte = Math.round(KI.punkte(z, gg, jetzt) * KI.driftFaktor(z, gg, jetzt)); b.tfAlterTage = KI.tfAlterTage(gg, jetzt, z); }
     z.letzterSpionagebericht = b;
+    if (SS.kern.nachrichten) SS.kern.nachrichten.spionage(z, b); // 0.23.0
     return b;
   }
   var HINWEIS = { ja: "Bodenbewegungen erkennbar – möglicherweise weitere Schiffe im Hangar.", nein: "Keine Bodenbewegungen erkennbar." };

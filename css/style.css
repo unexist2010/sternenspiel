@@ -495,3 +495,23 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .schlange-liste li { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
 .schlange-liste li .knopf { margin-left: auto; padding: 0 .45rem; }
 .schlange-wartet { margin: .2rem 0; }
+
+/* ---------- Nachrichten (0.23.0) ---------- */
+.menue-badge { display: inline-block; min-width: 1.4em; padding: 0 .35em; margin-left: .35em; border-radius: 1em; background: #c0392b; color: #fff; font-size: .75em; line-height: 1.4em; text-align: center; font-weight: 700; vertical-align: middle; }
+.menue-badge[hidden] { display: none; }
+.nachrichten-tabs { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0 0 .8rem; }
+.nachrichten-tabs a { padding: .35rem .7rem; border: 1px solid rgba(255,255,255,.15); border-radius: .4rem; text-decoration: none; color: inherit; }
+.nachrichten-tabs a.aktiv { background: rgba(90,150,255,.25); border-color: rgba(90,150,255,.6); }
+.nachrichten-tabs .tab-zahl { background: #c0392b; color: #fff; border-radius: 1em; padding: 0 .4em; font-size: .8em; }
+.nachrichten-aktionen { margin-bottom: .6rem; flex-wrap: wrap; }
+.nachrichten-liste { list-style: none; margin: 0; padding: 0; }
+.nachricht-zeile { display: grid; grid-template-columns: auto 1fr auto auto auto; gap: .5rem; align-items: center; padding: .4rem .3rem; border-bottom: 1px solid rgba(255,255,255,.08); }
+.nachricht-zeile .nachricht-titel { color: inherit; text-decoration: none; overflow: hidden; text-overflow: ellipsis; }
+.nachricht-zeile .nachricht-titel small { opacity: .65; }
+.nachricht-zeile.ungelesen .nachricht-titel { font-weight: 700; }
+.nachricht-zeile.ungelesen { background: rgba(90,150,255,.08); }
+.nachricht-zeile time { opacity: .7; font-size: .85em; white-space: nowrap; }
+.koord-link { color: #7fb2ff; white-space: nowrap; }
+.nachricht-kopf { display: flex; flex-wrap: wrap; gap: 1rem; opacity: .85; margin-bottom: .6rem; font-size: .9em; }
+.wr-markiert td { background: rgba(255,210,80,.18); }
+@media (max-width: 640px) { .nachricht-zeile { grid-template-columns: auto 1fr auto; } .nachricht-zeile time, .nachricht-zeile > .koord-link { display: none; } }

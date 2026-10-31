@@ -51,6 +51,7 @@
       var zz = h.zustand(), heim = SS.kern.flotte.herkunftKoord(zz, h.hp()), teile = h.teile();
       var sys = teile[0] === "system" ? parseInt(teile[1], 10) : teile[0] === "sektor" ? W.sektor(parseInt(teile[1], 10)) && W.sektor(parseInt(teile[1], 10)).systemVon : heim.system;
       if (!W.system(sys)) sys = heim.system;
+      var markPos = teile[2] === "planet" ? parseInt(teile[3], 10) : 0; // 0.23.0: Koordinaten-Link aus Nachrichten
       var s = W.system(sys), sk = W.sektor(s.sektor), U = W.universum();
       var sekSel = "<label>Sektor <select id=\"wr-sektor\">" + U.sektoren.map(function (x) { return "<option value=\"" + x.nummer + "\"" + (x.nummer === sk.nummer ? " selected" : "") + ">" + esc(x.name) + "</option>"; }).join("") + "</select></label>";
       var nav = "<div class=\"wr-nav\">" + sekSel +
@@ -66,7 +67,7 @@
         var aktion = r.art === "leer" ? knopf("kolonisieren", r.koord, "Kolonisieren") :
           (r.art === "gegner" ? knopf("spionieren", r.koord, "Spionage", " data-aktion=\"wr-spionage\"") + knopf("angriff", r.koord, "Angriff") : "") +
           knopf("transportieren", r.koord, "Transport") + (r.art === "eigen" ? knopf("stationieren", r.koord, "Stationieren") : "");
-        return "<tr class=\"wr-" + r.art + "\" data-position=\"" + r.position + "\" data-koord=\"" + r.koord + "\"><td class=\"z\">" + r.position + "</td>" +
+        return "<tr class=\"wr-" + r.art + (r.position === markPos ? " wr-markiert" : "") + "\" data-position=\"" + r.position + "\" data-koord=\"" + r.koord + "\"><td class=\"z\">" + r.position + "</td>" +
           "<td>" + (r.art === "leer" ? "<span class=\"hinweis\">– frei –</span>" : "<b>" + esc(r.name) + "</b>" + (r.schild ? " <img class=\"schild-symbol\" src=\"assets/icons/schild.svg\" alt=\"Schild aktiv\" title=\"Angriffsschild aktiv\" width=\"16\" height=\"16\">" : "") + (r.vernichtet ? " <i>vernichtet</i>" : "")) + "</td>" +
           "<td class=\"wr-truemmer\">" + (r.truemmerOrbit > 0 ? "<a class=\"wr-tf\" href=\"" + link("sammeln", r.koord) + "\" data-mission=\"sammeln\" title=\"Trümmerfeld (Orbit): " + r.truemmerOrbit + (r.tfAlter !== null && r.tfAlter !== undefined ? " · Tag " + (r.tfAlter + 1) + "/" + SS.kern.ki.K.TF_MAX_TAGE : "") + " – Wracksammler senden\"><img src=\"assets/icons/wracksammlung.svg\" alt=\"Trümmerfeld\" width=\"20\" height=\"20\"></a>" : "") +
             (r.schrottBoden > 0 ? "<a class=\"wr-bs\" href=\"" + link("bodensammlung", r.koord) + "\" data-mission=\"bodensammlung\" title=\"Boden-Schrott: " + r.schrottBoden + " – Bodensammler senden\"><img src=\"assets/icons/bodensammlung.svg\" alt=\"Boden-Schrott\" width=\"20\" height=\"20\"></a>" : "") + "</td>" +
@@ -75,7 +76,7 @@
       }).join("");
       var exKoord = s.sektor + ":" + sys + ":" + SS.BALANCE.EXPEDITION.POSITION;
       var tab = "<div class=\"tabelle-huelle\"><table class=\"tabelle wr-tabelle\" id=\"wr-tabelle\"><thead><tr><th class=\"z\">Pos.</th><th>Planet</th><th title=\"Trümmerfeld / Boden-Schrott\">TF</th><th>Koordinaten</th><th>Spieler</th><th>Aktionen</th></tr></thead><tbody>" + zeilen +
-        "<tr class=\"wr-expedition\" data-position=\"" + SS.BALANCE.EXPEDITION.POSITION + "\"><td class=\"z\">" + SS.BALANCE.EXPEDITION.POSITION + "</td><td><i>Expeditionsraum</i></td><td></td><td>[" + exKoord + "]</td><td></td><td class=\"wr-aktionen\">" + knopf("expedition", exKoord, "Expedition") + "</td></tr></tbody></table></div>";
+        "<tr class=\"wr-expedition" + (markPos === SS.BALANCE.EXPEDITION.POSITION ? " wr-markiert" : "") + "\" data-position=\"" + SS.BALANCE.EXPEDITION.POSITION + "\"><td class=\"z\">" + SS.BALANCE.EXPEDITION.POSITION + "</td><td><i>Expeditionsraum</i></td><td></td><td>[" + exKoord + "]</td><td></td><td class=\"wr-aktionen\">" + knopf("expedition", exKoord, "Expedition") + "</td></tr></tbody></table></div>";
       return h.box("Navigation", nav, "", " id=\"wr-navigation\"") +
         h.box("Sonnensystem " + sys + " [" + s.sektor + ":" + sys + "] · " + esc(s.stern.name), tab, "", " id=\"wr-system-box\"");
     }

@@ -42,3 +42,10 @@
 ## Warteschlangen (0.22.0, Sandro pt65u – FEST)
 - Gebäude/Startplätze: 10 Warteplätze je Planet, Forschung: 5 Warteplätze. Einreihen ohne Rohstoffe erlaubt; Start (FIFO) erst, wenn die Rohstoffe reichen.
 - Startplatz-Kosten ×2 (Grund A1: 800 M / 400 Si / 200 Öl), Bauzeit unverändert (Teiler 22).
+
+## Nachrichten (0.23.0, Sandro pt67u)
+- Menüpunkt „Nachrichten“ mit Ungelesen-Badge. Kategorien: `kampf`, `spionage`, `expedition`, `flotte`, `spieler` (Tabs + „Alle“).
+- Nachricht: `{ id, kat, zeit, titel, text, koord, gelesen, von, daten }` in `z.nachrichten` (neueste zuerst); `daten` = voller Kampf-/Spionagebericht.
+- Detail öffnen = gelesen. Löschen einzeln / markiert / gelesene / alle (je Tab). Koordinaten → `#weltraum/system/<sys>/planet/<pos>`, Zeile markiert.
+- Erzeugt von: Kampf (`expedition.merkeKampfbericht`), Spionage (`testphase`), Expeditions-Ereignis + sonstige Flottenmeldungen (`flotte.faellige`).
+- Limits je Kategorie (ANNAHME): Kampf/Spionage 50, Flotte 150, Expedition/Spieler 100, gesamt 300.

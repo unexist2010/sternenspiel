@@ -1,5 +1,18 @@
 # Changelog – Sternenspiel
 
+## [0.23.0] – 2026-11-01 – Nachrichten (Sandro pt67u)
+
+- **Neuer Menüpunkt „Nachrichten“** (10. Punkt) mit rotem **Ungelesen-Badge** in der Navigation.
+- **Kategorien (Tabs):** Alle · ⚔ Kampfberichte · 🔍 Spionageberichte · ✦ Expeditionen · ➤ Flottenmeldungen · ✉ Spielernachrichten – je Tab Ungelesen-Zähler.
+- **Liste + Detail:** ungelesen fett/hinterlegt, Öffnen markiert als gelesen. Kampfbericht-Detail = bisheriger Bericht (2 Phasen, Runden, Trümmer, Details) + Ergebnis; Spionage-Detail = Schiffe/Verteidigung/Trümmer/Hinweis (KI: Art, Punkte, TF-Alter).
+- **Löschen:** einzeln (✕), markierte (Checkboxen), „Gelesene löschen“, „Alle löschen“ (mit Rückfrage) – je aktuellem Tab; „Alle als gelesen“.
+- **Koordinaten anklickbar:** `[S:SYS:P]` → `#weltraum/system/<sys>/planet/<pos>`; Weltraum hebt die Zielzeile hervor (`.wr-markiert`). Auch Koordinaten im Fließtext werden verlinkt.
+- **Hooks:** Kampf (Angriff + Piraten bei Expedition) → Kampfbericht; Spionage → Spionagebericht; Expeditions-Ergebnis → Expedition; alle übrigen Flottenmeldungen (Ankunft, Rückkehr, Stationieren, Kolonie, Bergung, Rückruf-Folgen, Zerstörung) → Flottenmeldungen.
+- **Spielernachrichten:** Solo-Platzhalter (Begrüßung vom „Flottenkommando“); Datenmodell mit `von`-Feld für spätere echte Spieler.
+- **Spielstand:** `z.nachrichten` + `z.nachrichtenZaehler`; Limits je Kategorie (Kampf/Spionage 50, Flotte 150, Expedition/Spieler 100, gesamt 300). **Migration:** alte Kampfberichte, letzter Spionagebericht und letzte Expeditionen werden als gelesene Nachrichten übernommen.
+- Flotte-Seite: zeigt nur noch den jeweils letzten Spionage-/Kampfbericht + Link zu Nachrichten (die Liste „Ältere Kampfberichte“ ist in die Nachrichten gewandert).
+- Tests: `tests/nachrichten.test.js` (5), Browser `tests/playtest-nachrichten.js` (38/38, Desktop + Handy).
+
 ## [0.22.1] – 2026-10-31 – Schnellfeuer gestrichen, Aufklärer billiger (Sandro pt66u)
 
 - **Schnellfeuer komplett entfernt:** War nie in der Kampfberechnung aktiv (nur Daten + Anzeige im Werft-ⓘ). Jetzt auch Daten (`schnellfeuer`-Matrix in `schiffe.js`), `Werft.schnellfeuer()`, Werft-Info-Anzeige, CSS, Kampf-Flag `live.schnellfeuer` und Doku-Hinweise entfernt.

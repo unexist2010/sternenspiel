@@ -22,7 +22,8 @@
     Object.freeze({ id: "verteidigung", name: "Verteidigung", platzhalter: false }),
     Object.freeze({ id: "flotte",       name: "Flotte",       platzhalter: false }),
     Object.freeze({ id: "weltraum",     name: "Weltraum",     platzhalter: false }),
-    Object.freeze({ id: "rangliste",    name: "Rangliste",    platzhalter: false }) // 0.21.0 (Sandro pt61u)
+    Object.freeze({ id: "rangliste",    name: "Rangliste",    platzhalter: false }), // 0.21.0 (Sandro pt61u)
+    Object.freeze({ id: "nachrichten",  name: "Nachrichten",  platzhalter: false })  // 0.23.0 (Sandro pt67u)
   ]);
 
   SS.DATEN.menuePunkt = function (id) {

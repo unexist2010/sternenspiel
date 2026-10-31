@@ -188,6 +188,7 @@
   function faellige(z, jetzt) {
     var meld = [];
     (z.flotten || []).slice().forEach(function (f) {
+      var vorher = meld.length;
       var m = missionNachId(f.mission), ziel = D().weltraum.koordinatenText(f.ziel);
       if (f.phase === "hin" && jetzt >= f.ankunft) {
         var eigen = eigenePlaneten(z).filter(function (e) { return gleicheKoord(e, f.ziel); })[0];
@@ -225,7 +226,7 @@
         var tp = !eigen && SS.kern.testphase ? SS.kern.testphase.ankunft(z, f, f.ankunft) : null;
         if (tp) {
           f.bericht = tp;
-          meld.push({ art: "flotte", name: m.name, text: tp });
+          meld.push({ art: "flotte", name: m.name, text: tp, bericht: true, ziel: f.ziel });
           if (!f.anzahl) { z.flotten.splice(z.flotten.indexOf(f), 1); meld.push({ art: "flotte", name: m.name, text: "Flotte bei " + ziel + " vollständig zerstört" }); return; }
           f.phase = "rueck"; f.rueckkehr = f.ankunft + (f.ankunft - f.abflug);
         }
@@ -244,7 +245,7 @@
         f.ergebnis = ev; f.bericht = "Expedition " + ziel + ": " + ev.text;
         z.letzteExpeditionen = [{ zeit: f.haltEnde, ziel: f.ziel, halten: f.halten, art: ev.art, text: ev.text, master: SS.kern.werft.istMaster(z) }].concat(z.letzteExpeditionen || []).slice(0, 10);
         f.phase = "rueck"; f.rueckkehr = f.haltEnde + Math.round((f.ankunft - f.abflug) * (f.verzoegerung || 1));
-        meld.push({ art: "flotte", name: m.name, text: f.bericht });
+        meld.push({ art: "flotte", name: m.name, text: f.bericht, kat: "expedition", ziel: f.ziel, zeit: f.haltEnde, bericht: ev.art === "piraten" });
       }
       if (f.phase === "rueck" && jetzt >= f.rueckkehr) {
         var hp = planetVonId(z, f.herkunft) || z.planeten[0];
@@ -253,6 +254,12 @@
         z.flotten.splice(z.flotten.indexOf(f), 1);
         meld.push({ art: "flotte", name: m.name, text: "Flotte zurück von " + ziel + " (" + m.name + ")" });
       }
+      meld.slice(vorher).forEach(function (x) { if (!x.ziel) x.ziel = f.ziel; });
+    });
+    // 0.23.0: jede Flottenmeldung landet auch in den Nachrichten (Kampf/Spionage erzeugen eigene Berichte → hier übersprungen).
+    if (SS.kern.nachrichten) meld.forEach(function (x) {
+      if (x.bericht && x.kat !== "expedition") return;
+      SS.kern.nachrichten.neu(z, { kat: x.kat || "flotte", zeit: x.zeit || jetzt, koord: x.ziel, titel: (x.kat === "expedition" ? "Expedition" : x.name) + (x.ziel ? " [" + D().weltraum.koordinatenText(x.ziel) + "]" : ""), text: x.text });
     });
     return meld;
   }

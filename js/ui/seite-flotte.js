@@ -89,9 +89,8 @@
         (s.hinweis ? "<br><span id=\"spionage-hinweis\" class=\"spionage-hinweis\">» " + esc(s.hinweis) + "</span>" : "") + "</p>", "", " id=\"box-spionage\"");
       var titel = function (x) { return esc(x.ziel ? x.ziel.name + " [" + kt(x.ziel) + "]" : "") + (x.zeit ? " · " + F.uhrzeit(x.zeit) : ""); };
       if (b) out += h.box("Letzter Kampfbericht – " + titel(b), SS.ui.kampfbericht.html(b), "", " id=\"box-kampfbericht\"");
-      var alt = (zz.kampfberichte || []).filter(function (x) { return x !== b; }); // 0.15.1: ältere Berichte (inkl. Piraten) aufklappbar
-      if (alt.length) out += h.box("Ältere Kampfberichte (" + alt.length + ")", alt.map(function (x, i) {
-        return "<details class=\"kb-alt\" data-kb=\"" + i + "\"><summary>" + (x.expedition ? "☠ " : "⚔ ") + titel(x) + "</summary>" + SS.ui.kampfbericht.html(x).replace(/ id=\"[^"]*\"/g, "") + "</details>"; }).join(""), "", " id=\"box-kampfberichte\"");
+      // 0.23.0: alle Berichte liegen zentral in „Nachrichten“ – hier nur noch der jeweils letzte + Link.
+      if (s || b) out += "<p class=\"hinweis\" id=\"flotte-nachrichten-link\">Alle Kampf-, Spionage- und Expeditionsberichte: <a href=\"#nachrichten\">Nachrichten</a></p>";
       return out;
     }
 
