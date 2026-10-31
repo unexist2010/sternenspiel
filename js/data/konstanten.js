@@ -16,7 +16,7 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.18.1";
+  SS.VERSION = "0.19.0";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
@@ -110,6 +110,13 @@
       UNIVERSUM_TEMPO: 1,
       VERBRAUCH_FAKTOR: 4         // Rohöl = 1 + Σ Verbrauch · Entfernung / 35000 · 4 (je Strecke; Hin + Rück beim Start bezahlt)
     },
+    BEUTE: {                      // 0.19.0 (Sandro t52u): Beute nach Sieg – Verhältnis FEST, Zahlen ANNAHME
+      VERHAELTNIS: { metall: 3, silizium: 2, rohoel: 1 },
+      KUNSTSTOFF_ANTEIL: 0.05,    // höchstens 5 % des Laderaums Kunststoff („wenig“)
+      KUNSTSTOFF: { kunststoff_t1: 6, kunststoff_t2: 3, kunststoff_t3: 1 },
+      PLUENDER_ANTEIL: 0.5        // OGame: 50 % des Ziel-Bestands plünderbar
+    },
+    SCHILD: { DAUER_H: 24, ABKLING_H: 24, KOSTEN_ROHOEL: 1000 }, // 0.19.0 Angriffsschild (Bonusgegenstand) – ANNAHME
     EXPEDITION: {                 // 0.15.0 – Regeln FEST (Sandro), Zahlen ANNAHME
       POSITION: 13,               // Expeditionsraum = Position 13 jedes Systems (Planeten 1–12; OGame: Pos. 16)
       MAX_HALTEN_STUNDEN: 24,     // Haltezeit 1 … min(Astrophysik-Stufe, 24) Stunden

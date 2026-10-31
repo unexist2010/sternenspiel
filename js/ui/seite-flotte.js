@@ -30,6 +30,7 @@
         "<span class=\"flug-ziel\">" + kt(f.ziel) + (f.zielName ? " " + esc(f.zielName) : "") + "</span></div>" +
         "<div class=\"flug-info\">" + F.zahl(f.anzahl) + " Schiffe · " + (f.phase === "hin" ? "Hinflug" : f.phase === "halten" ? "hält (" + (f.halten || 1) + " h)" : "Rückflug") + " · <span data-live=\"flug-rest:" + f.id + "\">" + uhr(st.rest) + "</span> (" + Math.floor(st.prozent) + "&nbsp;%)</div>" +
         "<div class=\"flug-balken\"><span data-live=\"flug-proz:" + f.id + "\" style=\"width:" + st.prozent.toFixed(1) + "%\"></span></div>" +
+        (!kurz && SS.kern.bergung && SS.kern.bergung.kannRueckruf(f) ? "<div class=\"knopf-reihe\"><button type=\"button\" class=\"knopf klein\" data-aktion=\"flotte-rueckruf\" data-id=\"" + f.id + "\" title=\"Flotte sofort umkehren – keine Zusatzkosten, Rohöl für die ungeflogene Strecke zurück\">↩ Rückruf (+" + F.zahl(SS.kern.bergung.erstattung(f, t)) + " Rohöl)</button></div>" : "") +
         (kurz ? "" : (f.bericht ? "<div class=\"hinweis\">" + esc(f.bericht) + "</div>" : "")) + "</li>";
     }
 
@@ -57,9 +58,19 @@
         "<p class=\"hinweis\" id=\"liste-unterwegs\">Keine Flotte unterwegs – alle " + F.zahl(sb.kapazitaet) + " Startplätze stehen zur Verfügung.</p>", "", " id=\"box-unterwegs\"");
       // 0.13.1 (Sandro t30u): OGame-artig – Tabs „Startplatz“ und „Hangar“ als große, zuklappbare Dropdowns; Senden im Flottenfenster.
       var tab = function (id, titel, zahl, inhalt) { return "<details class=\"flotte-tab\" id=\"tab-" + id + "\" open><summary>" + titel + " <span class=\"tab-zahl\">" + F.zahl(zahl) + "</span></summary>" + inhalt + "</details>"; };
-      return testphaseBox() + "<div class=\"flotte-tabs\">" + tab("startplatz", "Startplatz", sb.aufStartbahn, startb) + tab("hangar", "Hangar", FL.summe(sb.hangar), hangar) + "</div>" + sendefenster() + unterwegs + expeditionBox() + berichteBox();
+      return testphaseBox() + "<div class=\"flotte-tabs\">" + tab("startplatz", "Startplatz", sb.aufStartbahn, startb) + tab("hangar", "Hangar", FL.summe(sb.hangar), hangar) + "</div>" + bergungBox() + sendefenster() + unterwegs + expeditionBox() + berichteBox();
     }
 
+    // ---------- Bergung (0.19.0, Sandro t52u): zwei Symbole wie OGame → Sendefenster mit Mission + eigenen Koordinaten ----------
+    function bergungBox() {
+      var zz = z(), pp = p(), k = kt(FL.herkunftKoord(zz, pp)), tr = pp.truemmer || { orbit: {}, boden: {} };
+      var o = (tr.orbit.metall || 0) + (tr.orbit.silizium || 0), b = (tr.boden.metall || 0) + (tr.boden.silizium || 0);
+      var ws = (pp.schiffe.wracksammler || 0), bs = (pp.schiffe.bodensammler || 0);
+      return h.box("Bergung", "<div class=\"bergung-wahl\" id=\"bergung-wahl\">" +
+        "<a class=\"bergung-knopf\" id=\"bergung-wrack\" href=\"#flotte/senden/sammeln/" + k + "\"><img src=\"assets/icons/wracksammlung.svg\" alt=\"\" width=\"32\" height=\"32\"><span><b>Wracksammlung</b><small>Orbit-Trümmer hier: " + F.zahl(o) + " · Wracksammler: " + F.zahl(ws) + "</small></span></a>" +
+        "<a class=\"bergung-knopf\" id=\"bergung-boden\" href=\"#flotte/senden/bodensammlung/" + k + "\"><img src=\"assets/icons/bodensammlung.svg\" alt=\"\" width=\"32\" height=\"32\"><span><b>Bodensammlung</b><small>Boden-Schrott hier: " + F.zahl(b) + " · Bodensammler: " + F.zahl(bs) + "</small></span></a></div>" +
+        "<p class=\"hinweis\">Klick füllt das Sendefenster: eigene Koordinaten, Mission und nur die passenden Sammler. Andere Koordinaten (eigene Planeten / Trümmerfelder) im Feld „Koordinaten“ eingeben.</p>", "", " id=\"box-bergung\"");
+    }
     // ---------- Testphase (0.14.1, Sandro t32u) ----------
     function testphaseBox() {
       var zz = z(), gg = zz.gegner || [];

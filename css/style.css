@@ -461,3 +461,16 @@ a.knopf { display: inline-flex; align-items: center; text-decoration: none; }
 .planeten-liste b { display: block; color: #fff; font-size: .85rem; }
 .planeten-liste small { color: var(--tuerkis); font-size: .72rem; font-variant-numeric: tabular-nums; }
 .send-planeten { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; align-items: center; }
+/* 0.19.0: Bergung, Angriffsschild, Rückruf */
+.bergung-wahl { display: flex; flex-wrap: wrap; gap: .5rem; }
+.bergung-knopf { display: flex; align-items: center; gap: .5rem; padding: .4rem .6rem; border: 1px solid #2c4a6e; border-radius: 6px; text-decoration: none; color: inherit; flex: 1 1 14rem; }
+.bergung-knopf:hover { border-color: #5fb4ff; }
+.bergung-knopf small { display: block; opacity: .75; }
+.wr-truemmer a { margin-right: .2rem; }
+.schild-symbol { vertical-align: middle; }
+.schild-liste { list-style: none; padding: 0; margin: 0; }
+.schild-liste li { display: flex; align-items: center; gap: .5rem; padding: .3rem 0; border-bottom: 1px solid #1f3350; }
+.schild-liste li > span { flex: 1; }
+.schild-liste li small { display: block; opacity: .75; }
+.schild-liste li.aktiv { background: rgba(58,134,217,.12); }
+.schild-liste .planet-bild, .schild-liste img:first-child { width: 28px; height: 28px; }

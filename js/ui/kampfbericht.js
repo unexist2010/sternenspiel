@@ -91,6 +91,7 @@
       "<br>Reparatur Verteidigung: " + Math.round(b.quoten.reparatur * 100) + " % · Hangar geschützt: " + zahl(hangar) + " Schiffe · rücken nach dem Kampf nach: " + zahl(b.nachruecken) +
       " <span class=\"annahme-marke\">Annahme: Quoten</span></p>" +
       (b.geborgen ? "<p class=\"kb-geborgen\" id=\"kb-geborgen\">Orbit geborgen (Wracksammler der Angriffsflotte): <b>" + rs(b.geborgen) + "</b> · Rest im Orbit: " + rs(b.geborgen.restOrbit) + "</p>" : "") +
+      (b.beute ? "<p class=\"kb-beute\" id=\"kb-beute\">Beute (Laderaum " + zahl(b.beuteKapazitaet) + ", M:Si:Öl 3:2:1, wenig Kunststoff): <b>" + Object.keys(b.beute).map(function (k) { var r = SS.DATEN.rohstoffNachId ? SS.DATEN.rohstoffNachId(k) : null; return zahl(b.beute[k]) + " " + (r ? r.name : k); }).join(" · ") + "</b></p>" : "") +
       (b.zivil ? "<p class=\"hinweis kb-zivil\">Zivilschiffe kämpfen nicht (fliegen hinten in der Formation)" +
         (b.zivil.angreiferVernichtet ? " – <b>Angriff total verloren: Zivilschiffe der Angriffsflotte vernichtet</b>" : "") +
         (b.zivil.verteidigerVernichtet ? " – Verteidigungs-Orbit gefallen: zivile Schiffe/Satelliten des Verteidigers vernichtet" : "") + ".</p>" : "") +

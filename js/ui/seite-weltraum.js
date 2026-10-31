@@ -22,8 +22,12 @@
       var gl = function (x) { return x.sektor === k.sektor && x.system === k.system && x.planet === k.planet; };
       var e = eigene.filter(gl)[0], x = gg.filter(gl)[0];
       var r = { position: pl.position, koord: W.koordinatenText(k), ziel: k, typ: pl.typ, art: "leer", name: "", spieler: "" };
-      if (e) { r.art = "eigen"; r.name = e.name || pl.name; r.spieler = (z.spieler && z.spieler.name) || z.name || "Du"; }
-      else if (x) { r.art = "gegner"; r.name = x.name; r.spieler = x.name; r.vernichtet = !(FL.summe(x.schiffe) + FL.summe(x.verteidigung)); }
+      var pt = function (t, o) { return t && t[o] ? (t[o].metall || 0) + (t[o].silizium || 0) : 0; };
+      if (e) { r.art = "eigen"; r.name = e.name || pl.name; r.spieler = (z.spieler && z.spieler.name) || z.name || "Du";
+        var ep = (z.planeten || []).filter(function (q) { return q.id === e.id; })[0];
+        r.truemmerOrbit = pt(ep && ep.truemmer, "orbit"); r.schrottBoden = pt(ep && ep.truemmer, "boden");
+        r.schild = !!(SS.kern.bergung && SS.kern.bergung.schildStatus(ep, Date.now()).aktiv); }
+      else if (x) { r.truemmerOrbit = pt(x.truemmer, "orbit"); r.art = "gegner"; r.name = x.name; r.spieler = x.name; r.vernichtet = !(FL.summe(x.schiffe) + FL.summe(x.verteidigung)); }
       return r;
     });
   }
@@ -62,13 +66,15 @@
           (r.art === "gegner" ? knopf("spionieren", r.koord, "Spionage", " data-aktion=\"wr-spionage\"") + knopf("angriff", r.koord, "Angriff") : "") +
           knopf("transportieren", r.koord, "Transport") + (r.art === "eigen" ? knopf("stationieren", r.koord, "Stationieren") : "");
         return "<tr class=\"wr-" + r.art + "\" data-position=\"" + r.position + "\" data-koord=\"" + r.koord + "\"><td class=\"z\">" + r.position + "</td>" +
-          "<td>" + (r.art === "leer" ? "<span class=\"hinweis\">– frei –</span>" : "<b>" + esc(r.name) + "</b>" + (r.vernichtet ? " <i>vernichtet</i>" : "")) + "</td>" +
+          "<td>" + (r.art === "leer" ? "<span class=\"hinweis\">– frei –</span>" : "<b>" + esc(r.name) + "</b>" + (r.schild ? " <img class=\"schild-symbol\" src=\"assets/icons/schild.svg\" alt=\"Schild aktiv\" title=\"Angriffsschild aktiv\" width=\"16\" height=\"16\">" : "") + (r.vernichtet ? " <i>vernichtet</i>" : "")) + "</td>" +
+          "<td class=\"wr-truemmer\">" + (r.truemmerOrbit > 0 ? "<a class=\"wr-tf\" href=\"" + link("sammeln", r.koord) + "\" data-mission=\"sammeln\" title=\"Trümmerfeld (Orbit): " + r.truemmerOrbit + " – Wracksammler senden\"><img src=\"assets/icons/wracksammlung.svg\" alt=\"Trümmerfeld\" width=\"20\" height=\"20\"></a>" : "") +
+            (r.schrottBoden > 0 ? "<a class=\"wr-bs\" href=\"" + link("bodensammlung", r.koord) + "\" data-mission=\"bodensammlung\" title=\"Boden-Schrott: " + r.schrottBoden + " – Bodensammler senden\"><img src=\"assets/icons/bodensammlung.svg\" alt=\"Boden-Schrott\" width=\"20\" height=\"20\"></a>" : "") + "</td>" +
           "<td>[" + r.koord + "]</td><td>" + (r.art === "eigen" ? "<span class=\"gut\">" + esc(r.spieler) + " (du)</span>" : r.art === "gegner" ? "<span class=\"schlecht\">⚔ " + esc(r.spieler) + "</span>" : "") + "</td>" +
           "<td class=\"wr-aktionen\">" + aktion + "</td></tr>";
       }).join("");
       var exKoord = s.sektor + ":" + sys + ":" + SS.BALANCE.EXPEDITION.POSITION;
-      var tab = "<div class=\"tabelle-huelle\"><table class=\"tabelle wr-tabelle\" id=\"wr-tabelle\"><thead><tr><th class=\"z\">Pos.</th><th>Planet</th><th>Koordinaten</th><th>Spieler</th><th>Aktionen</th></tr></thead><tbody>" + zeilen +
-        "<tr class=\"wr-expedition\" data-position=\"" + SS.BALANCE.EXPEDITION.POSITION + "\"><td class=\"z\">" + SS.BALANCE.EXPEDITION.POSITION + "</td><td><i>Expeditionsraum</i></td><td>[" + exKoord + "]</td><td></td><td class=\"wr-aktionen\">" + knopf("expedition", exKoord, "Expedition") + "</td></tr></tbody></table></div>";
+      var tab = "<div class=\"tabelle-huelle\"><table class=\"tabelle wr-tabelle\" id=\"wr-tabelle\"><thead><tr><th class=\"z\">Pos.</th><th>Planet</th><th title=\"Trümmerfeld / Boden-Schrott\">TF</th><th>Koordinaten</th><th>Spieler</th><th>Aktionen</th></tr></thead><tbody>" + zeilen +
+        "<tr class=\"wr-expedition\" data-position=\"" + SS.BALANCE.EXPEDITION.POSITION + "\"><td class=\"z\">" + SS.BALANCE.EXPEDITION.POSITION + "</td><td><i>Expeditionsraum</i></td><td></td><td>[" + exKoord + "]</td><td></td><td class=\"wr-aktionen\">" + knopf("expedition", exKoord, "Expedition") + "</td></tr></tbody></table></div>";
       return h.box("Navigation", nav, "", " id=\"wr-navigation\"") +
         h.box("Sonnensystem " + sys + " [" + s.sektor + ":" + sys + "] · " + esc(s.stern.name), tab, "", " id=\"wr-system-box\"");
     }

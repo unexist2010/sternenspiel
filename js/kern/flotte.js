@@ -19,7 +19,8 @@
     { id: "stationieren", name: "Stationieren", text: "Nur Hinflug: Schiffe bleiben auf einem anderen eigenen Planeten." },
     { id: "spionieren", name: "Spionieren", text: "Braucht mindestens eine Spionagesonde. Gegen Testgegner: Spionagebericht (Schiffe + Verteidigung), danach Rückflug." },
     { id: "angriff", name: "Angriff", text: "Greift das Ziel an: gegen Testgegner echter Kampf (Phase 1 Orbit + Phase 2 Boden) mit Kampfbericht und Trümmern; Überlebende fliegen zurück." },
-    { id: "sammeln", name: "Trümmer bergen", text: "Braucht Wracksammler. Sammelt Orbit-Trümmer (Schiffswracks) am Ziel bis zur Ladekapazität der Wracksammler und bringt sie heim. Boden-Schrott gehört immer dem Planetenbesitzer." },
+    { id: "sammeln", name: "Wracksammlung", text: "Nur Wracksammler. Sammelt Orbit-Trümmer (Schiffswracks) an eigenen Koordinaten oder einem fremden Trümmerfeld bis zur Ladekapazität und bringt sie heim. Boden-Schrott gehört immer dem Planetenbesitzer." },
+    { id: "bodensammlung", name: "Bodensammlung", text: "Nur Bodensammler, nur eigene Koordinaten (auch der aktuelle Planet). Sammelt Boden-Schrott (zerstörte Verteidigung) bis zur Ladekapazität und bringt ihn ins Lager." },
     { id: "expedition", name: "Expedition", text: "Braucht Astrophysik. Ziel: Expeditionsraum (Position 13 eines Systems). Hält dort 1…Stufe Stunden – länger = höhere Fundchance (Rohstoffe inkl. Kunststoff T1/T2, Schiffe), Risiko: Piraten, Verzögerung." },
     { id: "unterstuetzen", name: "Unterstützen", text: "Hilft am Ziel bei der Verteidigung (folgt mit Gegnern)." }
   ];
@@ -128,12 +129,15 @@
     else if (!ziel || !D().weltraum.leseKoordinaten(D().weltraum.koordinatenText(ziel))) { r.grund = "Ungültiges Ziel."; return r; }
     if (!mission) { r.grund = "Mission wählen."; return r; }
     var zielEigen = eigenePlaneten(z).filter(function (e) { return gleicheKoord(e, ziel); })[0];
-    if (gleicheKoord(start, ziel)) { r.grund = "Ziel ist der Startplanet."; return r; }
+    var bergung = mission.id === "sammeln" || mission.id === "bodensammlung";
+    if (gleicheKoord(start, ziel) && !bergung) { r.grund = "Ziel ist der Startplanet."; return r; }
     if (mission.id === "kolonisieren" && !schiffe.kolonieschiff) { r.grund = "Kolonisieren braucht ein Kolonieschiff."; return r; }
     if (mission.id === "kolonisieren" && zielEigen) { r.grund = "Planet gehört dir schon."; return r; }
     if (mission.id === "kolonisieren" && SS.kern.kolonie) { var kg = SS.kern.kolonie.pruefe(z, ziel); if (kg) { r.grund = kg; return r; } }
     if (mission.id === "spionieren" && !schiffe.spionagesonde) { r.grund = "Spionieren braucht eine Spionagesonde."; return r; }
-    if (mission.id === "sammeln" && !schiffe.wracksammler) { r.grund = "Trümmer bergen braucht Wracksammler."; return r; }
+    if (mission.id === "sammeln" && (!schiffe.wracksammler || anzahl !== schiffe.wracksammler)) { r.grund = "Wracksammlung: nur Wracksammler (keine anderen Schiffe)."; return r; }
+    if (mission.id === "bodensammlung" && (!schiffe.bodensammler || anzahl !== schiffe.bodensammler)) { r.grund = "Bodensammlung: nur Bodensammler (keine anderen Schiffe)."; return r; }
+    if (mission.id === "bodensammlung" && !zielEigen) { r.grund = "Bodensammlung nur an eigenen Koordinaten."; return r; }
     if (mission.id === "stationieren" && !zielEigen) { r.grund = "Stationieren nur auf einem anderen eigenen Planeten."; return r; }
     if ((mission.id === "angriff") && zielEigen) { r.grund = "Eigene Planeten kann man nicht angreifen."; return r; }
     var dist = entfernung(start, ziel), v = tempo(z, schiffe), master = SS.kern.werft.istMaster(z);
@@ -162,7 +166,8 @@
     z.flottenZaehler = (z.flottenZaehler || 0) + 1;
     var f = { id: "f" + z.flottenZaehler, herkunft: p.id, start: herkunftKoord(z, p), ziel: r.ziel, zielName: auftrag.zielName || (r.zielEigen ? r.zielEigen.name : ""),
       mission: r.mission.id, schiffe: r.schiffe, anzahl: r.anzahl, abflug: jetzt, ankunft: jetzt + r.dauer, rueckkehr: null, phase: "hin",
-      ladung: Object.keys(r.ladung).length ? r.ladung : undefined };
+      ladung: Object.keys(r.ladung).length ? r.ladung : undefined, rohoel: r.rohoel };
+    if (r.mission.id === "angriff" && SS.kern.bergung) SS.kern.bergung.schildAus(p, jetzt); // 0.19.0: kein Angriff aus der Schild-Deckung
     if (r.halten) { f.halten = r.halten; f.halteMs = SS.kern.werft.istMaster(z) ? 0 : r.halten * 3600000; }
     z.flotten.push(f);
     r.flotte = f;
@@ -206,7 +211,13 @@
           meld.push({ art: "flotte", name: m.name, text: "Flotte stationiert auf " + ziel });
           return;
         }
-        if (f.mission !== "expedition") {
+        else if ((f.mission === "sammeln" || f.mission === "bodensammlung") && eigen && SS.kern.bergung) { // 0.19.0 Bergung eigener Planet
+          var gb = SS.kern.bergung.bergeEigen(z, f, planetVonId(z, eigen.id));
+          f.phase = "rueck"; f.rueckkehr = f.ankunft + (f.ankunft - f.abflug);
+          f.bericht = m.name + " bei " + ziel + ": geborgen " + gb.metall + " M / " + gb.silizium + " Si (Rest " + gb.rest.metall + " M / " + gb.rest.silizium + " Si)";
+          meld.push({ art: "flotte", name: m.name, text: f.bericht });
+        }
+        if (f.mission !== "expedition" && f.phase === "hin") {
         // ANNAHME: Ohne Gegner/Kolonien (Weltraum-Kapitel) haben Missionen am Ziel noch keine Wirkung → Rückflug.
         // Transport (Sandro t30u, FEST): Ladung sofort entladen, Flotte kehrt sofort und automatisch zurück.
         // ANNAHME: Rohstoffe sind global (ein Lager je Spieler) → bei eigenem Ziel wieder gutgeschrieben; fremdes Ziel = abgeliefert.

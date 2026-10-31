@@ -229,8 +229,20 @@
     liste.innerHTML = "<div class=\"planeten-kopf\">Planeten <span>" + zustand.planeten.length + "</span></div><ul>" + zustand.planeten.map(function (p, i) {
       var k = planetKoord(p), bild = W.planet(k.system, k.planet);
       return "<li><a href=\"#\" data-planet=\"" + esc(p.id) + "\" class=\"" + (p === ak ? "aktiv" : "") + "\"" + (p === ak ? " aria-current=\"true\"" : "") + ">" + planetBild(bild, "") +
-        "<span><b>" + esc(i === 0 ? zustand.heimat.name : p.name || "Kolonie") + "</b><small>[" + W.koordinatenText(k) + "]" + (i === 0 ? " · Heimat" : "") + "</small></span></a></li>";
+        "<span><b>" + esc(i === 0 ? zustand.heimat.name : p.name || "Kolonie") + schildSymbol(p) + "</b><small>[" + W.koordinatenText(k) + "]" + (i === 0 ? " · Heimat" : "") + "</small></span></a></li>";
     }).join("") + "</ul>";
+  }
+  function schildSymbol(p) { return SS.kern.bergung.schildStatus(p, jetzt()).aktiv ? " <img class=\"schild-symbol\" src=\"assets/icons/schild.svg\" alt=\"Schild\" title=\"Angriffsschild aktiv\" width=\"14\" height=\"14\">" : ""; }
+  /** 0.19.0 (Sandro t52u): Angriffsschild je eigenem Planeten in der Übersicht. */
+  function schildBox() {
+    var t = jetzt(), BG = SS.kern.bergung, S = B.SCHILD;
+    return box("Angriffsschild", "<p class=\"hinweis\">Bonusgegenstand (vorerst frei): wehrt " + S.DAUER_H + " Std. lang jeden Angriff auf den Planeten ohne Kampf ab (keine Verluste, keine Beute). Kosten " + F.zahl(S.KOSTEN_ROHOEL) + " Rohöl, danach " + S.ABKLING_H + " Std. Abklingzeit. Ein eigener Angriff von diesem Planeten beendet den Schild. <span class=\"annahme-marke\">Annahme</span></p>" +
+      "<ul class=\"schild-liste\" id=\"schild-liste\">" + zustand.planeten.map(function (p, i) {
+        var st = BG.schildStatus(p, t), pr = BG.schildPruefe(zustand, p, t), k = planetKoord(p);
+        return "<li data-planet=\"" + esc(p.id) + "\"" + (st.aktiv ? " class=\"aktiv\"" : "") + ">" + planetBild(W.planet(k.system, k.planet), "") + "<span><b>" + esc(i === 0 ? zustand.heimat.name : p.name || "Kolonie") + schildSymbol(p) + "</b><small>[" + W.koordinatenText(k) + "] · " +
+          (st.aktiv ? "aktiv noch " + F.dauer(st.rest) : st.abklingen ? "lädt nach: " + F.dauer(st.rest) : "aus") + "</small></span>" +
+          (st.aktiv ? "" : "<button type=\"button\" class=\"knopf klein\" data-aktion=\"schild-an\" data-id=\"" + esc(p.id) + "\"" + (pr.ok ? "" : " disabled title=\"" + esc(pr.grund) + "\"") + ">🛡 Aktivieren" + (pr.kosten ? " (" + F.zahl(pr.kosten) + " Rohöl)" : "") + "</button>") + "</li>";
+      }).join("") + "</ul>", "", " id=\"schild-box\"");
   }
   function planetKoord(p) { return SS.kern.flotte.herkunftKoord(zustand, p); }
   function aktivInfo() { var p = hp(), k = planetKoord(p); return { sektor: k.sektor, system: k.system, planet: k.planet, name: p === zustand.planeten[0] ? zustand.heimat.name : (p.name || "Kolonie") }; }
@@ -328,6 +340,9 @@
     var m = $("send-mission"), k = $("send-koord"), sel = $("send-ziel");
     if (m) m.value = t[1];
     if (k && t[2]) { k.value = decodeURIComponent(t[2]); if (sel) { sel.value = k.value; if (sel.value !== k.value) sel.value = ""; } }
+    // 0.19.0: Bergung – nur passende Sammler vorauswählen (max)
+    var typ = t[1] === "sammeln" ? "wracksammler" : t[1] === "bodensammlung" ? "bodensammler" : null;
+    if (typ) { Array.prototype.forEach.call(document.querySelectorAll("#inhalt input[data-send-menge]"), function (i) { i.value = i.getAttribute("data-send-menge") === typ ? (hp().schiffe[typ] || 0) : 0; }); FU().aktualisiereSenden(document); }
     if (t[3] === "keine-sonde" && $("send-grund")) meldung("Keine Spionagesonde verfügbar – Mission + Ziel sind vorausgefüllt.", "schlecht");
   }
   /** Spionage aus dem Weltraum: wie OGame sofort 1 Spionagesonde losschicken; sonst Flottenfenster mit Hinweis. */
@@ -384,7 +399,7 @@
     var h = aktivInfo(), pl = W.planet(h.system, h.planet), sys = W.system(h.system);
     var planetBox = box(hp() === zustand.planeten[0] ? "Hauptplanet" : "Kolonie",
       "<div class=\"planet-karte\">" + planetBild(pl, "planet-bild") + "<dl class=\"werte\">" +
-      "<dt>Planet</dt><dd id=\"uebersicht-planet\">" + esc(h.name) + "</dd>" +
+      "<dt>Planet</dt><dd id=\"uebersicht-planet\">" + esc(h.name) + schildSymbol(hp()) + "</dd>" +
       "<dt>Koordinaten</dt><dd><span class=\"koord\" id=\"uebersicht-koordinaten\" title=\"Sektor:System:Planet\">[" + W.koordinatenText(h) + "]</span></dd>" +
       "<dt>Sektor</dt><dd>" + W.sektor(h.sektor).name + "</dd>" +
       "<dt>System</dt><dd>" + h.system + "</dd>" +
@@ -409,7 +424,7 @@
       "<dt>Reicht noch</dt><dd data-live=\"reichweite\"></dd>" +
       "<dt>Nächster Fund in</dt><dd data-live=\"geo-countdown\"></dd></dl>" +
       "<p class=\"hinweis\">Die Bohrstation fördert aus dem Vorkommen; die Geologiestation findet alle 24 Std. ein neues Feld.</p>", "", " id=\"rohoel-box\"");
-    return planetBox + "<div class=\"zwei-spalten\">" + kommandant + bauBox() + "</div><div class=\"zwei-spalten\">" + forschungBox() + WU().auftragBox(false) + "</div><div class=\"zwei-spalten\">" + VU().auftragBox(false) + rohoel + "</div>" + spielstand;
+    return planetBox + "<div class=\"zwei-spalten\">" + kommandant + bauBox() + "</div><div class=\"zwei-spalten\">" + forschungBox() + WU().auftragBox(false) + "</div><div class=\"zwei-spalten\">" + VU().auftragBox(false) + rohoel + "</div>" + schildBox() + spielstand;
   }
 
   function leistungText(obj, vorzeichen) {
@@ -1100,6 +1115,8 @@
     else if (a === "send-planet") { $("send-koord").value = b.getAttribute("data-koord"); $("send-ziel").value = b.getAttribute("data-koord"); if ($("send-mission").value !== "transportieren") $("send-mission").value = "stationieren"; FU().aktualisiereSenden(document); }
     else if (a === "send-expeditionsraum") { setzeExpeditionsraum(true); FU().aktualisiereSenden(document); }
     else if (a === "send-los") sendLos();
+    else if (a === "flotte-rueckruf") { P.tick(zustand, jetzt()); var rr = SS.kern.bergung.rueckruf(zustand, b.getAttribute("data-id"), jetzt()); meldung(rr.ok ? "Flotte zurückgerufen – " + F.zahl(rr.erstattung) + " Rohöl erstattet, Rückkehr in " + F.dauer(rr.rueckkehr - jetzt()) + "." : rr.grund, rr.ok ? "gut" : "schlecht"); speichern(true); route(true); }
+    else if (a === "schild-an") { var sp = zustand.planeten.filter(function (x) { return x.id === b.getAttribute("data-id"); })[0], sr = sp && SS.kern.bergung.schildAktivieren(zustand, sp, jetzt()); meldung(sr && sr.ok ? "Angriffsschild aktiv (" + B.SCHILD.DAUER_H + " Std.)." : (sr ? sr.grund : "Planet fehlt"), sr && sr.ok ? "gut" : "schlecht"); speichern(true); bauePlanetenListe(); route(true); }
     else if (a === "testphase-laden") {
       dialog("Testphase laden?", "<p>Master-Modus wird aktiviert. Flotte, Verteidigung und Flüge des Hauptplaneten werden durch den Test-Seed ersetzt; Testkolonie und zwei Testgegner werden angelegt.</p>", true)
         .then(function (ok) { if (!ok) return; SS.kern.testphase.legeTestphaseAn(zustand, jetzt()); speichern(true); baueMenue(); route(true); meldung("Testphase geladen – Master aktiv", "gut"); });

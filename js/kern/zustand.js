@@ -124,6 +124,7 @@
       neu.koordinaten = { sektor: p.koordinaten.sektor, system: p.koordinaten.system, planet: p.koordinaten.planet };
     if (!istHaupt && p.name) neu.name = String(p.name).slice(0, 24);
     if (!istHaupt && p.kolonie) neu.kolonie = true; // 0.18.0
+    if (p.schild && isFinite(p.schild.bis) && isFinite(p.schild.abklingBis)) neu.schild = { seit: Number(p.schild.seit) || 0, bis: Number(p.schild.bis), abklingBis: Number(p.schild.abklingBis) }; // 0.19.0
     var a = p.bauauftrag;
     if (a && isFinite(a.start) && isFinite(a.ende) && a.kosten && (a.art === "gebaeude" ? SS.DATEN.gebaeudeNachId(a.id) : SS.DATEN.startplatzBuchstaben.indexOf(a.buchstabe) >= 0)) neu.bauauftrag = a;
     return neu;

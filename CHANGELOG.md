@@ -1,5 +1,12 @@
 # Changelog – Sternenspiel
 
+## [0.19.0] – 2026-10-31 – Beute, Rückruf, Angriffsschild, Bergung (Sandro t52u)
+- **Beute** nach gewonnenem Angriff, begrenzt durch den Laderaum der Angreiferflotte (Sammler zählen nicht, mitgeführte Ladung wird abgezogen). Verteilung Metall:Silizium:Rohöl 3:2:1; Kunststoff nur, wenn das Ziel welchen hat: Budget 5 % des Laderaums, T1:T2:T3 = 6:3:1. Max. 50 % des Zielbestands. Kein Strom, keine Antimaterie. Neues Modul `js/kern/bergung.js`, Konstanten `BEUTE`. Beute-Zeile im Kampfbericht. Testgegner haben jetzt Rohstoffe.
+- **Rückruf** fliegender Flotten (Hinflug/Halten) ohne Zusatzkosten: sofortige Umkehr, Rückflug = bereits geflogene Zeit, Rohöl-Erstattung = Anteil der ungeflogenen Hinstrecke (beim Halten 0). Knopf „↩ Rückruf“ in der Flottenliste.
+- **Angriffsschild** (Bonusgegenstand, vorläufig): je eigenem Planeten in der Übersicht aktivierbar, 24 Std. aktiv, 1.000 Rohöl, danach 24 Std. Abklingzeit (Master: gratis, ohne Abklingzeit). Schild-Symbol in Übersicht, Planetenliste und Weltraum. Eigener Angriff vom Planeten beendet den Schild. Hook `angriffBlockiert()` für künftige KI-Angriffe.
+- **Bergung:** Mission „Wracksammlung“ (id `sammeln`, nur Wracksammler, eigene Koordinaten oder fremdes Trümmerfeld) und neue Mission „Bodensammlung“ (nur Bodensammler, nur eigene Koordinaten, Boden-Schrott). Ziel = Startplanet erlaubt. Zwei Symbole auf der Flottenseite und in der Weltraum-Ansicht (Spalte TF) bei Trümmern/Boden-Schrott, Klick öffnet das Sendefenster mit Mission, Koordinaten und passenden Sammlern.
+- Tests: `tests/beute-rueckruf.test.js`; 130/130 grün, alle Playtests grün.
+
 ## [0.18.1] – 2026-10-31 – Hotfix Kolonie-Startplätze
 - **Fix:** Neue Kolonie startet mit Raumflughafen 1 und Startplatz A Stufe 1 – vorher Kapazität 0 („Nur 0 Startplätze frei“), stationierte Flotte konnte nicht starten. Test ergänzt.
 

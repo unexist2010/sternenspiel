@@ -17,6 +17,8 @@
   var gleich = function (a, b) { return a && b && a.sektor === b.sektor && a.system === b.system && a.planet === b.planet; };
   var leerT = function () { return { orbit: { metall: 0, silizium: 0 }, boden: { metall: 0, silizium: 0 } }; };
 
+  var BEUTE_IDS = ["metall", "silizium", "rohoel", "kunststoff_t1", "kunststoff_t2", "kunststoff_t3"];
+  function rs(o) { var r = {}; BEUTE_IDS.forEach(function (id) { var n = Math.floor(Number(o && o[id]) || 0); if (n > 0) r[id] = n; }); return r; }
   function bereinige(liste) {
     return (Array.isArray(liste) ? liste : []).filter(function (x) {
       return x && x.id && D().weltraum.leseKoordinaten(x.sektor + ":" + x.system + ":" + x.planet);
@@ -27,7 +29,7 @@
       var t = leerT();
       if (x.truemmer) ["orbit", "boden"].forEach(function (o) { ["metall", "silizium"].forEach(function (r) { t[o][r] = Math.max(0, Number(x.truemmer[o] && x.truemmer[o][r]) || 0); }); });
       return { id: String(x.id), name: String(x.name || x.id).slice(0, 40), sektor: x.sektor, system: x.system, planet: x.planet,
-        schiffe: sch, verteidigung: def, solarsatelliten: Math.max(0, Math.floor(Number(x.solarsatelliten) || 0)), truemmer: t,
+        schiffe: sch, verteidigung: def, rohstoffe: rs(x.rohstoffe), solarsatelliten: Math.max(0, Math.floor(Number(x.solarsatelliten) || 0)), truemmer: t,
         startplaetze: Array.isArray(x.startplaetze) ? x.startplaetze.filter(function (sp) { return sp && sp.buchstabe; }).map(function (sp) { return { buchstabe: String(sp.buchstabe), stufe: Math.max(0, Math.floor(Number(sp.stufe) || 0)) }; }) : undefined };
     });
   }
@@ -75,6 +77,8 @@
     // t33u: Auto-Bergung – Sieg + überlebende Wracksammler in der Angriffsflotte → Orbit-Trümmer nach Phase 2 einsammeln.
     // Boden-Schrott gehört immer dem Planetenbesitzer (Angreifer kann ihn nie sammeln).
     b.geborgen = (b.sieger === "angreifer" && f.schiffe.wracksammler > 0) ? berge(f, gg) : null;
+    // 0.19.0 (Sandro t52u): Beute nach Sieg – Laderaum der Angreiferflotte, M:Si:Öl 3:2:1, wenig Kunststoff (T1:T2:T3 6:3:1)
+    if (b.sieger === "angreifer" && f.anzahl && SS.kern.bergung) { gg.rohstoffe = gg.rohstoffe || {}; var bt = SS.kern.bergung.pluendere(f, gg.rohstoffe); b.beute = bt.summe ? bt.beute : null; b.beuteKapazitaet = bt.kapazitaet; }
     f.kampfbericht = b; SS.kern.expedition.merkeKampfbericht(z, b);
     return b;
   }
@@ -107,11 +111,11 @@
       var b = angriff(z, f, gg, jetzt);
       var sieg = { angreifer: "Sieg", verteidiger: "Niederlage", unentschieden: "Unentschieden" }[b.sieger];
       return "Angriff auf " + gg.name + ": " + sieg + " – Trümmer Orbit " + b.truemmerOrbit.metall + " M / " + b.truemmerOrbit.silizium + " Si, Boden " + b.schrottBoden.metall + " M / " + b.schrottBoden.silizium + " Si" +
-        (b.geborgen ? " – Orbit geborgen: " + txtG(b.geborgen) : "") + (b.zivil.angreiferVernichtet ? " – Zivilschiffe der Flotte vernichtet" : "");
+        (b.geborgen ? " – Orbit geborgen: " + txtG(b.geborgen) : "") + (b.beute ? " – Beute: " + Object.keys(b.beute).map(function (k) { return b.beute[k] + " " + k; }).join(", ") : "") + (b.zivil.angreiferVernichtet ? " – Zivilschiffe der Flotte vernichtet" : "");
     }
     if (f.mission === "sammeln") {
       var g = berge(f, gg);
-      return "Trümmer bergen bei " + gg.name + ": Orbit geborgen " + txtG(g) + " (Rest Orbit " + txtG(g.restOrbit) + "; Boden-Schrott bleibt beim Besitzer)";
+      return "Wracksammlung bei " + gg.name + ": Orbit geborgen " + txtG(g) + " (Rest Orbit " + txtG(g.restOrbit) + "; Boden-Schrott bleibt beim Besitzer)";
     }
     if (f.mission === "transportieren") return null; // Transport: Standard („abgeliefert“)
     return null;
@@ -159,9 +163,9 @@
     kol.gebaeude.raumflughafen = 1; kol.startplaetze[0].stufe = 1;
     z.gegner = [
       { id: "alpha", name: "Testgegner Alpha", sektor: nb[1].sektor, system: nb[1].system, planet: nb[1].planet,
-        schiffe: { kleine_drohne: 3, aufklaerer: 1 }, verteidigung: { raketenbatterie: 1 }, solarsatelliten: 0, truemmer: leerT() },
+        schiffe: { kleine_drohne: 3, aufklaerer: 1 }, verteidigung: { raketenbatterie: 1 }, solarsatelliten: 0, rohstoffe: { metall: 60000, silizium: 40000, rohoel: 20000, kunststoff_t1: 3000, kunststoff_t2: 1000 }, truemmer: leerT() },
       { id: "beta", name: "Testgegner Beta", sektor: nb[2].sektor, system: nb[2].system, planet: nb[2].planet,
-        schiffe: { kleine_drohne: 1 }, verteidigung: { maschinennest: 2, laserturm: 2 }, solarsatelliten: 0, truemmer: leerT() }
+        schiffe: { kleine_drohne: 1 }, verteidigung: { maschinennest: 2, laserturm: 2 }, solarsatelliten: 0, rohstoffe: { metall: 30000, silizium: 20000, rohoel: 10000 }, truemmer: leerT() }
     ];
     z.flotten = []; // ANNAHME: laufende Flüge verwerfen (sauberer Testbeginn)
     z.favoriten = z.favoriten || [];

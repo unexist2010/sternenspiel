@@ -39,3 +39,12 @@
 - **ANNAHME:** Titan ist von kostengleicher Flotte in einem Kampf nicht zu besiegen (Hülle aus Kostenformel) – ok oder Titan-Hülle senken?
 - **Offen:** Ionengeschütz bleibt schwach (Spezialist gegen Energiehüllen); Schlachtkreuzer Glaskanone mit mehr Angriff als Schlachtschiff; Zerstörer ≈ Kreuzer im Angriff.
 - **ANNAHME:** Verteidigungs-id `magnetkanone` bleibt (Anzeige „Railgun-Turm“) für Spielstand-Kompatibilität.
+
+## 0.19.0 – Beute, Rückruf, Schild, Bergung (t52u)
+- [x] Beute 3:2:1 + Kunststoff 6:3:1 (5 % Budget), Laderaum-Grenze.
+- [x] Rückruf mit anteiliger Rohöl-Erstattung.
+- [x] Bodensammlung / Wracksammlung + Symbole Flotte/Weltraum.
+- [ ] Angriffsschild: Regeln sind ANNAHMEN (24 h, 1.000 Rohöl, 24 h Abklingzeit, Abwehr ohne Kampf, eigener Angriff beendet Schild). Bestätigen: Bezugsquelle des Bonusgegenstands (Shop/Belohnung/Inventar statt frei), Dauer/Kosten, Spionage trotz Schild?
+- [ ] Schild wird erst wirksam, wenn es KI-Angreifer gibt (Hook `SS.kern.bergung.angriffBlockiert`).
+- [ ] Gegner-Rohstoffe sind statisch (Seed); keine Produktion bis zur KI.
+- [ ] Antimaterie bewusst ausgelassen.
