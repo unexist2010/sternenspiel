@@ -16,7 +16,7 @@
   }
 
   // Programmversion: muss mit <html data-version> und den ?v=-Parametern in index.html übereinstimmen (Cache-Schutz).
-  SS.VERSION = "0.24.0";
+  SS.VERSION = "0.24.1";
 
   SS.BALANCE = tiefFrieren({
     // Version des Spielstand-Formats (für Migrationen in späteren Kapiteln)
@@ -49,10 +49,11 @@
     // T3 ab 5.000 Punkten ≈ 5 Mio. verbaute Rohstoffe (zwischen Startplatz I 4.000 und J 6.000) – T3 braucht 1.000 Rohöl je Einheit.
     KUNSTSTOFFWERK_FREISCHALT_PUNKTE: { kunststoffwerk_t2: 500, kunststoffwerk_t3: 5000 },
     // 0.24.0 (Sandro pt72u): Universums-Tempo wie schnellere OGame-Unis. PRODUKTION = Eco-Speed (Minen-, Werks- und
+    // 0.24.1 (Sandro pt74u): auf 5/5/5 angehoben.
     // Grundproduktion ×Faktor; Strom/Ölverbrennung unverändert). BAU/FORSCHUNG = Tempo-Teiler auf Bauzeiten
     // (Gebäude, Startplätze, Werft, Verteidigung) bzw. Forschungszeiten. 1 = OGame-Standard-Uni (bis 0.24.0).
     // Test-Hook: globalThis.SS_WIRTSCHAFT_TEST (nur Node-Tests, damit Formel-Tests auf 1× rechnen können).
-    WIRTSCHAFT: g.SS_WIRTSCHAFT_TEST || { PRODUKTION_FAKTOR: 2, BAU_TEMPO: 2, FORSCHUNG_TEMPO: 2 },
+    WIRTSCHAFT: g.SS_WIRTSCHAFT_TEST || { PRODUKTION_FAKTOR: 5, BAU_TEMPO: 5, FORSCHUNG_TEMPO: 5 },
     WACHSTUM_BASIS: 1.1,             // OGame: Produktion/Verbrauch = basis · Stufe · 1,1^Stufe
     BAUZEIT: {
       TEILER: 2500,                  // OGame: Stunden = (Metall + Kristall) / 2500 → hier (Metall + Silizium) / 2500 (ANNAHME)

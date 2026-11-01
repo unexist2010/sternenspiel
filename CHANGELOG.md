@@ -1,5 +1,11 @@
 # Changelog – Sternenspiel
 
+## [0.24.1] – 2026-11-01 – Universums-Tempo 5× (Sandro pt74u)
+
+- `SS.BALANCE.WIRTSCHAFT` = { PRODUKTION_FAKTOR: 5, BAU_TEMPO: 5, FORSCHUNG_TEMPO: 5 } (vorher 2/2/2): Produktion ×5, Bau-/Werft-/Verteidigungs- und Forschungszeiten ÷5. Strom/Ölverbrennung unverändert.
+- Beispiele: Metallmine 10 = 3.891/h, Bauzeit Metallmine 10 → 13,8 min.
+- Gilt sofort für bestehende Spielstände. Test `wirtschaft.test.js` erwartet nun 5/5/5.
+
 ## [0.24.0] – 2026-11-01 – Universums-Tempo 2× (Sandro pt72u)
 
 - **Bisher = OGame-Standard-Uni (Eco 1×):** Minen 30/20 (Rohöl 15) · n · 1,1^n pro Std., Bauzeit (M+Si)/2500 h – identisch mit OGame Classic.

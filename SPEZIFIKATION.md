@@ -58,4 +58,4 @@
 - **Migration Spielstand v12**: `z.punkte` wird einmalig aus dem Bestand neu berechnet (= Rangliste gesamt, ungerundet). Bereits erreichte Freischaltungen bleiben erhalten.
 
 ## Universums-Tempo (0.24.0, Sandro pt72u)
-- `SS.BALANCE.WIRTSCHAFT`: PRODUKTION_FAKTOR 2 (Eco-Speed: Minen, Kunststoffwerke, Grundproduktion), BAU_TEMPO 2 (Gebäude, Startplätze, Werft, Verteidigung: Zeit ÷2), FORSCHUNG_TEMPO 2 (Forschungszeit ÷2). Strom/Ölverbrennung unverändert. 1/1/1 = OGame-Standard-Uni (Stand bis 0.23.1).
+- `SS.BALANCE.WIRTSCHAFT`: PRODUKTION_FAKTOR 5 (Eco-Speed: Minen, Kunststoffwerke, Grundproduktion), BAU_TEMPO 5 (Gebäude, Startplätze, Werft, Verteidigung: Zeit ÷5), FORSCHUNG_TEMPO 5 (Forschungszeit ÷5); 0.24.0: 2/2/2. Strom/Ölverbrennung unverändert. 1/1/1 = OGame-Standard-Uni (Stand bis 0.23.1).
