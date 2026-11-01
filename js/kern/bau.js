@@ -40,7 +40,7 @@
   /** Bauzeit in ms (OGame: (Metall + Kristall) / 2500 Stunden). */
   function bauzeitMs(kosten, z) {
     var BZ = B().BAUZEIT;
-    var faktor = BZ.FAKTOR * bauzeitFaktorForschung(z);
+    var faktor = BZ.FAKTOR * bauzeitFaktorForschung(z) / B().WIRTSCHAFT.BAU_TEMPO;
     var h = ((kosten.metall || 0) + (kosten.silizium || 0)) / BZ.TEILER * faktor;
     return Math.max(BZ.MIN_SEKUNDEN * 1000, Math.round(h * 3600000));
   }

@@ -41,7 +41,7 @@
   /** Forschungszeit in ms für Kosten k (OGame: (M + K) / (1000 · (1 + Labor))). */
   function dauerMs(z, k) {
     var FO = B().FORSCHUNG;
-    var h = ((k.metall || 0) + (k.silizium || 0)) / (FO.ZEIT_TEILER * (1 + einrichtungStufe(z))) * FO.FAKTOR;
+    var h = ((k.metall || 0) + (k.silizium || 0)) / (FO.ZEIT_TEILER * (1 + einrichtungStufe(z))) * FO.FAKTOR / B().WIRTSCHAFT.FORSCHUNG_TEMPO;
     return Math.max(FO.MIN_SEKUNDEN * 1000, Math.round(h * 3600000));
   }
 

@@ -30,7 +30,7 @@
 
   /** Bauzeit je Einheit in ms. */
   function stueckMs(z, p, s) {
-    var BZ = B().BAUZEIT, h = ((s.kosten.metall || 0) + (s.kosten.silizium || 0)) / (BZ.TEILER * (1 + werftStufe(p))) * BZ.FAKTOR * FO().roboterFaktor(z);
+    var BZ = B().BAUZEIT, h = ((s.kosten.metall || 0) + (s.kosten.silizium || 0)) / (BZ.TEILER * (1 + werftStufe(p))) * BZ.FAKTOR / B().WIRTSCHAFT.BAU_TEMPO * FO().roboterFaktor(z);
     return Math.max(W().MIN_SEKUNDEN * 1000, Math.round(h * 3600000));
   }
   function kostenMal(k, n) { var r = {}; Object.keys(k).forEach(function (id) { r[id] = k[id] * n; }); return r; }

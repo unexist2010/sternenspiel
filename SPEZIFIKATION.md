@@ -56,3 +56,6 @@
 - **Spielerpunkte (`z.punkte`)**: steigen je Fertigstellung (Bau/Forschung/Werft/Verteidigung, auch Master). Basis für Startplatz- und Kunststoffwerk-Freischaltung, KI-Stärke, Expeditions-Fundgrenze, Anzeigen (Übersicht, Planet, Raumflughafen, Forschung).
 - **Rangliste**: Gebäude/Forschung/Flotte/Verteidigung aus aktuellem Bestand mit derselben Formel (verlorene Schiffe zählen nicht); Gesamt = Summe. KI: Gesamt = max(KI-Punkte, Flotte+Verteidigung), KI-Punkte = Spielerpunkte × KI-Faktor.
 - **Migration Spielstand v12**: `z.punkte` wird einmalig aus dem Bestand neu berechnet (= Rangliste gesamt, ungerundet). Bereits erreichte Freischaltungen bleiben erhalten.
+
+## Universums-Tempo (0.24.0, Sandro pt72u)
+- `SS.BALANCE.WIRTSCHAFT`: PRODUKTION_FAKTOR 2 (Eco-Speed: Minen, Kunststoffwerke, Grundproduktion), BAU_TEMPO 2 (Gebäude, Startplätze, Werft, Verteidigung: Zeit ÷2), FORSCHUNG_TEMPO 2 (Forschungszeit ÷2). Strom/Ölverbrennung unverändert. 1/1/1 = OGame-Standard-Uni (Stand bis 0.23.1).

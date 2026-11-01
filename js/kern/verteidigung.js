@@ -24,7 +24,7 @@
   function imBau(p, id) { return auftraege(p).reduce(function (s, a) { return s + (a.id === id ? a.menge - a.fertig : 0); }, 0); }
 
   function stueckMs(z, p, d) {
-    var BZ = B().BAUZEIT, h = ((d.kosten.metall || 0) + (d.kosten.silizium || 0)) / (BZ.TEILER * (1 + vwStufe(p))) * BZ.FAKTOR * FO().roboterFaktor(z);
+    var BZ = B().BAUZEIT, h = ((d.kosten.metall || 0) + (d.kosten.silizium || 0)) / (BZ.TEILER * (1 + vwStufe(p))) * BZ.FAKTOR / B().WIRTSCHAFT.BAU_TEMPO * FO().roboterFaktor(z);
     return Math.max(B().VERTEIDIGUNG.MIN_SEKUNDEN * 1000, Math.round(h * 3600000));
   }
   function kostenMal(k, n) { var r = {}; Object.keys(k).forEach(function (id) { r[id] = k[id] * n; }); return r; }

@@ -492,7 +492,7 @@
     var rohstoffe = box("Rohstoffe – Produktion auf " + esc(aktivInfo().name) + " (Lager gemeinsam)",
       "<div class=\"tabelle-huelle\"><table class=\"tabelle\" id=\"rohstoff-tabelle\"><thead><tr><th>Rohstoff</th><th class=\"z\">Bestand</th><th class=\"z eng-weg\">Produktion/h</th><th class=\"z eng-weg\">Verbrauch/h</th><th class=\"z\">Netto/h</th></tr></thead>" +
       "<tbody>" + zeilen + "</tbody></table></div>" +
-      "<p class=\"hinweis\">Lager unbegrenzt (keine Speichergebäude). Grundproduktion Hauptplanet: Metall " + B.GRUNDPRODUKTION_HAUPTPLANET.metall + ", Silizium " + B.GRUNDPRODUKTION_HAUPTPLANET.silizium + " pro Std. <span class=\"annahme-marke\">Annahme</span></p>" +
+      "<p class=\"hinweis\">Lager unbegrenzt (keine Speichergebäude). Grundproduktion Hauptplanet: Metall " + B.GRUNDPRODUKTION_HAUPTPLANET.metall * B.WIRTSCHAFT.PRODUKTION_FAKTOR + ", Silizium " + B.GRUNDPRODUKTION_HAUPTPLANET.silizium * B.WIRTSCHAFT.PRODUKTION_FAKTOR + " pro Std. <span class=\"annahme-marke\">Annahme</span></p>" +
       "<p class=\"hinweis\">Rohölvorkommen des Planeten: <b data-live=\"vorkommen\"></b> · Förderung <span data-live=\"foerderung\"></span></p>");
     var energie = box("Energiebilanz",
       "<dl class=\"werte\"><dt>Erzeugung</dt><dd data-live=\"strom-erzeugung\"></dd><dt>Bedarf</dt><dd data-live=\"strom-bedarf\"></dd>" +

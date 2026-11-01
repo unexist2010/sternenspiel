@@ -10,8 +10,10 @@ function skriptListe() {
   return [...html.matchAll(/<script src="([^"?]+)(?:\?[^"]*)?"><\/script>/g)].map((m) => m[1]).filter((s) => s !== "js/ui/app.js");
 }
 
-function ladeSpiel() {
+// Standard: Formel-Tests rechnen mit OGame-Standard-Tempo (1×). ladeSpiel({ echt: true }) lädt die Live-Werte (0.24.0: 2×).
+function ladeSpiel(opt = {}) {
   const ctx = { console, Intl, Date, Math, JSON };
+  if (!opt.echt) ctx.SS_WIRTSCHAFT_TEST = { PRODUKTION_FAKTOR: 1, BAU_TEMPO: 1, FORSCHUNG_TEMPO: 1 };
   ctx.globalThis = ctx;
   vm.createContext(ctx);
   for (const datei of skriptListe()) {

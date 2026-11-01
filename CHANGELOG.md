@@ -1,5 +1,15 @@
 # Changelog – Sternenspiel
 
+## [0.24.0] – 2026-11-01 – Universums-Tempo 2× (Sandro pt72u)
+
+- **Bisher = OGame-Standard-Uni (Eco 1×):** Minen 30/20 (Rohöl 15) · n · 1,1^n pro Std., Bauzeit (M+Si)/2500 h – identisch mit OGame Classic.
+- **Neu `SS.BALANCE.WIRTSCHAFT`** = { PRODUKTION_FAKTOR: 2, BAU_TEMPO: 2, FORSCHUNG_TEMPO: 2 } – wie ein schnelleres OGame-Uni (Eco 2×, Bau/Forschung 2×):
+  - Produktion ×2: Minen (Metall, Silizium, Bohrstation), Kunststoffwerke, Grundproduktion (Hauptplanet 60/30). Strom und Ölverbrennung unverändert (Energie wie OGame nicht vom Eco-Speed betroffen); Rohölvorkommen-Grenze bleibt.
+  - Bauzeiten ÷2: Gebäude, Startplätze, Werft, Verteidigung. Forschungszeiten ÷2.
+  - Beispiele: Metallmine 10 = 1.556/h (vorher 778), Bauzeit Metallmine 10 → 34,6 min (vorher 69,2 min).
+- Gilt sofort auch für bestehende Spielstände (keine Migration nötig; laufende Aufträge behalten ihre Endzeit).
+- Tests: Formel-Tests rechnen über `ladeSpiel()` weiter mit 1× (Test-Hook `SS_WIRTSCHAFT_TEST`), neu `tests/wirtschaft.test.js` (3) prüft die Live-Werte – 161/161.
+
 ## [0.23.1] – 2026-11-01 – Punkte: 1 Punkt = 1.000 Rohstoffe (Sandro t68u)
 
 - **Punkteformel vereinheitlicht:** 1 Punkt je 1.000 verbrauchte Rohstoffe, **ungewichtet** – Metall, Silizium, Rohöl, Kunststoff T1–T3 und Antimaterie zählen 1:1 (vorher Kunststoff ×2/×4/×8, Antimaterie ×10). Strom zählt nicht.

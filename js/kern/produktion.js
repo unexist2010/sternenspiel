@@ -48,6 +48,7 @@
     var verfuegbar = function (id) { return dtH ? Math.max(0, st[id] || 0) / dtH : Infinity; };
     var grund = (p.istHauptplanet || p.kolonie) ? B().GRUNDPRODUKTION_HAUPTPLANET : {}; // 0.18.0: Kolonien wie OGame mit Grundproduktion
     var info = {};
+    var eco = B().WIRTSCHAFT.PRODUKTION_FAKTOR; // 0.24.0: Eco-Speed (Minen, Werke, Grundproduktion)
     var eFaktor = SS.kern.forschung ? SS.kern.forschung.energieFaktor(z) : 1; // Energie-Technologie (Kapitel 3, wirkt jetzt)
 
     // Grundwerte bei voller Leistung
@@ -58,7 +59,7 @@
       if (d.stromBedarf) { var b = wachstum(d.stromBedarf, n) * rr; bedarf += b; info[d.id].strom = -b; }
       if (d.stromErzeugt && !d.verbrauch) { var e = wachstum(d.stromErzeugt, n) * rr * eFaktor; stromFix += e; info[d.id].strom = e; }
       if (d.verbrauch) { brennStrom = wachstum(d.stromErzeugt, n) * rr * eFaktor; brennRohoel = wachstum(d.verbrauch.rohoel, n) * rr; }
-      if (d.erzeugt) minen[d.id] = { rohstoff: d.erzeugt.rohstoff, menge: wachstum(d.erzeugt.basis, n) * rr };
+      if (d.erzeugt) minen[d.id] = { rohstoff: d.erzeugt.rohstoff, menge: wachstum(d.erzeugt.basis, n) * rr * eco };
     });
     var sat = (p.solarsatelliten || 0) * B().SOLARSATELLIT_ENERGIE * r("solarsatellit") * eFaktor;
     stromFix += sat;
@@ -73,7 +74,7 @@
     }
 
     var prod = leer(), verb = leer();
-    Object.keys(grund).forEach(function (id) { prod[id] += grund[id]; });
+    Object.keys(grund).forEach(function (id) { prod[id] += grund[id] * eco; });
     Object.keys(minen).forEach(function (id) {
       var m = minen[id].menge * f;
       if (id === "bohrstation" && m > bohrMax) { m = bohrMax; info[id].vorkommenGrenze = true; }
@@ -89,7 +90,7 @@
     var werke = G.filter(function (d) { return d.werk && stufe(d.id) > 0; });
     var bedarfIn = {};
     werke.forEach(function (d) {
-      var einh = wachstum(d.werk.basis, stufe(d.id)) * r(d.id) * f;
+      var einh = wachstum(d.werk.basis, stufe(d.id)) * r(d.id) * eco * f;
       Object.keys(d.werk.input).forEach(function (res) { bedarfIn[res] = (bedarfIn[res] || 0) + d.werk.input[res] * einh; });
     });
     var anteil = {};
@@ -100,7 +101,7 @@
     werke.forEach(function (d) {
       var a = 1;
       Object.keys(d.werk.input).forEach(function (res) { a = Math.min(a, anteil[res]); });
-      var einh = wachstum(d.werk.basis, stufe(d.id)) * r(d.id) * f * a;
+      var einh = wachstum(d.werk.basis, stufe(d.id)) * r(d.id) * eco * f * a;
       info[d.id].faktor = f * a;
       prod[d.werk.ausgabe] += einh; info[d.id].erzeugt[d.werk.ausgabe] = einh;
       Object.keys(d.werk.input).forEach(function (res) { var m = d.werk.input[res] * einh; verb[res] += m; info[d.id].verbraucht[res] = m; });
